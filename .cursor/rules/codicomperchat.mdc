@@ -1,0 +1,12 @@
+---
+description: CodiComperChat 에이전트 규칙 (정본 어댑터)
+alwaysApply: true
+---
+
+정본은 `.agents/skills/codicomperchat/SKILL.md`다. 이 규칙은 요약이며, 어긋나면 정본이 이긴다.
+
+- **§0 원본 보존 원칙**: 루트 `CodiComperChat_project_plan.md`는 기획 원본이다. 사용자 승인 없이 설계/워딩/구조를 수정·삭제하지 않는다.
+- 커밋 메시지: type/scope 영어, **요약·본문·바닥글은 한국어**. (구버전 규칙 "제목 영어만"은 드리프트이니 따르지 않는다.)
+- 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식 기록 필수.
+- 브랜치: `feature/*`에서 작업, `develop`/`main` 합류는 `git merge --no-ff`만. FF·force-push·`.env` 커밋 금지.
+- 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`). 프론트는 FastAPI 직접 호출 금지. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
