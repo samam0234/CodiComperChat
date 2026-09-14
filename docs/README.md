@@ -4,7 +4,7 @@
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재 이 저장소에는 아직 코드(`apps/`, `services/`)가 없다. 아래 문서 중 상당수는 "지금 이렇게 동작한다"가 아니라 **계획서 기준의 목표/템플릿**이며, 그렇게 표시해 두었다. 코드가 생기면 해당 문서를 실제 값으로 갱신한다.
+> 현재 구현된 것은 `apps/web`(Next.js) 전역 셸뿐이다. `apps/api`, `services/ai`, DB/Redis/Docker는 아직 없다. 아래 문서 중 상당수는 "지금 이렇게 동작한다"가 아니라 **계획서 기준의 목표/템플릿**이며, 그렇게 표시해 두었다.
 
 ---
 
@@ -41,13 +41,13 @@ docs/
 
 ## 앱과 포트 (계획 §7.3, 포트는 미확정)
 
-| 앱 | 스택 | 위치(예정) | 포트(제안·미확정) |
-|----|------|-----------|-------------------|
-| web | Next.js (TSX) | `apps/web/` | 3000 |
-| api | Nest.js (TypeScript) | `apps/api/` | 4000 |
-| ai | FastAPI (Python) | `services/ai/` | 8000 |
-| DB | PostgreSQL | — | 5432 |
-| 캐시/잡 | Redis | — | 6379 |
+| 앱 | 스택 | 위치 | 포트 | 상태 |
+|----|------|------|------|------|
+| web | Next.js 16 (TSX) | `apps/web/` | 3000 | 전역 셸 구현됨 |
+| api | Nest.js (TypeScript) | `apps/api/` | 4000(제안) | 미착수 |
+| ai | FastAPI (Python) | `services/ai/` | 8000(제안) | 미착수 |
+| DB | PostgreSQL | — | 5432(제안) | 미착수 |
+| 캐시/잡 | Redis | — | 6379(제안) | 미착수 |
 
 정본: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
 

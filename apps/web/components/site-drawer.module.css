@@ -1,0 +1,103 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: default;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(300px, 82vw);
+  height: 100%;
+  background: var(--background);
+  border-left: 1px solid var(--border);
+  transform: translateX(100%);
+  transition: transform 0.22s ease;
+}
+
+.root[data-open] {
+  pointer-events: auto;
+}
+
+.root[data-open] .backdrop {
+  opacity: 1;
+}
+
+.root[data-open] .panel {
+  transform: translateX(0);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 12px 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.closeButton:hover {
+  background: var(--surface);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 2px;
+}
+
+.navLink {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.navLink:hover {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.navLink[aria-current="page"] {
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .panel {
+    transition: none;
+  }
+}
