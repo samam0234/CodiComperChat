@@ -6,7 +6,7 @@
 
 | 영역 | 값 |
 |------|-----|
-| 프론트 | Next.js (React, TSX) — `apps/web/` |
+| 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` **구현 시작됨** |
 | 도메인/상태 API | Nest.js (TypeScript) — `apps/api/` |
 | AI 추론 | FastAPI (Python) — `services/ai/` |
 | DB | PostgreSQL (1순위) |
@@ -23,11 +23,21 @@
 - 과금 수치
 - 영문 표기 `CodiComperChat` 유지 여부
 
-## 포트 (제안값 — 미확정, 코드에서 임의로 다르게 정하지 말고 여기서 먼저 갱신)
+## 스캐폴딩 단계에서 확정된 것 (2026-09-15)
 
-| 서비스 | 제안 포트 | 확정 여부 |
+| 영역 | 값 | 비고 |
+|------|-----|------|
+| 모노레포 도구 | npm workspaces (`workspaces: ["apps/*"]`) | 루트 `package.json`. `services/ai`는 Python이라 워크스페이스 밖 |
+| Node | v24 / npm 11에서 동작 확인 | 버전 고정(`engines`)은 아직 안 함 |
+| 스타일링 | **CSS Modules** (Next.js 내장) | Tailwind 등 외부 CSS 프레임워크는 도입하지 않음 — 추가 의존성 없이 시작 |
+| 폰트 | 시스템 폰트 스택 (Pretendard → Apple SD Gothic Neo → Malgun Gothic → …) | `next/font/google` 제거: 빌드 시 네트워크 의존 제거 |
+| 전역 셸 | 헤더 / 우측 드로어 / 푸터 | [NAVIGATION_IA.md](NAVIGATION_IA.md) |
+
+## 포트
+
+| 서비스 | 포트 | 확정 여부 |
 |--------|-----------|-----------|
-| Next.js (`apps/web`) | 3000 | 미정 |
+| Next.js (`apps/web`) | 3000 | **확정** (Next 기본값, `npm run dev:web`으로 기동 확인) |
 | Nest.js (`apps/api`) | 4000 | 미정 |
 | FastAPI (`services/ai`) | 8000 | 미정 |
 | PostgreSQL | 5432 | 미정 |

@@ -50,6 +50,14 @@
 - `.codex/AGENTS.md`, `.codex/skills/codicomperchat/SKILL.md`
 - `.antigravity/AGENTS.md`
 
+### 도구가 자동 생성하는 파일 (우리 규칙 아님, 손대지 말 것)
+
+| 경로 | 생성 주체 | 성격 |
+|------|-----------|------|
+| `apps/web/AGENTS.md`, `apps/web/CLAUDE.md` | `next dev` (Next.js 16) | 해당 Next 버전의 주의사항 안내. 지우면 다시 생성되므로 변경분은 그대로 커밋한다 |
+
+이 파일들은 **작업 방식(커밋/브랜치/문서) 규칙이 아니다.** 프레임워크 사용법만 다루므로 이 정본과 충돌하지 않으며, 충돌하는 것처럼 보이면 이 정본이 이긴다. 손으로 고치지 않는다.
+
 규칙을 고칠 때는 **정본(이 문서) + 루트 `AGENTS.md`를 먼저** 수정하고, 어댑터들은 그에 맞춰 동기화한다.
 
 에이전트가 커밋 전에 열어야 할 문서 순서: 이 스킬 → `commit-message.md` → `branch-merge.md` → `TEMPLATE.md` → (백엔드/AI 작업이면) `docs/plan/CURRENT_STACK.md` → 관련 API/도메인 문서

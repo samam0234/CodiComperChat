@@ -4,7 +4,7 @@
 
 | 서비스 | 제안 포트 | 확정 여부 |
 |--------|-----------|-----------|
-| Next.js (`apps/web`) | 3000 | 미정 |
+| Next.js (`apps/web`) | 3000 | **확정** (`npm run dev:web`) |
 | Nest.js (`apps/api`) | 4000 | 미정 |
 | FastAPI (`services/ai`, 내부 전용) | 8000 | 미정 |
 | PostgreSQL | 5432 | 미정 |

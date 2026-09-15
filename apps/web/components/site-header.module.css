@@ -1,0 +1,83 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--header-height);
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.brand {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.navLink {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.menuButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 0 9px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.menuButton:hover {
+  background: var(--surface);
+}
+
+.menuBar {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--foreground);
+}
+
+@media (max-width: 480px) {
+  .inner {
+    gap: 12px;
+  }
+
+  .navLink {
+    padding: 8px 8px;
+  }
+}
