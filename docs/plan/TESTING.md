@@ -1,14 +1,23 @@
-# 테스트 전략 (제안)
+# 테스트 전략
 
-> 상태: **테스트 코드·러너 미착수.** 아래는 스택(Next.js/Nest.js/FastAPI)의 표준 도구를 기준으로 한 제안이며, 실제 도입 시 이 문서를 갱신한다. 계획서에 테스트 전략이 별도로 없으므로 스택 관례를 따른 것 — 새로운 사실을 지어내지 않되, "제안"임을 명시한다.
+> 상태: **`apps/api`만 러너가 실재.** `apps/web`과 `services/ai`는 아직 테스트 설정이 없다.
 
-## 앱별 제안 도구
+## 앱별 도구
 
-| 앱 | 도구(제안) | 계층 |
-|----|-----------|------|
-| `apps/web` (Next.js) | 컴포넌트 테스트 + (선택) e2e | UI 회귀 |
-| `apps/api` (Nest.js) | Nest 기본 Jest (unit + e2e) | 컨트롤러/서비스/DTO |
-| `services/ai` (FastAPI) | pytest | 라우트/컨텍스트 조립/요약 파싱 |
+| 앱 | 도구 | 상태 | 계층 |
+|----|------|------|------|
+| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — e2e 2건 통과 | 컨트롤러/서비스/DTO |
+| `apps/web` (Next.js) | 컴포넌트 테스트 + (선택) e2e | 미도입 | UI 회귀 |
+| `services/ai` (FastAPI) | pytest | 미착수 | 라우트/컨텍스트 조립/요약 파싱 |
+
+> Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
+
+## 명령
+
+```bash
+npm run test:api        # vitest 단위 테스트
+npm run test:api:e2e    # vitest e2e (앱을 띄워 라우트 확인)
+```
 
 ## 자동 테스트보다 먼저 확인해야 하는 것 — 플레이테스트 시트 (계획서 §14)
 

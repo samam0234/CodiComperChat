@@ -1,32 +1,36 @@
 # API 문서 (경계 초안)
 
-> 상태: **초안 — 코드 미착수.** 실제 요청/응답 스키마는 Nest DTO·Prisma·FastAPI Pydantic 모델이 생기면 채운다. 지금은 계획서 §13에서 합의된 **경계**만 고정한다. 상세 DB는 [plan/DATABASE.md](plan/DATABASE.md), 인터랙티브 문서는 각 앱이 뜨면 Nest는 Swagger, FastAPI는 `/docs`로 대체될 예정.
+> 상태: **라우트 뼈대만 존재.** `GET /health`를 제외한 모든 엔드포인트는 라우팅만 되어 있고 **501 Not Implemented**를 반환한다. 요청/응답 스키마는 Prisma 스키마와 DTO가 생기면 채운다. 상세 DB는 [plan/DATABASE.md](plan/DATABASE.md).
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
-## Base (미확정 — plan/CURRENT_STACK.md 참고)
+## Base
 
-| 앱 | Base URL(제안) |
-|----|-----------------|
-| api (Nest.js) | `http://localhost:4000` |
-| ai (FastAPI, 내부 전용) | `http://localhost:8000` (Nest만 호출, 웹은 직접 호출 금지) |
+| 앱 | Base URL | 상태 |
+|----|----------|------|
+| api (Nest.js) | `http://localhost:4000` | 기동 확인됨 (`npm run dev:api`) |
+| ai (FastAPI, 내부 전용) | `http://localhost:8000`(제안) | 미착수. Nest만 호출, 웹은 직접 호출 금지 |
 
 ## Nest.js — 웹이 치는 엔드포인트
 
-| 메서드/경로 | 용도 |
-|-------------|------|
-| `POST /auth/*` | 로그인·세션 |
-| `GET /characters` | 발행된 공식 캐릭터 목록 |
-| `POST /campaigns` | 캠페인 시작 |
-| `GET /campaigns/:id` | 상태 포함 캠페인 조회 |
-| `POST /campaigns/:id/sessions` | 세션 열기 |
-| `POST /campaigns/:id/messages` | 유저 메시지 전송 + 스트림 응답 |
-| `POST /campaigns/:id/sessions/:sid/close` | 세션 종료·요약 트리거 |
-| `GET /campaigns/:id/logbook` | 회차 목록 |
-| `POST /studio/characters` | 캐릭터 초안 생성 |
-| `PATCH /studio/characters/:id` | 캐릭터 초안 수정 |
-| `POST /studio/characters/:id/test` | 3턴 테스트 |
-| `POST /studio/characters/:id/publish` | 발행 (필수 필드·붕괴 검사 통과 시) |
+| 메서드/경로 | 용도 | 현재 |
+|-------------|------|------|
+| `GET /health` | 헬스체크 | **200** `{ status, service, timestamp }` |
+| `POST /auth/login` | 로그인 | 501 (인증 벤더 미정) |
+| `POST /auth/logout` | 로그아웃 | 501 |
+| `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
+| `POST /campaigns` | 캠페인 시작 | 501 |
+| `GET /campaigns/:id` | 상태 포함 캠페인 조회 | 501 |
+| `POST /campaigns/:id/sessions` | 세션 열기 | 501 |
+| `POST /campaigns/:id/messages` | 유저 메시지 전송 + 스트림 응답 | 501 (컨텍스트 조립 + FastAPI `/infer` 중계 자리) |
+| `POST /campaigns/:id/sessions/:sessionId/close` | 세션 종료·요약 트리거 | 501 (`/summarize` 결과를 CampaignState에 머지하는 자리) |
+| `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
+| `POST /studio/characters` | 캐릭터 초안 생성 | 501 |
+| `PATCH /studio/characters/:id` | 캐릭터 초안 수정 | 501 |
+| `POST /studio/characters/:id/test` | 3턴 테스트 | 501 (`/critique-test` 호출 자리) |
+| `POST /studio/characters/:id/publish` | 발행 (필수 필드·붕괴 검사 통과 시) | 501 |
+
+> 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 
 ## FastAPI — Nest만 내부에서 호출 (웹은 알 필요 없음)
 

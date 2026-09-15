@@ -7,7 +7,7 @@
 | 영역 | 값 |
 |------|-----|
 | 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` **구현 시작됨** |
-| 도메인/상태 API | Nest.js (TypeScript) — `apps/api/` |
+| 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` **구현 시작됨** |
 | AI 추론 | FastAPI (Python) — `services/ai/` |
 | DB | PostgreSQL (1순위) |
 | 세션 캐시·잡 | Redis |
@@ -32,13 +32,17 @@
 | 스타일링 | **CSS Modules** (Next.js 내장) | Tailwind 등 외부 CSS 프레임워크는 도입하지 않음 — 추가 의존성 없이 시작 |
 | 폰트 | 시스템 폰트 스택 (Pretendard → Apple SD Gothic Neo → Malgun Gothic → …) | `next/font/google` 제거: 빌드 시 네트워크 의존 제거 |
 | 전역 셸 | 헤더 / 우측 드로어 / 푸터 | [NAVIGATION_IA.md](NAVIGATION_IA.md) |
+| api 모듈 시스템 | **ESM** (`"type": "module"`, `module: nodenext`) | 상대 import에 `.js` 확장자 필수 — Nest 12 기본값 |
+| api 테스트 | **vitest** (unit + e2e 설정 분리) | Nest 12가 Jest 대신 vitest로 생성 |
+| api 린트 | **oxlint** | Nest 12 기본값 (ESLint 아님) |
+| api 배포 도구 | `@nestjs/mau` **제거함** | 미사용 devDependency이면서 취약점 5건(undici/tmp)의 유일한 출처였음. 배포는 Docker 계획 |
 
 ## 포트
 
 | 서비스 | 포트 | 확정 여부 |
 |--------|-----------|-----------|
 | Next.js (`apps/web`) | 3000 | **확정** (Next 기본값, `npm run dev:web`으로 기동 확인) |
-| Nest.js (`apps/api`) | 4000 | 미정 |
+| Nest.js (`apps/api`) | 4000 | **확정** (`PORT` env로 덮어쓰기 가능, `npm run dev:api`) |
 | FastAPI (`services/ai`) | 8000 | 미정 |
 | PostgreSQL | 5432 | 미정 |
 | Redis | 6379 | 미정 |

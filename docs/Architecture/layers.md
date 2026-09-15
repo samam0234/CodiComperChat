@@ -1,16 +1,21 @@
 # 계층 구조
 
-상태: **코드 미착수 — 목표 계층.** 구현이 시작되면 실제 모듈 경로로 이 문서를 갱신한다 (`docs/plan/HARDCODING_ZONES.md`와 함께).
+상태: **`apps/api`는 Controller → Service까지 실재, Repository 계층은 Prisma 도입 시 추가.**
 
 ## Nest.js (`apps/api`)
 
 ```text
 Controller → Service → Repository (Prisma) → PostgreSQL
+   ↑ 실재      ↑ 실재(전부 501)   ↑ 아직 없음
 ```
 
 - Controller: 인증·DTO 검증만. 비즈니스 로직 금지
 - Service: 컨텍스트 조립, 캠페인 상태 머지, FastAPI 프록시 호출
 - Repository/Prisma: DB 접근만
+
+현재 모듈: `health`(유일하게 200), `auth`, `characters`, `campaigns`, `studio`. 컨트롤러는 전부 서비스에만 위임하고, 서비스는 `NotImplementedException`을 던진다 — 계층 방향은 처음부터 지키고 내용만 비워둔 상태다.
+
+아직 없는 것: DTO/`ValidationPipe`(class-validator 도입 시), Repository, 인증 가드, CORS 설정(웹이 실제로 API를 호출할 때 추가).
 
 ## FastAPI (`services/ai`)
 
