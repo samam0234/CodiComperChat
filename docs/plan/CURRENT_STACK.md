@@ -39,6 +39,8 @@
 | ai Python | **3.12.10** | `py -3.12`로 생성한 `services/ai/.venv`. 3.10도 설치되어 있으나 사용하지 않음 |
 | ai 의존성 | `services/ai/requirements.txt` (fastapi 0.141.1, uvicorn[standard] 0.53.0) | 실제 설치본을 고정. npm workspaces 밖이라 루트 `npm install`로 안 깔림 |
 | ai 학습 API | `/train`은 **코드에서 403으로 차단** | 미구현이 아니라 v1 정책 (기획서 7.7장) |
+| 통신 필드명 | **camelCase** (프론트·Nest·FastAPI 공통) | 기획서 7.5장의 "세 곳이 같은 뼈대를 공유" 요구. ai는 `WireModel`이 변환, 파이썬 내부는 snake_case |
+| ai Repository 계층 | **두지 않음 (의도적)** | FastAPI는 DB를 직접 보지 않는다 (기획서 7.4장). DB 접근은 `apps/api`(Prisma)에만 |
 
 ## 포트
 

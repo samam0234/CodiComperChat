@@ -83,6 +83,12 @@ services/ai/
 │   │   ├── summarize.py     # POST /summarize
 │   │   ├── critique_test.py # POST /critique-test
 │   │   └── train.py         # POST /train, GET /train/{job_id} — 403 정책 차단
+│   ├── schemas/             # 요청/응답 계약 (Pydantic)
+│   │   ├── base.py          # WireModel — 통신은 camelCase (기획서 7.5장)
+│   │   ├── context.py       # Nest가 넘기는 컨텍스트 슬라이스
+│   │   ├── infer.py
+│   │   ├── summarize.py     # SummarizeResponse = 기획서 13.4장 형태
+│   │   └── critique.py
 │   └── services/
 │       ├── inference.py
 │       ├── summarization.py
@@ -92,7 +98,9 @@ services/ai/
 └── .venv/                   # git 제외
 ```
 
-**주의:** 미구현 라우트는 `NoReturn`을 반환하므로 데코레이터에 `response_model=None`이 필요하다. 없으면 FastAPI가 `NoReturn`으로 응답 스키마를 만들려다 기동 자체에 실패한다.
+**Repository 계층이 없는 것은 의도적이다.** FastAPI는 DB를 직접 보지 않는다 (기획서 §7.4). 자세한 이유는 [../Architecture/layers.md](../Architecture/layers.md) 참고.
+
+**주의:** 응답 모델이 없는 미구현 라우트는 `NoReturn`을 반환하므로 데코레이터에 `response_model=None`이 필요하다. 없으면 FastAPI가 `NoReturn`으로 응답 스키마를 만들려다 기동 자체에 실패한다. 반대로 `response_model`을 명시한 라우트(`/summarize`, `/critique-test`)는 그대로 두면 된다.
 
 `docker-compose.yml`은 아직 없다. 생기면 이 문서를 갱신한다 — 임의로 구조를 정하고 이 문서 갱신을 건너뛰지 않는다.
 

@@ -33,7 +33,18 @@ python3.12 -m venv .venv                    # macOS/Linux
 
 `/train`의 403은 미구현이 아니라 정책이다. v1은 자체 가중치 학습을 하지 않고 경로만 설계에 남긴다 (기획서 §7.7).
 
+## 계층
+
+```text
+app/schemas/   요청·응답 계약 (Pydantic)
+app/routes/    라우팅과 검증
+app/services/  프롬프트 조립·판정 로직
+```
+
+**Repository 계층은 없다. 일부러 없는 것이다** — FastAPI는 원본 DB를 직접 보지 않고, 추론에 필요한 슬라이스는 Nest가 조립해서 넘긴다 (기획서 §7.4). DB 접근 계층은 `apps/api`(Prisma)에만 둔다. 없어서 빠뜨린 줄 알고 추가하지 말 것.
+
 ## 주의
 
 - 이 서비스는 npm workspaces 밖이다 (Python). 루트 `npm install`로 설치되지 않는다.
-- 원본 DB에 직접 접근하지 않는다. 추론에 필요한 슬라이스는 Nest가 조립해서 넘긴다 (기획서 §7.4).
+- 통신 필드명은 **camelCase**다 (`app/schemas/base.py`의 `WireModel`). 프론트·Nest와 뼈대를 공유하기 위한 것이다 (기획서 §7.5).
+- 미구현이라도 본문 검증은 작동한다. 잘못된 본문은 422, 올바른 본문은 501이 나온다.
