@@ -18,5 +18,6 @@
 | 2026-09-15 | `b01ff11` | feature/api-scaffold | Nest.js 라우트 뼈대와 모듈 구조 추가 | [260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md](commits/260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md) |
 | 2026-09-15 | `2459d57` | develop (merge) | feature/api-scaffold → develop 병합 (--no-ff) | [260915_2221_2459d57_merge-api-scaffold_develop.md](commits/260915_2221_2459d57_merge-api-scaffold_develop.md) |
 | 2026-09-15 | `448b009` | feature/ai-scaffold | FastAPI 추론 서비스 라우트 뼈대 추가 | [260915_2228_448b009_ai-route-skeleton_feature-ai-scaffold.md](commits/260915_2228_448b009_ai-route-skeleton_feature-ai-scaffold.md) |
+| 2026-09-15 | `8a17251` | feature/ai-scaffold | 요청·응답 스키마 계층 추가 | [260915_2255_8a17251_ai-schema-layer_feature-ai-scaffold.md](commits/260915_2255_8a17251_ai-schema-layer_feature-ai-scaffold.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
