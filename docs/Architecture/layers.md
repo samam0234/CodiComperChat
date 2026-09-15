@@ -21,11 +21,16 @@ Controller → Service → Repository (Prisma) → PostgreSQL
 
 ```text
 Route (/infer, /summarize, /critique-test) → Service → LLM 클라이언트
+   ↑ 실재                                      ↑ 실재(전부 501)   ↑ 아직 없음
 ```
 
-- Route: 요청 검증, 스트림 응답 배선만
-- Service: 프롬프트 조립 마무리, 디렉터 체크, 요약 구조화
+- Route: 요청 검증, 스트림 응답 배선만 (`app/routes/`)
+- Service: 프롬프트 조립 마무리, 디렉터 체크, 요약 구조화 (`app/services/`)
 - 원본 DB에 직접 접근하지 않는다 — Nest가 조립한 슬라이스만 받는다 (계획서 §7.4)
+
+`/train`은 서비스 계층이 없다. v1 정책상 라우트에서 바로 403으로 닫는다 (계획서 §7.7).
+
+아직 없는 것: 요청/응답 Pydantic 모델, LLM 클라이언트, 서비스 토큰 인증(계획서 §7.8), 테스트(pytest).
 
 ## 공통 원칙
 

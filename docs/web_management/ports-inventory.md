@@ -6,7 +6,7 @@
 |--------|-----------|-----------|
 | Next.js (`apps/web`) | 3000 | **확정** (`npm run dev:web`) |
 | Nest.js (`apps/api`) | 4000 | **확정** (`PORT` env로 변경 가능) |
-| FastAPI (`services/ai`, 내부 전용) | 8000 | 미정 |
+| FastAPI (`services/ai`, 내부 전용) | 8000 | **확정** (uvicorn `--port 8000`) |
 | PostgreSQL | 5432 | 미정 |
 | Redis | 6379 | 미정 |
 

@@ -1,6 +1,6 @@
 # 프로젝트 구조 (기획)
 
-정본: `CodiComperChat_project_plan.md` §7.3. 상태: **`apps/web`·`apps/api` 구현 시작, `services/ai`는 목표 구조.**
+정본: `CodiComperChat_project_plan.md` §7.3. 상태: **세 앱 모두 뼈대 구현 시작됨. `docker-compose.yml`만 미착수.**
 
 ## 모노레포 최상위
 
@@ -11,7 +11,7 @@ repo/
 │   ├── web/           # Next.js (React, TSX) — 구현 시작됨
 │   └── api/           # Nest.js (TypeScript, ESM) — 구현 시작됨
 ├── services/
-│   └── ai/            # FastAPI (Python) — 미착수. 워크스페이스 밖(Python)
+│   └── ai/            # FastAPI (Python 3.12) — 구현 시작됨. 워크스페이스 밖
 └── docker-compose.yml # 미착수
 ```
 
@@ -69,7 +69,32 @@ apps/api/
 
 **ESM 주의:** `"type": "module"`이라 상대 import에 `.js` 확장자를 붙여야 한다 (`./app.module.js`). TS 파일을 가리키더라도 `.js`로 쓴다.
 
-`services/ai`(FastAPI 라우터 분리)의 내부 구조는 **아직 정해지지 않았다.** 스캐폴딩이 생기면 이 문서를 갱신한다 — 임의로 구조를 정하고 이 문서 갱신을 건너뛰지 않는다.
+## `services/ai` 현재 구조
+
+라우터와 서비스를 분리한다 (`Route → Service → LLM 클라이언트`).
+
+```text
+services/ai/
+├── app/
+│   ├── main.py              # FastAPI 인스턴스, 라우터 등록
+│   ├── routes/
+│   │   ├── health.py        # GET /health — 유일하게 실제 동작
+│   │   ├── infer.py         # POST /infer
+│   │   ├── summarize.py     # POST /summarize
+│   │   ├── critique_test.py # POST /critique-test
+│   │   └── train.py         # POST /train, GET /train/{job_id} — 403 정책 차단
+│   └── services/
+│       ├── inference.py
+│       ├── summarization.py
+│       └── critique.py
+├── requirements.txt
+├── README.md
+└── .venv/                   # git 제외
+```
+
+**주의:** 미구현 라우트는 `NoReturn`을 반환하므로 데코레이터에 `response_model=None`이 필요하다. 없으면 FastAPI가 `NoReturn`으로 응답 스키마를 만들려다 기동 자체에 실패한다.
+
+`docker-compose.yml`은 아직 없다. 생기면 이 문서를 갱신한다 — 임의로 구조를 정하고 이 문서 갱신을 건너뛰지 않는다.
 
 ## 문서와 코드의 관계
 

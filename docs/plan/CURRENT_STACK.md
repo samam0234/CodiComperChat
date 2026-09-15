@@ -8,7 +8,7 @@
 |------|-----|
 | 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` **구현 시작됨** |
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` **구현 시작됨** |
-| AI 추론 | FastAPI (Python) — `services/ai/` |
+| AI 추론 | FastAPI (Python 3.12) — `services/ai/` **구현 시작됨** |
 | DB | PostgreSQL (1순위) |
 | 세션 캐시·잡 | Redis |
 | ORM | Prisma (Nest 쪽) |
@@ -36,6 +36,9 @@
 | api 테스트 | **vitest** (unit + e2e 설정 분리) | Nest 12가 Jest 대신 vitest로 생성 |
 | api 린트 | **oxlint** | Nest 12 기본값 (ESLint 아님) |
 | api 배포 도구 | `@nestjs/mau` **제거함** | 미사용 devDependency이면서 취약점 5건(undici/tmp)의 유일한 출처였음. 배포는 Docker 계획 |
+| ai Python | **3.12.10** | `py -3.12`로 생성한 `services/ai/.venv`. 3.10도 설치되어 있으나 사용하지 않음 |
+| ai 의존성 | `services/ai/requirements.txt` (fastapi 0.141.1, uvicorn[standard] 0.53.0) | 실제 설치본을 고정. npm workspaces 밖이라 루트 `npm install`로 안 깔림 |
+| ai 학습 API | `/train`은 **코드에서 403으로 차단** | 미구현이 아니라 v1 정책 (기획서 7.7장) |
 
 ## 포트
 
@@ -43,7 +46,7 @@
 |--------|-----------|-----------|
 | Next.js (`apps/web`) | 3000 | **확정** (Next 기본값, `npm run dev:web`으로 기동 확인) |
 | Nest.js (`apps/api`) | 4000 | **확정** (`PORT` env로 덮어쓰기 가능, `npm run dev:api`) |
-| FastAPI (`services/ai`) | 8000 | 미정 |
+| FastAPI (`services/ai`) | 8000 | **확정** (uvicorn `--port 8000`) |
 | PostgreSQL | 5432 | 미정 |
 | Redis | 6379 | 미정 |
 
