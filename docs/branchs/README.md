@@ -16,5 +16,6 @@
 | 2026-09-15 | `884633c` | feature/monorepo-scaffold | 전역 셸(헤더·드로어·푸터)과 라우트 뼈대 추가 | [260915_0455_884633c_web-app-shell_feature-monorepo-scaffold.md](commits/260915_0455_884633c_web-app-shell_feature-monorepo-scaffold.md) |
 | 2026-09-15 | `29cf966` | develop (merge) | feature/monorepo-scaffold → develop 병합 (--no-ff) | [260915_1847_29cf966_merge-monorepo-scaffold_develop.md](commits/260915_1847_29cf966_merge-monorepo-scaffold_develop.md) |
 | 2026-09-15 | `b01ff11` | feature/api-scaffold | Nest.js 라우트 뼈대와 모듈 구조 추가 | [260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md](commits/260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md) |
+| 2026-09-15 | `2459d57` | develop (merge) | feature/api-scaffold → develop 병합 (--no-ff) | [260915_2221_2459d57_merge-api-scaffold_develop.md](commits/260915_2221_2459d57_merge-api-scaffold_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
