@@ -1,15 +1,15 @@
-import PagePlaceholder from "@/components/page-placeholder";
+import AgentChat from "./agent-chat";
+import styles from "./page.module.css";
 
 export default function AgentsPage() {
   return (
-    <PagePlaceholder
-      title="에이전트"
-      description="AI 챗봇 사용을 돕는 가이드와 프롬프트 추천이 놓일 자리입니다."
-      items={[
-        "AI 챗봇 사용 가이드 (처음 쓰는 사람용 안내)",
-        "상황별 프롬프트 추천",
-        "자주 묻는 질문",
-      ]}
-    />
+    <section>
+      <h1 className={styles.title}>에이전트</h1>
+      <p className={styles.description}>
+        코디컴퍼챗 사용법과 프롬프트를 물어보는 AI 챗봇입니다.
+      </p>
+
+      <AgentChat />
+    </section>
   );
 }
