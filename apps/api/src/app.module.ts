@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AgentChatModule } from './agent-chat/agent-chat.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CampaignsModule } from './campaigns/campaigns.module.js';
 import { CharactersModule } from './characters/characters.module.js';
@@ -14,6 +15,7 @@ import { StudioModule } from './studio/studio.module.js';
     CharactersModule,
     CampaignsModule,
     StudioModule,
+    AgentChatModule,
   ],
 })
 export class AppModule {}
