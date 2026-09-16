@@ -25,5 +25,6 @@
 | 2026-09-16 | `77c4328` | develop (merge) | feature/prisma-schema → develop 병합 (--no-ff) | [260916_1940_77c4328_merge-prisma-schema_develop.md](commits/260916_1940_77c4328_merge-prisma-schema_develop.md) |
 | 2026-09-16 | `43d501b` | feature/character-seed | 공식 캐릭터 seed와 발행 목록 조회 구현 | [260916_1941_43d501b_character-seed-and-list_feature-character-seed.md](commits/260916_1941_43d501b_character-seed-and-list_feature-character-seed.md) |
 | 2026-09-16 | `6ae5ef7` | develop (merge) | feature/character-seed → develop 병합 (--no-ff) | [260916_1942_6ae5ef7_merge-character-seed_develop.md](commits/260916_1942_6ae5ef7_merge-character-seed_develop.md) |
+| 2026-09-16 | `e8721fa` | develop (merge) | feature/ai-scaffold → develop 병합 (--no-ff) | [260916_1953_e8721fa_merge-ai-scaffold_develop.md](commits/260916_1953_e8721fa_merge-ai-scaffold_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
