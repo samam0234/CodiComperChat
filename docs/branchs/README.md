@@ -35,5 +35,6 @@
 | 2026-09-16 | `821d58a` | feature/agent-chat | 에이전트 챗봇 UI와 메시지 중계 경로 추가 | [260916_2028_821d58a_agent-chat_feature-agent-chat.md](commits/260916_2028_821d58a_agent-chat_feature-agent-chat.md) |
 | 2026-09-16 | `4300294` | develop (merge) | feature/agent-chat → develop 병합 (--no-ff) | [260916_2029_4300294_merge-agent-chat_develop.md](commits/260916_2029_4300294_merge-agent-chat_develop.md) |
 | 2026-09-16 | `144adf8` | fix/character-role-badge | 캐릭터 배지를 role 값 대신 공식으로 표시 | [260916_2044_144adf8_character-role-badge_fix-character-role-badge.md](commits/260916_2044_144adf8_character-role-badge_fix-character-role-badge.md) |
+| 2026-09-16 | `b1fbb02` | develop (merge) | fix/character-role-badge → develop 병합 (--no-ff) | [260916_2045_b1fbb02_merge-character-role-badge_develop.md](commits/260916_2045_b1fbb02_merge-character-role-badge_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
