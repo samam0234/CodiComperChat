@@ -17,10 +17,18 @@
 }
 
 .card {
+  display: block;
+  height: 100%;
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .cardHead {
