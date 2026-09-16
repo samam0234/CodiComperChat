@@ -43,5 +43,6 @@
 | 2026-09-16 | `6f86d67` | feature/character-chat-web | 캐릭터 상세에 시작하기 버튼과 채팅 화면 추가 | [260916_2055_6f86d67_character-chat-web_feature-character-chat-web.md](commits/260916_2055_6f86d67_character-chat-web_feature-character-chat-web.md) |
 | 2026-09-16 | `0570167` | develop (merge) | feature/character-chat-web → develop 병합 (--no-ff) | [260916_2055_0570167_merge-character-chat-web_develop.md](commits/260916_2055_0570167_merge-character-chat-web_develop.md) |
 | 2026-09-16 | `36c5dc5` | fix/web-lan-dev-origin | LAN IP로 접속 시 HMR 차단되는 문제 해결 | [260916_2126_36c5dc5_web-lan-dev-origin_fix-web-lan-dev-origin.md](commits/260916_2126_36c5dc5_web-lan-dev-origin_fix-web-lan-dev-origin.md) |
+| 2026-09-16 | `6bf36e0` | develop (merge) | fix/web-lan-dev-origin → develop 병합 (--no-ff) | [260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md](commits/260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
