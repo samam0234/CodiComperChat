@@ -61,7 +61,9 @@
 
 ## API 경계 (계획서 §13.1, §13.2)
 
-- Nest가 밖으로 여는 것: `/auth/*`, `/characters`, `/campaigns`, `/campaigns/:id/messages`, `/campaigns/:id/sessions*`, `/campaigns/:id/logbook`, `/studio/*`
+- Nest가 밖으로 여는 것: `/auth/*`, `/characters`, `/characters/:id`, `/campaigns`, `/campaigns/:id/messages`, `/campaigns/:id/sessions*`, `/campaigns/:id/logbook`, `/studio/*`
+  - `/characters/:id`는 계획서 §13.1 목록에 없는 신규 경로다 (캐릭터 상세 화면용). 계획서 갱신 때 §0 원칙에 따라 반영 여부 확인 필요
+  - 두 캐릭터 경로 모두 `secret`·`secretUnlockCondition`을 응답에서 제외한다 (§13.3)
 - FastAPI가 안으로만 여는 것: `/infer`, `/summarize`, `/critique-test`, `/train` (v1은 막아 둠)
 
 ## 핵심 도메인 (계획서 §7.5, 테이블명 확정은 Prisma 단계)
