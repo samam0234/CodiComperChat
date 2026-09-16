@@ -78,7 +78,7 @@ export default async function CharacterList({
           <Link href={`/characters/${character.id}`} className={styles.card}>
             <div className={styles.cardHead}>
               <span className={styles.name}>{character.name}</span>
-              <span className={styles.role}>{character.role}</span>
+              <span className={styles.role}>공식</span>
             </div>
             <p className={styles.oneLiner}>{character.oneLiner}</p>
             {character.profile && (

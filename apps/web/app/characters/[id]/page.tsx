@@ -82,7 +82,7 @@ export default async function CharacterDetailPage({
 
       <header className={styles.header}>
         <h1 className={styles.name}>{character.name}</h1>
-        <span className={styles.role}>{character.role}</span>
+        <span className={styles.role}>공식</span>
       </header>
       <p className={styles.oneLiner}>{character.oneLiner}</p>
 
