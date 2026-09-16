@@ -5,3 +5,7 @@ from app.schemas.context import ContextSlice
 class InferRequest(WireModel):
     context: ContextSlice
     user_turn: str
+
+
+class InferResponse(WireModel):
+    reply: str
