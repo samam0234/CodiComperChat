@@ -125,6 +125,10 @@ export default async function CharacterDetailPage({
           비밀과 해금 조건은 공개하지 않습니다. 캠페인을 진행하며 조건을 만족하면 드러납니다.
         </p>
       </section>
+
+      <Link href={`/characters/${character.id}/chat`} className={styles.startButton}>
+        {character.name}와 대화 시작하기
+      </Link>
     </article>
   );
 }

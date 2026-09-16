@@ -111,6 +111,22 @@
   color: var(--muted);
 }
 
+.startButton {
+  display: block;
+  margin-top: 32px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #ffffff;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.startButton:hover {
+  opacity: 0.9;
+}
+
 @media (max-width: 560px) {
   .settingItem {
     grid-template-columns: 1fr;
