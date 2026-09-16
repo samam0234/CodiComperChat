@@ -31,5 +31,6 @@
 | 2026-09-16 | `66096b0` | feature/character-detail-api | 캐릭터 상세 조회 추가와 비밀 필드 응답 제외 | [260916_2023_66096b0_character-detail-api_feature-character-detail-api.md](commits/260916_2023_66096b0_character-detail-api_feature-character-detail-api.md) |
 | 2026-09-16 | `441b825` | develop (merge) | feature/character-detail-api → develop 병합 (--no-ff) | [260916_2024_441b825_merge-character-detail-api_develop.md](commits/260916_2024_441b825_merge-character-detail-api_develop.md) |
 | 2026-09-16 | `ffb513a` | feature/character-detail-web | 캐릭터 상세 페이지와 카드 링크 추가 | [260916_2026_ffb513a_character-detail-web_feature-character-detail-web.md](commits/260916_2026_ffb513a_character-detail-web_feature-character-detail-web.md) |
+| 2026-09-16 | `abe8473` | develop (merge) | feature/character-detail-web → develop 병합 (--no-ff) | [260916_2026_abe8473_merge-character-detail-web_develop.md](commits/260916_2026_abe8473_merge-character-detail-web_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
