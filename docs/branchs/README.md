@@ -18,5 +18,6 @@
 | 2026-09-15 | `b01ff11` | feature/api-scaffold | Nest.js 라우트 뼈대와 모듈 구조 추가 | [260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md](commits/260915_1856_b01ff11_api-route-skeleton_feature-api-scaffold.md) |
 | 2026-09-15 | `2459d57` | develop (merge) | feature/api-scaffold → develop 병합 (--no-ff) | [260915_2221_2459d57_merge-api-scaffold_develop.md](commits/260915_2221_2459d57_merge-api-scaffold_develop.md) |
 | 2026-09-16 | `82d5fe9` | feature/character-card | 공식 캐릭터 유지성 카드 추가 | [260916_1937_82d5fe9_character-card-yujisung_feature-character-card.md](commits/260916_1937_82d5fe9_character-card-yujisung_feature-character-card.md) |
+| 2026-09-16 | `8be7b6d` | develop (merge) | feature/character-card → develop 병합 (--no-ff) | [260916_1938_8be7b6d_merge-character-card_develop.md](commits/260916_1938_8be7b6d_merge-character-card_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
