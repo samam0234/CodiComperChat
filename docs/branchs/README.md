@@ -38,5 +38,6 @@
 | 2026-09-16 | `b1fbb02` | develop (merge) | fix/character-role-badge → develop 병합 (--no-ff) | [260916_2045_b1fbb02_merge-character-role-badge_develop.md](commits/260916_2045_b1fbb02_merge-character-role-badge_develop.md) |
 | 2026-09-16 | `c98fcec` | feature/infer-llm | /infer에 실제 LLM 호출 연결 | [260916_2049_c98fcec_infer-llm_feature-infer-llm.md](commits/260916_2049_c98fcec_infer-llm_feature-infer-llm.md) |
 | 2026-09-16 | `4532028` | develop (merge) | feature/infer-llm → develop 병합 (--no-ff) | [260916_2049_4532028_merge-infer-llm_develop.md](commits/260916_2049_4532028_merge-infer-llm_develop.md) |
+| 2026-09-16 | `3ee5ff1` | feature/character-chat-relay | 캐릭터 카드를 ContextSlice로 변환해 /infer 중계 | [260916_2052_3ee5ff1_character-chat-relay_feature-character-chat-relay.md](commits/260916_2052_3ee5ff1_character-chat-relay_feature-character-chat-relay.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
