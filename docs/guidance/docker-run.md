@@ -25,9 +25,10 @@ docker compose up -d postgres
 ```bash
 cd apps/api
 npm run prisma:migrate    # 최초 1회: 마이그레이션 생성 + 적용
+npm run prisma:seed       # 공식 캐릭터 seed (현재: 유지성)
 ```
 
-기대 결과: `users` `characters` `campaigns` `campaign_states` `sessions` `messages` 6개 테이블 생성.
+기대 결과: `users` `characters` `campaigns` `campaign_states` `sessions` `messages` 6개 테이블 생성 + `characters`에 `published = true`인 유지성 row 1개. `GET /characters` (Nest API 기동 후)가 이 row를 반환한다.
 
 ### 알려진 이슈: `prisma generate`가 "Could not resolve @prisma/client"로 실패할 때
 
