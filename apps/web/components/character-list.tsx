@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./character-list.module.css";
 
 type CharacterProfile = {
@@ -73,31 +74,33 @@ export default async function CharacterList({
   return (
     <ul className={styles.grid}>
       {result.characters.map((character) => (
-        <li key={character.id} className={styles.card}>
-          <div className={styles.cardHead}>
-            <span className={styles.name}>{character.name}</span>
-            <span className={styles.role}>{character.role}</span>
-          </div>
-          <p className={styles.oneLiner}>{character.oneLiner}</p>
-          {character.profile && (
-            <dl className={styles.profile}>
-              {PROFILE_FIELDS.map(({ key, label, suffix }) => {
-                const value = character.profile?.[key];
-                if (value === undefined || value === null || value === "") {
-                  return null;
-                }
-                return (
-                  <div key={key} className={styles.profileItem}>
-                    <dt className={styles.profileLabel}>{label}</dt>
-                    <dd>
-                      {value}
-                      {suffix}
-                    </dd>
-                  </div>
-                );
-              })}
-            </dl>
-          )}
+        <li key={character.id}>
+          <Link href={`/characters/${character.id}`} className={styles.card}>
+            <div className={styles.cardHead}>
+              <span className={styles.name}>{character.name}</span>
+              <span className={styles.role}>{character.role}</span>
+            </div>
+            <p className={styles.oneLiner}>{character.oneLiner}</p>
+            {character.profile && (
+              <dl className={styles.profile}>
+                {PROFILE_FIELDS.map(({ key, label, suffix }) => {
+                  const value = character.profile?.[key];
+                  if (value === undefined || value === null || value === "") {
+                    return null;
+                  }
+                  return (
+                    <div key={key} className={styles.profileItem}>
+                      <dt className={styles.profileLabel}>{label}</dt>
+                      <dd>
+                        {value}
+                        {suffix}
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            )}
+          </Link>
         </li>
       ))}
     </ul>
