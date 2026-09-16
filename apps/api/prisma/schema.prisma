@@ -1,0 +1,123 @@
+// 코디컴퍼챗 Prisma 스키마
+// 원본: CodiComperChat_project_plan.md §10 2번 "Prisma 스키마: User, Character, Campaign, Session, Message, State"
+// 테이블명 확정은 Prisma 단계에서 한다 (계획서 §7.5). 여기서는 core 6모델만 다룬다.
+// LoreEntry / MemoryChunk는 §10 2번 범위 밖 — 이후 단계에서 추가한다.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 연결 문자열은 schema.prisma가 아니라 prisma.config.ts에서 관리한다 (Prisma 7)
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  displayName String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  campaigns   Campaign[]
+
+  @@map("users")
+}
+
+/// 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.
+model Character {
+  id                    String   @id @default(cuid())
+  name                  String   @unique
+  oneLiner              String
+  role                  String
+  addressing            String
+  personalityAxes       String
+  speechStyle           String
+  knows                 String
+  unknown               String
+  goal                  String
+  conflictSeed          String
+  secret                String
+  secretUnlockCondition String
+  openingScene          String
+  /// 신체·직업 등 카드 밖 부가 프로필. 캐릭터마다 있을 수도, 없을 수도 있다
+  profile               Json?
+  published             Boolean    @default(false)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  campaigns             Campaign[]
+
+  @@map("characters")
+}
+
+enum CampaignStatus {
+  ACTIVE
+  CLOSED
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  characterId String
+  character   Character      @relation(fields: [characterId], references: [id])
+  title       String
+  status      CampaignStatus @default(ACTIVE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  state       CampaignState?
+  sessions    Session[]
+
+  @@map("campaigns")
+}
+
+/// §13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑
+model CampaignState {
+  id                  String   @id @default(cuid())
+  campaignId          String   @unique
+  campaign            Campaign @relation(fields: [campaignId], references: [id])
+  relationshipValue   Int      @default(0)
+  relationshipNote    String?
+  openHooks           Json     @default("[]")
+  unlockedSecrets     Json     @default("[]")
+  briefForNextSession String?
+  updatedAt           DateTime @updatedAt
+
+  @@map("campaign_states")
+}
+
+enum SessionStatus {
+  OPEN
+  CLOSED
+}
+
+model Session {
+  id           String        @id @default(cuid())
+  campaignId   String
+  campaign     Campaign      @relation(fields: [campaignId], references: [id])
+  index        Int
+  status       SessionStatus @default(OPEN)
+  startedAt    DateTime      @default(now())
+  closedAt     DateTime?
+  summaryBrief String?
+  messages     Message[]
+
+  @@unique([campaignId, index])
+  @@map("sessions")
+}
+
+enum MessageRole {
+  USER
+  CHARACTER
+  SYSTEM
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   Session     @relation(fields: [sessionId], references: [id])
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+
+  @@map("messages")
+}

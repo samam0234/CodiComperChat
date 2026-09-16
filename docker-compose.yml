@@ -1,0 +1,17 @@
+# 로컬 postgres만 다룬다. web/api/ai 컨테이너화와 redis 추가는
+# 계획서 line 372(§ compose로 web/api/ai/postgres/redis 통합)의 나머지 범위 — 별도 작업.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codicomperchat
+      POSTGRES_PASSWORD: codicomperchat
+      POSTGRES_DB: codicomperchat
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
