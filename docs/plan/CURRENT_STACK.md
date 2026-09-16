@@ -11,8 +11,8 @@
 | AI 추론 | FastAPI (Python) — `services/ai/` |
 | DB | PostgreSQL (1순위) |
 | 세션 캐시·잡 | Redis |
-| ORM | Prisma (Nest 쪽) |
-| 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `services/ai`, `docker-compose.yml`) |
+| ORM | Prisma (Nest 쪽) — `apps/api/prisma/schema.prisma` **구현 시작됨** |
+| 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `services/ai`, `docker-compose.yml` — 현재 `postgres`만 포함, web/api/ai 컨테이너화는 미완 · [docker-run.md](../guidance/docker-run.md)) |
 
 ## 아직 열린 항목 (계획서 §15 "아직 열린 것")
 
@@ -44,8 +44,8 @@
 | Next.js (`apps/web`) | 3000 | **확정** (Next 기본값, `npm run dev:web`으로 기동 확인) |
 | Nest.js (`apps/api`) | 4000 | **확정** (`PORT` env로 덮어쓰기 가능, `npm run dev:api`) |
 | FastAPI (`services/ai`) | 8000 | 미정 |
-| PostgreSQL | 5432 | 미정 |
-| Redis | 6379 | 미정 |
+| PostgreSQL | 5432 | **확정** (`docker-compose.yml`의 `postgres` 서비스) |
+| Redis | 6379 | 미정 (아직 compose에 없음) |
 
 ## 역할 분리 원칙 (계획서 §7.1, 위반 금지)
 
@@ -62,6 +62,10 @@
 ## 핵심 도메인 (계획서 §7.5, 테이블명 확정은 Prisma 단계)
 
 `User` `Character` `LoreEntry` `Campaign` `CampaignState` `Session` `Message` `MemoryChunk`
+
+`apps/api/prisma/schema.prisma`에 6개 반영됨(`users` `characters` `campaigns` `campaign_states` `sessions` `messages`, 계획서 §10 2번 범위). `LoreEntry`·`MemoryChunk`는 아직 스키마 밖 — 로어·장기기억 단계에서 추가.
+
+DB 연결: Prisma 7부터 `schema.prisma`가 아니라 `apps/api/prisma.config.ts`(CLI용) + `PrismaService`의 `@prisma/adapter-pg` 드라이버 어댑터(런타임용)로 관리. 실행 방법은 [docker-run.md](../guidance/docker-run.md) 참고.
 
 ## v1 범위 밖 (계획서 §9.2, 에이전트가 임의로 구현 확장 금지)
 
