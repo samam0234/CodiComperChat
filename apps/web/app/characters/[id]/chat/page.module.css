@@ -1,0 +1,23 @@
+.back {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.back:hover {
+  color: var(--foreground);
+}
+
+.title {
+  margin-top: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
