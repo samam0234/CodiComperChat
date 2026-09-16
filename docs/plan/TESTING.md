@@ -8,7 +8,7 @@
 |----|------|------|------|
 | `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — e2e 2건 통과 | 컨트롤러/서비스/DTO |
 | `apps/web` (Next.js) | 컴포넌트 테스트 + (선택) e2e | 미도입 | UI 회귀 |
-| `services/ai` (FastAPI) | pytest | 미착수 | 라우트/컨텍스트 조립/요약 파싱 |
+| `services/ai` (FastAPI) | pytest | 미도입 (앱은 있으나 테스트 설정 없음) | 라우트/컨텍스트 조립/요약 파싱 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
 
