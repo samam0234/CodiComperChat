@@ -1,0 +1,71 @@
+.notice {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.card {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.role {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.oneLiner {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.profile {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.profileItem {
+  display: flex;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.profileLabel {
+  color: var(--muted);
+}
