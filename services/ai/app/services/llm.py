@@ -1,26 +1,20 @@
-"""Gemini 호출 공통부. 키 확인·재시도·오류 변환을 한곳에서 한다."""
+"""로컬 Ollama 호출 공통부. 서버 상태 확인·오류 변환을 한곳에서 한다."""
 
 import os
 
+import httpx
 from fastapi import HTTPException
 
-try:
-    from google import genai
-    from google.genai import errors as genai_errors
-    from google.genai import types
-except ImportError:  # pragma: no cover - requirements.txt에 있어야 정상
-    genai = genai_errors = types = None  # type: ignore[assignment]
-
-# 모델 이름은 Google이 발급한 정확한 코드여야 한다. "gemini-3-flash"는 존재하지 않아 404가 난다.
-# 신규 최신판(3.8 등)은 수요가 몰려 503이 잦아 안정판 3.6을 기본으로 둔다
-DEFAULT_MODEL = "gemini-3.6-flash"
+# 로컬에 pull된 모델 태그. 확인: `ollama list`
+DEFAULT_MODEL = "gemma4:e4b"
+DEFAULT_BASE_URL = "http://localhost:11434"
 
 Contents = list[dict[str, object]]
 
 
 def turn(role: str, text: str) -> dict[str, object]:
-    """role은 Gemini 규칙대로 'user' 또는 'model'."""
-    return {"role": role, "parts": [{"text": text}]}
+    """role은 'user' 또는 'model'(기존 호출부 표기) — Ollama 형식(user/assistant)으로 변환한다."""
+    return {"role": "assistant" if role == "model" else role, "content": text}
 
 
 def generate(
@@ -31,55 +25,48 @@ def generate(
     temperature: float | None = None,
     response_json_schema: dict | None = None,
 ) -> str:
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if genai is None or not api_key:
-        raise HTTPException(
-            status_code=503,
-            detail="호스티드 LLM이 연결되지 않았다. GEMINI_API_KEY 환경변수를 설정하면 실제로 응답한다.",
-        )
+    base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
+    model = os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
 
-    # 신규 모델은 수요 급증으로 503이 간헐적으로 난다 — 한 턴이 바로 실패하지 않게 짧게 재시도한다.
-    # 429(요청 한도)는 재시도하면 한도만 더 깎이므로 재시도 대상에서 뺀다
-    client = genai.Client(
-        api_key=api_key,
-        http_options=types.HttpOptions(
-            retry_options=types.HttpRetryOptions(
-                attempts=4,
-                initial_delay=1.0,
-                max_delay=8.0,
-                http_status_codes=[500, 503, 504],
-            )
-        ),
-    )
+    messages: list[dict[str, object]] = [{"role": "system", "content": system}, *contents]
+    options: dict[str, object] = {"num_predict": max_output_tokens}
+    if temperature is not None:
+        options["temperature"] = temperature
 
-    # Gemini 3.x는 thinking 토큰도 출력 한도에 포함된다 — 짧은 답에는 LOW로 충분하고 잘림도 막는다
-    config = types.GenerateContentConfig(
-        system_instruction=system,
-        max_output_tokens=max_output_tokens,
-        temperature=temperature,
-        thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW),
-    )
+    payload: dict[str, object] = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        # gemma4는 thinking 모델이라 꺼 두지 않으면 num_predict를 생각 과정이 다 먹어
+        # 본문이 빈 채로 잘린다("done_reason": "length")
+        "think": False,
+        "options": options,
+    }
     if response_json_schema is not None:
-        config.response_mime_type = "application/json"
-        config.response_json_schema = response_json_schema
+        payload["format"] = response_json_schema
 
     try:
-        response = client.models.generate_content(
-            model=os.environ.get("GEMINI_MODEL", DEFAULT_MODEL),
-            contents=contents,
-            config=config,
-        )
-    except genai_errors.APIError as exc:
-        if exc.code == 429:
+        response = httpx.post(f"{base_url}/api/chat", json=payload, timeout=120.0)
+        response.raise_for_status()
+    except httpx.ConnectError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"로컬 Ollama 서버({base_url})에 연결할 수 없다. `ollama serve`가 실행 중인지, "
+            f"`ollama list`에 '{model}' 모델이 있는지 확인한다.",
+        ) from exc
+    except httpx.HTTPStatusError as exc:
+        detail = exc.response.text
+        if exc.response.status_code == 404:
             raise HTTPException(
-                status_code=429,
-                detail="지금 요청이 몰려 잠시 쉬는 중이에요. 1분쯤 뒤에 다시 시도해 주세요.",
+                status_code=502,
+                detail=f"모델 '{model}'을 찾을 수 없다. `ollama pull {model}`로 먼저 받는다.",
             ) from exc
-        raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {exc}") from exc
+        raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {detail}") from exc
 
-    if not response.text:
+    text = response.json().get("message", {}).get("content", "")
+    if not text:
         raise HTTPException(
             status_code=502,
-            detail="LLM이 빈 응답을 돌려줬다 (안전 필터 차단이거나 출력 토큰 한도 초과일 수 있다).",
+            detail="LLM이 빈 응답을 돌려줬다 (출력 토큰 한도 초과일 수 있다).",
         )
-    return response.text
+    return text

@@ -19,7 +19,7 @@
 - 정확한 세계관 장르
 - 첫 공식 캐릭터 이름·설정 본문 — 유지성, `docs/plan/CHARACTERS.md` 카드 원고를 Prisma seed(`apps/api/prisma/seed.mjs`)로 로컬 DB에 반영 완료(`GET /characters` 확인함, 2026-09-16). 세부 설정(비밀·갈등 씨앗 방향)은 사용자 확정 대기
 - 인증 벤더 — 외부 벤더는 미정. 대신 **자체 이메일·비밀번호 로그인**을 구현했다 (2026-09-25 사용자 지시, 기획서 §7.8 "v1은 이메일 또는 소셜 하나면 충분"의 이메일 쪽). Nest `apps/api/src/auth`(scrypt + HS256 JWT, 키 `AUTH_SECRET`), 웹은 httpOnly `session` 쿠키. 소셜 로그인을 붙일 때를 위해 `users.passwordHash`는 nullable
-- 호스티드 LLM 벤더 — **개발 중에는 Google Gemini Flash를 쓴다** (2026-09-25 사용자 지시). 제품 차원의 벤더 확정은 아직이라 `docs/plan/AI_MODEL_STRATEGY.md` 정책은 유지한다. `services/ai/app/services/inference.py`가 `google-genai` SDK로 `gemini-3.6-flash`(env `GEMINI_MODEL`로 변경)를 호출한다 — `GEMINI_API_KEY`가 없으면 503을 돌려주고 아무 벤더도 호출하지 않는다. 벤더가 최종 확정되면 여러 벤더를 선택 가능하게 리팩터링할지 판단한다
+- 호스티드 LLM 벤더 — **개발 중에는 로컬 Ollama(`gemma4:e4b`)를 쓴다** (2026-09-26 사용자 지시, Google Gemini Flash에서 교체). 제품 차원의 벤더 확정은 아직이라 `docs/plan/AI_MODEL_STRATEGY.md` 정책은 유지한다. `services/ai/app/services/llm.py`가 `httpx`로 로컬 Ollama의 `/api/chat`(기본 `http://localhost:11434`, env `OLLAMA_BASE_URL`/`OLLAMA_MODEL`로 변경)을 호출한다 — 서버가 안 떠 있으면 503을 돌려주고 아무 벤더도 호출하지 않는다. 벤더가 최종 확정되면 여러 벤더를 선택 가능하게 리팩터링할지 판단한다
 - 과금 수치
 - 영문 표기 `CodiComperChat` 유지 여부
 
@@ -64,7 +64,7 @@
 - Nest가 밖으로 여는 것: `/auth/*`, `/characters`, `/characters/:id`, `/campaigns`, `/campaigns/:id/messages`, `/campaigns/:id/sessions*`, `/campaigns/:id/logbook`, `/studio/*`
   - `/characters/:id`는 계획서 §13.1 목록에 없는 신규 경로다 (캐릭터 상세 화면용). 계획서 갱신 때 §0 원칙에 따라 반영 여부 확인 필요
   - 두 캐릭터 경로 모두 `secret`·`secretUnlockCondition`을 응답에서 제외한다 (§13.3)
-  - `POST /agent-chat/messages` — 에이전트 페이지 챗봇용. 계획서 §13.1 목록 밖 신규 경로이고, 범용 AI 어시스턴트라 §9.2 v1 제외 목록(생산성 기능)과 경계가 붙는다. 사용자 지시로 추가했으며 계획서 반영 여부 확인 필요. FastAPI `/assist`로 Gemini에 연결됨(2026-09-25). 범용 비서가 되지 않도록 시스템 프롬프트에서 "코디컴퍼챗 사용법·대화 요령 안내"로 범위를 묶고 관계없는 요청(코딩·일정 등)은 거절하게 했다
+  - `POST /agent-chat/messages` — 에이전트 페이지 챗봇용. 계획서 §13.1 목록 밖 신규 경로이고, 범용 AI 어시스턴트라 §9.2 v1 제외 목록(생산성 기능)과 경계가 붙는다. 사용자 지시로 추가했으며 계획서 반영 여부 확인 필요. FastAPI `/assist`로 로컬 Ollama에 연결됨(2026-09-25, 2026-09-26 Gemini→Ollama 교체). 범용 비서가 되지 않도록 시스템 프롬프트에서 "코디컴퍼챗 사용법·대화 요령 안내"로 범위를 묶고 관계없는 요청(코딩·일정 등)은 거절하게 했다
   - `POST /characters/:id/chat/suggestions` — 대답 추천(3개, "초기화"로 새로 받기). 계획서 목록 밖 신규 경로, 사용자 지시
 - FastAPI가 안으로만 여는 것: `/infer`, `/summarize`, `/critique-test`, `/train` (v1은 막아 둠), 그리고 계획서 §13.2 밖 신규 `/assist`(에이전트), `/suggest-replies`(대답 추천)
 
