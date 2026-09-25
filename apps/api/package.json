@@ -22,7 +22,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
-    "persona:build": "node scripts/persona-build.mjs"
+    "persona:build": "node scripts/persona-build.mjs",
+    "persona:search": "node scripts/persona-search.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
