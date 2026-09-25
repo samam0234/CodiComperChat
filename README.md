@@ -20,7 +20,7 @@ CodiComperChat/
 ├── docs/             문서 허브 (기획·아키텍처·Git 기록·가이드)
 ├── .agents/          AI 에이전트 공통 규칙 정본
 ├── .claude/ .cursor/ .codex/ .grok/ .antigravity/   도구별 어댑터
-├── docker-compose.yml   로컬 PostgreSQL
+├── docker-compose.yml   (선택) Docker용 PostgreSQL — 현재 로컬 개발은 설치형 PostgreSQL 사용
 └── CodiComperChat_project_plan.md   기획 원본
 ```
 
@@ -94,8 +94,8 @@ Claude, Cursor, Codex, Grok, Antigravity 등 AI 에이전트가 공통으로 따
 ## 빠른 시작
 
 ```bash
-# 1) DB
-docker compose up -d                # PostgreSQL :5432
+# 1) DB — 로컬에 설치한 PostgreSQL 16 (Windows 서비스 postgresql-x64-16, 자동 시작, :5432)
+#    설치·초기 설정: docs/guidance/docker-run.md 상단 "로컬 PostgreSQL" 참고
 
 # 2) web + api (저장소 루트에서)
 npm install
@@ -109,7 +109,7 @@ py -3.12 -m venv .venv                                        # 최초 1회
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
-자세한 절차: [docs/guidance/getting-started.md](docs/guidance/getting-started.md), [docs/guidance/docker-run.md](docs/guidance/docker-run.md)
+자세한 절차: [docs/guidance/getting-started.md](docs/guidance/getting-started.md), DB 설정은 [docs/guidance/docker-run.md](docs/guidance/docker-run.md)
 
 > VSCode에서 `fastapi` import 경고가 뜨면 `Python: Select Interpreter`로 `services/ai/.venv`를 선택한다. 저장소의 `.vscode/settings.json`이 기본값으로 이 경로를 지정한다.
 
