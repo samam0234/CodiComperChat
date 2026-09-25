@@ -2,7 +2,6 @@ from app.schemas.context import ContextSlice
 from app.schemas.infer import InferRequest, InferResponse
 from app.services import llm
 
-# Gemini 3.x는 thinking 토큰도 출력 한도에 포함된다 — 한도가 작으면 답이 잘리거나 비어서 나온다
 MAX_OUTPUT_TOKENS = 1200
 
 

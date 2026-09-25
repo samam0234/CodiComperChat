@@ -20,7 +20,7 @@ cp .env.example .env
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
-`GEMINI_API_KEY`가 비어 있으면 `POST /infer`는 503을 돌려준다. `.env`를 고친 뒤에는 서버를 재시작한다.
+로컬 [Ollama](https://ollama.com)가 `ollama serve`로 떠 있어야 한다 (기본 `http://localhost:11434`). 연결이 안 되면 `POST /infer`는 503을 돌려준다. `.env`를 고친 뒤에는 서버를 재시작한다.
 
 - 대화형 API 문서: `http://localhost:8000/docs`
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
