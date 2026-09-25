@@ -1,9 +1,5 @@
-import {
-  HttpException,
-  Injectable,
-  ServiceUnavailableException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { postToAi } from '../ai/ai-client.js';
 import { verifyToken } from '../auth/token.js';
 import { CharactersService } from '../characters/characters.service.js';
 import { PersonasService } from '../personas/personas.service.js';
@@ -50,31 +46,9 @@ export class CharacterChatService {
       options.authorization,
     );
 
-    const aiBaseUrl = process.env.AI_BASE_URL ?? 'http://localhost:8000';
-    const payload = {
+    return postToAi<{ reply: string }>('/infer', {
       context: buildContextSlice(character, history, persona),
       userTurn,
-    };
-
-    let res: Response;
-    try {
-      res = await fetch(`${aiBaseUrl}/infer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } catch {
-      throw new ServiceUnavailableException(
-        `${aiBaseUrl}에 연결할 수 없습니다. services/ai가 켜져 있는지 확인하세요.`,
-      );
-    }
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new HttpException(data?.detail ?? '추론 요청이 실패했다', res.status);
-    }
-
-    return data as { reply: string };
+    });
   }
 }

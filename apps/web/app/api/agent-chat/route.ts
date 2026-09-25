@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
+import { API_BASE_URL } from "@/lib/auth";
 
 // Nest로 넘기기만 하는 얇은 중계다. 추론을 여기서 하지 않는다 (계획서 §7.1).
 // 브라우저에 API 주소를 노출하지 않으려고 둔 것이다.
 export async function POST(request: Request) {
-  const baseUrl = process.env.API_BASE_URL ?? "http://localhost:4000";
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
 
   let res: Response;
   try {
-    res = await fetch(`${baseUrl}/agent-chat/messages`, {
+    res = await fetch(`${API_BASE_URL}/agent-chat/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: body.message }),
+      body: JSON.stringify({ message: body.message, history: body.history }),
     });
   } catch {
     return NextResponse.json(

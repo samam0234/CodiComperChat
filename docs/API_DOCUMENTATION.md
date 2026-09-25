@@ -28,6 +28,7 @@
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message, history, personaId? }` | **200** `{ reply }` · 비로그인도 가능. `personaId`를 보내면 🔒 + 본인 소유 확인(없으면 401, 남의 것 404) · LLM 요청 한도 초과 429 |
+| `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |
 
 🔒 = `Authorization: Bearer <token>` 필요, 없거나 무효하면 401. 토큰은 HS256 JWT(7일, `AUTH_SECRET`로 서명)이고 비밀번호는 scrypt로 저장한다. 응답에 `passwordHash`는 절대 넣지 않는다. 웹은 토큰을 httpOnly 쿠키(`session`)에 넣고 서버에서만 Nest로 전달한다 — 브라우저 JS는 토큰을 볼 수 없다.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
@@ -49,7 +50,8 @@
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp }` |
-| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴. 스트림 응답 | 501 (LLM 벤더 미정) |
+| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (Gemini, 스트림은 아직) |
+| `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /summarize` | 세션 종료 시. 관계/훅/지식 델타 반환 (형태는 아래 §13.4) | 501 |
 | `POST /critique-test` | 공방 3턴 테스트: 붕괴/설명충/메타 여부 판정 | 501 |
 | `POST /train` | 학습 시작 | **403 — v1 정책 차단** |
