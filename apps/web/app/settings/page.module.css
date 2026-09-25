@@ -1,0 +1,100 @@
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.section {
+  max-width: 480px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.heading {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.note {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.choices {
+  display: grid;
+  gap: 8px;
+  border: 0;
+}
+
+.choices legend {
+  margin-bottom: 4px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.upcoming {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  list-style: none;
+}
+
+.upcoming li {
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.callout {
+  max-width: 480px;
+  margin-top: 28px;
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.calloutActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.primaryLink {
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondaryLink {
+  border: 1px solid var(--border);
+  background: var(--background);
+}

@@ -5,23 +5,41 @@
   --border: #e3e3e6;
   --muted: #6b6b73;
   --accent: #3d5afe;
+  --danger: #c4282d;
+  --success: #1f7a4d;
   --header-height: 56px;
   --content-max: 1120px;
 }
 
+/* data-theme은 설정 > 화면 테마(쿠키)에서 온다. 없거나 system이면 기기 설정을 따른다 */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --background: #0b0b0d;
     --foreground: #ededed;
     --surface: #16161a;
     --border: #2a2a31;
     --muted: #9a9aa4;
     --accent: #8ea2ff;
-  }
-
-  html {
+    --danger: #ff8589;
+    --success: #5bd69a;
     color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --background: #0b0b0d;
+  --foreground: #ededed;
+  --surface: #16161a;
+  --border: #2a2a31;
+  --muted: #9a9aa4;
+  --accent: #8ea2ff;
+  --danger: #ff8589;
+  --success: #5bd69a;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 * {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import SiteDrawer from "./site-drawer";
+import SiteDrawer, { type Viewer } from "./site-drawer";
 import styles from "./site-header.module.css";
 
 const HEADER_NAV = [
@@ -12,7 +12,7 @@ const HEADER_NAV = [
   { href: "/agents", label: "에이전트" },
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ viewer }: { viewer: Viewer }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -52,7 +52,11 @@ export default function SiteHeader() {
         </div>
       </header>
 
-      <SiteDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <SiteDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        viewer={viewer}
+      />
     </>
   );
 }
