@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import ChatInput from "@/components/chat-input";
 import styles from "./character-chat.module.css";
 
 type Turn = {
@@ -45,7 +46,7 @@ export default function CharacterChat({
   personas: PersonaOption[];
 }) {
   const nextId = useRef(1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([
     { id: 0, role: "character", text: openingScene },
   ]);
@@ -279,13 +280,12 @@ export default function CharacterChat({
         >
           <SparkIcon />
         </button>
-        <input
-          ref={inputRef}
-          className={styles.input}
+        <ChatInput
+          inputRef={inputRef}
           value={input}
-          onChange={(event) => setInput(event.target.value)}
+          onChange={setInput}
+          onSubmit={() => void send(input)}
           placeholder={persona ? `${characterName}에게 말 걸기` : "먼저 내 프로필을 고르세요"}
-          aria-label="메시지 입력"
           maxLength={2000}
           disabled={!canType}
         />

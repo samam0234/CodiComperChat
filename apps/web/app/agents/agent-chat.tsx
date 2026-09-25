@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import ChatInput from "@/components/chat-input";
 import styles from "./agent-chat.module.css";
 
 type ChatMessage = {
@@ -105,12 +106,12 @@ export default function AgentChat() {
           void send(input);
         }}
       >
-        <input
-          className={styles.input}
+        <ChatInput
           value={input}
-          onChange={(event) => setInput(event.target.value)}
+          onChange={setInput}
+          onSubmit={() => void send(input)}
           placeholder="무엇이든 물어보세요"
-          aria-label="메시지 입력"
+          maxLength={2000}
           disabled={sending}
         />
         <button
