@@ -13,11 +13,13 @@ import type { ChatTurn } from './character-chat.types.js';
 const MESSAGE_LIMIT = 2000;
 const HISTORY_LIMIT = 30;
 const TURN_LIMIT = 4000;
+const AVOID_LIMIT = 12;
 
 type ChatBody = {
   message?: unknown;
   history?: unknown;
   personaId?: unknown;
+  avoid?: unknown;
 };
 
 function sanitizeHistory(raw: unknown): ChatTurn[] {
@@ -64,6 +66,26 @@ export class CharacterChatController {
 
     return this.characterChatService.send(id, message, sanitizeHistory(body.history), {
       personaId: requirePersonaId(body.personaId),
+      authorization,
+    });
+  }
+
+  @Post('suggestions')
+  @HttpCode(200)
+  suggest(
+    @Param('id') id: string,
+    @Body() body: ChatBody,
+    @Headers('authorization') authorization?: string,
+  ) {
+    const avoid = Array.isArray(body?.avoid)
+      ? body.avoid
+          .filter((s): s is string => typeof s === 'string')
+          .slice(-AVOID_LIMIT)
+          .map((s) => s.slice(0, 200))
+      : [];
+
+    return this.characterChatService.suggest(id, sanitizeHistory(body?.history), avoid, {
+      personaId: requirePersonaId(body?.personaId),
       authorization,
     });
   }
