@@ -9,7 +9,7 @@
 | 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` **구현 시작됨** |
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` **구현 시작됨** |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/` **구현 시작됨** |
-| DB | PostgreSQL (1순위) |
+| DB | PostgreSQL (1순위) — 로컬 개발은 Docker가 아니라 **설치형 PostgreSQL 16** (`D:\PostgreSQL\16`, 데이터 `D:\PostgreSQL\16\data`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
 | 세션 캐시·잡 | Redis |
 | ORM | Prisma (Nest 쪽) — `apps/api/prisma/schema.prisma` **구현 시작됨** |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `services/ai`, `docker-compose.yml` — 현재 `postgres`만 포함, web/api/ai 컨테이너화는 미완 · [docker-run.md](../guidance/docker-run.md)) |
@@ -49,7 +49,7 @@
 | Next.js (`apps/web`) | 3000 | **확정** (Next 기본값, `npm run dev:web`으로 기동 확인) |
 | Nest.js (`apps/api`) | 4000 | **확정** (`PORT` env로 덮어쓰기 가능, `npm run dev:api`) |
 | FastAPI (`services/ai`) | 8000 | **확정** (uvicorn `--port 8000`) |
-| PostgreSQL | 5432 | **확정** (`docker-compose.yml`의 `postgres` 서비스) |
+| PostgreSQL | 5432 | **확정** (로컬 설치형 서비스 `postgresql-x64-16`, localhost 전용. `docker-compose.yml`의 `postgres`는 선택 사항) |
 | Redis | 6379 | 미정 (아직 compose에 없음) |
 
 ## 역할 분리 원칙 (계획서 §7.1, 위반 금지)
