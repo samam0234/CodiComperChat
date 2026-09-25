@@ -55,4 +55,16 @@ export class CharacterChatService {
       userTurn,
     });
   }
+
+  async suggest(
+    characterId: string,
+    history: ChatTurn[],
+    avoid: string[],
+    options: PersonaOptions,
+  ) {
+    return postToAi<{ suggestions: string[] }>('/suggest-replies', {
+      context: await this.buildContext(characterId, history, options),
+      avoid,
+    });
+  }
 }

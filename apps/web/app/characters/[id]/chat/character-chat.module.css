@@ -69,6 +69,7 @@
 
 .input {
   flex: 1;
+  min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -84,6 +85,8 @@
 }
 
 .submit {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0 18px;
   border-radius: 10px;
   background: var(--accent);
@@ -149,6 +152,124 @@
 
 .required {
   font-weight: 700;
+}
+
+.suggestButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.suggestButton:hover:not(:disabled),
+.suggestButton[aria-expanded="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.suggestButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.suggestions {
+  padding: 12px 12px 4px;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+}
+
+.suggestionsHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.suggestionsTitle {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.suggestionsReset {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.suggestionsReset:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.suggestionsClose {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.suggestionsClose:hover {
+  background: var(--surface);
+}
+
+.suggestionList {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+
+.suggestion {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.suggestion:hover {
+  border-color: var(--accent);
+}
+
+.suggestionSkeleton {
+  height: 42px;
+  border-radius: 12px;
+  background: var(--surface);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggestionSkeleton {
+    animation: none;
+  }
+}
+
+.suggestionError {
+  padding: 8px 0 10px;
+  font-size: 13px;
+  color: var(--danger);
 }
 
 .gate {
