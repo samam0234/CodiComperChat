@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { getMyPersonas } from "@/lib/personas";
 import CharacterChat from "./character-chat";
 import styles from "./page.module.css";
@@ -32,11 +32,9 @@ export default async function CharacterChatPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [character, user, personas] = await Promise.all([
-    getCharacter(id),
-    getCurrentUser(),
-    getMyPersonas(),
-  ]);
+  // 대화는 내 프로필 캐릭터로만 할 수 있고, 프로필은 로그인 유저의 것이다
+  await requireUser(`/characters/${id}/chat`);
+  const [character, personas] = await Promise.all([getCharacter(id), getMyPersonas()]);
 
   if (!character) {
     notFound();
@@ -55,7 +53,6 @@ export default async function CharacterChatPage({
         characterId={character.id}
         characterName={character.name}
         openingScene={character.openingScene}
-        loggedIn={user !== null}
         personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
       />
     </section>

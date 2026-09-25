@@ -27,7 +27,7 @@
 | `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
-| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message, history, personaId? }` | **200** `{ reply }` · 비로그인도 가능. `personaId`를 보내면 🔒 + 본인 소유 확인(없으면 401, 남의 것 404) · LLM 요청 한도 초과 429 |
+| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), history(최근 30턴), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404 · LLM 요청 한도 초과 429 |
 | `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |
 
 🔒 = `Authorization: Bearer <token>` 필요, 없거나 무효하면 401. 토큰은 HS256 JWT(7일, `AUTH_SECRET`로 서명)이고 비밀번호는 scrypt로 저장한다. 응답에 `passwordHash`는 절대 넣지 않는다. 웹은 토큰을 httpOnly 쿠키(`session`)에 넣고 서버에서만 Nest로 전달한다 — 브라우저 JS는 토큰을 볼 수 없다.

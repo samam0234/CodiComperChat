@@ -1,16 +1,23 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireUser, safeNextPath } from "@/lib/auth";
 import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
 import Personas from "./personas";
 import styles from "./page.module.css";
 
-export default async function MyPage() {
+export default async function MyPage({ searchParams }: PageProps<"/me">) {
   const user = await requireUser("/me");
   const personas = await getMyPersonas();
   const joined = new Date(user.createdAt).toLocaleDateString("ko-KR");
+  // 채팅에서 프로필을 만들러 온 경우 돌아갈 길을 준다 (사이트 안 경로만 허용)
+  const back = safeNextPath((await searchParams).back);
 
   return (
     <>
+      {back !== "/" && (
+        <Link href={back} className={styles.back}>
+          ← 대화로 돌아가기
+        </Link>
+      )}
       <h1 className={styles.title}>마이페이지</h1>
 
       <dl className={styles.account}>
