@@ -41,6 +41,9 @@ def _describe(context: ContextSlice) -> str:
     parts = [f"캐릭터: {character.name} ({character.role}) — {character.summary}"]
     if context.director_note:
         parts.append(f"캐릭터 설정:\n{context.director_note}")
+    if context.active_lore:
+        lore = "\n".join(f"- {entry.keyword}: {entry.content}" for entry in context.active_lore)
+        parts.append(f"이번 대화와 관련된 설정 자료:\n{lore}")
 
     persona = context.user_persona
     if persona is not None:
