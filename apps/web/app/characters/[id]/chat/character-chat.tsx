@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import styles from "./character-chat.module.css";
 
 type Turn = {
@@ -8,16 +9,39 @@ type Turn = {
   text: string;
 };
 
-type DisplayMessage = Turn & { id: number; error?: boolean };
+type DisplayMessage = Turn & { id: number; error?: boolean; speaker?: string };
+
+type PersonaOption = { id: string; name: string };
+
+// 마지막으로 고른 프로필을 이 브라우저에서만 기억하는 편의 기능. 못 읽어도 기본값으로 동작한다
+const PERSONA_STORAGE_KEY = "codicomperchat:persona";
+
+function readSavedPersona(): string | null {
+  try {
+    return localStorage.getItem(PERSONA_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function savePersona(id: string) {
+  try {
+    localStorage.setItem(PERSONA_STORAGE_KEY, id);
+  } catch {}
+}
 
 export default function CharacterChat({
   characterId,
   characterName,
   openingScene,
+  loggedIn,
+  personas,
 }: {
   characterId: string;
   characterName: string;
   openingScene: string;
+  loggedIn: boolean;
+  personas: PersonaOption[];
 }) {
   const nextId = useRef(1);
   const [messages, setMessages] = useState<DisplayMessage[]>([
@@ -25,6 +49,16 @@ export default function CharacterChat({
   ]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [personaId, setPersonaId] = useState(personas[0]?.id ?? "");
+
+  useEffect(() => {
+    const saved = readSavedPersona();
+    if (saved !== null && (saved === "" || personas.some((p) => p.id === saved))) {
+      setPersonaId(saved);
+    }
+  }, [personas]);
+
+  const persona = personas.find((p) => p.id === personaId);
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -38,7 +72,10 @@ export default function CharacterChat({
     }));
 
     nextId.current += 1;
-    setMessages((prev) => [...prev, { id: nextId.current, role: "user", text: trimmed }]);
+    setMessages((prev) => [
+      ...prev,
+      { id: nextId.current, role: "user", text: trimmed, speaker: persona?.name },
+    ]);
     setInput("");
     setSending(true);
 
@@ -46,7 +83,7 @@ export default function CharacterChat({
       const res = await fetch(`/api/characters/${characterId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, history }),
+        body: JSON.stringify({ message: trimmed, history, personaId: persona?.id }),
       });
       const data = await res.json();
 
@@ -91,6 +128,9 @@ export default function CharacterChat({
             {message.role === "character" && (
               <span className={styles.speaker}>{characterName}</span>
             )}
+            {message.role === "user" && message.speaker && (
+              <span className={styles.userSpeaker}>{message.speaker}</span>
+            )}
             {message.text}
           </div>
         ))}
@@ -121,6 +161,52 @@ export default function CharacterChat({
           보내기
         </button>
       </form>
+
+      <div className={styles.personaBar}>
+        {!loggedIn ? (
+          <p className={styles.personaHint}>
+            로그인하면 내 프로필 캐릭터로 대화할 수 있어요.{" "}
+            <Link
+              href={`/login?next=${encodeURIComponent(`/characters/${characterId}/chat`)}`}
+              className={styles.personaLink}
+            >
+              로그인
+            </Link>
+          </p>
+        ) : personas.length === 0 ? (
+          <p className={styles.personaHint}>
+            아직 프로필 캐릭터가 없어요.{" "}
+            <Link href="/me" className={styles.personaLink}>
+              마이페이지에서 만들기
+            </Link>
+          </p>
+        ) : (
+          <>
+            <label className={styles.personaLabel} htmlFor="persona-select">
+              내 프로필
+            </label>
+            <select
+              id="persona-select"
+              className={styles.personaSelect}
+              value={personaId}
+              onChange={(event) => {
+                setPersonaId(event.target.value);
+                savePersona(event.target.value);
+              }}
+            >
+              <option value="">선택 안 함</option>
+              {personas.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+            <Link href="/me" className={styles.personaLink}>
+              관리
+            </Link>
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -21,10 +21,26 @@ model User {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   campaigns   Campaign[]
+  personas    UserPersona[]
 
   @@map("users")
 }
 
+// 유저가 연기하는 주인공(프로필 캐릭터). 본인만 보고 쓴다 — 공유·마켓은 v1 범위 밖 (기획서 §9.2)
+model UserPersona {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_personas")
+}
+
+/// 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.
 model Character {
   id                    String   @id @default(cuid())
   name                  String   @unique

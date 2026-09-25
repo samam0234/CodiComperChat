@@ -23,7 +23,11 @@
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
 
-
+| `GET /me/personas` | 내 프로필 캐릭터(주인공) 목록 | **200** `[{ id, name, description, updatedAt }]` · 🔒 |
+| `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
+| `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
+| `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
+| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message, history, personaId? }` | **200** `{ reply }` · 비로그인도 가능. `personaId`를 보내면 🔒 + 본인 소유 확인(없으면 401, 남의 것 404) · LLM 요청 한도 초과 429 |
 
 🔒 = `Authorization: Bearer <token>` 필요, 없거나 무효하면 401. 토큰은 HS256 JWT(7일, `AUTH_SECRET`로 서명)이고 비밀번호는 scrypt로 저장한다. 응답에 `passwordHash`는 절대 넣지 않는다. 웹은 토큰을 httpOnly 쿠키(`session`)에 넣고 서버에서만 Nest로 전달한다 — 브라우저 JS는 토큰을 볼 수 없다.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |

@@ -1,20 +1,29 @@
 import { NextResponse } from "next/server";
+import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
 // Nest로 넘기기만 하는 얇은 중계다. 추론은 하지 않는다 (계획서 §7.1).
+// 로그인 토큰은 httpOnly 쿠키에서 서버가 꺼내 붙인다 — 브라우저 JS는 토큰을 모른다.
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const baseUrl = process.env.API_BASE_URL ?? "http://localhost:4000";
   const body = await request.json();
+  const token = await getSessionToken();
 
   let res: Response;
   try {
-    res = await fetch(`${baseUrl}/characters/${id}/chat`, {
+    res = await fetch(`${API_BASE_URL}/characters/${encodeURIComponent(id)}/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: body.message, history: body.history }),
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        message: body.message,
+        history: body.history,
+        personaId: body.personaId,
+      }),
     });
   } catch {
     return NextResponse.json(

@@ -1,5 +1,7 @@
 from typing import Literal
 
+from pydantic import Field
+
 from app.schemas.base import WireModel
 
 CampaignRole = Literal["companion", "rival", "client", "guide", "wildcard"]
@@ -65,6 +67,13 @@ class CampaignStateSlice(WireModel):
     knowledge: list[str]
 
 
+class UserPersona(WireModel):
+    """유저가 연기하는 주인공. 유저가 직접 쓴 글이라 지시가 아니라 설정 자료로만 다룬다."""
+
+    name: str = Field(max_length=20)
+    description: str = Field(default="", max_length=300)
+
+
 class ContextSlice(WireModel):
     """Nest가 조립해 넘기는 것. FastAPI는 DB를 직접 보지 않는다 (기획서 7.4장)."""
 
@@ -74,3 +83,4 @@ class ContextSlice(WireModel):
     recent_turns: list[Turn]
     retrieved_memories: list[MemoryChunk]
     director_note: str | None = None
+    user_persona: UserPersona | None = None

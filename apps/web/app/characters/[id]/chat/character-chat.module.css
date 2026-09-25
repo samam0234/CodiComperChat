@@ -96,3 +96,49 @@
   opacity: 0.45;
   cursor: default;
 }
+
+.userSpeaker {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.personaBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 12px;
+  background: var(--background);
+  font-size: 13px;
+}
+
+.personaLabel {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.personaSelect {
+  flex: 1;
+  min-width: 0;
+  max-width: 240px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.personaHint {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.personaLink {
+  font-weight: 600;
+  color: var(--accent);
+}
