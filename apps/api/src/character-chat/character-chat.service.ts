@@ -6,6 +6,8 @@ import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
 import type { ChatTurn, UserPersonaPayload } from './character-chat.types.js';
 
+type PersonaOptions = { personaId: string; authorization?: string };
+
 @Injectable()
 export class CharacterChatService {
   constructor(
@@ -13,17 +15,15 @@ export class CharacterChatService {
     private readonly personasService: PersonasService,
   ) {}
 
-  // 비로그인 대화는 그대로 허용한다. 프로필을 골랐을 때만 로그인과 소유를 확인한다
-  private async resolvePersona(
-    personaId: string | null,
-    authorization: string | undefined,
-  ): Promise<UserPersonaPayload | null> {
-    if (!personaId) return null;
-
+  // 프로필은 로그인 유저의 것이다 — 토큰으로 유저를 확인하고, 그 유저의 프로필인지 본다
+  private async resolvePersona({
+    personaId,
+    authorization,
+  }: PersonaOptions): Promise<UserPersonaPayload> {
     const [scheme, token] = authorization?.split(' ') ?? [];
     const userId = scheme === 'Bearer' && token ? await verifyToken(token) : null;
     if (!userId) {
-      throw new UnauthorizedException('프로필 캐릭터를 쓰려면 로그인이 필요합니다.');
+      throw new UnauthorizedException('캐릭터와 대화하려면 로그인이 필요합니다.');
     }
 
     const { name, description } = await this.personasService.findOwned(
@@ -33,21 +33,25 @@ export class CharacterChatService {
     return { name, description };
   }
 
+  private async buildContext(
+    characterId: string,
+    history: ChatTurn[],
+    options: PersonaOptions,
+  ) {
+    // 발행 안 됐거나 없는 캐릭터면 여기서 NotFoundException을 던진다.
+    const character = await this.charactersService.findOnePublished(characterId);
+    const persona = await this.resolvePersona(options);
+    return buildContextSlice(character, history, persona);
+  }
+
   async send(
     characterId: string,
     userTurn: string,
     history: ChatTurn[],
-    options: { personaId: string | null; authorization?: string },
+    options: PersonaOptions,
   ) {
-    // 발행 안 됐거나 없는 캐릭터면 여기서 NotFoundException을 던진다.
-    const character = await this.charactersService.findOnePublished(characterId);
-    const persona = await this.resolvePersona(
-      options.personaId,
-      options.authorization,
-    );
-
     return postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona),
+      context: await this.buildContext(characterId, history, options),
       userTurn,
     });
   }

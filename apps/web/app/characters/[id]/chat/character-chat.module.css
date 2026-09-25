@@ -133,12 +133,54 @@
   font: inherit;
 }
 
-.personaHint {
-  color: var(--muted);
-  line-height: 1.5;
-}
 
 .personaLink {
   font-weight: 600;
   color: var(--accent);
+}
+
+.personaRequired .personaLabel {
+  color: var(--accent);
+}
+
+.personaRequired .personaSelect {
+  border-color: var(--accent);
+}
+
+.required {
+  font-weight: 700;
+}
+
+.gate {
+  margin-top: 20px;
+  padding: 28px 20px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.gateTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.gateText {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.gateButton {
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  margin-top: 16px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
 }
