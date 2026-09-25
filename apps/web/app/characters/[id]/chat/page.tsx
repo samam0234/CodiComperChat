@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getMyPersonas } from "@/lib/personas";
 import CharacterChat from "./character-chat";
 import styles from "./page.module.css";
 
@@ -30,7 +32,11 @@ export default async function CharacterChatPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const character = await getCharacter(id);
+  const [character, user, personas] = await Promise.all([
+    getCharacter(id),
+    getCurrentUser(),
+    getMyPersonas(),
+  ]);
 
   if (!character) {
     notFound();
@@ -49,6 +55,8 @@ export default async function CharacterChatPage({
         characterId={character.id}
         characterName={character.name}
         openingScene={character.openingScene}
+        loggedIn={user !== null}
+        personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
       />
     </section>
   );

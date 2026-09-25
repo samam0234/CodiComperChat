@@ -1,5 +1,9 @@
 import type { CharactersService } from '../characters/characters.service.js';
-import type { ChatTurn, ContextSlicePayload } from './character-chat.types.js';
+import type {
+  ChatTurn,
+  ContextSlicePayload,
+  UserPersonaPayload,
+} from './character-chat.types.js';
 
 type PublicCharacter = Awaited<
   ReturnType<CharactersService['findOnePublished']>
@@ -13,6 +17,7 @@ type PublicCharacter = Awaited<
 export function buildContextSlice(
   character: PublicCharacter,
   history: ChatTurn[],
+  persona: UserPersonaPayload | null = null,
 ): ContextSlicePayload {
   const honorific = character.speechStyle.includes('존댓말')
     ? 'jondae'
@@ -62,5 +67,6 @@ export function buildContextSlice(
     recentTurns: history,
     retrievedMemories: [],
     directorNote,
+    userPersona: persona,
   };
 }

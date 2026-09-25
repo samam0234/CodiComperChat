@@ -3,6 +3,8 @@ export type ChatTurn = {
   text: string;
 };
 
+export type UserPersonaPayload = { name: string; description: string };
+
 // services/ai/app/schemas/context.py의 ContextSlice와 필드가 1:1로 대응해야 한다.
 // (WireModel의 alias_generator=to_camel이 snake_case -> camelCase로 바꾼 이름 기준)
 export type ContextSlicePayload = {
@@ -33,4 +35,5 @@ export type ContextSlicePayload = {
   recentTurns: ChatTurn[];
   retrievedMemories: { id: string; text: string }[];
   directorNote: string | null;
+  userPersona: UserPersonaPayload | null;
 };

@@ -1,19 +1,17 @@
 import Link from "next/link";
-import PagePlaceholder from "@/components/page-placeholder";
 import { requireUser } from "@/lib/auth";
+import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
+import Personas from "./personas";
 import styles from "./page.module.css";
 
 export default async function MyPage() {
   const user = await requireUser("/me");
+  const personas = await getMyPersonas();
   const joined = new Date(user.createdAt).toLocaleDateString("ko-KR");
 
   return (
     <>
-      <PagePlaceholder
-        title="마이페이지"
-        description="내 계정과 내 주인공 정보가 놓일 자리입니다."
-        items={["프로필 / 주인공 호칭", "내가 만든 카드"]}
-      />
+      <h1 className={styles.title}>마이페이지</h1>
 
       <dl className={styles.account}>
         <div className={styles.row}>
@@ -33,6 +31,13 @@ export default async function MyPage() {
       <Link href="/settings" className={styles.link}>
         계정 설정으로 가기 →
       </Link>
+
+      <Personas personas={personas} limit={PERSONA_LIMIT} />
+
+      <section className={styles.upcoming}>
+        <h2 className={styles.upcomingTitle}>준비 중</h2>
+        <p>내가 만든 캐릭터 카드</p>
+      </section>
     </>
   );
 }
