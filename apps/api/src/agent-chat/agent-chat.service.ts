@@ -1,16 +1,31 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { postToAi } from '../ai/ai-client.js';
 
-export type AgentChatReply = {
-  reply: string;
-};
+export type AgentTurn = { role: 'user' | 'agent'; text: string };
+export type AgentChatReply = { reply: string };
+
+// 토큰·비용을 묶어 두려고 최근 대화만 넘긴다
+const HISTORY_LIMIT = 20;
+const TEXT_LIMIT = 4000;
+
+export function sanitizeHistory(raw: unknown): AgentTurn[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (t): t is AgentTurn =>
+        typeof t === 'object' &&
+        t !== null &&
+        (t.role === 'user' || t.role === 'agent') &&
+        typeof t.text === 'string' &&
+        t.text.trim() !== '',
+    )
+    .slice(-HISTORY_LIMIT)
+    .map((t) => ({ role: t.role, text: t.text.slice(0, TEXT_LIMIT) }));
+}
 
 @Injectable()
 export class AgentChatService {
-  // 호스티드 LLM 벤더가 정해지면 여기서 services/ai를 호출한다 (계획서 §15 열린 항목).
-  // 웹이 FastAPI를 직접 부르지 않도록 중계 지점만 먼저 열어 둔다 (계획서 §7.1).
-  send(_message: string): AgentChatReply {
-    throw new ServiceUnavailableException(
-      '아직 연결된 LLM이 없어 답변을 만들 수 없습니다. 호스티드 LLM 벤더가 정해지면 이 자리에서 services/ai로 중계합니다 (기획서 15장 열린 항목).',
-    );
+  send(message: string, history: AgentTurn[]): Promise<AgentChatReply> {
+    return postToAi<AgentChatReply>('/assist', { message, history });
   }
 }

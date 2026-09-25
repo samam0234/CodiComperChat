@@ -64,8 +64,8 @@
 - Nest가 밖으로 여는 것: `/auth/*`, `/characters`, `/characters/:id`, `/campaigns`, `/campaigns/:id/messages`, `/campaigns/:id/sessions*`, `/campaigns/:id/logbook`, `/studio/*`
   - `/characters/:id`는 계획서 §13.1 목록에 없는 신규 경로다 (캐릭터 상세 화면용). 계획서 갱신 때 §0 원칙에 따라 반영 여부 확인 필요
   - 두 캐릭터 경로 모두 `secret`·`secretUnlockCondition`을 응답에서 제외한다 (§13.3)
-  - `POST /agent-chat/messages` — 에이전트 페이지 챗봇용. 계획서 §13.1 목록 밖 신규 경로이고, 범용 AI 어시스턴트라 §9.2 v1 제외 목록(생산성 기능)과 경계가 붙는다. 사용자 지시로 추가했으며 계획서 반영 여부 확인 필요. 현재 LLM 미연결로 **503**
-- FastAPI가 안으로만 여는 것: `/infer`, `/summarize`, `/critique-test`, `/train` (v1은 막아 둠)
+  - `POST /agent-chat/messages` — 에이전트 페이지 챗봇용. 계획서 §13.1 목록 밖 신규 경로이고, 범용 AI 어시스턴트라 §9.2 v1 제외 목록(생산성 기능)과 경계가 붙는다. 사용자 지시로 추가했으며 계획서 반영 여부 확인 필요. FastAPI `/assist`로 Gemini에 연결됨(2026-09-25). 범용 비서가 되지 않도록 시스템 프롬프트에서 "코디컴퍼챗 사용법·대화 요령 안내"로 범위를 묶고 관계없는 요청(코딩·일정 등)은 거절하게 했다
+- FastAPI가 안으로만 여는 것: `/infer`, `/summarize`, `/critique-test`, `/train` (v1은 막아 둠), 그리고 계획서 §13.2 밖 신규 `/assist`(에이전트)
 
 ## 핵심 도메인 (계획서 §7.5, 테이블명 확정은 Prisma 단계)
 

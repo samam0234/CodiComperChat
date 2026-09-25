@@ -10,9 +10,9 @@ type ChatMessage = {
 };
 
 const SUGGESTIONS = [
-  "캠페인이 뭔지 설명해 줘",
-  "유지성이랑 뭘 할 수 있어?",
-  "캐릭터를 만들 때 뭘 먼저 정해야 해?",
+  "캐릭터랑 대화는 어떻게 시작해?",
+  "내 프로필 캐릭터 소개는 어떻게 쓰면 좋아?",
+  "유지성이랑 더 재밌게 대화하는 요령 알려 줘",
 ];
 
 export default function AgentChat() {
@@ -32,6 +32,11 @@ export default function AgentChat() {
       return;
     }
 
+    // 오류 안내(system)는 대화가 아니므로 기록에서 뺀다
+    const history = messages
+      .filter((m) => m.author !== "system")
+      .map((m) => ({ role: m.author, text: m.text }));
+
     append("user", trimmed);
     setInput("");
     setSending(true);
@@ -40,7 +45,7 @@ export default function AgentChat() {
       const res = await fetch("/api/agent-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({ message: trimmed, history }),
       });
       const data = await res.json();
 
