@@ -11,7 +11,9 @@ try:
 except ImportError:  # pragma: no cover - requirements.txt에 있어야 정상
     genai = genai_errors = types = None  # type: ignore[assignment]
 
-DEFAULT_MODEL = "gemini-3-flash"
+# 모델 이름은 Google이 발급한 정확한 코드여야 한다. "gemini-3-flash"는 존재하지 않아 404가 난다.
+# 신규 최신판(3.8 등)은 수요가 몰려 503이 잦아 안정판 3.6을 기본으로 둔다
+DEFAULT_MODEL = "gemini-3.6-flash"
 
 Contents = list[dict[str, object]]
 
