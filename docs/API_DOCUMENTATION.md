@@ -16,8 +16,16 @@
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp }` |
-| `POST /auth/login` | 로그인 | 501 (인증 벤더 미정) |
-| `POST /auth/logout` | 로그아웃 | 501 |
+| `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }` | **201** `{ token, user }` · 중복 이메일 409 · 형식 오류 400 |
+| `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
+| `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, createdAt }` · 🔒 |
+| `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
+| `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
+
+
+
+🔒 = `Authorization: Bearer <token>` 필요, 없거나 무효하면 401. 토큰은 HS256 JWT(7일, `AUTH_SECRET`로 서명)이고 비밀번호는 scrypt로 저장한다. 응답에 `passwordHash`는 절대 넣지 않는다. 웹은 토큰을 httpOnly 쿠키(`session`)에 넣고 서버에서만 Nest로 전달한다 — 브라우저 JS는 토큰을 볼 수 없다.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
 | `POST /campaigns` | 캠페인 시작 | 501 |
 | `GET /campaigns/:id` | 상태 포함 캠페인 조회 | 501 |

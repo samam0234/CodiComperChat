@@ -1,6 +1,9 @@
 import PagePlaceholder from "@/components/page-placeholder";
+import { requireUser } from "@/lib/auth";
 
-export default function LibraryPage() {
+export default async function LibraryPage() {
+  await requireUser("/library");
+
   return (
     <PagePlaceholder
       title="대화 목록 (라이브러리)"

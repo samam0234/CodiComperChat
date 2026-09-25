@@ -1,6 +1,9 @@
 import PagePlaceholder from "@/components/page-placeholder";
+import { requireUser } from "@/lib/auth";
 
-export default function StudioPage() {
+export default async function StudioPage() {
+  await requireUser("/studio");
+
   return (
     <PagePlaceholder
       title="제작"

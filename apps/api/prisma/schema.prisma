@@ -16,6 +16,8 @@ model User {
   id          String     @id @default(cuid())
   email       String     @unique
   displayName String
+  // 소셜 로그인 등 비밀번호 없는 계정도 담을 수 있게 nullable (인증 벤더 미정)
+  passwordHash String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   campaigns   Campaign[]
@@ -23,7 +25,6 @@ model User {
   @@map("users")
 }
 
-/// 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.
 model Character {
   id                    String   @id @default(cuid())
   name                  String   @unique
