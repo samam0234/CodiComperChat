@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { postToAi } from '../ai/ai-client.js';
 import { verifyToken } from '../auth/token.js';
 import { CharactersService } from '../characters/characters.service.js';
+import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
 import type { ChatTurn, UserPersonaPayload } from './character-chat.types.js';
@@ -13,6 +14,7 @@ export class CharacterChatService {
   constructor(
     private readonly charactersService: CharactersService,
     private readonly personasService: PersonasService,
+    private readonly personaRag: PersonaRagService,
   ) {}
 
   // 프로필은 로그인 유저의 것이다 — 토큰으로 유저를 확인하고, 그 유저의 프로필인지 본다
@@ -37,11 +39,13 @@ export class CharacterChatService {
     characterId: string,
     history: ChatTurn[],
     options: PersonaOptions,
+    message?: string,
   ) {
     // 발행 안 됐거나 없는 캐릭터면 여기서 NotFoundException을 던진다.
     const character = await this.charactersService.findOnePublished(characterId);
     const persona = await this.resolvePersona(options);
-    return buildContextSlice(character, history, persona);
+    const rag = this.personaRag.assemble(character.name, history, message);
+    return buildContextSlice(character, history, persona, rag);
   }
 
   async send(
@@ -51,7 +55,7 @@ export class CharacterChatService {
     options: PersonaOptions,
   ) {
     return postToAi<{ reply: string }>('/infer', {
-      context: await this.buildContext(characterId, history, options),
+      context: await this.buildContext(characterId, history, options, userTurn),
       userTurn,
     });
   }
