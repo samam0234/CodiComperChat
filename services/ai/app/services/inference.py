@@ -6,12 +6,15 @@ from app.schemas.context import ContextSlice
 from app.schemas.infer import InferRequest, InferResponse
 
 try:
-    import anthropic
+    from google import genai
+    from google.genai import errors as genai_errors
+    from google.genai import types
 except ImportError:  # pragma: no cover - requirements.txt에 있어야 정상
-    anthropic = None  # type: ignore[assignment]
+    genai = genai_errors = types = None  # type: ignore[assignment]
 
-DEFAULT_MODEL = "claude-sonnet-5"
-MAX_TOKENS = 600
+DEFAULT_MODEL = "gemini-3.8-flash"
+# Gemini 3.x는 thinking 토큰도 출력 한도에 포함된다 — 한도가 작으면 답이 잘리거나 비어서 나온다
+MAX_OUTPUT_TOKENS = 1200
 
 
 def _build_system_prompt(context: ContextSlice) -> str:
@@ -75,42 +78,62 @@ def _build_system_prompt(context: ContextSlice) -> str:
     return "\n\n".join(lines)
 
 
-def _build_messages(context: ContextSlice, user_turn: str) -> list[dict[str, str]]:
-    messages = [
-        {"role": "user" if turn.role == "user" else "assistant", "content": turn.text}
+def _build_messages(context: ContextSlice, user_turn: str) -> list[dict[str, object]]:
+    contents = [
+        {"role": "user" if turn.role == "user" else "model", "parts": [{"text": turn.text}]}
         for turn in context.recent_turns
     ]
-    messages.append({"role": "user", "content": user_turn})
-    return messages
+    contents.append({"role": "user", "parts": [{"text": user_turn}]})
+    return contents
 
 
 def run(request: InferRequest) -> InferResponse:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if anthropic is None or not api_key:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if genai is None or not api_key:
         raise HTTPException(
             status_code=503,
             detail=(
-                "호스티드 LLM이 연결되지 않았다. ANTHROPIC_API_KEY 환경변수를 설정하면 "
-                "이 자리에서 실제로 캐릭터가 응답한다 (기획서 15장 열린 항목: 호스티드 LLM 벤더)."
+                "호스티드 LLM이 연결되지 않았다. GEMINI_API_KEY 환경변수를 설정하면 "
+                "이 자리에서 실제로 캐릭터가 응답한다."
             ),
         )
 
-    client = anthropic.Anthropic(api_key=api_key)
-    system_prompt = _build_system_prompt(request.context)
-    messages = _build_messages(request.context, request.user_turn)
-    model = os.environ.get("ANTHROPIC_MODEL", DEFAULT_MODEL)
+    # 신규 모델은 수요 급증으로 503이 간헐적으로 난다 — 채팅 한 턴이 바로 실패하지 않게 짧게 재시도한다.
+    # 429(요청 한도)는 재시도하면 한도만 더 깎이므로 재시도 대상에서 뺀다
+    client = genai.Client(
+        api_key=api_key,
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(
+                attempts=4,
+                initial_delay=1.0,
+                max_delay=8.0,
+                http_status_codes=[500, 503, 504],
+            )
+        ),
+    )
+    model = os.environ.get("GEMINI_MODEL", DEFAULT_MODEL)
 
     try:
-        response = client.messages.create(
+        response = client.models.generate_content(
             model=model,
-            max_tokens=MAX_TOKENS,
-            system=system_prompt,
-            messages=messages,
+            contents=_build_messages(request.context, request.user_turn),
+            config=types.GenerateContentConfig(
+                system_instruction=_build_system_prompt(request.context),
+                max_output_tokens=MAX_OUTPUT_TOKENS,
+                thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW),
+            ),
         )
-    except anthropic.APIError as exc:
+    except genai_errors.APIError as exc:
+        if exc.code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="지금 대화 요청이 몰려 잠시 쉬는 중이에요. 1분쯤 뒤에 다시 보내 주세요.",
+            ) from exc
         raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {exc}") from exc
 
-    text = "".join(
-        block.text for block in response.content if block.type == "text"
-    )
-    return InferResponse(reply=text)
+    if not response.text:
+        raise HTTPException(
+            status_code=502,
+            detail="LLM이 빈 응답을 돌려줬다 (안전 필터 차단이거나 출력 토큰 한도 초과일 수 있다).",
+        )
+    return InferResponse(reply=response.text)

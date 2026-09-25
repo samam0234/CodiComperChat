@@ -19,7 +19,7 @@
 - 정확한 세계관 장르
 - 첫 공식 캐릭터 이름·설정 본문 — 유지성, `docs/plan/CHARACTERS.md` 카드 원고를 Prisma seed(`apps/api/prisma/seed.mjs`)로 로컬 DB에 반영 완료(`GET /characters` 확인함, 2026-09-16). 세부 설정(비밀·갈등 씨앗 방향)은 사용자 확정 대기
 - 인증 벤더
-- 호스티드 LLM 벤더 — **제품 결정은 여전히 미정** (`docs/plan/AI_MODEL_STRATEGY.md` 정책 유지). `services/ai/app/services/inference.py`는 개발 중 배선을 검증하려고 Anthropic SDK를 잠정 기본값으로 넣어 뒀다 — `ANTHROPIC_API_KEY`가 없으면 503을 돌려주고 실제로는 아무 벤더도 호출하지 않는다. 벤더가 확정되면 이 기본값을 바꾸거나 여러 벤더를 선택 가능하게 리팩터링해야 한다
+- 호스티드 LLM 벤더 — **개발 중에는 Google Gemini Flash를 쓴다** (2026-09-25 사용자 지시). 제품 차원의 벤더 확정은 아직이라 `docs/plan/AI_MODEL_STRATEGY.md` 정책은 유지한다. `services/ai/app/services/inference.py`가 `google-genai` SDK로 `gemini-3.8-flash`(env `GEMINI_MODEL`로 변경)를 호출한다 — `GEMINI_API_KEY`가 없으면 503을 돌려주고 아무 벤더도 호출하지 않는다. 벤더가 최종 확정되면 여러 벤더를 선택 가능하게 리팩터링할지 판단한다
 - 과금 수치
 - 영문 표기 `CodiComperChat` 유지 여부
 

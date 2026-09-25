@@ -1,6 +1,12 @@
+from pathlib import Path
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.routes import critique_test, health, infer, summarize, train
+
+# 실행 위치·--env-file 유무와 상관없이 services/ai/.env를 읽는다. 이미 설정된 환경변수는 덮어쓰지 않는다
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 app = FastAPI(
     title="코디컴퍼챗 AI 서비스",

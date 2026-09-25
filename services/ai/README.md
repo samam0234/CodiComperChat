@@ -13,9 +13,14 @@ python3.12 -m venv .venv                    # macOS/Linux
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
 ./.venv/bin/python -m pip install -r requirements.txt           # macOS/Linux
 
-# 실행
+# 환경변수 (LLM 키). 샘플을 복사해 값을 채운다. .env 는 git에 안 올라간다
+cp .env.example .env
+
+# 실행 (app/main.py가 services/ai/.env 를 스스로 읽는다 — 어느 폴더에서 띄워도 된다)
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 ```
+
+`GEMINI_API_KEY`가 비어 있으면 `POST /infer`는 503을 돌려준다. `.env`를 고친 뒤에는 서버를 재시작한다.
 
 - 대화형 API 문서: `http://localhost:8000/docs`
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
