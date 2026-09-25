@@ -44,5 +44,6 @@
 | 2026-09-16 | `0570167` | develop (merge) | feature/character-chat-web → develop 병합 (--no-ff) | [260916_2055_0570167_merge-character-chat-web_develop.md](commits/260916_2055_0570167_merge-character-chat-web_develop.md) |
 | 2026-09-16 | `36c5dc5` | fix/web-lan-dev-origin | LAN IP로 접속 시 HMR 차단되는 문제 해결 | [260916_2126_36c5dc5_web-lan-dev-origin_fix-web-lan-dev-origin.md](commits/260916_2126_36c5dc5_web-lan-dev-origin_fix-web-lan-dev-origin.md) |
 | 2026-09-16 | `6bf36e0` | develop (merge) | fix/web-lan-dev-origin → develop 병합 (--no-ff) | [260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md](commits/260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md) |
+| 2026-09-26 | `75bacbf` | feature/ollama-llm | 호스티드 LLM을 Gemini에서 로컬 Ollama(gemma4:e4b)로 교체 | [260926_0103_75bacbf_ollama-llm_feature-ollama-llm.md](commits/260926_0103_75bacbf_ollama-llm_feature-ollama-llm.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
