@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import ChatInput from "@/components/chat-input";
+import ChatMenu from "./chat-menu";
 import styles from "./character-chat.module.css";
 
 type Turn = {
@@ -200,6 +201,7 @@ export default function CharacterChat({
 
   return (
     <div className={styles.chat}>
+      <ChatMenu characterId={characterId} />
       <div className={styles.log} role="log" aria-live="polite" ref={logRef}>
         {messages.map((message) => (
           <div
@@ -304,7 +306,7 @@ export default function CharacterChat({
           value={input}
           onChange={setInput}
           onSubmit={() => void send(input)}
-          placeholder={persona ? `${characterName}에게 말 걸기` : "먼저 내 프로필을 고르세요"}
+          placeholder={persona ? `${characterName}에게 말 걸기` : "먼저 프로필을 골라요"}
           maxLength={2000}
           disabled={!canType}
         />

@@ -1,4 +1,5 @@
 .chat {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: min(70vh, 620px);
@@ -14,7 +15,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px;
+  padding: 52px 20px 20px;
   overflow-y: auto;
 }
 
@@ -296,4 +297,61 @@
   margin-top: 6px;
   font-size: 11px;
   opacity: 0.8;
+}
+
+.menuRoot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--muted);
+}
+
+.menuButton:hover,
+.menuButton[aria-expanded="true"] {
+  color: var(--foreground);
+  border-color: var(--accent);
+}
+
+.menuButton:focus-visible,
+.menuItem:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 190px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+}
+
+.menuItem {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--surface);
 }
