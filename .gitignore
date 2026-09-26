@@ -2,6 +2,8 @@
 node_modules/
 .next/
 dist/
+# apps/api 검증용 빌드 (npm run build:verify) — dev 서버의 dist와 분리
+dist-verify/
 build/
 *.tsbuildinfo
 
