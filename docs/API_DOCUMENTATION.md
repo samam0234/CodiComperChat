@@ -29,6 +29,9 @@
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
 | `GET /characters/:id/chat` | 이 캐릭터와 저장된 내 대화 | **200** `{ started, messages: [{ id, role, text, speaker, createdAt }] }` (최근 200개). 대화 전이면 `started: false`와 시작 장면 1개 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404 · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 |
+| `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
+| `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
+| `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
 | `GET /me/conversations` | 대화 목록(최근 대화 순) | **200** `[{ id, character, messageCount, updatedAt, lastMessage }]` · 🔒 |
 | `POST /characters/:id/chat/suggestions` | 대답 추천 `{ personaId, avoid? }` (대화 기록은 서버 저장본) | **200** `{ suggestions: [3개] }` · 🔒 · `personaId` 필수 · `avoid`(최근 12개)에 넣은 추천과 겹치지 않게 새로 만든다("초기화") |
 | `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |
@@ -55,6 +58,7 @@
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp }` |
 | `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) |
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |
+| `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /summarize` | 세션 종료 시. 관계/훅/지식 델타 반환 (형태는 아래 §13.4) | 501 |
 | `POST /critique-test` | 공방 3턴 테스트: 붕괴/설명충/메타 여부 판정 | 501 |

@@ -6,6 +6,7 @@ import {
   ConversationsService,
   DISPLAY_MESSAGES,
 } from '../conversations/conversations.service.js';
+import { MemoriesService } from '../memories/memories.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
@@ -20,6 +21,7 @@ export class CharacterChatService {
     private readonly personasService: PersonasService,
     private readonly personaRag: PersonaRagService,
     private readonly conversations: ConversationsService,
+    private readonly memories: MemoriesService,
   ) {}
 
   private async resolveUser(authorization: string | undefined): Promise<string> {
@@ -62,26 +64,50 @@ export class CharacterChatService {
     };
   }
 
+  private async memoriesFor(
+    conversation: { campaignId: string } | null,
+    history: ChatTurn[],
+    message?: string,
+  ) {
+    if (!conversation) return [];
+    const recent = history.slice(-2).map((t) => t.text);
+    const query =
+      message !== undefined
+        ? { message, recent }
+        : { message: history.at(-1)?.text ?? '', recent: recent.slice(0, -1) };
+    return this.memories.forContext(conversation.campaignId, query);
+  }
+
   async send(characterId: string, userTurn: string, options: PersonaOptions) {
-    const { character, userId, persona, history } = await this.prepare(characterId, options);
+    const { character, userId, persona, conversation: existing, history } = await this.prepare(
+      characterId,
+      options,
+    );
     const rag = this.personaRag.assemble(character.name, history, userTurn);
+    const memories = await this.memoriesFor(existing, history, userTurn);
 
     const { reply } = await postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona, rag),
+      context: buildContextSlice(character, history, persona, rag, memories),
       userTurn,
     });
 
     // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
     const conversation = await this.conversations.findOrCreate(userId, character);
     await this.conversations.appendExchange(conversation, userTurn, persona.name, reply);
+    // 대화가 충분히 쌓였으면 답을 돌려준 뒤 뒤에서 기억을 정리한다 (답 속도에 영향 없음)
+    this.memories.memorizeInBackground(conversation, {
+      characterName: character.name,
+      userName: persona.name,
+    });
     return { reply };
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {
-    const { character, persona, history } = await this.prepare(characterId, options);
+    const { character, persona, conversation, history } = await this.prepare(characterId, options);
     const rag = this.personaRag.assemble(character.name, history);
+    const memories = await this.memoriesFor(conversation, history);
     return postToAi<{ suggestions: string[] }>('/suggest-replies', {
-      context: buildContextSlice(character, history, persona, rag),
+      context: buildContextSlice(character, history, persona, rag, memories),
       avoid,
     });
   }

@@ -42,3 +42,13 @@ export async function getChatHistory(characterId: string): Promise<HistoryMessag
 export async function getMyConversations(): Promise<ConversationSummary[] | null> {
   return authedGet<ConversationSummary[]>("/me/conversations");
 }
+
+export type MemoriesView = {
+  character: { id: string; name: string };
+  started: boolean;
+  memories: { id: string; content: string; createdAt: string }[];
+};
+
+export async function getMemories(characterId: string): Promise<MemoriesView | null> {
+  return authedGet<MemoriesView>(`/characters/${encodeURIComponent(characterId)}/chat/memories`);
+}
