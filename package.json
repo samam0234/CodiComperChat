@@ -11,6 +11,7 @@
     "dev:api": "npm run start:dev --workspace api",
     "build:api": "npm run build --workspace api",
     "test:api": "npm run test --workspace api",
-    "test:api:e2e": "npm run test:e2e --workspace api"
+    "test:api:e2e": "npm run test:e2e --workspace api",
+    "typecheck:api": "npm run typecheck --workspace api"
   }
 }

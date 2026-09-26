@@ -14,4 +14,6 @@
 
 주제별 하나씩, 예: `docker-postgres-port.md`, `nest-fastapi-internal-network.md`, `prisma-migration-conflict.md`
 
-아직 코드/인프라가 없어 기록된 이슈가 없다. 처음 겪는 인프라 문제부터 이 폴더에 쌓는다.
+## 기록된 이슈
+
+- [nest-dev-server-dist-missing.md](nest-dev-server-dist-missing.md) — `Cannot find module dist/main`으로 죽고 안 살아남, 포트 4000 충돌
