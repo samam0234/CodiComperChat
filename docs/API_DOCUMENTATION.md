@@ -32,6 +32,8 @@
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
+| `GET /characters/:id/chat/state` | 캐릭터 내 상태설정 조회 | **200** `{ character: { id, name, addressing }, state: { relationshipValue, relationshipNote, userNickname, relationshipLabel } }` · 대화 전이면 기본값(0) · 🔒 |
+| `PATCH /characters/:id/chat/state` | 상태설정 저장 `{ relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자) }` | **200** · 보낸 필드만 바꾸고 빈 문자열은 지우기. 대화가 없으면 만든다. 범위·형식 오류 400 · 🔒. 친밀도는 구간 이름(처음 만난 사이~각별한 사이)과 메모를 근거로 모델에 넘기고, 호칭은 카드 호칭 규칙보다 우선한다(말투 높낮이는 카드대로) |
 | `GET /me/conversations` | 대화 목록(최근 대화 순) | **200** `[{ id, character, messageCount, updatedAt, lastMessage }]` · 🔒 |
 | `POST /characters/:id/chat/suggestions` | 대답 추천 `{ personaId, avoid? }` (대화 기록은 서버 저장본) | **200** `{ suggestions: [3개] }` · 🔒 · `personaId` 필수 · `avoid`(최근 12개)에 넣은 추천과 겹치지 않게 새로 만든다("초기화") |
 | `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |

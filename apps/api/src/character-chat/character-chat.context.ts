@@ -1,4 +1,5 @@
 import type { CharactersService } from '../characters/characters.service.js';
+import { type ChatState, relationshipLabel } from '../chat-state/chat-state.service.js';
 import type { RagContext } from '../persona-rag/persona-rag.service.js';
 import type {
   ChatTurn,
@@ -23,7 +24,10 @@ export function buildContextSlice(
   rag: RagContext | null = null,
   // 지난 대화에서 정리해 둔 기억(MemoryChunk) 중 이번 턴에 고른 것
   memories: { id: string; text: string }[] = [],
+  // 캐릭터 상태설정(친밀도·관계 메모·호칭). 대화 전이면 null
+  chatState: ChatState | null = null,
 ): ContextSlicePayload {
+  const nickname = chatState?.userNickname ?? null;
   const honorific = character.speechStyle.includes('존댓말')
     ? 'jondae'
     : character.speechStyle.includes('반말')
@@ -58,7 +62,7 @@ export function buildContextSlice(
       protectiveness: 50,
       speech: {
         honorific,
-        addressAs: character.addressing,
+        addressAs: nickname ?? character.addressing,
         forbidden: [],
         habits: [],
       },
@@ -70,11 +74,27 @@ export function buildContextSlice(
       lockedSecretTopics: ['아직 밝혀지지 않은 개인적인 사정'],
       unlockedSecrets: [],
     },
-    state: { relations: [], openHooks: [], knowledge: [] },
+    state: {
+      // 숫자만으론 모델이 의미를 모르니 구간 이름과 유저가 쓴 메모를 근거로 함께 넘긴다 (기획서 4.2장)
+      relations: chatState
+        ? [
+            {
+              name: '친밀도(0 처음 만남 ~ 100 각별함)',
+              value: chatState.relationshipValue,
+              reason: [relationshipLabel(chatState.relationshipValue), chatState.relationshipNote]
+                .filter(Boolean)
+                .join(' — '),
+            },
+          ]
+        : [],
+      openHooks: [],
+      knowledge: [],
+    },
     activeLore: rag?.lore ?? [],
     recentTurns: history,
     retrievedMemories: memories,
     directorNote,
     userPersona: persona,
+    addressOverride: nickname,
   };
 }

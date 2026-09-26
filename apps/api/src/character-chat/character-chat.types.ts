@@ -36,4 +36,6 @@ export type ContextSlicePayload = {
   retrievedMemories: { id: string; text: string }[];
   directorNote: string | null;
   userPersona: UserPersonaPayload | null;
+  // 유저가 캐릭터 상태설정에서 정한 호칭. 있으면 카드의 호칭 규칙보다 우선한다
+  addressOverride: string | null;
 };
