@@ -21,7 +21,6 @@ export async function POST(
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          history: body.history,
           personaId: body.personaId,
           avoid: body.avoid,
         }),

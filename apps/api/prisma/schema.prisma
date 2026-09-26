@@ -74,7 +74,7 @@ enum CampaignStatus {
 model Campaign {
   id          String         @id @default(cuid())
   userId      String
-  user        User           @relation(fields: [userId], references: [id])
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   characterId String
   character   Character      @relation(fields: [characterId], references: [id])
   title       String
@@ -84,6 +84,8 @@ model Campaign {
   state       CampaignState?
   sessions    Session[]
 
+  // 유저×캐릭터 대화를 찾는 경로 (대화는 캐릭터마다 하나)
+  @@index([userId, characterId])
   @@map("campaigns")
 }
 
@@ -91,7 +93,7 @@ model Campaign {
 model CampaignState {
   id                  String   @id @default(cuid())
   campaignId          String   @unique
-  campaign            Campaign @relation(fields: [campaignId], references: [id])
+  campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   relationshipValue   Int      @default(0)
   relationshipNote    String?
   openHooks           Json     @default("[]")
@@ -110,7 +112,7 @@ enum SessionStatus {
 model Session {
   id           String        @id @default(cuid())
   campaignId   String
-  campaign     Campaign      @relation(fields: [campaignId], references: [id])
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   index        Int
   status       SessionStatus @default(OPEN)
   startedAt    DateTime      @default(now())
@@ -131,10 +133,13 @@ enum MessageRole {
 model Message {
   id        String      @id @default(cuid())
   sessionId String
-  session   Session     @relation(fields: [sessionId], references: [id])
+  session   Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   role      MessageRole
   content   String
+  /// 유저 메시지를 보낼 때 쓴 내 프로필 캐릭터 이름 (프로필을 나중에 지우거나 바꿔도 기록은 그대로 남긴다)
+  speaker   String?
   createdAt DateTime    @default(now())
 
+  @@index([sessionId, createdAt])
   @@map("messages")
 }

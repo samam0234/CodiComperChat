@@ -21,7 +21,6 @@ export async function POST(
       },
       body: JSON.stringify({
         message: body.message,
-        history: body.history,
         personaId: body.personaId,
       }),
     });

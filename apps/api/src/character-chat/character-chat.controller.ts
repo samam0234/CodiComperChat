@@ -2,40 +2,23 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   Param,
   Post,
 } from '@nestjs/common';
 import { CharacterChatService } from './character-chat.service.js';
-import type { ChatTurn } from './character-chat.types.js';
 
 const MESSAGE_LIMIT = 2000;
-const HISTORY_LIMIT = 30;
-const TURN_LIMIT = 4000;
 const AVOID_LIMIT = 12;
 
+// history는 더 이상 받지 않는다 — 대화 기록은 서버에 저장된 것을 쓴다
 type ChatBody = {
   message?: unknown;
-  history?: unknown;
   personaId?: unknown;
   avoid?: unknown;
 };
-
-function sanitizeHistory(raw: unknown): ChatTurn[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter(
-      (t): t is ChatTurn =>
-        typeof t === 'object' &&
-        t !== null &&
-        (t.role === 'user' || t.role === 'character') &&
-        typeof t.text === 'string' &&
-        t.text.trim() !== '',
-    )
-    .slice(-HISTORY_LIMIT)
-    .map((t) => ({ role: t.role, text: t.text.slice(0, TURN_LIMIT) }));
-}
 
 // 대화는 내 프로필 캐릭터를 고른 상태에서만 할 수 있다 (프로필은 로그인 유저의 것이다)
 function requirePersonaId(raw: unknown): string {
@@ -48,6 +31,11 @@ function requirePersonaId(raw: unknown): string {
 @Controller('characters/:id/chat')
 export class CharacterChatController {
   constructor(private readonly characterChatService: CharacterChatService) {}
+
+  @Get()
+  history(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.history(id, authorization);
+  }
 
   @Post()
   @HttpCode(200)
@@ -64,7 +52,7 @@ export class CharacterChatController {
       throw new BadRequestException(`메시지는 ${MESSAGE_LIMIT}자 이하로 보내 주세요.`);
     }
 
-    return this.characterChatService.send(id, message, sanitizeHistory(body.history), {
+    return this.characterChatService.send(id, message, {
       personaId: requirePersonaId(body.personaId),
       authorization,
     });
@@ -84,7 +72,7 @@ export class CharacterChatController {
           .map((s) => s.slice(0, 200))
       : [];
 
-    return this.characterChatService.suggest(id, sanitizeHistory(body?.history), avoid, {
+    return this.characterChatService.suggest(id, avoid, {
       personaId: requirePersonaId(body?.personaId),
       authorization,
     });
