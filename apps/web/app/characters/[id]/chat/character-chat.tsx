@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatInput from "@/components/chat-input";
 import styles from "./character-chat.module.css";
 
@@ -10,7 +10,16 @@ type Turn = {
   text: string;
 };
 
-type DisplayMessage = Turn & { id: number; error?: boolean; speaker?: string };
+// 저장된 메시지는 서버 id(문자열), 방금 보낸 것은 임시 번호다
+type DisplayMessage = Turn & {
+  id: string | number;
+  error?: boolean;
+  // 답을 받지 못해 기록에 남지 않은 내 메시지
+  unsaved?: boolean;
+  speaker?: string | null;
+};
+
+export type InitialMessage = { id: string; role: "user" | "character"; text: string; speaker: string | null };
 
 type PersonaOption = { id: string; name: string };
 
@@ -37,19 +46,19 @@ function SparkIcon() {
 export default function CharacterChat({
   characterId,
   characterName,
-  openingScene,
+  initialMessages,
   personas,
 }: {
   characterId: string;
   characterName: string;
-  openingScene: string;
+  // 서버에 저장된 이 캐릭터와의 대화 (처음이면 시작 장면 하나)
+  initialMessages: InitialMessage[];
   personas: PersonaOption[];
 }) {
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [messages, setMessages] = useState<DisplayMessage[]>([
-    { id: 0, role: "character", text: openingScene },
-  ]);
+  const logRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<DisplayMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   // 대화 전에 반드시 직접 골라야 한다 — 기본값을 미리 채우지 않는다
@@ -59,8 +68,11 @@ export default function CharacterChat({
   const persona = personas.find((p) => p.id === personaId);
   const chatPath = `/characters/${characterId}/chat`;
 
-  const history = (): Turn[] =>
-    messages.filter((m) => !m.error).map(({ role, text }) => ({ role, text }));
+  // 새 메시지가 오면(그리고 처음 열 때 긴 기록이 있으면) 맨 아래로 내린다
+  useEffect(() => {
+    const log = logRef.current;
+    if (log) log.scrollTop = log.scrollHeight;
+  }, [messages.length, sending]);
 
   const loadSuggestions = async (previous: string[]) => {
     if (!persona) return;
@@ -70,7 +82,7 @@ export default function CharacterChat({
       const res = await fetch(`/api/characters/${characterId}/chat/suggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history: history(), personaId: persona.id, avoid: previous }),
+        body: JSON.stringify({ personaId: persona.id, avoid: previous }),
       });
       const data = await res.json();
       if (res.ok && Array.isArray(data.suggestions)) {
@@ -115,13 +127,15 @@ export default function CharacterChat({
       return;
     }
 
-    const turns = history();
-
     nextId.current += 1;
+    const sentId = nextId.current;
     setMessages((prev) => [
       ...prev,
-      { id: nextId.current, role: "user", text: trimmed, speaker: persona.name },
+      { id: sentId, role: "user", text: trimmed, speaker: persona.name },
     ]);
+    // 답을 못 받으면 서버에 저장되지 않는다. 그 사실을 내 말풍선에 표시한다
+    const markUnsaved = () =>
+      setMessages((prev) => prev.map((m) => (m.id === sentId ? { ...m, unsaved: true } : m)));
     setInput("");
     // 대화가 진행되면 이전 추천은 상황에 안 맞으므로 닫는다
     setSuggestions({ status: "closed" });
@@ -131,7 +145,7 @@ export default function CharacterChat({
       const res = await fetch(`/api/characters/${characterId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, history: turns, personaId: persona.id }),
+        body: JSON.stringify({ message: trimmed, personaId: persona.id }),
       });
       const data = await res.json();
 
@@ -139,6 +153,7 @@ export default function CharacterChat({
       if (res.ok) {
         setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
       } else {
+        markUnsaved();
         setMessages((prev) => [
           ...prev,
           {
@@ -150,6 +165,7 @@ export default function CharacterChat({
         ]);
       }
     } catch {
+      markUnsaved();
       nextId.current += 1;
       setMessages((prev) => [
         ...prev,
@@ -184,7 +200,7 @@ export default function CharacterChat({
 
   return (
     <div className={styles.chat}>
-      <div className={styles.log} role="log" aria-live="polite">
+      <div className={styles.log} role="log" aria-live="polite" ref={logRef}>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -197,6 +213,9 @@ export default function CharacterChat({
               <span className={styles.userSpeaker}>{message.speaker}</span>
             )}
             {message.text}
+            {message.unsaved && (
+              <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>
+            )}
           </div>
         ))}
 

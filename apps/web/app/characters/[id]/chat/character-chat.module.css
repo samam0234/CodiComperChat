@@ -290,3 +290,10 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+.unsaved {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.8;
+}
