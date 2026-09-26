@@ -70,7 +70,10 @@ def _build_system_prompt(context: ContextSlice) -> str:
 
     if context.retrieved_memories:
         memories = "\n".join(f"- {m.text}" for m in context.retrieved_memories)
-        lines.append("과거 세션에서 떠올린 기억:\n" + memories)
+        lines.append(
+            "지난 대화에서 쌓인 기억(이 유저와 실제로 있었던 일이다. 사실로 다루고, 자연스러울 때 꺼내 쓴다):\n"
+            + memories
+        )
 
     if context.user_persona:
         persona = context.user_persona

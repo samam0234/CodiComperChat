@@ -13,15 +13,15 @@ datasource db {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  email       String     @unique
-  displayName String
+  id           String        @id @default(cuid())
+  email        String        @unique
+  displayName  String
   // 소셜 로그인 등 비밀번호 없는 계정도 담을 수 있게 nullable (인증 벤더 미정)
   passwordHash String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  campaigns   Campaign[]
-  personas    UserPersona[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  campaigns    Campaign[]
+  personas     UserPersona[]
 
   @@map("users")
 }
@@ -42,8 +42,8 @@ model UserPersona {
 
 /// 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.
 model Character {
-  id                    String   @id @default(cuid())
-  name                  String   @unique
+  id                    String     @id @default(cuid())
+  name                  String     @unique
   oneLiner              String
   role                  String
   addressing            String
@@ -72,17 +72,20 @@ enum CampaignStatus {
 }
 
 model Campaign {
-  id          String         @id @default(cuid())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  characterId String
-  character   Character      @relation(fields: [characterId], references: [id])
-  title       String
-  status      CampaignStatus @default(ACTIVE)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  state       CampaignState?
-  sessions    Session[]
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId    String
+  character      Character      @relation(fields: [characterId], references: [id])
+  title          String
+  status         CampaignStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  state          CampaignState?
+  sessions       Session[]
+  memories       MemoryChunk[]
+  /// 이 시각까지의 메시지는 기억으로 정리했다. 그 뒤 메시지가 쌓이면 다음 정리를 한다
+  memorizedUntil DateTime?
 
   // 유저×캐릭터 대화를 찾는 경로 (대화는 캐릭터마다 하나)
   @@index([userId, characterId])
@@ -142,4 +145,17 @@ model Message {
 
   @@index([sessionId, createdAt])
   @@map("messages")
+}
+
+/// §7.5 MemoryChunk — 지난 대화에서 캐릭터가 기억할 내용을 요약한 짧은 문장.
+/// 원문(Message)과 분리해 두고, 매 턴 관련 있는 것만 골라 컨텍스트에 넣는다. 임베딩은 나중에 붙인다
+model MemoryChunk {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("memory_chunks")
 }

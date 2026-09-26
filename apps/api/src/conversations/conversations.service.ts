@@ -78,6 +78,16 @@ export class ConversationsService {
     }));
   }
 
+  // 기억 문장의 주어로 쓸, 가장 최근에 쓴 내 프로필 이름
+  async lastSpeaker(sessionId: string): Promise<string | null> {
+    const row = await this.prisma.message.findFirst({
+      where: { sessionId, role: MessageRole.USER, speaker: { not: null } },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      select: { speaker: true },
+    });
+    return row?.speaker ?? null;
+  }
+
   async recentTurns(sessionId: string): Promise<ChatTurn[]> {
     return (await this.messages(sessionId, CONTEXT_TURNS)).map(({ role, text }) => ({ role, text }));
   }

@@ -10,10 +10,9 @@ type PublicCharacter = Awaited<
   ReturnType<CharactersService['findOnePublished']>
 >;
 
-// 매 회차 새로 캠페인을 여는 게 아니라, 캐릭터 상세에서 바로 미리보기로 대화하는
-// 자리다. 캠페인/세션/CampaignState가 아직 없으니 관계·훅은 항상 빈 값이고,
-// retrievedMemories(과거 세션 장기 기억)도 비워 둔다 — 검색할 과거 세션이 아직 없다.
-// 세션이 쌓이면(계획서 13.3장 "장기 기억 검색") 그때 채울 자리다.
+// 대화는 캐릭터마다 하나(Campaign)로 이어진다. recentTurns는 서버에 저장된 최근 턴이고,
+// retrievedMemories는 지난 대화에서 정리해 둔 기억(MemoryChunk) 중 이번 턴에 고른 것이다
+// (계획서 13.3장 "장기 기억 검색"). 훅은 아직 빈 값이다.
 //
 // activeLore는 페르소나 지식 JSON에서 이번 대화와 관련된 조각만 골라 채운다(persona-rag).
 // 지식 파일이 없는 캐릭터(rag === null)는 예전처럼 카드 원문 전부를 directorNote로 넘긴다.
@@ -22,6 +21,8 @@ export function buildContextSlice(
   history: ChatTurn[],
   persona: UserPersonaPayload | null = null,
   rag: RagContext | null = null,
+  // 지난 대화에서 정리해 둔 기억(MemoryChunk) 중 이번 턴에 고른 것
+  memories: { id: string; text: string }[] = [],
 ): ContextSlicePayload {
   const honorific = character.speechStyle.includes('존댓말')
     ? 'jondae'
@@ -72,7 +73,7 @@ export function buildContextSlice(
     state: { relations: [], openHooks: [], knowledge: [] },
     activeLore: rag?.lore ?? [],
     recentTurns: history,
-    retrievedMemories: [],
+    retrievedMemories: memories,
     directorNote,
     userPersona: persona,
   };
