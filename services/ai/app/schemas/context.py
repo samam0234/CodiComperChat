@@ -84,3 +84,5 @@ class ContextSlice(WireModel):
     retrieved_memories: list[MemoryChunk]
     director_note: str | None = None
     user_persona: UserPersona | None = None
+    # 유저가 캐릭터 상태설정에서 정한 호칭. 있으면 카드의 호칭 규칙보다 우선한다
+    address_override: str | None = Field(default=None, max_length=20)

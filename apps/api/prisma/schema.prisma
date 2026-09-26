@@ -97,8 +97,11 @@ model CampaignState {
   id                  String   @id @default(cuid())
   campaignId          String   @unique
   campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  /// 친밀도 0(처음 만남)~100(각별함). 유저가 캐릭터 상태설정에서 조정한다
   relationshipValue   Int      @default(0)
   relationshipNote    String?
+  /// 이 대화에서 캐릭터가 유저를 부르는 호칭. 비어 있으면 캐릭터 카드의 호칭 규칙을 따른다
+  userNickname        String?
   openHooks           Json     @default("[]")
   unlockedSecrets     Json     @default("[]")
   briefForNextSession String?

@@ -52,6 +52,10 @@ def _describe(context: ContextSlice) -> str:
             profile += f"\n소개: {persona.description}"
         parts.append(f"주인공(유저가 연기):\n<user_persona>\n{profile}\n</user_persona>")
 
+    if context.state.relations:
+        rel = ", ".join(f"{a.name} {a.value}({a.reason})" for a in context.state.relations)
+        parts.append(f"두 사람의 현재 관계: {rel} — 제안의 말투와 거리감을 이 관계에 맞춘다")
+
     if context.retrieved_memories:
         memories = "\n".join(f"- {m.text}" for m in context.retrieved_memories)
         parts.append(f"지난 대화에서 쌓인 기억:\n{memories}")

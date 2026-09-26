@@ -52,3 +52,17 @@ export type MemoriesView = {
 export async function getMemories(characterId: string): Promise<MemoriesView | null> {
   return authedGet<MemoriesView>(`/characters/${encodeURIComponent(characterId)}/chat/memories`);
 }
+
+export type ChatStateView = {
+  character: { id: string; name: string; addressing: string };
+  state: {
+    relationshipValue: number;
+    relationshipNote: string | null;
+    userNickname: string | null;
+    relationshipLabel: string;
+  };
+};
+
+export async function getChatState(characterId: string): Promise<ChatStateView | null> {
+  return authedGet<ChatStateView>(`/characters/${encodeURIComponent(characterId)}/chat/state`);
+}

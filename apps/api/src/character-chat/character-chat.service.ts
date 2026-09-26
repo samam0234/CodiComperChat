@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { postToAi } from '../ai/ai-client.js';
 import { verifyToken } from '../auth/token.js';
+import { ChatStateService } from '../chat-state/chat-state.service.js';
 import { CharactersService } from '../characters/characters.service.js';
 import {
   ConversationsService,
@@ -22,6 +23,7 @@ export class CharacterChatService {
     private readonly personaRag: PersonaRagService,
     private readonly conversations: ConversationsService,
     private readonly memories: MemoriesService,
+    private readonly chatState: ChatStateService,
   ) {}
 
   private async resolveUser(authorization: string | undefined): Promise<string> {
@@ -44,7 +46,8 @@ export class CharacterChatService {
     const history: ChatTurn[] = conversation
       ? await this.conversations.recentTurns(conversation.sessionId)
       : [{ role: 'character', text: character.openingScene }];
-    return { character, userId, persona: { name, description }, conversation, history };
+    const chatState = conversation ? await this.chatState.get(conversation.campaignId) : null;
+    return { character, userId, persona: { name, description }, conversation, history, chatState };
   }
 
   async history(characterId: string, authorization?: string) {
@@ -79,7 +82,7 @@ export class CharacterChatService {
   }
 
   async send(characterId: string, userTurn: string, options: PersonaOptions) {
-    const { character, userId, persona, conversation: existing, history } = await this.prepare(
+    const { character, userId, persona, conversation: existing, history, chatState } = await this.prepare(
       characterId,
       options,
     );
@@ -87,7 +90,7 @@ export class CharacterChatService {
     const memories = await this.memoriesFor(existing, history, userTurn);
 
     const { reply } = await postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona, rag, memories),
+      context: buildContextSlice(character, history, persona, rag, memories, chatState),
       userTurn,
     });
 
@@ -103,11 +106,11 @@ export class CharacterChatService {
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {
-    const { character, persona, conversation, history } = await this.prepare(characterId, options);
+    const { character, persona, conversation, history, chatState } = await this.prepare(characterId, options);
     const rag = this.personaRag.assemble(character.name, history);
     const memories = await this.memoriesFor(conversation, history);
     return postToAi<{ suggestions: string[] }>('/suggest-replies', {
-      context: buildContextSlice(character, history, persona, rag, memories),
+      context: buildContextSlice(character, history, persona, rag, memories, chatState),
       avoid,
     });
   }

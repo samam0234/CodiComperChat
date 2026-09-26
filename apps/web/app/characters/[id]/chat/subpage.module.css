@@ -109,3 +109,42 @@
   line-height: 1.5;
   color: var(--muted);
 }
+
+.formWrap {
+  max-width: 560px;
+}
+
+.formWrap .section {
+  display: grid;
+  gap: 12px;
+}
+
+.valueBadge {
+  margin-left: 4px;
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.valueLabel {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.rangeScale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 12px;
+  line-height: 1.6;
+  resize: vertical;
+}
