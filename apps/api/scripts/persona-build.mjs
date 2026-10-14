@@ -114,7 +114,8 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: proc
 
 try {
   const characters = await prisma.character.findMany({
-    where: { published: true, ...(onlyName ? { name: onlyName } : {}) },
+    // 공방에서 발행한 캐릭터는 발행할 때 카드 전체로 studio-<초안 id>.json 을 쓴다 — 두 번째 파일을 만들지 않는다
+    where: { published: true, draft: null, ...(onlyName ? { name: onlyName } : {}) },
     // secret · secretUnlockCondition 은 일부러 고르지 않는다
     select: {
       name: true,

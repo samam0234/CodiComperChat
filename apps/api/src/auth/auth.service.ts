@@ -19,6 +19,8 @@ const PUBLIC_USER = {
   id: true,
   email: true,
   displayName: true,
+  // 웹이 공방 발행 버튼을 보여 줄지 정한다. 권한 판단은 서버가 다시 한다
+  role: true,
   createdAt: true,
 } as const;
 

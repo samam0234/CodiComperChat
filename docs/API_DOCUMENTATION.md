@@ -19,7 +19,7 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }` | **201** `{ token, user }` · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, createdAt }` · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, createdAt }` · `role`은 `USER`/`ADMIN`(공방 발행 권한, 웹은 버튼 표시에만 쓰고 판단은 서버가 다시 한다) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
 
@@ -48,13 +48,14 @@
 | `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
 | `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, characterId, updatedAt, complete }]` · 🔒 |
 | `POST /studio/characters` | 빈 초안 만들기 | **201** `{ id }` · 🔒 (로그인한 누구나) |
-| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, lastTest, characterId, published, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
+| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
 | `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
 | `POST /studio/characters/:id/test/reset` | 테스트 다시 시작 | **204** · 🔒 |
-| `POST /studio/characters/:id/publish` | 발행 (필수 필드·붕괴 검사 통과 시) | 501 |
+| `POST /studio/characters/:id/publish` | 발행 | **200** 초안(`published: true`, `characterId`) · **운영자(ADMIN)만**, 아니면 403. 필수 단계가 비었거나 지금 카드로 3턴 테스트를 통과하지 않았으면 409, 다른 캐릭터가 같은 이름이면 409. 카드 → 캐릭터(비밀·해금 조건 포함, 서버 전용)로 만들거나 고치고, 페르소나 지식 파일 `data/personas/studio-<초안 id>.json`(비밀 제외)을 써서 첫 대화부터 RAG가 붙는다. 다시 발행하면 같은 캐릭터를 고친다(기존 대화 유지) · 🔒 |
+| `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 운영자만. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
 
 > 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 

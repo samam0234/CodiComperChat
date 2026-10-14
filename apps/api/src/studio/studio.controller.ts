@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
+import { StudioPublishService } from './studio-publish.service.js';
 import { StudioTestService } from './studio-test.service.js';
 import { StudioService } from './studio.service.js';
 
@@ -21,6 +22,7 @@ export class StudioController {
   constructor(
     private readonly studio: StudioService,
     private readonly test: StudioTestService,
+    private readonly publisher: StudioPublishService,
   ) {}
 
   @Get()
@@ -74,5 +76,18 @@ export class StudioController {
   @HttpCode(204)
   async testReset(@CurrentUserId() userId: string, @Param('id') id: string) {
     await this.test.reset(userId, id);
+  }
+
+  // 발행·내리기는 운영자만 (서비스에서 권한 확인). 필수 단계 + 지금 카드로 테스트 통과가 조건
+  @Post(':id/publish')
+  @HttpCode(200)
+  publish(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.publisher.publish(userId, id);
+  }
+
+  @Post(':id/unpublish')
+  @HttpCode(200)
+  unpublish(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.publisher.unpublish(userId, id);
   }
 }

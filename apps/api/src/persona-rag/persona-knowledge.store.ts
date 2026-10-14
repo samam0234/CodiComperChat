@@ -43,6 +43,11 @@ export class PersonaKnowledgeStore {
     return this.dir;
   }
 
+  // 서버가 직접 파일을 쓴 뒤(공방 발행) 확인 간격을 기다리지 않고 다음 조회에서 바로 다시 훑는다
+  invalidate(): void {
+    this.lastScan = 0;
+  }
+
   private scan(force: boolean): void {
     const now = Date.now();
     if (!force && now - this.lastScan < RESCAN_INTERVAL_MS) return;
