@@ -19,7 +19,9 @@ export default async function LibraryPage() {
   return (
     <>
       <h1 className={styles.title}>대화 목록</h1>
-      <p className={styles.description}>캐릭터와 나눈 대화가 캐릭터마다 이어서 기록됩니다.</p>
+      <p className={styles.description}>
+        캐릭터마다 지금 대화가 이어서 기록됩니다. 저장한 대화는 대화 화면의 &quot;이어하기&quot;에서 다시 열 수 있어요.
+      </p>
 
       {conversations === null && (
         <p className={styles.notice}>대화 목록을 불러오지 못했습니다. apps/api가 켜져 있는지 확인하세요.</p>
@@ -48,7 +50,10 @@ export default async function LibraryPage() {
                     ? `${c.lastMessage.role === "user" ? `${c.lastMessage.speaker ?? "나"}: ` : ""}${c.lastMessage.text}`
                     : c.character.oneLiner}
                 </p>
-                <span className={styles.count}>메시지 {c.messageCount}개</span>
+                <span className={styles.count}>
+                  {c.active ? `메시지 ${c.messageCount}개` : "지금 대화 없음"}
+                  {c.savedCount > 0 && ` · 저장한 대화 ${c.savedCount}개`}
+                </span>
               </Link>
             </li>
           ))}

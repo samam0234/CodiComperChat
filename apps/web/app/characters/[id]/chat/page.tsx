@@ -45,7 +45,7 @@ export default async function CharacterChatPage({
     notFound();
   }
 
-  const initialMessages = history ?? [
+  const initialMessages = history?.messages ?? [
     { id: "opening", role: "character" as const, text: character.openingScene, speaker: null },
   ];
 
@@ -62,6 +62,8 @@ export default async function CharacterChatPage({
         characterId={character.id}
         characterName={character.name}
         initialMessages={initialMessages}
+        lockedPersona={history?.persona ?? null}
+        savedCount={history?.savedCount ?? 0}
         personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
       />
     </section>
