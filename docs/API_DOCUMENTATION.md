@@ -46,8 +46,11 @@
 | `POST /campaigns/:id/messages` | 유저 메시지 전송 + 스트림 응답 | 501 (컨텍스트 조립 + FastAPI `/infer` 중계 자리) |
 | `POST /campaigns/:id/sessions/:sessionId/close` | 세션 종료·요약 트리거 | 501 (`/summarize` 결과를 CampaignState에 머지하는 자리) |
 | `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
-| `POST /studio/characters` | 캐릭터 초안 생성 | 501 |
-| `PATCH /studio/characters/:id` | 캐릭터 초안 수정 | 501 |
+| `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, characterId, updatedAt, complete }]` · 🔒 |
+| `POST /studio/characters` | 빈 초안 만들기 | **201** `{ id }` · 🔒 (로그인한 누구나) |
+| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, lastTest, characterId, published, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
+| `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
+| `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test` | 3턴 테스트 | 501 (`/critique-test` 호출 자리) |
 | `POST /studio/characters/:id/publish` | 발행 (필수 필드·붕괴 검사 통과 시) | 501 |
 

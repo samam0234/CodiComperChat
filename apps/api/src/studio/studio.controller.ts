@@ -1,27 +1,46 @@
-import { Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
 import { StudioService } from './studio.service.js';
 
+// 캐릭터 공방 (기획서 §6). 초안 만들기·고치기는 로그인한 누구나, 발행은 운영자만
 @Controller('studio/characters')
+@UseGuards(AuthGuard)
 export class StudioController {
-  constructor(private readonly studioService: StudioService) {}
+  constructor(private readonly studio: StudioService) {}
+
+  @Get()
+  list(@CurrentUserId() userId: string) {
+    return this.studio.list(userId);
+  }
 
   @Post()
-  createDraft() {
-    return this.studioService.createDraft();
+  create(@CurrentUserId() userId: string) {
+    return this.studio.create(userId);
+  }
+
+  @Get(':id')
+  get(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.studio.get(userId, id);
   }
 
   @Patch(':id')
-  updateDraft(@Param('id') id: string) {
-    return this.studioService.updateDraft(id);
+  save(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: { card?: unknown }) {
+    return this.studio.save(userId, id, body?.card);
   }
 
-  @Post(':id/test')
-  test(@Param('id') id: string) {
-    return this.studioService.test(id);
-  }
-
-  @Post(':id/publish')
-  publish(@Param('id') id: string) {
-    return this.studioService.publish(id);
+  @Delete(':id')
+  @HttpCode(204)
+  async remove(@CurrentUserId() userId: string, @Param('id') id: string) {
+    await this.studio.remove(userId, id);
   }
 }
