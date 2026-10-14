@@ -28,7 +28,7 @@
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
 | `GET /characters/:id/chat` | 이 캐릭터와의 **지금 대화** | **200** `{ started, persona, savedCount, messages: [{ id, role, text, speaker, createdAt }] }` (최근 200개). 대화 전이면 `started: false`와 시작 장면 1개. `persona`(`{ id, name }` 또는 null)는 이 대화에 고정된 내 프로필 · 🔒 |
-| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 |
+| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 |
 | `POST /characters/:id/chat/new` | 새로하기 `{ save }` | **200** `{ saved, ...GET /chat 응답 }` · `save: true`면 지금 대화를 저장한 대화로 남기고(제목 = 첫 유저 말 30자), 아니면 지운다(기억·상태설정 포함). 한 마디도 안 한 대화는 저장하지 않는다. 프로필 고정이 풀린다 · 🔒 |
 | `GET /characters/:id/chat/saved` | 이어하기 목록 | **200** `{ character, currentHasMessages, saved: [{ id, title, personaName, savedAt, updatedAt, messageCount, memoryCount, lastMessage }] }` · 🔒 |
 | `POST /characters/:id/chat/saved/:campaignId/resume` | 이어하기 `{ saveCurrent }` | **200** GET /chat 응답 · 저장한 대화를 지금 대화로 되살린다(내용·기억·상태설정·고정 프로필 그대로). 지금 대화는 `saveCurrent`에 따라 저장하거나 지운다. 없거나 남의 것 404 · 🔒 |
@@ -38,6 +38,13 @@
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
 | `GET /characters/:id/chat/state` | 캐릭터 내 상태설정 조회 | **200** `{ character: { id, name, addressing }, state: { relationshipValue, relationshipNote, userNickname, relationshipLabel } }` · 대화 전이면 기본값(0) · 🔒 |
 | `PATCH /characters/:id/chat/state` | 상태설정 저장 `{ relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자) }` | **200** · 보낸 필드만 바꾸고 빈 문자열은 지우기. 대화가 없으면 만든다. 범위·형식 오류 400 · 🔒. 친밀도는 구간 이름(처음 만난 사이~각별한 사이)과 메모를 근거로 모델에 넘기고, 호칭은 카드 호칭 규칙보다 우선한다(말투 높낮이는 카드대로) |
+| `GET /me/extras` | 내 엑스트라 목록 | **200** `[{ id, name, summary, personality, relation, situation, place, updatedAt }]` · 🔒 |
+| `POST /me/extras` | 엑스트라 만들기 `{ name(~20, 필수), summary(~60, 필수), personality?(~200), relation?(~120), situation?(~200), place?(~120) }` | **201** · 1인당 20개(넘으면 409), 형식·글자 수 400 · 🔒 |
+| `PATCH /me/extras/:extraId` | 엑스트라 고치기 (같은 본문) | **200** · 칸을 비우면 대화들에 적용해 둔 그 조건만 빠진다(조건이 다 빠지면 적용 해제) · 🔒 |
+| `DELETE /me/extras/:extraId` | 엑스트라 지우기 | **204** · 모든 대화(저장한 대화 포함)에서 빠진다 · 🔒 |
+| `GET /characters/:id/chat/extras` | 지금 대화의 엑스트라 설정 | **200** `{ limits, mine: [{ ...엑스트라, keywords: { relation, situation, place } }], applied: [{ extraId, triggers }] }` · `keywords`는 조건별로 등장을 부르는 단어(서버가 뽑음, 인물 관계에서는 주인공 이름 제외) · 🔒 |
+| `PUT /characters/:id/chat/extras/:extraId` | 지금 대화에 적용·조건 바꾸기 `{ triggers: ["relation" \| "situation" \| "place", ...] }` (셋 다 = 모두) | **200** 위 설정 · 조건 0개·빈 칸 조건 400, 한 대화 3명(넘으면 409). 대화가 없으면 만든다 · 🔒 |
+| `DELETE /characters/:id/chat/extras/:extraId` | 지금 대화에서 빼기 | **200** 위 설정 · 🔒 |
 | `GET /me/conversations` | 대화 목록(최근 대화 순, 캐릭터마다 한 줄) | **200** `[{ id, character, messageCount, updatedAt, lastMessage, active, savedCount }]` · 지금 대화가 있으면 그것, 없으면 가장 최근에 저장한 대화. `active: false`면 지금 대화 없음 · 🔒 |
 | `POST /characters/:id/chat/suggestions` | 대답 추천 `{ personaId, avoid? }` (대화 기록은 서버 저장본) | **200** `{ suggestions: [3개] }` · 🔒 · `personaId` 필수 · `avoid`(최근 12개)에 넣은 추천과 겹치지 않게 새로 만든다("초기화") |
 | `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |
@@ -68,7 +75,7 @@
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp }` |
-| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) |
+| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 |
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |

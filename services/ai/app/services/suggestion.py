@@ -60,6 +60,12 @@ def _describe(context: ContextSlice) -> str:
         memories = "\n".join(f"- {m.text}" for m in context.retrieved_memories)
         parts.append(f"지난 대화에서 쌓인 기억:\n{memories}")
 
+    if context.extras:
+        extras = "\n".join(
+            f"- {e.name}: {e.summary}" + (f" (관계: {e.relation})" if e.relation else "") for e in context.extras
+        )
+        parts.append(f"지금 장면에 등장할 수 있는 조연(유저가 정한 인물, 적힌 것만 사실):\n<extras>\n{extras}\n</extras>")
+
     me = persona.name if persona else "유저"
     lines = [
         f"{me if t.role == 'user' else character.name}: {t.text}"

@@ -6,6 +6,7 @@ import { startNewConversation } from "@/app/actions/conversations";
 import ChatInput from "@/components/chat-input";
 import ChoiceDialog from "@/components/choice-dialog";
 import ChatMenu from "./chat-menu";
+import ExtrasPanel from "./extras-panel";
 import styles from "./character-chat.module.css";
 
 type Turn = {
@@ -77,6 +78,8 @@ export default function CharacterChat({
   const [newDialog, setNewDialog] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  // 새로하기로 대화가 바뀌면 엑스트라 설정을 새 대화 기준으로 다시 그린다
+  const [conversationKey, setConversationKey] = useState(0);
 
   // 고정된 프로필을 마이페이지에서 지웠어도 이 대화에서는 처음 고른 그대로 쓴다
   const persona =
@@ -96,6 +99,7 @@ export default function CharacterChat({
     setMessages(result.data.messages);
     setLocked(null);
     setPersonaId("");
+    setConversationKey((k) => k + 1);
     setSavedCount(result.data.savedCount);
     setInput("");
     setSuggestions({ status: "closed" });
@@ -436,6 +440,7 @@ export default function CharacterChat({
           )}
         </div>
       </div>
+      <ExtrasPanel key={conversationKey} characterId={characterId} characterName={characterName} />
     </>
   );
 }

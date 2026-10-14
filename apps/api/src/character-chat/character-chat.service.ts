@@ -8,6 +8,7 @@ import {
   DISPLAY_MESSAGES,
   type LockedPersona,
 } from '../conversations/conversations.service.js';
+import { ExtrasService } from '../extras/extras.service.js';
 import { MemoriesService } from '../memories/memories.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
@@ -25,6 +26,7 @@ export class CharacterChatService {
     private readonly conversations: ConversationsService,
     private readonly memories: MemoriesService,
     private readonly chatState: ChatStateService,
+    private readonly extras: ExtrasService,
   ) {}
 
   private async resolveUser(authorization: string | undefined): Promise<string> {
@@ -142,9 +144,10 @@ export class CharacterChatService {
     );
     const rag = this.personaRag.assemble(character.name, history, userTurn);
     const memories = await this.memoriesFor(existing, history, userTurn);
+    const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
 
     const { reply } = await postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona, rag, memories, chatState),
+      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras),
       userTurn,
     });
 
@@ -163,8 +166,10 @@ export class CharacterChatService {
     const { character, persona, conversation, history, chatState } = await this.prepare(characterId, options);
     const rag = this.personaRag.assemble(character.name, history);
     const memories = await this.memoriesFor(conversation, history);
+    // 대답 추천은 직전 캐릭터 말을 기준으로 엑스트라를 고른다
+    const extras = await this.extras.activeFor(conversation, history.slice(0, -1), history.at(-1)?.text ?? '', character.name);
     return postToAi<{ suggestions: string[] }>('/suggest-replies', {
-      context: buildContextSlice(character, history, persona, rag, memories, chatState),
+      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras),
       avoid,
     });
   }

@@ -4,6 +4,7 @@ import type { RagContext } from '../persona-rag/persona-rag.service.js';
 import type {
   ChatTurn,
   ContextSlicePayload,
+  ExtraPayload,
   UserPersonaPayload,
 } from './character-chat.types.js';
 
@@ -26,6 +27,8 @@ export function buildContextSlice(
   memories: { id: string; text: string }[] = [],
   // 캐릭터 상태설정(친밀도·관계 메모·호칭). 대화 전이면 null
   chatState: ChatState | null = null,
+  // 이번 턴 등장 조건에 맞은 엑스트라
+  extras: ExtraPayload[] = [],
 ): ContextSlicePayload {
   const nickname = chatState?.userNickname ?? null;
   const honorific = character.speechStyle.includes('존댓말')
@@ -96,5 +99,6 @@ export function buildContextSlice(
     directorNote,
     userPersona: persona,
     addressOverride: nickname,
+    extras,
   };
 }
