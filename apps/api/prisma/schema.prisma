@@ -82,23 +82,30 @@ enum CampaignStatus {
 }
 
 model Campaign {
-  id             String         @id @default(cuid())
-  userId         String
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  characterId    String
-  character      Character      @relation(fields: [characterId], references: [id])
-  title          String
-  status         CampaignStatus @default(ACTIVE)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  state          CampaignState?
-  sessions       Session[]
-  memories       MemoryChunk[]
+  id                 String         @id @default(cuid())
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId        String
+  character          Character      @relation(fields: [characterId], references: [id])
+  title              String
+  status             CampaignStatus @default(ACTIVE)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  state              CampaignState?
+  sessions           Session[]
+  memories           MemoryChunk[]
+  /// 이 대화에서 쓰는 내 프로필. 첫 메시지 때 정해지고 새로하기 전까지 바꿀 수 없다.
+  /// 프로필을 나중에 고치거나 지워도 대화가 흔들리지 않게 이름·소개를 함께 남긴다
+  personaId          String?
+  personaName        String?
+  personaDescription String?
+  /// 새로하기·이어하기에서 저장한 시각 (status CLOSED = 저장한 대화)
+  savedAt            DateTime?
   /// 이 시각까지의 메시지는 기억으로 정리했다. 그 뒤 메시지가 쌓이면 다음 정리를 한다
-  memorizedUntil DateTime?
+  memorizedUntil     DateTime?
 
-  // 유저×캐릭터 대화를 찾는 경로 (대화는 캐릭터마다 하나)
-  @@index([userId, characterId])
+  // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
+  @@index([userId, characterId, status])
   @@map("campaigns")
 }
 

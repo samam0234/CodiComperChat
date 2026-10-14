@@ -13,6 +13,7 @@ export default function ChatMenu({ characterId }: { characterId: string }) {
 
   const items = [
     { href: "/library", label: "대화 목록" },
+    { href: `/characters/${characterId}/chat/saved`, label: "저장한 대화 (이어하기)" },
     { href: `/characters/${characterId}/chat/memories`, label: "메모리 기록 확인" },
     { href: `/characters/${characterId}/chat/settings`, label: "캐릭터 내 상태설정" },
   ];

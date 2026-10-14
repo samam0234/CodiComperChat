@@ -15,6 +15,9 @@ export type ConversationSummary = {
   messageCount: number;
   updatedAt: string;
   lastMessage: { role: "user" | "character"; text: string; speaker: string | null; createdAt: string } | null;
+  // 지금 대화가 없고 저장한 대화만 있으면 false
+  active: boolean;
+  savedCount: number;
 };
 
 async function authedGet<T>(path: string): Promise<T | null> {
@@ -31,12 +34,39 @@ async function authedGet<T>(path: string): Promise<T | null> {
   }
 }
 
-// 이 캐릭터와 저장된 대화. 못 불러오면 null → 호출부가 시작 장면으로 대신한다
-export async function getChatHistory(characterId: string): Promise<HistoryMessage[] | null> {
-  const data = await authedGet<{ messages: HistoryMessage[] }>(
-    `/characters/${encodeURIComponent(characterId)}/chat`,
-  );
-  return data?.messages ?? null;
+export type ChatHistory = {
+  started: boolean;
+  // 이 대화에 고정된 내 프로필 (첫 메시지 뒤로는 새로하기 전까지 바꿀 수 없다)
+  persona: { id: string; name: string } | null;
+  savedCount: number;
+  messages: HistoryMessage[];
+};
+
+// 이 캐릭터와의 지금 대화. 못 불러오면 null → 호출부가 시작 장면으로 대신한다
+export async function getChatHistory(characterId: string): Promise<ChatHistory | null> {
+  return authedGet<ChatHistory>(`/characters/${encodeURIComponent(characterId)}/chat`);
+}
+
+export type SavedConversation = {
+  id: string;
+  title: string;
+  personaName: string | null;
+  savedAt: string | null;
+  updatedAt: string;
+  messageCount: number;
+  memoryCount: number;
+  lastMessage: { role: "user" | "character"; text: string; speaker: string | null } | null;
+};
+
+export type SavedConversationsView = {
+  character: { id: string; name: string };
+  // 이어하기 전에 지금 대화를 저장할지 물을지
+  currentHasMessages: boolean;
+  saved: SavedConversation[];
+};
+
+export async function getSavedConversations(characterId: string): Promise<SavedConversationsView | null> {
+  return authedGet<SavedConversationsView>(`/characters/${encodeURIComponent(characterId)}/chat/saved`);
 }
 
 export async function getMyConversations(): Promise<ConversationSummary[] | null> {

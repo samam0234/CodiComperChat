@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { MessageRole } from '@prisma/client';
+import { NotFoundException } from '@nestjs/common';
+import { CampaignStatus, MessageRole } from '@prisma/client';
 import type { ChatTurn } from '../character-chat/character-chat.types.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -16,40 +17,89 @@ export type StoredMessage = {
   createdAt: Date;
 };
 
-export type Conversation = { campaignId: string; sessionId: string };
+// 이 대화에 고정된 내 프로필 (첫 메시지 때 정해진다)
+export type LockedPersona = { id: string; name: string; description: string };
+
+export type Conversation = { campaignId: string; sessionId: string; persona: LockedPersona | null };
+
+const CONVERSATION_SELECT = {
+  id: true,
+  personaId: true,
+  personaName: true,
+  personaDescription: true,
+  sessions: { select: { id: true }, orderBy: { index: 'asc' as const }, take: 1 },
+};
+
+type ConversationRow = {
+  id: string;
+  personaId: string | null;
+  personaName: string | null;
+  personaDescription: string | null;
+  sessions: { id: string }[];
+};
+
+function toConversation(row: ConversationRow | null): Conversation | null {
+  if (!row || row.sessions.length === 0) return null;
+  return {
+    campaignId: row.id,
+    sessionId: row.sessions[0].id,
+    persona:
+      row.personaId && row.personaName !== null
+        ? { id: row.personaId, name: row.personaName, description: row.personaDescription ?? '' }
+        : null,
+  };
+}
+
+// 저장한 대화 목록에 붙일 이름: 첫 유저 말 앞부분
+const SAVED_TITLE_CHARS = 30;
 
 const toTurnRole = (role: MessageRole): 'user' | 'character' =>
   role === MessageRole.USER ? 'user' : 'character';
 
-// 대화는 유저×캐릭터마다 하나다(Campaign). 회차(Session)는 아직 하나만 쓴다 —
+// 대화(Campaign)는 유저×캐릭터마다 "지금 대화"(ACTIVE) 하나와 "저장한 대화"(CLOSED) 여럿이다.
+// 기억·상태설정은 대화에 붙어 있어 대화마다 따로다. 회차(Session)는 아직 하나만 쓴다 —
 // 세션을 닫고 요약하는 흐름(기획서 13.4)이 생기면 그때 회차를 나눈다
 @Injectable()
 export class ConversationsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // 지금 대화
   async find(userId: string, characterId: string): Promise<Conversation | null> {
     const campaign = await this.prisma.campaign.findFirst({
-      where: { userId, characterId },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true, sessions: { select: { id: true }, orderBy: { index: 'asc' }, take: 1 } },
+      where: { userId, characterId, status: CampaignStatus.ACTIVE },
+      orderBy: { updatedAt: 'desc' },
+      select: CONVERSATION_SELECT,
     });
-    if (!campaign || campaign.sessions.length === 0) return null;
-    return { campaignId: campaign.id, sessionId: campaign.sessions[0].id };
+    return toConversation(campaign);
   }
 
-  // 첫 메시지를 보낼 때 대화를 만들고, 캐릭터의 시작 장면을 첫 메시지로 남긴다
+  // 첫 메시지를 보낼 때 대화를 만들고, 캐릭터의 시작 장면을 첫 메시지로 남긴다.
+  // 프로필을 넘기면 이 대화의 프로필로 고정한다 (이미 고정돼 있으면 그대로 둔다)
   async findOrCreate(
     userId: string,
     character: { id: string; name: string; openingScene: string },
+    persona?: LockedPersona,
   ): Promise<Conversation> {
     const existing = await this.find(userId, character.id);
-    if (existing) return existing;
+    if (existing) {
+      if (persona && !existing.persona) {
+        await this.prisma.campaign.update({
+          where: { id: existing.campaignId },
+          data: { personaId: persona.id, personaName: persona.name, personaDescription: persona.description },
+        });
+        return { ...existing, persona };
+      }
+      return existing;
+    }
 
     const campaign = await this.prisma.campaign.create({
       data: {
         userId,
         characterId: character.id,
         title: character.name,
+        ...(persona
+          ? { personaId: persona.id, personaName: persona.name, personaDescription: persona.description }
+          : {}),
         sessions: {
           create: {
             index: 1,
@@ -57,9 +107,118 @@ export class ConversationsService {
           },
         },
       },
-      select: { id: true, sessions: { select: { id: true } } },
+      select: CONVERSATION_SELECT,
     });
-    return { campaignId: campaign.id, sessionId: campaign.sessions[0].id };
+    return toConversation(campaign)!;
+  }
+
+  private async userMessageCount(campaignId: string): Promise<number> {
+    return this.prisma.message.count({ where: { session: { campaignId }, role: MessageRole.USER } });
+  }
+
+  private async savedTitle(campaignId: string, fallback: string): Promise<string> {
+    const first = await this.prisma.message.findFirst({
+      where: { session: { campaignId }, role: MessageRole.USER },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: { content: true },
+    });
+    const text = first?.content.replace(/\s+/g, ' ').trim() ?? '';
+    if (text === '') return fallback;
+    return text.length > SAVED_TITLE_CHARS ? `${text.slice(0, SAVED_TITLE_CHARS)}…` : text;
+  }
+
+  // 지금 대화를 내려놓는다. save면 저장한 대화로 남기고, 아니면 지운다(기억·상태설정도 함께).
+  // 아직 한 마디도 안 한 대화는 저장할 것이 없어 지운다
+  async closeActive(userId: string, characterId: string, save: boolean): Promise<{ saved: boolean }> {
+    const active = await this.find(userId, characterId);
+    if (!active) return { saved: false };
+    if (save && (await this.userMessageCount(active.campaignId)) > 0) {
+      const character = await this.prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
+      await this.prisma.campaign.update({
+        where: { id: active.campaignId },
+        data: {
+          status: CampaignStatus.CLOSED,
+          savedAt: new Date(),
+          title: await this.savedTitle(active.campaignId, character?.name ?? '저장한 대화'),
+        },
+      });
+      return { saved: true };
+    }
+    await this.prisma.campaign.delete({ where: { id: active.campaignId } });
+    return { saved: false };
+  }
+
+  async listSaved(userId: string, characterId: string) {
+    const campaigns = await this.prisma.campaign.findMany({
+      where: { userId, characterId, status: CampaignStatus.CLOSED },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        personaName: true,
+        savedAt: true,
+        updatedAt: true,
+        sessions: { select: { id: true }, take: 1 },
+        _count: { select: { memories: true } },
+      },
+    });
+    return Promise.all(
+      campaigns.map(async (c) => {
+        const sessionId = c.sessions[0]?.id;
+        const [messageCount, last] = sessionId
+          ? await Promise.all([
+              this.prisma.message.count({
+                where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
+              }),
+              this.prisma.message.findFirst({
+                where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
+                orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+                select: { role: true, content: true, speaker: true },
+              }),
+            ])
+          : [0, null];
+        return {
+          id: c.id,
+          title: c.title,
+          personaName: c.personaName,
+          savedAt: c.savedAt,
+          updatedAt: c.updatedAt,
+          messageCount,
+          memoryCount: c._count.memories,
+          lastMessage: last
+            ? { role: toTurnRole(last.role), text: last.content.slice(0, 120), speaker: last.speaker }
+            : null,
+        };
+      }),
+    );
+  }
+
+  private async findSaved(userId: string, characterId: string, campaignId: string) {
+    const saved = await this.prisma.campaign.findFirst({
+      where: { id: campaignId, userId, characterId, status: CampaignStatus.CLOSED },
+      select: { id: true },
+    });
+    if (!saved) throw new NotFoundException('저장한 대화를 찾을 수 없습니다.');
+    return saved;
+  }
+
+  // 저장한 대화를 지금 대화로 되살린다. 지금 대화는 saveCurrent에 따라 저장하거나 지운다
+  async resume(userId: string, characterId: string, campaignId: string, saveCurrent: boolean) {
+    await this.findSaved(userId, characterId, campaignId);
+    await this.closeActive(userId, characterId, saveCurrent);
+    await this.prisma.campaign.update({
+      where: { id: campaignId },
+      data: { status: CampaignStatus.ACTIVE, updatedAt: new Date() },
+    });
+  }
+
+  async removeSaved(userId: string, characterId: string, campaignId: string): Promise<void> {
+    await this.findSaved(userId, characterId, campaignId);
+    await this.prisma.campaign.delete({ where: { id: campaignId } });
+  }
+
+  async savedCount(userId: string, characterId: string): Promise<number> {
+    return this.prisma.campaign.count({ where: { userId, characterId, status: CampaignStatus.CLOSED } });
   }
 
   async messages(sessionId: string, limit: number): Promise<StoredMessage[]> {
@@ -126,17 +285,27 @@ export class ConversationsService {
     ]);
   }
 
+  // 대화 목록: 캐릭터마다 한 줄. 지금 대화가 있으면 그것을, 없으면 가장 최근에 저장한 대화를 보여 준다
   async listForUser(userId: string) {
-    const campaigns = await this.prisma.campaign.findMany({
+    const all = await this.prisma.campaign.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,
+        status: true,
+        characterId: true,
         updatedAt: true,
         character: { select: { id: true, name: true, oneLiner: true } },
         sessions: { select: { id: true, _count: { select: { messages: true } } }, take: 1 },
       },
     });
+
+    const byCharacter = new Map<string, typeof all>();
+    for (const c of all) byCharacter.set(c.characterId, [...(byCharacter.get(c.characterId) ?? []), c]);
+    const campaigns = [...byCharacter.values()].map((group) => ({
+      ...(group.find((c) => c.status === CampaignStatus.ACTIVE) ?? group[0]),
+      savedCount: group.filter((c) => c.status === CampaignStatus.CLOSED).length,
+    }));
 
     return Promise.all(
       campaigns.map(async (c) => {
@@ -153,6 +322,8 @@ export class ConversationsService {
           character: c.character,
           messageCount: session?._count.messages ?? 0,
           updatedAt: c.updatedAt,
+          active: c.status === CampaignStatus.ACTIVE,
+          savedCount: c.savedCount,
           lastMessage: last
             ? { role: toTurnRole(last.role), text: last.content.slice(0, 120), speaker: last.speaker, createdAt: last.createdAt }
             : null,

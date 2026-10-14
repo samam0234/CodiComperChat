@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
@@ -76,5 +77,40 @@ export class CharacterChatController {
       personaId: requirePersonaId(body?.personaId),
       authorization,
     });
+  }
+
+  // 새로하기 { save }: 지금 대화를 저장하거나 지우고 시작 장면부터 다시 연다. 프로필 고정도 풀린다
+  @Post('new')
+  @HttpCode(200)
+  startNew(@Param('id') id: string, @Body() body: { save?: unknown }, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.startNew(id, body?.save === true, authorization);
+  }
+
+  // 이어하기 목록: 이 캐릭터와 저장한 대화
+  @Get('saved')
+  listSaved(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.listSaved(id, authorization);
+  }
+
+  // 이어하기 { saveCurrent }: 저장한 대화를 지금 대화로 되살린다
+  @Post('saved/:campaignId/resume')
+  @HttpCode(200)
+  resume(
+    @Param('id') id: string,
+    @Param('campaignId') campaignId: string,
+    @Body() body: { saveCurrent?: unknown },
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.characterChatService.resume(id, campaignId, body?.saveCurrent === true, authorization);
+  }
+
+  @Delete('saved/:campaignId')
+  @HttpCode(204)
+  async removeSaved(
+    @Param('id') id: string,
+    @Param('campaignId') campaignId: string,
+    @Headers('authorization') authorization?: string,
+  ) {
+    await this.characterChatService.removeSaved(id, campaignId, authorization);
   }
 }
