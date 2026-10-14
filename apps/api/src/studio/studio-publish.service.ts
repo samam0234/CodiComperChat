@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
@@ -6,14 +6,15 @@ import { PersonaKnowledgeStore } from '../persona-rag/persona-knowledge.store.js
 import { PrismaService } from '../prisma/prisma.service.js';
 import { readiness } from './card.js';
 import { toCharacterFields, toKnowledge } from './card-export.js';
-import { StudioService } from './studio.service.js';
+import { StudioService, parseVisibility } from './studio.service.js';
 import { testState } from './test-session.js';
 
 // 초안 하나 = 지식 파일 하나. 이름이 바뀌어도 파일을 찾을 수 있게 캐릭터 이름 대신 초안 id로 짓는다
 // (저장소는 파일 안의 character 값으로 캐릭터를 찾는다)
 export const knowledgeFileName = (draftId: string) => `studio-${draftId}.json`;
 
-// 발행 (기획서 §5.4 운영자 도구, §6.1 "발행은 테스트 통과 후"). v1에는 유저 광장이 없어 운영자만 발행한다 (§9.2)
+// 발행 (기획서 §6.1 "발행은 테스트 통과 후"). 2026-10-15 사용자 결정으로 누구나 발행하고
+// 공개 범위(공개 / 링크 공개 / 비공개)를 고른다 — 기획서 §9.2 "v1 유저 광장 없음"을 사용자가 바꿨다
 @Injectable()
 export class StudioPublishService {
   constructor(
@@ -22,13 +23,7 @@ export class StudioPublishService {
     private readonly store: PersonaKnowledgeStore,
   ) {}
 
-  private async assertAdmin(userId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
-    if (user?.role !== 'ADMIN') throw new ForbiddenException('발행은 운영자만 할 수 있습니다.');
-  }
-
   async publish(userId: string, id: string) {
-    await this.assertAdmin(userId);
     const draft = await this.studio.findOwned(userId, id);
     const card = draft.card;
 
@@ -53,6 +48,8 @@ export class StudioPublishService {
       secret: card.boundary.secret,
       secretUnlockCondition: card.boundary.unlockCondition,
       published: true,
+      visibility: draft.visibility,
+      ownerId: userId,
     };
     const character = draft.characterId
       ? await this.prisma.character.update({ where: { id: draft.characterId }, data, select: { id: true } })
@@ -65,13 +62,23 @@ export class StudioPublishService {
 
   // 목록·새 대화에서 내린다. 이미 있는 대화 기록은 그대로 두고, 초안으로 고쳐 다시 발행할 수 있다
   async unpublish(userId: string, id: string) {
-    await this.assertAdmin(userId);
     const draft = await this.studio.findOwned(userId, id);
     if (draft.characterId) {
       await this.prisma.character.update({ where: { id: draft.characterId }, data: { published: false } });
     }
     rmSync(join(this.store.directory, knowledgeFileName(id)), { force: true });
     this.store.invalidate();
+    return this.studio.get(userId, id);
+  }
+
+  // 공개 범위 바꾸기: 카드 지문과 무관해 다시 테스트할 필요 없다. 발행 중이면 캐릭터에 바로 적용한다
+  async setVisibility(userId: string, id: string, raw: unknown) {
+    const visibility = parseVisibility(raw);
+    const draft = await this.studio.findOwned(userId, id);
+    await this.prisma.characterDraft.update({ where: { id }, data: { visibility } });
+    if (draft.characterId) {
+      await this.prisma.character.update({ where: { id: draft.characterId }, data: { visibility } });
+    }
     return this.studio.get(userId, id);
   }
 

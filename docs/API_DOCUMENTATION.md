@@ -19,7 +19,7 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }` | **201** `{ token, user }` · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, createdAt }` · `role`은 `USER`/`ADMIN`(공방 발행 권한, 웹은 버튼 표시에만 쓰고 판단은 서버가 다시 한다) · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
 
@@ -27,6 +27,8 @@
 | `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
+| `GET /characters` | 홈·인기 캐릭터 목록 | **200** `[공개 필드…, visibility]` · **공개(PUBLIC)만**. 링크 공개·비공개는 나오지 않는다 |
+| `GET /characters/:id` | 캐릭터 상세 | **200** 공개 필드(비밀·해금 조건 제외) · 공개·링크 공개는 누구나, 비공개는 만든 사람만(토큰을 보내면 판단). 남의 비공개 캐릭터는 없는 것과 같은 404 · 대화·메모리·상태설정·엑스트라 API도 같은 규칙 |
 | `GET /characters/:id/chat` | 이 캐릭터와의 **지금 대화** | **200** `{ started, persona, savedCount, messages: [{ id, role, text, speaker, createdAt }] }` (최근 200개). 대화 전이면 `started: false`와 시작 장면 1개. `persona`(`{ id, name }` 또는 null)는 이 대화에 고정된 내 프로필 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 |
 | `POST /characters/:id/chat/new` | 새로하기 `{ save }` | **200** `{ saved, ...GET /chat 응답 }` · `save: true`면 지금 대화를 저장한 대화로 남기고(제목 = 첫 유저 말 30자), 아니면 지운다(기억·상태설정 포함). 한 마디도 안 한 대화는 저장하지 않는다. 프로필 고정이 풀린다 · 🔒 |
@@ -57,16 +59,17 @@
 | `POST /campaigns/:id/messages` | 유저 메시지 전송 + 스트림 응답 | 501 (컨텍스트 조립 + FastAPI `/infer` 중계 자리) |
 | `POST /campaigns/:id/sessions/:sessionId/close` | 세션 종료·요약 트리거 | 501 (`/summarize` 결과를 CampaignState에 머지하는 자리) |
 | `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
-| `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, characterId, updatedAt, complete }]` · 🔒 |
+| `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, visibility, characterId, updatedAt, complete }]` · 🔒 |
 | `POST /studio/characters` | 빈 초안 만들기 | **201** `{ id }` · 🔒 (로그인한 누구나) |
-| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
+| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, visibility, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
 | `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
 | `POST /studio/characters/:id/test/reset` | 테스트 다시 시작 | **204** · 🔒 |
-| `POST /studio/characters/:id/publish` | 발행 | **200** 초안(`published: true`, `characterId`) · **운영자(ADMIN)만**, 아니면 403. 필수 단계가 비었거나 지금 카드로 3턴 테스트를 통과하지 않았으면 409, 다른 캐릭터가 같은 이름이면 409. 카드 → 캐릭터(비밀·해금 조건 포함, 서버 전용)로 만들거나 고치고, 페르소나 지식 파일 `data/personas/studio-<초안 id>.json`(비밀 제외)을 써서 첫 대화부터 RAG가 붙는다. 다시 발행하면 같은 캐릭터를 고친다(기존 대화 유지) · 🔒 |
-| `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 운영자만. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
+| `POST /studio/characters/:id/publish` | 발행 | **200** 초안(`published: true`, `characterId`, `visibility`) · **초안 주인 누구나**(2026-10-15 사용자 결정, 이전에는 운영자만). 필수 단계가 비었거나 지금 카드로 3턴 테스트를 통과하지 않았으면 409, 다른 캐릭터가 같은 이름이면 409(이름은 비공개 캐릭터를 포함해 전체에서 하나). 카드 → 캐릭터(비밀·해금 조건 포함, 서버 전용)로 만들거나 고치고, 초안의 공개 범위와 만든 사람(`ownerId`)을 싣는다. 페르소나 지식 파일 `data/personas/studio-<초안 id>.json`(비밀 제외)을 써서 첫 대화부터 RAG가 붙는다. 다시 발행하면 같은 캐릭터를 고친다(기존 대화 유지) · 🔒 |
+| `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 초안 주인. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
+| `PATCH /studio/characters/:id/visibility` | 공개 범위 `{ visibility: "PUBLIC" \| "UNLISTED" \| "PRIVATE" }` | **200** 초안 · 공개 = 홈·인기 목록, 링크 공개 = 목록에 없고 주소(`/characters/:id`)를 아는 사람만, 비공개 = 만든 사람만. 새 초안 기본은 비공개. 카드 지문과 무관해 다시 테스트할 필요 없고, 발행 중이면 캐릭터에 바로 적용 · 잘못된 값 400 · 🔒 |
 
 > 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 

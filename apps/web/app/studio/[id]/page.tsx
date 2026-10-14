@@ -7,7 +7,7 @@ import styles from "./studio-editor.module.css";
 
 export default async function StudioDraftPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireUser(`/studio/${id}`);
+  await requireUser(`/studio/${id}`);
   const [draft, personas] = await Promise.all([getDraft(id), getMyPersonas()]);
 
   if (!draft) {
@@ -24,7 +24,6 @@ export default async function StudioDraftPage({ params }: { params: Promise<{ id
   return (
     <StudioEditor
       initial={draft}
-      isAdmin={user.role === "ADMIN"}
       personas={personas.map((p) => ({ id: p.id, name: p.name }))}
     />
   );

@@ -26,6 +26,14 @@ export type Card = {
 
 export type StepKey = keyof Card;
 
+export type Visibility = "PUBLIC" | "UNLISTED" | "PRIVATE";
+
+export const VISIBILITY_OPTIONS: { value: Visibility; label: string; hint: string }[] = [
+  { value: "PUBLIC", label: "공개", hint: "홈·인기 목록에 올라가 누구나 대화할 수 있어요." },
+  { value: "UNLISTED", label: "링크 공개", hint: "목록에는 나오지 않고, 링크를 받은 사람만 대화할 수 있어요." },
+  { value: "PRIVATE", label: "비공개", hint: "나만 대화할 수 있어요." },
+];
+
 export type Readiness = {
   steps: { key: StepKey; label: string; required: boolean; missing: string[]; done: boolean }[];
   warnings: string[];
@@ -61,6 +69,7 @@ export type DraftView = {
   test: TestState;
   characterId: string | null;
   published: boolean;
+  visibility: Visibility;
   updatedAt: string;
   readiness: Readiness;
 };
@@ -70,6 +79,7 @@ export type DraftSummary = {
   name: string;
   oneLiner: string;
   published: boolean;
+  visibility: Visibility;
   characterId: string | null;
   updatedAt: string;
   complete: boolean;

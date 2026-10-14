@@ -44,7 +44,7 @@ export class ChatExtrasController {
 
   @Get()
   async view(@Param('id') characterId: string, @CurrentUserId() userId: string) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     return this.extras.view(userId, conversation, character.name);
   }
@@ -57,7 +57,7 @@ export class ChatExtrasController {
     @CurrentUserId() userId: string,
     @Body() body: { triggers?: unknown },
   ) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     // 대화 전에도 적용할 수 있게, 대화가 없으면 만든다 (상태설정과 같은 방식)
     const conversation = await this.conversations.findOrCreate(userId, character);
     await this.extras.apply(userId, conversation, extraId, body?.triggers);
@@ -70,7 +70,7 @@ export class ChatExtrasController {
     @Param('extraId') extraId: string,
     @CurrentUserId() userId: string,
   ) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     if (conversation) await this.extras.unapply(conversation, extraId);
     return this.extras.view(userId, conversation, character.name);

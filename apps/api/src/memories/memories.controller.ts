@@ -24,7 +24,7 @@ export class MemoriesController {
 
   @Get()
   async list(@Param('id') characterId: string, @CurrentUserId() userId: string) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     return {
       character: { id: character.id, name: character.name },
@@ -49,7 +49,7 @@ export class MemoriesController {
   @Post('refresh')
   @HttpCode(200)
   async refresh(@Param('id') characterId: string, @CurrentUserId() userId: string) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     if (!conversation) return { created: 0 };
     const userName = await this.conversations.lastSpeaker(conversation.sessionId);

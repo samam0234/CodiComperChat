@@ -1,8 +1,17 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { CharacterVisibility, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
 import { testState } from './test-session.js';
+
+export const VISIBILITIES = Object.values(CharacterVisibility);
+
+export function parseVisibility(raw: unknown): CharacterVisibility {
+  if (typeof raw !== 'string' || !VISIBILITIES.includes(raw as CharacterVisibility)) {
+    throw new BadRequestException('공개 범위는 PUBLIC, UNLISTED, PRIVATE 중 하나여야 합니다.');
+  }
+  return raw as CharacterVisibility;
+}
 
 // 초안 목록·편집. 초안은 만든 사람만 보고 고친다 (모든 조회에 ownerId 조건)
 @Injectable()
@@ -13,7 +22,14 @@ export class StudioService {
     const drafts = await this.prisma.characterDraft.findMany({
       where: { ownerId },
       orderBy: { updatedAt: 'desc' },
-      select: { id: true, card: true, characterId: true, updatedAt: true, character: { select: { published: true } } },
+      select: {
+        id: true,
+        card: true,
+        visibility: true,
+        characterId: true,
+        updatedAt: true,
+        character: { select: { published: true } },
+      },
     });
     return drafts.map((d) => {
       const card = normalizeCard(d.card);
@@ -22,6 +38,7 @@ export class StudioService {
         name: card.identity.name,
         oneLiner: card.identity.oneLiner,
         published: d.character?.published ?? false,
+        visibility: d.visibility,
         characterId: d.characterId,
         updatedAt: d.updatedAt,
         complete: readiness(card).complete,
@@ -44,6 +61,7 @@ export class StudioService {
         id: true,
         card: true,
         lastTest: true,
+        visibility: true,
         characterId: true,
         updatedAt: true,
         character: { select: { published: true } },
@@ -61,6 +79,7 @@ export class StudioService {
       test: testState(draft.card, draft.lastTest),
       characterId: draft.characterId,
       published: draft.character?.published ?? false,
+      visibility: draft.visibility,
       updatedAt: draft.updatedAt,
       readiness: readiness(draft.card),
     };

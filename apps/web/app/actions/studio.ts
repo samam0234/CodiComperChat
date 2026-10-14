@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { Card, DraftView, Verdict } from "@/lib/studio-card";
+import type { Card, DraftView, Verdict, Visibility } from "@/lib/studio-card";
 
 // 공방 화면(클라이언트)이 부르는 서버 액션. Nest로 넘기기만 하고 판단은 Nest가 한다 (FastAPI 직접 호출 없음).
 // 토큰은 httpOnly 쿠키에서 서버가 꺼내 붙인다.
@@ -77,6 +77,13 @@ export async function publishDraft(id: string) {
   const result = await call<DraftView>(id, "/publish", "POST");
   // 홈·인기의 캐릭터 목록이 바로 바뀌게
   if (result.ok) revalidatePath("/", "layout");
+  return result;
+}
+
+export async function setDraftVisibility(id: string, visibility: Visibility) {
+  const result = await call<DraftView>(id, "/visibility", "PATCH", { visibility });
+  // 발행 중이면 홈·인기 목록이 바뀐다
+  if (result.ok && result.data.published) revalidatePath("/", "layout");
   return result;
 }
 

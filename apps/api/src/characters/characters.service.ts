@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CharacterVisibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 // 비밀과 해금 조건은 공개 응답에 넣지 않는다 (기획서 §13.3 "미해금은 제목만 또는 금지 목록").
@@ -18,6 +19,7 @@ const PUBLIC_FIELDS = {
   conflictSeed: true,
   openingScene: true,
   profile: true,
+  visibility: true,
   createdAt: true,
 } as const;
 
@@ -25,17 +27,27 @@ const PUBLIC_FIELDS = {
 export class CharactersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // 홈·인기 목록: 공개만. 링크 공개·비공개는 목록에 나오지 않는다
   findPublished() {
     return this.prisma.character.findMany({
-      where: { published: true },
+      where: { published: true, visibility: CharacterVisibility.PUBLIC },
       select: PUBLIC_FIELDS,
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  async findOnePublished(id: string) {
+  // 공개·링크 공개는 누구나(주소를 알면), 비공개는 만든 사람만 본다.
+  // 남의 비공개 캐릭터는 있는지조차 드러내지 않게 없는 것과 같은 404로 답한다
+  async findOnePublished(id: string, viewerId: string | null = null) {
     const character = await this.prisma.character.findFirst({
-      where: { id, published: true },
+      where: {
+        id,
+        published: true,
+        OR: [
+          { visibility: { in: [CharacterVisibility.PUBLIC, CharacterVisibility.UNLISTED] } },
+          ...(viewerId ? [{ ownerId: viewerId }] : []),
+        ],
+      },
       select: PUBLIC_FIELDS,
     });
 
