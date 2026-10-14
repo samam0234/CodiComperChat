@@ -1,28 +1,86 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
 
+// 초안 목록·편집. 초안은 만든 사람만 보고 고친다 (모든 조회에 ownerId 조건)
 @Injectable()
 export class StudioService {
-  createDraft(): never {
-    throw new NotImplementedException(
-      '캐릭터 초안 생성은 아직 구현되지 않았다 (기획서 10장 8번, 공방 7단계)',
-    );
+  constructor(private readonly prisma: PrismaService) {}
+
+  async list(ownerId: string) {
+    const drafts = await this.prisma.characterDraft.findMany({
+      where: { ownerId },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, card: true, characterId: true, updatedAt: true, character: { select: { published: true } } },
+    });
+    return drafts.map((d) => {
+      const card = normalizeCard(d.card);
+      return {
+        id: d.id,
+        name: card.identity.name,
+        oneLiner: card.identity.oneLiner,
+        published: d.character?.published ?? false,
+        characterId: d.characterId,
+        updatedAt: d.updatedAt,
+        complete: readiness(card).complete,
+      };
+    });
   }
 
-  updateDraft(characterId: string): never {
-    throw new NotImplementedException(
-      `캐릭터 초안 수정은 아직 구현되지 않았다 (요청 id: ${characterId})`,
-    );
+  async create(ownerId: string) {
+    const draft = await this.prisma.characterDraft.create({
+      data: { ownerId, card: EMPTY_CARD as unknown as Prisma.InputJsonValue },
+      select: { id: true },
+    });
+    return draft;
   }
 
-  test(characterId: string): never {
-    throw new NotImplementedException(
-      `3턴 테스트는 아직 구현되지 않았다. FastAPI /critique-test 호출이 여기 들어간다 (요청 id: ${characterId})`,
-    );
+  async findOwned(ownerId: string, id: string) {
+    const draft = await this.prisma.characterDraft.findFirst({
+      where: { id, ownerId },
+      select: {
+        id: true,
+        card: true,
+        lastTest: true,
+        characterId: true,
+        updatedAt: true,
+        character: { select: { published: true } },
+      },
+    });
+    if (!draft) throw new NotFoundException('초안을 찾을 수 없습니다.');
+    return { ...draft, card: normalizeCard(draft.card) };
   }
 
-  publish(characterId: string): never {
-    throw new NotImplementedException(
-      `발행은 아직 구현되지 않았다. 필수 단계(3·4·6)와 테스트 통과를 여기서 막아야 한다 (기획서 6.1장, 요청 id: ${characterId})`,
-    );
+  async get(ownerId: string, id: string) {
+    const draft = await this.findOwned(ownerId, id);
+    return {
+      id: draft.id,
+      card: draft.card,
+      lastTest: draft.lastTest,
+      characterId: draft.characterId,
+      published: draft.character?.published ?? false,
+      updatedAt: draft.updatedAt,
+      readiness: readiness(draft.card),
+    };
+  }
+
+  async save(ownerId: string, id: string, rawCard: unknown) {
+    await this.findOwned(ownerId, id);
+    const card: Card = normalizeCard(rawCard);
+    await this.prisma.characterDraft.update({
+      where: { id },
+      data: { card: card as unknown as Prisma.InputJsonValue },
+    });
+    return this.get(ownerId, id);
+  }
+
+  async remove(ownerId: string, id: string) {
+    const draft = await this.findOwned(ownerId, id);
+    // 발행된 캐릭터에는 유저 대화가 붙어 있다. 초안만 지우면 고칠 길이 사라지므로 막는다
+    if (draft.character?.published) {
+      throw new ConflictException('발행된 캐릭터의 초안은 지울 수 없습니다.');
+    }
+    await this.prisma.characterDraft.delete({ where: { id } });
   }
 }
