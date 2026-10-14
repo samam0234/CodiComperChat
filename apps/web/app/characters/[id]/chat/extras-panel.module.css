@@ -1,0 +1,300 @@
+.panel {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--background);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 16px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chevron {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.body {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.intro,
+.hint {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 12px;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.subTitle {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+.item,
+.applyBox,
+.form {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.itemName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.itemSummary {
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.keywords {
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.triggers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  border: none;
+}
+
+.triggers .hint {
+  flex-basis: 100%;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.triggers .label {
+  margin-right: 4px;
+}
+
+.check,
+.checkDisabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.check input {
+  accent-color: var(--accent);
+}
+
+.checkDisabled {
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+}
+
+.fieldHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.required {
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+}
+
+.input,
+.select {
+  height: 38px;
+}
+
+.textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.input:focus-visible,
+.textarea:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.formTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mineHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mineItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.mineActions {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.primary,
+.secondary {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  justify-self: end;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.textButton,
+.dangerText {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dangerText {
+  color: var(--danger);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.textButton:focus-visible,
+.dangerText:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

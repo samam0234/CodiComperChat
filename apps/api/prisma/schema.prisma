@@ -30,6 +30,7 @@ model User {
   campaigns    Campaign[]
   personas     UserPersona[]
   drafts       CharacterDraft[]
+  extras       UserExtra[]
 
   @@map("users")
 }
@@ -82,18 +83,19 @@ enum CampaignStatus {
 }
 
 model Campaign {
-  id                 String         @id @default(cuid())
+  id                 String          @id @default(cuid())
   userId             String
-  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   characterId        String
-  character          Character      @relation(fields: [characterId], references: [id])
+  character          Character       @relation(fields: [characterId], references: [id])
   title              String
-  status             CampaignStatus @default(ACTIVE)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  status             CampaignStatus  @default(ACTIVE)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
   state              CampaignState?
   sessions           Session[]
   memories           MemoryChunk[]
+  extras             CampaignExtra[]
   /// 이 대화에서 쓰는 내 프로필. 첫 메시지 때 정해지고 새로하기 전까지 바꿀 수 없다.
   /// 프로필을 나중에 고치거나 지워도 대화가 흔들리지 않게 이름·소개를 함께 남긴다
   personaId          String?
@@ -196,4 +198,40 @@ model CharacterDraft {
 
   @@index([ownerId, updatedAt])
   @@map("character_drafts")
+}
+
+/// 엑스트라: 유저가 만든 조연. 캐릭터 공방보다 간단한 카드이고, 대화마다 골라서 적용한다
+model UserExtra {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  summary     String
+  personality String
+  /// 주인공 캐릭터·유저와의 관계 (인물 관계 조건의 단어가 여기서 나온다)
+  relation    String
+  /// 등장 상황 (상황 조건)
+  situation   String
+  /// 등장 장소 (장소 조건)
+  place       String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  campaigns   CampaignExtra[]
+
+  @@index([userId, updatedAt])
+  @@map("user_extras")
+}
+
+/// 이 대화에 적용한 엑스트라와 등장 조건(relation/situation/place 중 하나 이상).
+/// 조건에 맞는 말이 대화에 나올 때만 그 엑스트라 정보를 모델에 넘긴다 (환각 방지)
+model CampaignExtra {
+  campaignId String
+  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  extraId    String
+  extra      UserExtra @relation(fields: [extraId], references: [id], onDelete: Cascade)
+  triggers   String[]
+  createdAt  DateTime  @default(now())
+
+  @@id([campaignId, extraId])
+  @@map("campaign_extras")
 }
