@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import styles from "./choice-dialog.module.css";
 
 export type DialogChoice = {
@@ -26,6 +26,8 @@ export default function ChoiceDialog({
   busy?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  // 한 화면에 상자가 여러 개 있어도 제목 연결이 겹치지 않게
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -38,7 +40,7 @@ export default function ChoiceDialog({
     <dialog
       ref={ref}
       className={styles.dialog}
-      aria-labelledby="choice-dialog-title"
+      aria-labelledby={titleId}
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onClose();
@@ -49,7 +51,7 @@ export default function ChoiceDialog({
       }}
     >
       <div className={styles.body}>
-        <p id="choice-dialog-title" className={styles.title}>
+        <p id={titleId} className={styles.title}>
           {title}
         </p>
         {children && <div className={styles.text}>{children}</div>}

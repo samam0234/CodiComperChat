@@ -9,6 +9,7 @@ import {
   type Card,
   type StepKey,
 } from "@/lib/studio-card";
+import PromptExtendButton from "./prompt-extend";
 import styles from "./studio-editor.module.css";
 
 export type Update = (mutate: (card: Card) => void) => void;
@@ -19,6 +20,7 @@ function Field({
   required,
   count,
   max,
+  extendable,
   children,
 }: {
   label: string;
@@ -26,6 +28,8 @@ function Field({
   required?: boolean;
   count?: number;
   max?: number;
+  // 긴 글 칸이면 "프롬프트 연장"(프로 등급 안내)을 붙인다
+  extendable?: boolean;
   children: (id: string) => ReactNode;
 }) {
   const id = useId();
@@ -37,8 +41,11 @@ function Field({
           {required && <span className={styles.required}> 필수</span>}
         </label>
         {max !== undefined && count !== undefined && (
-          <span className={count > max ? styles.countOver : styles.count}>
-            {count}/{max}
+          <span className={styles.fieldTools}>
+            <span className={count > max ? styles.countOver : styles.count}>
+              {count}/{max}
+            </span>
+            {extendable && <PromptExtendButton label={label} max={max} />}
           </span>
         )}
       </div>
@@ -68,7 +75,7 @@ function Text({
   rows?: number;
 }) {
   return (
-    <Field label={label} hint={hint} required={required} count={value.length} max={max}>
+    <Field label={label} hint={hint} required={required} count={value.length} max={max} extendable={rows !== undefined}>
       {(id) =>
         rows ? (
           <textarea
