@@ -13,6 +13,8 @@ export type CurrentUser = {
   id: string;
   email: string;
   displayName: string;
+  // 공방 발행 버튼 표시용. 권한 판단은 Nest가 다시 한다
+  role: "USER" | "ADMIN";
   createdAt: string;
 };
 
