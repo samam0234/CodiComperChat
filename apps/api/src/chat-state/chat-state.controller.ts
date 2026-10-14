@@ -16,7 +16,7 @@ export class ChatStateController {
 
   @Get()
   async get(@Param('id') characterId: string, @CurrentUserId() userId: string) {
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     const state = await this.chatState.get(conversation?.campaignId ?? null);
     return {
@@ -33,7 +33,7 @@ export class ChatStateController {
     @Body() body: unknown,
   ) {
     const patch = parseStatePatch(body);
-    const character = await this.characters.findOnePublished(characterId);
+    const character = await this.characters.findOnePublished(characterId, userId);
     const conversation = await this.conversations.findOrCreate(userId, character);
     const state = await this.chatState.update(conversation, patch);
     return { state: { ...state, relationshipLabel: relationshipLabel(state.relationshipValue) } };

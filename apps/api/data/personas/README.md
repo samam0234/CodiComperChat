@@ -21,12 +21,7 @@ npm run persona:search --workspace api -- 유지성 "3년 전에 뭐 하셨어�
 
 **캐릭터 공방에서 발행한 캐릭터**는 발행할 때 서버가 카드 7층으로 `studio-<초안 id>.json`을 직접 쓴다
 (비밀·해금 조건은 넣지 않는다). 이 파일은 손으로 고치지 말고 공방에서 카드를 고쳐 다시 발행한다 — 다시 발행하면 덮어쓴다.
-`persona:build`는 공방 캐릭터를 건너뛴다. 공방 발행은 운영자만 할 수 있다:
-
-```bash
-npm run user:role --workspace api -- someone@example.com admin   # 운영자로
-npm run user:role --workspace api -- someone@example.com user    # 되돌리기
-```
+`persona:build`는 공방 캐릭터를 건너뛴다. 공방 발행은 초안 주인 누구나 할 수 있고, 비공개 캐릭터도 같은 방식으로 지식 파일이 생긴다.
 
 ## 형식 — `_example.json` 참고
 

@@ -31,6 +31,7 @@ model User {
   personas     UserPersona[]
   drafts       CharacterDraft[]
   extras       UserExtra[]
+  characters   Character[]
 
   @@map("users")
 }
@@ -51,8 +52,8 @@ model UserPersona {
 
 /// 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.
 model Character {
-  id                    String          @id @default(cuid())
-  name                  String          @unique
+  id                    String              @id @default(cuid())
+  name                  String              @unique
   oneLiner              String
   role                  String
   addressing            String
@@ -67,14 +68,25 @@ model Character {
   openingScene          String
   /// 신체·직업 등 카드 밖 부가 프로필. 캐릭터마다 있을 수도, 없을 수도 있다
   profile               Json?
-  published             Boolean         @default(false)
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  published             Boolean             @default(false)
+  /// 공개: 홈·인기 목록에 나온다 / 링크 공개: 목록에는 없고 주소를 아는 사람만 / 비공개: 만든 사람만
+  visibility            CharacterVisibility @default(PUBLIC)
+  /// 공방에서 발행한 사람. 운영 캐릭터는 비어 있다. 계정이 지워지면 비워지고, 비공개 캐릭터는 아무도 못 보게 된다
+  ownerId               String?
+  owner                 User?               @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   campaigns             Campaign[]
   /// 공방에서 만들어 발행한 캐릭터면 그 초안
   draft                 CharacterDraft?
 
   @@map("characters")
+}
+
+enum CharacterVisibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
 }
 
 enum CampaignStatus {
@@ -185,16 +197,18 @@ model MemoryChunk {
 /// 캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고,
 /// 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다
 model CharacterDraft {
-  id          String     @id @default(cuid())
+  id          String              @id @default(cuid())
   ownerId     String
-  owner       User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner       User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   card        Json
   /// 마지막 3턴 테스트 결과와 그때의 카드 지문. 카드를 고치면 지문이 달라져 다시 테스트해야 발행된다
   lastTest    Json?
-  characterId String?    @unique
-  character   Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  /// 발행할 때(또는 발행 중이면 바로) 캐릭터에 적용할 공개 범위
+  visibility  CharacterVisibility @default(PRIVATE)
+  characterId String?             @unique
+  character   Character?          @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
   @@index([ownerId, updatedAt])
   @@map("character_drafts")

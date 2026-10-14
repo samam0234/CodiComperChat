@@ -6,7 +6,7 @@ import { cardHash, type Card } from './card.js';
 import { fullCard } from './card.fixture.js';
 import { StudioPublishService, knowledgeFileName } from './studio-publish.service.js';
 
-type Draft = { id: string; card: Card; lastTest: unknown; characterId: string | null };
+type Draft = { id: string; card: Card; lastTest: unknown; characterId: string | null; visibility: string };
 
 const passedTest = (card: Card) => ({
   cardHash: cardHash(card),
@@ -16,7 +16,7 @@ const passedTest = (card: Card) => ({
 
 function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTakenBy?: string } = {}) {
   const card = fullCard();
-  const draft: Draft = { id: 'd1', card, lastTest: passedTest(card), characterId: null, ...opts.draft };
+  const draft: Draft = { id: 'd1', card, lastTest: passedTest(card), characterId: null, visibility: 'UNLISTED', ...opts.draft };
   const characters: Record<string, unknown>[] = [];
   const prisma = {
     user: { findUnique: async () => ({ role: opts.role ?? 'ADMIN' }) },
@@ -32,8 +32,9 @@ function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTake
       },
     },
     characterDraft: {
-      update: async ({ data }: { data: { characterId: string } }) => {
-        draft.characterId = data.characterId;
+      update: async ({ data }: { data: { characterId?: string; visibility?: string } }) => {
+        if (data.characterId) draft.characterId = data.characterId;
+        if (data.visibility) draft.visibility = data.visibility;
       },
     },
   };
@@ -48,10 +49,20 @@ describe('공방 발행', () => {
   const dirs: string[] = [];
   afterEach(() => dirs.splice(0).forEach((d) => rmSync(d, { recursive: true, force: true })));
 
-  it('운영자가 아니면 403', async () => {
+  it('일반 유저도 발행하고, 초안의 공개 범위와 만든 사람이 캐릭터에 실린다', async () => {
     const t = setup({ role: 'USER' });
     dirs.push(t.dir);
-    await expect(t.service.publish('u', 'd1')).rejects.toMatchObject({ status: 403 });
+    await t.service.publish('u', 'd1');
+    expect(t.characters[0]).toMatchObject({ visibility: 'UNLISTED', ownerId: 'u', published: true });
+  });
+
+  it('공개 범위를 바꾸면 발행 중인 캐릭터에도 바로 적용되고, 잘못된 값은 400', async () => {
+    const t = setup({ draft: { characterId: 'c1' } });
+    dirs.push(t.dir);
+    await t.service.setVisibility('u', 'd1', 'PUBLIC');
+    expect(t.draft.visibility).toBe('PUBLIC');
+    expect(t.characters.at(-1)).toEqual({ visibility: 'PUBLIC' });
+    await expect(t.service.setVisibility('u', 'd1', 'EVERYONE')).rejects.toMatchObject({ status: 400 });
   });
 
   it('테스트를 통과하지 않았거나 통과 뒤 카드를 고쳤으면 409', async () => {

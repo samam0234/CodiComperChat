@@ -15,7 +15,7 @@ import { StudioPublishService } from './studio-publish.service.js';
 import { StudioTestService } from './studio-test.service.js';
 import { StudioService } from './studio.service.js';
 
-// 캐릭터 공방 (기획서 §6). 초안 만들기·고치기는 로그인한 누구나, 발행은 운영자만
+// 캐릭터 공방 (기획서 §6). 초안 만들기·고치기·발행은 로그인한 누구나 (공개 범위는 주인이 고른다)
 @Controller('studio/characters')
 @UseGuards(AuthGuard)
 export class StudioController {
@@ -78,11 +78,17 @@ export class StudioController {
     await this.test.reset(userId, id);
   }
 
-  // 발행·내리기는 운영자만 (서비스에서 권한 확인). 필수 단계 + 지금 카드로 테스트 통과가 조건
+  // 발행·내리기는 초안 주인이. 필수 단계 + 지금 카드로 테스트 통과가 조건
   @Post(':id/publish')
   @HttpCode(200)
   publish(@CurrentUserId() userId: string, @Param('id') id: string) {
     return this.publisher.publish(userId, id);
+  }
+
+  // 공개 범위 { visibility: 'PUBLIC' | 'UNLISTED' | 'PRIVATE' }
+  @Patch(':id/visibility')
+  setVisibility(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: { visibility?: unknown }) {
+    return this.publisher.setVisibility(userId, id, body?.visibility);
   }
 
   @Post(':id/unpublish')

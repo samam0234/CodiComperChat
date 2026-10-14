@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getSessionToken } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -29,7 +30,12 @@ type CharacterDetail = {
 async function getCharacter(id: string): Promise<CharacterDetail | null> {
   const baseUrl = process.env.API_BASE_URL ?? "http://localhost:4000";
 
-  const res = await fetch(`${baseUrl}/characters/${id}`, { cache: "no-store" });
+  // 로그인했으면 토큰을 붙인다 — 내 비공개 캐릭터는 만든 사람에게만 보인다
+  const token = await getSessionToken();
+  const res = await fetch(`${baseUrl}/characters/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   if (res.status === 404) {
     return null;
   }

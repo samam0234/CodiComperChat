@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { deleteDraft, publishDraft, saveDraft, unpublishDraft } from "@/app/actions/studio";
-import type { Card, DraftView, StepKey } from "@/lib/studio-card";
+import { deleteDraft, publishDraft, saveDraft, setDraftVisibility, unpublishDraft } from "@/app/actions/studio";
+import { VISIBILITY_OPTIONS, type Card, type DraftView, type StepKey, type Visibility } from "@/lib/studio-card";
 import { StepForm, type Update } from "./step-forms";
 import TestPanel from "./test-panel";
 import styles from "./studio-editor.module.css";
@@ -17,11 +17,9 @@ export type Persona = { id: string; name: string };
 
 export default function StudioEditor({
   initial,
-  isAdmin,
   personas,
 }: {
   initial: DraftView;
-  isAdmin: boolean;
   personas: Persona[];
 }) {
   const [card, setCard] = useState<Card>(initial.card);
@@ -96,7 +94,38 @@ export default function StudioEditor({
 
   const r = view.readiness;
   const stepIndex = r.steps.findIndex((s) => s.key === step);
-  const canPublish = isAdmin && r.complete && view.test.passed && saveState === "saved";
+  const canPublish = r.complete && view.test.passed && saveState === "saved";
+  const visibilityOption = VISIBILITY_OPTIONS.find((o) => o.value === view.visibility) ?? VISIBILITY_OPTIONS[2];
+  const [copied, setCopied] = useState(false);
+
+  // 공개 범위는 카드 지문과 무관해 다시 테스트할 필요 없다. 발행 중이면 바로 적용된다
+  async function changeVisibility(visibility: Visibility) {
+    setBusy(true);
+    const result = await setDraftVisibility(initial.id, visibility);
+    setBusy(false);
+    if (result.ok) {
+      setView((v) => ({ ...v, visibility: result.data.visibility }));
+      setPublishMessage(
+        result.data.published
+          ? { ok: true, text: `공개 범위를 '${VISIBILITY_OPTIONS.find((o) => o.value === visibility)?.label}'(으)로 바꿨습니다.` }
+          : null,
+      );
+    } else {
+      setPublishMessage({ ok: false, text: result.error });
+    }
+  }
+
+  async function copyLink() {
+    if (!view.characterId) return;
+    const url = `${window.location.origin}/characters/${view.characterId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("이 링크를 복사하세요", url);
+    }
+  }
 
   async function publish() {
     if (!(await save())) return;
@@ -105,7 +134,15 @@ export default function StudioEditor({
     setBusy(false);
     if (result.ok) {
       setView(result.data);
-      setPublishMessage({ ok: true, text: "발행했습니다. 홈의 캐릭터 목록에 올라갔어요." });
+      setPublishMessage({
+        ok: true,
+        text:
+          result.data.visibility === "PUBLIC"
+            ? "발행했습니다. 홈의 캐릭터 목록에 올라갔어요."
+            : result.data.visibility === "UNLISTED"
+              ? "발행했습니다. 링크를 받은 사람만 대화할 수 있어요."
+              : "발행했습니다. 나만 대화할 수 있어요.",
+      });
     } else {
       setPublishMessage({ ok: false, text: result.error });
     }
@@ -132,9 +169,7 @@ export default function StudioEditor({
     if (result && !result.ok) setPublishMessage({ ok: false, text: result.error });
   }
 
-  const publishHint = !isAdmin
-    ? "v1에서는 운영자만 발행할 수 있습니다."
-    : !r.complete
+  const publishHint = !r.complete
       ? "필수 단계를 모두 채워야 합니다."
       : !view.test.passed
         ? "지금 카드로 테스트 3턴을 통과해야 합니다."
@@ -142,7 +177,7 @@ export default function StudioEditor({
           ? "저장이 끝나면 발행할 수 있습니다."
           : view.published
             ? "고친 내용으로 다시 발행합니다."
-            : "발행하면 홈에 올라갑니다.";
+            : `발행하면 ${visibilityOption.hint}`;
 
   return (
     <div className={styles.shell}>
@@ -152,7 +187,7 @@ export default function StudioEditor({
             ← 공방
           </Link>
           <h1 className={styles.title}>{card.identity.name.trim() || "이름 없는 초안"}</h1>
-          {view.published && <span className={styles.publishedBadge}>발행됨</span>}
+          {view.published && <span className={styles.publishedBadge}>발행됨 · {visibilityOption.label}</span>}
         </div>
         <div className={styles.toolbarActions}>
           <span className={saveState === "error" ? styles.saveError : styles.saveStatus} role="status">
@@ -164,6 +199,26 @@ export default function StudioEditor({
           <button type="button" className={`${styles.secondary} ${styles.previewToggle}`} onClick={() => setShowPreview((v) => !v)} aria-expanded={showPreview}>
             {showPreview ? "폼 보기" : "미리보기"}
           </button>
+          <label className={styles.visibility} title={visibilityOption.hint}>
+            <span className={styles.srOnly}>공개 범위</span>
+            <select
+              value={view.visibility}
+              onChange={(e) => void changeVisibility(e.target.value as Visibility)}
+              disabled={busy}
+              aria-describedby="visibility-hint"
+            >
+              {VISIBILITY_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {view.published && view.characterId && view.visibility !== "PRIVATE" && (
+            <button type="button" className={styles.secondary} onClick={() => void copyLink()}>
+              {copied ? "복사했어요" : "링크 복사"}
+            </button>
+          )}
           <button type="button" className={styles.primary} onClick={() => void publish()} disabled={!canPublish || busy} title={publishHint}>
             {view.published ? "다시 발행" : "발행"}
           </button>
@@ -235,7 +290,7 @@ export default function StudioEditor({
             </button>
           </div>
           <div className={styles.danger}>
-            {view.published && isAdmin && (
+            {view.published && (
               <button type="button" className={styles.textButton} onClick={() => void unpublish()} disabled={busy}>
                 발행 내리기
               </button>
@@ -288,6 +343,10 @@ export default function StudioEditor({
               ))}
             </ul>
             <p className={styles.hint}>{publishHint}</p>
+            <p id="visibility-hint" className={styles.hint}>
+              공개 범위: <strong>{visibilityOption.label}</strong> — {visibilityOption.hint} 발행 뒤에도 바꿀 수 있고, 다시
+              테스트할 필요는 없어요.
+            </p>
           </div>
 
           <TestPanel

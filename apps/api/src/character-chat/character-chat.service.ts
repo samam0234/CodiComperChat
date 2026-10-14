@@ -40,9 +40,9 @@ export class CharacterChatService {
 
   // 대화 맥락은 브라우저가 보낸 기록이 아니라 서버에 저장된 기록으로 만든다 (조작·유실 방지)
   private async prepare(characterId: string, options: PersonaOptions) {
-    // 발행 안 됐거나 없는 캐릭터면 여기서 NotFoundException을 던진다.
-    const character = await this.charactersService.findOnePublished(characterId);
     const userId = await this.resolveUser(options.authorization);
+    // 발행 안 됐거나 없는 캐릭터, 남의 비공개 캐릭터면 여기서 NotFoundException을 던진다.
+    const character = await this.charactersService.findOnePublished(characterId, userId);
     const conversation = await this.conversations.find(userId, characterId);
     // 대화마다 프로필이 하나로 고정된다. 바꾸려면 새로하기로 새 대화를 시작한다
     let persona: LockedPersona;
@@ -67,8 +67,8 @@ export class CharacterChatService {
   }
 
   async history(characterId: string, authorization?: string) {
-    const character = await this.charactersService.findOnePublished(characterId);
     const userId = await this.resolveUser(authorization);
+    const character = await this.charactersService.findOnePublished(characterId, userId);
     const [conversation, savedCount] = await Promise.all([
       this.conversations.find(userId, characterId),
       this.conversations.savedCount(userId, characterId),
@@ -92,15 +92,15 @@ export class CharacterChatService {
 
   // 새로하기: 지금 대화를 저장(save)하거나 지우고, 시작 장면부터 다시 연다
   async startNew(characterId: string, save: boolean, authorization?: string) {
-    await this.charactersService.findOnePublished(characterId);
     const userId = await this.resolveUser(authorization);
+    await this.charactersService.findOnePublished(characterId, userId);
     const { saved } = await this.conversations.closeActive(userId, characterId, save);
     return { saved, ...(await this.history(characterId, authorization)) };
   }
 
   async listSaved(characterId: string, authorization?: string) {
-    const character = await this.charactersService.findOnePublished(characterId);
     const userId = await this.resolveUser(authorization);
+    const character = await this.charactersService.findOnePublished(characterId, userId);
     const [current, saved] = await Promise.all([
       this.conversations.find(userId, characterId),
       this.conversations.listSaved(userId, characterId),
@@ -112,8 +112,8 @@ export class CharacterChatService {
 
   // 이어하기: 저장한 대화를 지금 대화로. 지금 대화는 saveCurrent에 따라 저장하거나 지운다
   async resume(characterId: string, campaignId: string, saveCurrent: boolean, authorization?: string) {
-    await this.charactersService.findOnePublished(characterId);
     const userId = await this.resolveUser(authorization);
+    await this.charactersService.findOnePublished(characterId, userId);
     await this.conversations.resume(userId, characterId, campaignId, saveCurrent);
     return this.history(characterId, authorization);
   }
