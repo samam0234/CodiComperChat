@@ -51,7 +51,9 @@
 | `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, lastTest, characterId, published, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
 | `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
-| `POST /studio/characters/:id/test` | 3턴 테스트 | 501 (`/critique-test` 호출 자리) |
+| `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
+| `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
+| `POST /studio/characters/:id/test/reset` | 테스트 다시 시작 | **204** · 🔒 |
 | `POST /studio/characters/:id/publish` | 발행 (필수 필드·붕괴 검사 통과 시) | 501 |
 
 > 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
@@ -66,7 +68,7 @@
 | `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /summarize` | 세션 종료 시. 관계/훅/지식 델타 반환 (형태는 아래 §13.4) | 501 |
-| `POST /critique-test` | 공방 3턴 테스트: 붕괴/설명충/메타 여부 판정 | 501 |
+| `POST /critique-test` | 공방 3턴 테스트 판정 `{ character, turns, facts }` | **200** · 규칙 검사(메타 낱말, 420자 넘는 답·목록 3줄, 높임 어긋남)와 LLM 판정(말투 붕괴, 설명충, 메타, 설정에 없는 개인사 단정)을 합친다. 둘 중 하나라도 걸리면 걸린 것 |
 | `POST /train` | 학습 시작 | **403 — v1 정책 차단** |
 | `GET /train/{job_id}` | 학습 진행률 | **403 — v1 정책 차단** |
 

@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import type { ChatTurn } from '../character-chat/character-chat.types.js';
 import { PersonaKnowledgeStore } from './persona-knowledge.store.js';
+import type { PersonaKnowledge } from './persona-knowledge.types.js';
 import { retrieve } from './retriever.js';
 
 export type RagContext = {
@@ -48,7 +49,12 @@ export class PersonaRagService implements OnModuleInit {
 
     const knowledge = this.store.get(characterName);
     if (!knowledge) return null;
+    return this.assembleFrom(knowledge, history, message);
+  }
 
+  // 파일이 아니라 손에 든 지식으로 검색한다 — 공방 3턴 테스트가 발행 전 초안 카드로 쓴다
+  assembleFrom(knowledge: PersonaKnowledge, history: ChatTurn[], message?: string): RagContext {
+    const characterName = knowledge.character;
     const query =
       message !== undefined
         ? { message, recent: recentTexts(history) }

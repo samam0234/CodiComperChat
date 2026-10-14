@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
+import { testState } from './test-session.js';
 
 // 초안 목록·편집. 초안은 만든 사람만 보고 고친다 (모든 조회에 ownerId 조건)
 @Injectable()
@@ -57,7 +58,7 @@ export class StudioService {
     return {
       id: draft.id,
       card: draft.card,
-      lastTest: draft.lastTest,
+      test: testState(draft.card, draft.lastTest),
       characterId: draft.characterId,
       published: draft.character?.published ?? false,
       updatedAt: draft.updatedAt,
