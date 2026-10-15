@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { getChatState } from "@/lib/conversations";
+import { getChatState, getStory } from "@/lib/conversations";
 import styles from "../subpage.module.css";
 import StateForm from "./state-form";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "캐릭터 상태설정 · 코디컴�
 export default async function ChatSettingsPage({ params }: PageProps<"/characters/[id]/chat/settings">) {
   const { id } = await params;
   await requireUser(`/characters/${id}/chat/settings`);
-  const data = await getChatState(id);
+  const [data, story] = await Promise.all([getChatState(id), getStory(id)]);
   if (!data) notFound();
 
   return (
@@ -29,6 +29,8 @@ export default async function ChatSettingsPage({ params }: PageProps<"/character
           characterName={data.character.name}
           addressing={data.character.addressing}
           initial={data.state}
+          recent={story?.relation.log ?? []}
+          reason={story?.relation.reason ?? null}
         />
       </div>
     </section>

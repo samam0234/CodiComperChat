@@ -135,18 +135,27 @@ model Campaign {
 
 /// §13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑
 model CampaignState {
-  id                  String   @id @default(cuid())
-  campaignId          String   @unique
-  campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  id                  String    @id @default(cuid())
+  campaignId          String    @unique
+  campaign            Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   /// 친밀도 0(처음 만남)~100(각별함). 유저가 캐릭터 상태설정에서 조정한다
-  relationshipValue   Int      @default(0)
+  relationshipValue   Int       @default(0)
   relationshipNote    String?
   /// 이 대화에서 캐릭터가 유저를 부르는 호칭. 비어 있으면 캐릭터 카드의 호칭 규칙을 따른다
   userNickname        String?
-  openHooks           Json     @default("[]")
-  unlockedSecrets     Json     @default("[]")
+  openHooks           Json      @default("[]")
+  unlockedSecrets     Json      @default("[]")
   briefForNextSession String?
-  updatedAt           DateTime @updatedAt
+  /// 대화에 따라 친밀도가 자동으로 바뀌게 할지 (유저가 끌 수 있다)
+  autoRelationship    Boolean   @default(true)
+  /// 자동 변화의 근거 한 줄과 최근 기록 [{ at, delta, value, reason }] (최근 10개)
+  relationshipReason  String?
+  relationshipLog     Json      @default("[]")
+  /// 이미 끝난 일(문장 목록, 최근 20개). 모델이 다시 되돌리지 못하게 프롬프트에 넣는다
+  closedEvents        Json      @default("[]")
+  /// 이 시각까지의 메시지는 이야기 상태(요약·친밀도·복선)에 반영했다
+  digestedUntil       DateTime?
+  updatedAt           DateTime  @updatedAt
 
   @@map("campaign_states")
 }

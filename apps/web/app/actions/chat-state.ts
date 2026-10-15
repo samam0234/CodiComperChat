@@ -16,6 +16,8 @@ export async function saveChatState(_prev: FormState, formData: FormData): Promi
     relationshipNote: String(formData.get("relationshipNote") ?? ""),
     userNickname: String(formData.get("userNickname") ?? ""),
   };
+  // 체크 칸은 꺼져 있으면 아예 안 온다
+  const autoRelationship = formData.get("autoRelationship") === "on";
 
   let res: Response;
   try {
@@ -26,6 +28,7 @@ export async function saveChatState(_prev: FormState, formData: FormData): Promi
         relationshipValue: Number.parseInt(values.relationshipValue, 10),
         relationshipNote: values.relationshipNote,
         userNickname: values.userNickname,
+        autoRelationship,
       }),
       cache: "no-store",
     });

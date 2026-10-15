@@ -7,6 +7,7 @@ import ChatInput from "@/components/chat-input";
 import ChoiceDialog from "@/components/choice-dialog";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
+import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
 
 type Turn = {
@@ -440,6 +441,7 @@ export default function CharacterChat({
           )}
         </div>
       </div>
+      <StoryPanel key={`story-${conversationKey}`} characterId={characterId} characterName={characterName} messageCount={messages.length} />
       <ExtrasPanel key={conversationKey} characterId={characterId} characterName={characterName} />
     </>
   );

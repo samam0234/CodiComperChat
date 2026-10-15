@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { saveChatState } from "@/app/actions/chat-state";
 import form from "@/components/form.module.css";
+import { formatDayTime } from "@/lib/format-time";
 import styles from "../subpage.module.css";
 
 // apps/api chat-state.service.ts의 relationshipLabel과 같은 구간이어야 한다
@@ -14,18 +15,29 @@ function relationshipLabel(value: number): string {
   return "처음 만난 사이";
 }
 
-type State = { relationshipValue: number; relationshipNote: string | null; userNickname: string | null };
+type State = {
+  relationshipValue: number;
+  relationshipNote: string | null;
+  userNickname: string | null;
+  autoRelationship: boolean;
+};
+type LogEntry = { at: string; delta: number; value: number; reason: string };
 
 export default function StateForm({
   characterId,
   characterName,
   addressing,
   initial,
+  recent,
+  reason,
 }: {
   characterId: string;
   characterName: string;
   addressing: string;
   initial: State;
+  // 대화에 따라 자동으로 바뀐 친밀도의 최근 기록과 근거
+  recent: LogEntry[];
+  reason: string | null;
 }) {
   const [state, action, pending] = useActionState(saveChatState, undefined);
   const [value, setValue] = useState(
@@ -55,7 +67,7 @@ export default function StateForm({
             name="relationshipValue"
             min={0}
             max={100}
-            step={5}
+            step={1}
             value={value}
             onChange={(event) => setValue(Number(event.target.value))}
             aria-valuetext={`${value}, ${relationshipLabel(value)}`}
@@ -65,6 +77,32 @@ export default function StateForm({
             <span>각별함</span>
           </span>
         </label>
+
+        <label className={styles.checkRow}>
+          <input type="checkbox" name="autoRelationship" defaultChecked={initial.autoRelationship} />
+          <span>
+            <strong>대화에 따라 친밀도가 자동으로 바뀜</strong>
+            <span className={styles.sectionHint}>
+              대화가 3번 오갈 때마다 마음을 열거나 상처받은 정도를 보고 조금씩(한 번에 최대 8) 올리거나 내립니다. 끄면 내가 정한 값만 씁니다.
+            </span>
+          </span>
+        </label>
+
+        {recent.length > 0 && (
+          <div className={styles.recent}>
+            <p className={form.label}>최근 변화</p>
+            <ul className={styles.recentList}>
+              {[...recent].reverse().map((entry) => (
+                <li key={entry.at}>
+                  <strong className={entry.delta > 0 ? styles.up : styles.down}>{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</strong>{" "}
+                  → {entry.value} · {entry.reason}
+                  <span className={styles.recentTime}> · {formatDayTime(entry.at)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {recent.length === 0 && reason && <p className={styles.sectionHint}>최근 판단: {reason}</p>}
 
         <label className={form.field}>
           <span className={form.label}>관계 메모 (선택)</span>

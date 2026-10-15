@@ -11,12 +11,15 @@ export type ChatState = {
   relationshipValue: number;
   relationshipNote: string | null;
   userNickname: string | null;
+  // 대화에 따라 친밀도가 자동으로 바뀌게 할지 (끄면 유저가 정한 값만 쓴다)
+  autoRelationship: boolean;
 };
 
 export const DEFAULT_STATE: ChatState = {
   relationshipValue: 0,
   relationshipNote: null,
   userNickname: null,
+  autoRelationship: true,
 };
 
 // 숫자만 넘기면 모델이 의미를 모른다. 구간마다 이름을 붙여 함께 넘긴다 (웹 화면도 같은 구간을 쓴다)
@@ -64,6 +67,13 @@ export function parseStatePatch(body: unknown): Partial<ChatState> {
     patch[key] = text === '' ? null : text;
   }
 
+  if (data.autoRelationship !== undefined) {
+    if (typeof data.autoRelationship !== 'boolean') {
+      throw new BadRequestException('친밀도 자동 변화는 켜기/끄기(true/false)여야 합니다.');
+    }
+    patch.autoRelationship = data.autoRelationship;
+  }
+
   return patch;
 }
 
@@ -75,7 +85,7 @@ export class ChatStateService {
     if (!campaignId) return DEFAULT_STATE;
     const row = await this.prisma.campaignState.findUnique({
       where: { campaignId },
-      select: { relationshipValue: true, relationshipNote: true, userNickname: true },
+      select: { relationshipValue: true, relationshipNote: true, userNickname: true, autoRelationship: true },
     });
     return row ?? DEFAULT_STATE;
   }
@@ -85,7 +95,7 @@ export class ChatStateService {
       where: { campaignId: conversation.campaignId },
       create: { campaignId: conversation.campaignId, ...DEFAULT_STATE, ...patch },
       update: patch,
-      select: { relationshipValue: true, relationshipNote: true, userNickname: true },
+      select: { relationshipValue: true, relationshipNote: true, userNickname: true, autoRelationship: true },
     });
   }
 }

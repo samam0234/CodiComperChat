@@ -89,9 +89,30 @@ export type ChatStateView = {
     relationshipValue: number;
     relationshipNote: string | null;
     userNickname: string | null;
+    // 대화에 따라 친밀도가 자동으로 바뀌게 할지
+    autoRelationship: boolean;
     relationshipLabel: string;
   };
 };
+
+// 지금 대화의 이야기 상태 (Nest campaign-state)
+export type StoryView = {
+  started: boolean;
+  brief: string;
+  openHooks: { id: string; text: string }[];
+  closedEvents: string[];
+  auto: boolean;
+  relation: {
+    value: number;
+    label: string;
+    reason: string | null;
+    log: { at: string; delta: number; value: number; reason: string }[];
+  };
+};
+
+export async function getStory(characterId: string): Promise<StoryView | null> {
+  return authedGet<StoryView>(`/characters/${encodeURIComponent(characterId)}/chat/story`);
+}
 
 export async function getChatState(characterId: string): Promise<ChatStateView | null> {
   return authedGet<ChatStateView>(`/characters/${encodeURIComponent(characterId)}/chat/state`);
