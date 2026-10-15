@@ -14,7 +14,7 @@ export default function CharacterAvatar({
   hasPortrait: boolean;
   // 초상이 바뀌면 달라지는 값(캐릭터 updatedAt). 브라우저 캐시를 새로 받게 한다
   version?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
 }) {
   const initial = name.trim().slice(0, 1) || "?";
   if (!hasPortrait) {

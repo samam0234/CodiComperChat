@@ -93,7 +93,7 @@
 
 .primary {
   border: none;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 
@@ -317,7 +317,7 @@
 }
 
 .extendButton:hover {
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 
@@ -398,7 +398,7 @@
 
 .choiceOn {
   border-color: var(--accent);
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
   font-weight: 600;
 }
@@ -644,7 +644,7 @@
 
 .bubbleUser {
   justify-self: end;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 
@@ -681,6 +681,15 @@
   display: flex;
   align-items: flex-end;
   gap: 6px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--background);
+}
+
+.testInput:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .testInput > :first-child {
@@ -956,7 +965,7 @@ label.secondary {
 .proBadge {
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
   font-size: 11px;
   font-weight: 700;

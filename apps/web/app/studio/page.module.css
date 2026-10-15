@@ -7,9 +7,9 @@
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
 }
 
 .description {
@@ -24,11 +24,12 @@
   height: 42px;
   padding: 0 18px;
   border: none;
-  border-radius: 10px;
-  background: var(--accent);
+  border-radius: 999px;
+  background: var(--gradient);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: var(--glow);
 }
 
 .newButton:focus-visible {
@@ -69,14 +70,17 @@
 .card {
   display: block;
   height: 100%;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--background);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .cardHead {

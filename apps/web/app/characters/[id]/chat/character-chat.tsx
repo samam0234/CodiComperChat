@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { startNewConversation } from "@/app/actions/conversations";
+import CharacterAvatar from "@/components/character-avatar";
 import ChatInput from "@/components/chat-input";
 import ChoiceDialog from "@/components/choice-dialog";
 import ChatMenu from "./chat-menu";
@@ -48,9 +49,18 @@ function SparkIcon() {
   );
 }
 
+function SendIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6l-.1 6.5L15 12l-11.7 1.9.1 6.5Z" />
+    </svg>
+  );
+}
+
 export default function CharacterChat({
   characterId,
   characterName,
+  portrait,
   initialMessages,
   personas,
   lockedPersona: initialLocked,
@@ -58,6 +68,8 @@ export default function CharacterChat({
 }: {
   characterId: string;
   characterName: string;
+  // 캐릭터 말풍선 옆에 붙는 초상
+  portrait?: { hasPortrait: boolean; version?: string };
   // 서버에 저장된 이 캐릭터와의 지금 대화 (처음이면 시작 장면 하나)
   initialMessages: InitialMessage[];
   personas: PersonaOption[];
@@ -289,24 +301,32 @@ export default function CharacterChat({
         <ChatMenu characterId={characterId} />
         <div className={styles.log} role="log" aria-live="polite" ref={logRef}>
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.message} ${styles[message.role]} ${message.error ? styles.error : ""}`}
-            >
+            <div key={message.id} className={`${styles.row} ${message.role === "character" ? styles.rowCharacter : styles.rowUser}`}>
               {message.role === "character" && (
-                <span className={styles.speaker}>{characterName}</span>
+                <CharacterAvatar characterId={characterId} name={characterName} hasPortrait={!!portrait?.hasPortrait} version={portrait?.version} size="sm" />
               )}
-              {message.role === "user" && message.speaker && (
-                <span className={styles.userSpeaker}>{message.speaker}</span>
-              )}
-              {message.text}
-              {message.unsaved && (
-                <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>
-              )}
+              <div className={`${styles.message} ${styles[message.role]} ${message.error ? styles.error : ""}`}>
+                {message.role === "character" && <span className={styles.speaker}>{characterName}</span>}
+                {message.role === "user" && message.speaker && <span className={styles.userSpeaker}>{message.speaker}</span>}
+                {message.text}
+                {message.unsaved && <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>}
+              </div>
             </div>
           ))}
 
-          {sending && <div className={styles.typing}>{characterName}가 답하는 중…</div>}
+          {sending && (
+            <div className={`${styles.row} ${styles.rowCharacter}`}>
+              <CharacterAvatar characterId={characterId} name={characterName} hasPortrait={!!portrait?.hasPortrait} version={portrait?.version} size="sm" />
+              <div className={styles.typing} role="status">
+                <span className={styles.typingDots} aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+                {characterName}가 답하는 중…
+              </div>
+            </div>
+          )}
         </div>
 
         {suggestionsOpen && (
@@ -400,7 +420,8 @@ export default function CharacterChat({
             className={styles.submit}
             disabled={!canType || input.trim() === ""}
           >
-            보내기
+            <SendIcon />
+            <span className={styles.submitLabel}>보내기</span>
           </button>
         </form>
 

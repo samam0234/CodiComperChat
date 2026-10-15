@@ -101,11 +101,12 @@
   height: 40px;
   padding: 0 18px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
+  box-shadow: var(--glow);
 }
 
 .buyButton:disabled {

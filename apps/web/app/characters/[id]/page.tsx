@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser, getSessionToken } from "@/lib/auth";
 import CharacterAvatar from "@/components/character-avatar";
+import { nameHue } from "@/components/character-list";
 import ReportButton from "./report-button";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
@@ -89,62 +90,69 @@ export default async function CharacterDetailPage({
     notFound();
   }
 
+  const chips = PROFILE_FIELDS.flatMap(({ key, label, suffix }) => {
+    const value = character.profile?.[key];
+    return value === undefined || value === null || value === "" ? [] : [{ key, label, value: `${value}${suffix ?? ""}` }];
+  });
+  const badge = character.official === false ? (character.mine ? "내 캐릭터" : "유저 제작") : "공식";
+
   return (
     <article>
       <Link href="/" className={styles.back}>
         ← 목록으로
       </Link>
 
-      <header className={styles.header}>
-        <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} size="lg" />
-        <h1 className={styles.name}>{character.name}</h1>
-        <span className={styles.role}>{character.official === false ? (character.mine ? "내 캐릭터" : "유저 제작") : "공식"}</span>
+      <header className={styles.hero} style={{ "--hue": nameHue(character.name) } as React.CSSProperties}>
+        <div className={styles.heroGlow} aria-hidden="true" />
+        <div className={styles.portraitFrame}>
+          <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} size="xl" />
+        </div>
+        <div className={styles.heroBody}>
+          <span className={character.official === false ? styles.role : `${styles.role} ${styles.official}`}>{badge}</span>
+          <h1 className={styles.name}>{character.name}</h1>
+          <p className={styles.oneLiner}>{character.oneLiner}</p>
+          {chips.length > 0 && (
+            <dl className={styles.profile}>
+              {chips.map((chip) => (
+                <div key={chip.key} className={styles.profileItem}>
+                  <dt className={styles.profileLabel}>{chip.label}</dt>
+                  <dd>{chip.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <Link href={`/characters/${character.id}/chat`} className={styles.startButton}>
+            {character.name}와 대화 시작하기
+          </Link>
+        </div>
       </header>
-      <p className={styles.oneLiner}>{character.oneLiner}</p>
 
-      {character.profile && (
-        <dl className={styles.profile}>
-          {PROFILE_FIELDS.map(({ key, label, suffix }) => {
-            const value = character.profile?.[key];
-            if (value === undefined || value === null || value === "") {
-              return null;
-            }
-            return (
-              <div key={key} className={styles.profileItem}>
-                <dt className={styles.profileLabel}>{label}</dt>
-                <dd>
-                  {value}
-                  {suffix}
-                </dd>
+      <div className={styles.columns}>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>첫 장면</h2>
+          <div className={styles.intro}>
+            <span className={styles.introMark} aria-hidden="true">
+              “
+            </span>
+            <p>{character.openingScene}</p>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>설정</h2>
+          <dl className={styles.settings}>
+            {SETTING_FIELDS.map(({ key, label }) => (
+              <div key={key} className={styles.settingItem}>
+                <dt className={styles.settingLabel}>{label}</dt>
+                <dd className={styles.settingValue}>{character[key] as string}</dd>
               </div>
-            );
-          })}
-        </dl>
-      )}
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>인트로</h2>
-        <p className={styles.intro}>{character.openingScene}</p>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>설정</h2>
-        <dl className={styles.settings}>
-          {SETTING_FIELDS.map(({ key, label }) => (
-            <div key={key} className={styles.settingItem}>
-              <dt className={styles.settingLabel}>{label}</dt>
-              <dd className={styles.settingValue}>{character[key] as string}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className={styles.hidden}>
-          비밀과 해금 조건은 공개하지 않습니다. 캠페인을 진행하며 조건을 만족하면 드러납니다.
-        </p>
-      </section>
-
-      <Link href={`/characters/${character.id}/chat`} className={styles.startButton}>
-        {character.name}와 대화 시작하기
-      </Link>
+            ))}
+          </dl>
+          <p className={styles.hidden}>
+            🔒 비밀과 해금 조건은 공개하지 않습니다. 캠페인을 진행하며 조건을 만족하면 드러납니다.
+          </p>
+        </section>
+      </div>
 
       <div className={styles.footerLinks}>
         {character.mine ? (

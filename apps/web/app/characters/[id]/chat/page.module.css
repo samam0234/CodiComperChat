@@ -1,34 +1,44 @@
 .back {
-  display: inline-block;
-  font-size: 13px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 16px;
+  font-weight: 700;
   color: var(--muted);
 }
 
 .back:hover {
-  color: var(--foreground);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .titleRow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 14px;
 }
 
-.titleRow .title {
-  margin-top: 0;
+.titleText {
+  min-width: 0;
 }
 
 .title {
-  margin-top: 16px;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .description {
-  margin-top: 8px;
+  margin-top: 2px;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

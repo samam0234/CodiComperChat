@@ -2,15 +2,16 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  background: color-mix(in srgb, var(--background) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .inner {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 28px;
   height: var(--header-height);
   max-width: var(--content-max);
   margin: 0 auto;
@@ -18,51 +19,120 @@
 }
 
 .brand {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.brandText {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   white-space: nowrap;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   margin-right: auto;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
 }
 
 .navLink {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--muted);
   white-space: nowrap;
 }
 
 .navLink:hover {
-  background: var(--surface);
   color: var(--foreground);
 }
 
 .navLink[aria-current="page"] {
   color: var(--foreground);
-  font-weight: 600;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.create,
+.login {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.create {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.create:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.login {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: var(--glow);
+}
+
+.login:hover {
+  transform: translateY(-1px);
+}
+
+.me {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .menuButton {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 40px;
   height: 40px;
-  padding: 0 9px;
-  border-radius: 8px;
+  padding: 0 11px;
+  border-radius: 12px;
   flex-shrink: 0;
 }
 
 .menuButton:hover {
-  background: var(--surface);
+  background: var(--surface-2);
 }
 
 .menuBar {
@@ -72,12 +142,38 @@
   background: var(--foreground);
 }
 
-@media (max-width: 480px) {
+.menuBar:nth-child(2) {
+  width: 70%;
+  margin-left: auto;
+}
+
+@media (max-width: 760px) {
+  .create {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
   .inner {
-    gap: 12px;
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .brandText {
+    display: none;
+  }
+
+  .nav {
+    margin-right: auto;
+    background: transparent;
+    padding: 0;
   }
 
   .navLink {
-    padding: 8px 8px;
+    padding: 7px 10px;
+  }
+
+  .login {
+    padding: 0 12px;
   }
 }

@@ -261,7 +261,7 @@
 .primary {
   justify-self: end;
   border: none;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 

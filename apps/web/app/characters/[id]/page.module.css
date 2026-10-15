@@ -1,38 +1,85 @@
 .back {
-  display: inline-block;
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .back:hover {
-  color: var(--foreground);
+  color: var(--accent);
 }
 
-.header {
-  display: flex;
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 36px;
   margin-top: 16px;
+  padding: 36px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+/* 캐릭터마다 다른 빛 (이름으로 정한 색) */
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(520px 320px at 0% 0%, hsl(var(--hue) 85% 65% / 0.28), transparent 70%),
+    radial-gradient(520px 320px at 100% 100%, hsl(calc(var(--hue) + 60) 85% 65% / 0.2), transparent 70%);
+}
+
+.portraitFrame {
+  position: relative;
+  padding: 6px;
+  border-radius: 36px;
+  background: var(--gradient);
+  box-shadow: var(--glow);
+}
+
+.portraitFrame > * {
+  border: 4px solid var(--surface) !important;
+}
+
+.heroBody {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .name {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .role {
-  font-size: 12px;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.official {
+  background: var(--gradient);
+  color: #fff;
 }
 
 .oneLiner {
-  margin-top: 8px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.7;
   color: var(--muted);
 }
@@ -40,65 +87,121 @@
 .profile {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
+  gap: 8px;
 }
 
 .profileItem {
   display: flex;
   gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
   font-size: 13px;
+  font-weight: 600;
 }
 
 .profileLabel {
   color: var(--muted);
+  font-weight: 500;
+}
+
+.startButton {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: var(--glow);
+}
+
+.startButton::after {
+  content: "→";
+  margin-left: 10px;
+  transition: transform 0.2s ease;
+}
+
+.startButton:hover {
+  transform: translateY(-2px);
+}
+
+.startButton:hover::after {
+  transform: translateX(4px);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 28px;
 }
 
 .section {
-  margin-top: 32px;
+  display: grid;
+  gap: 12px;
 }
 
 .sectionTitle {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .intro {
-  margin-top: 12px;
-  padding: 20px;
-  border-left: 3px solid var(--accent);
-  border-radius: 0 12px 12px 0;
+  position: relative;
+  padding: 26px 24px 24px 54px;
+  border-radius: 24px 24px 24px 8px;
   background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.introMark {
+  position: absolute;
+  left: 18px;
+  top: 6px;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .settings {
   display: grid;
-  gap: 1px;
-  margin-top: 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
-  background: var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .settingItem {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 110px 1fr;
   gap: 16px;
-  padding: 14px 16px;
-  background: var(--background);
+  padding: 14px 18px;
+}
+
+.settingItem + .settingItem {
+  border-top: 1px solid var(--border);
 }
 
 .settingLabel {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .settingValue {
@@ -107,28 +210,38 @@
 }
 
 .hidden {
-  margin-top: 12px;
   font-size: 13px;
   color: var(--muted);
 }
 
-.startButton {
-  display: block;
-  margin-top: 32px;
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #ffffff;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 700;
+@media (max-width: 860px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
 }
 
-.startButton:hover {
-  opacity: 0.9;
-}
+@media (max-width: 640px) {
+  .hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 28px 20px;
+    gap: 20px;
+  }
 
-@media (max-width: 560px) {
+  .heroBody {
+    justify-items: center;
+  }
+
+  .profile {
+    justify-content: center;
+  }
+
+  .startButton {
+    width: 100%;
+    justify-content: center;
+  }
+
   .settingItem {
     grid-template-columns: 1fr;
     gap: 4px;
@@ -166,9 +279,10 @@
   margin: auto;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--background);
+  border-radius: 22px;
+  background: var(--surface);
   color: var(--foreground);
+  box-shadow: var(--shadow-lg);
 }
 
 .reportDialog::backdrop {
@@ -255,7 +369,7 @@
 
 .reportPrimary {
   border: none;
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 

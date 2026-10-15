@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandMark from "./brand-mark";
 import styles from "./site-footer.module.css";
 
 const FOOTER_LINKS = [
@@ -12,6 +13,10 @@ export default function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
+        <div className={styles.brand}>
+          <BrandMark size={24} id="footer-brand" />
+          <span className={styles.tagline}>캐릭터와 이어지는 나만의 이야기</span>
+        </div>
         <nav className={styles.links} aria-label="약관 및 정책">
           {FOOTER_LINKS.map((item) => (
             <Link key={item.href} href={item.href} className={styles.link}>

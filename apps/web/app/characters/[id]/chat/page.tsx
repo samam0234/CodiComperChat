@@ -59,19 +59,21 @@ export default async function CharacterChatPage({
 
   return (
     <section>
-      <Link href={`/characters/${character.id}`} className={styles.back}>
-        ← {character.name} 프로필로
-      </Link>
-
       <div className={styles.titleRow}>
+        <Link href={`/characters/${character.id}`} className={styles.back} aria-label={`${character.name} 프로필로`} title={`${character.name} 프로필로`}>
+          ←
+        </Link>
         <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} />
-        <h1 className={styles.title}>{character.name}</h1>
+        <div className={styles.titleText}>
+          <h1 className={styles.title}>{character.name}</h1>
+          <p className={styles.description}>{character.oneLiner}</p>
+        </div>
       </div>
-      <p className={styles.description}>{character.oneLiner}</p>
 
       <CharacterChat
         characterId={character.id}
         characterName={character.name}
+        portrait={{ hasPortrait: !!character.portraitMime, version: character.updatedAt }}
         initialMessages={initialMessages}
         lockedPersona={history?.persona ?? null}
         savedCount={history?.savedCount ?? 0}
