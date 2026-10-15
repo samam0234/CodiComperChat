@@ -26,6 +26,8 @@ const child = spawn(process.execPath, ["dist-verify/main.js"], {
     TOSS_CLIENT_KEY: "",
     // 짧은 시간에 가입·요청을 많이 하는 시험이라 한도를 크게 곱한다. 한도 동작은 apps/api의 통합 테스트(security/rate-limit.http.spec.ts)가 본다
     RATE_LIMIT_SCALE: process.env.RATE_LIMIT_SCALE ?? '1000',
+    // 서버 여러 대용 DB 저장소로 돌려 그 경로도 매번 지나가게 한다
+    RATE_LIMIT_STORE: "db",
   },
 });
 child.on("exit", (code) => process.exit(code ?? 0));
