@@ -155,5 +155,15 @@
 | 2026-10-16 | `7905772` | feature/moderation-evals | 이미지 검수 평가 묶음 추가 (규칙·정상 그림·판정 안정성) | [261016_0348_7905772_moderation-evals_feature-moderation-evals.md](commits/261016_0348_7905772_moderation-evals_feature-moderation-evals.md) |
 | 2026-10-16 | `638d4d5` | feature/csp-report | CSP 위반 보고를 받아 서버 로그에 남김 | [261016_0356_638d4d5_csp-report_feature-csp-report.md](commits/261016_0356_638d4d5_csp-report_feature-csp-report.md) |
 | 2026-10-16 | `be98771` | feature/design-polish | 설정·저장한 대화·운영자·패널 화면 다듬기와 스크롤 경고 해결 | [261016_0402_be98771_design-polish_feature-design-polish.md](commits/261016_0402_be98771_design-polish_feature-design-polish.md) |
+| 2026-10-16 | `7110715` | develop (merge) | feature/toss-verify → develop 병합 (--no-ff) | [261016_0403_7110715_merge-toss-verify_develop.md](commits/261016_0403_7110715_merge-toss-verify_develop.md) |
+| 2026-10-16 | `72698c5` | develop (merge) | feature/mail-smtp-verify → develop 병합 (--no-ff) | [261016_0403_72698c5_merge-mail-smtp-verify_develop.md](commits/261016_0403_72698c5_merge-mail-smtp-verify_develop.md) |
+| 2026-10-16 | `79fb5a3` | develop (merge) | feature/csp-report → develop 병합 (--no-ff) | [261016_0403_79fb5a3_merge-csp-report_develop.md](commits/261016_0403_79fb5a3_merge-csp-report_develop.md) |
+| 2026-10-16 | `85a322a` | develop (merge) | fix/flaky-rate-store-test → develop 병합 (--no-ff) | [261016_0403_85a322a_merge-flaky-rate-store-test_develop.md](commits/261016_0403_85a322a_merge-flaky-rate-store-test_develop.md) |
+| 2026-10-16 | `9485dba` | develop (merge) | feature/account-delete → develop 병합 (--no-ff) | [261016_0403_9485dba_merge-account-delete_develop.md](commits/261016_0403_9485dba_merge-account-delete_develop.md) |
+| 2026-10-16 | `99a7c0a` | develop (merge) | feature/moderation-evals → develop 병합 (--no-ff) | [261016_0403_99a7c0a_merge-moderation-evals_develop.md](commits/261016_0403_99a7c0a_merge-moderation-evals_develop.md) |
+| 2026-10-16 | `a60e42c` | develop (merge) | feature/legal-update → develop 병합 (--no-ff) | [261016_0403_a60e42c_merge-legal-update_develop.md](commits/261016_0403_a60e42c_merge-legal-update_develop.md) |
+| 2026-10-16 | `a684c62` | develop (merge) | fix/test-load-stability → develop 병합 (--no-ff) | [261016_0403_a684c62_merge-test-load-stability_develop.md](commits/261016_0403_a684c62_merge-test-load-stability_develop.md) |
+| 2026-10-16 | `a8f6970` | develop (merge) | feature/design-polish → develop 병합 (--no-ff) | [261016_0403_a8f6970_merge-design-polish_develop.md](commits/261016_0403_a8f6970_merge-design-polish_develop.md) |
+| 2026-10-16 | `aed202a` | develop (merge) | feature/ci-verify → develop 병합 (--no-ff) | [261016_0403_aed202a_merge-ci-verify_develop.md](commits/261016_0403_aed202a_merge-ci-verify_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
