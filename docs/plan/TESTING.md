@@ -56,3 +56,14 @@ AI 호출은 `apps/api/src/ai/ai-queue.ts` 대기열을 지난다. 동시 호출
 기다리는 답은 60초 넘게 줄서면 503, 모델 응답은 130초(배경 150초)가 넘으면 504로 끊는다. 현재 상태는 `GET /health`의 `ai`.
 
 측정(사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 33.0초 → 12.0초, 읽기 927 req/s(p95 13ms), 이야기 정리는 평균 약 20초 지연되나 끝까지 완료된다.
+
+## CI (`.github/workflows/ci.yml`)
+
+develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈·메일 없이 돈다(가짜 LLM, 가짜 결제, 메일은 폴더로).
+
+| 단계 | 내용 |
+|---|---|
+| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web) → API 단위 테스트(DB 한도 저장소 시험 포함) → AI 서비스 불러오기(`compileall`, `import app.main`) |
+| e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
+
+AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
