@@ -38,11 +38,13 @@ describe.skipIf(!hasDb)('요청 한도 DB 저장소', () => {
 
   it('창이 끝나면 처음부터 센다', async () => {
     const key = `${prefix}:window`;
-    const rule = { limit: 1, windowMs: 1500 };
+    const rule = { limit: 1, windowMs: 60_000 };
     expect((await a.hit(key, rule)).ok).toBe(true);
     expect((await b.hit(key, rule)).ok).toBe(false);
-    await new Promise((resolve) => setTimeout(resolve, 1700));
+    // 기다리지 않고 창을 끝낸다 (시간에 기대는 시험은 느린 PC에서 흔들린다)
+    await serverA.$executeRaw`UPDATE rate_limit_buckets SET "resetAt" = now() - interval '1 second' WHERE key = ${key}`;
     expect((await b.hit(key, rule)).ok).toBe(true);
+    expect((await a.hit(key, rule)).ok).toBe(false);
   });
 
   it('키가 다르면 따로 센다', async () => {
