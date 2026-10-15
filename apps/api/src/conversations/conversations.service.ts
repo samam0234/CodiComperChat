@@ -162,35 +162,44 @@ export class ConversationsService {
         _count: { select: { memories: true } },
       },
     });
-    return Promise.all(
-      campaigns.map(async (c) => {
-        const sessionId = c.sessions[0]?.id;
-        const [messageCount, last] = sessionId
-          ? await Promise.all([
-              this.prisma.message.count({
-                where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
-              }),
-              this.prisma.message.findFirst({
-                where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
-                orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-                select: { role: true, content: true, speaker: true },
-              }),
-            ])
-          : [0, null];
-        return {
-          id: c.id,
-          title: c.title,
-          personaName: c.personaName,
-          savedAt: c.savedAt,
-          updatedAt: c.updatedAt,
-          messageCount,
-          memoryCount: c._count.memories,
-          lastMessage: last
-            ? { role: toTurnRole(last.role), text: last.content.slice(0, 120), speaker: last.speaker }
-            : null,
-        };
+    const sessionIds = campaigns.flatMap((c) => (c.sessions[0] ? [c.sessions[0].id] : []));
+    const [counts, lasts] = await Promise.all([
+      this.prisma.message.groupBy({
+        by: ['sessionId'],
+        where: { sessionId: { in: sessionIds }, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
+        _count: { _all: true },
       }),
-    );
+      this.lastMessages(sessionIds),
+    ]);
+    const countOf = new Map(counts.map((r) => [r.sessionId, r._count._all]));
+    return campaigns.map((c) => {
+      const sessionId = c.sessions[0]?.id;
+      const last = sessionId ? lasts.get(sessionId) : undefined;
+      return {
+        id: c.id,
+        title: c.title,
+        personaName: c.personaName,
+        savedAt: c.savedAt,
+        updatedAt: c.updatedAt,
+        messageCount: sessionId ? (countOf.get(sessionId) ?? 0) : 0,
+        memoryCount: c._count.memories,
+        lastMessage: last ? { role: toTurnRole(last.role), text: last.content, speaker: last.speaker } : null,
+      };
+    });
+  }
+
+  // 세션마다 마지막 대화 한 줄을 쿼리 한 번으로 가져온다 (목록 한 건마다 쿼리하던 것을 없앤다)
+  private async lastMessages(sessionIds: string[]) {
+    const map = new Map<string, { role: MessageRole; content: string; speaker: string | null; createdAt: Date }>();
+    if (sessionIds.length === 0) return map;
+    const rows = await this.prisma.$queryRaw<
+      { sessionId: string; role: MessageRole; content: string; speaker: string | null; createdAt: Date }[]
+    >`SELECT DISTINCT ON ("sessionId") "sessionId", role::text AS role, LEFT(content, 120) AS content, speaker, "createdAt"
+      FROM messages
+      WHERE "sessionId" = ANY(${sessionIds}) AND role::text IN ('USER', 'CHARACTER')
+      ORDER BY "sessionId", "createdAt" DESC, id DESC`;
+    for (const r of rows) map.set(r.sessionId, r);
+    return map;
   }
 
   private async findSaved(userId: string, characterId: string, campaignId: string) {
@@ -308,28 +317,21 @@ export class ConversationsService {
       savedCount: group.filter((c) => c.status === CampaignStatus.CLOSED).length,
     }));
 
-    return Promise.all(
-      campaigns.map(async (c) => {
-        const session = c.sessions[0];
-        const last = session
-          ? await this.prisma.message.findFirst({
-              where: { sessionId: session.id, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
-              orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-              select: { role: true, content: true, speaker: true, createdAt: true },
-            })
-          : null;
-        return {
-          id: c.id,
-          character: c.character,
-          messageCount: session?._count.messages ?? 0,
-          updatedAt: c.updatedAt,
-          active: c.status === CampaignStatus.ACTIVE,
-          savedCount: c.savedCount,
-          lastMessage: last
-            ? { role: toTurnRole(last.role), text: last.content.slice(0, 120), speaker: last.speaker, createdAt: last.createdAt }
-            : null,
-        };
-      }),
-    );
+    const lasts = await this.lastMessages(campaigns.flatMap((c) => (c.sessions[0] ? [c.sessions[0].id] : [])));
+    return campaigns.map((c) => {
+      const session = c.sessions[0];
+      const last = session ? lasts.get(session.id) : undefined;
+      return {
+        id: c.id,
+        character: c.character,
+        messageCount: session?._count.messages ?? 0,
+        updatedAt: c.updatedAt,
+        active: c.status === CampaignStatus.ACTIVE,
+        savedCount: c.savedCount,
+        lastMessage: last
+          ? { role: toTurnRole(last.role), text: last.content, speaker: last.speaker, createdAt: last.createdAt }
+          : null,
+      };
+    });
   }
 }

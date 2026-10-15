@@ -46,3 +46,13 @@ AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬
 - 비밀과 갈등 씨앗이 둘 다 비면 "캠페인 밀도 부족" 경고
 
 이 로직은 FastAPI `POST /critique-test`가 판정하고 Nest `POST /studio/characters/:id/publish`가 게이트한다 (`API_DOCUMENTATION.md` 참고).
+
+## 부하 측정 (`npm run bench`)
+
+가짜 LLM을 느리고 한 번에 하나만 처리하게 만들어(`FAKE_LLM_DELAY_MS`, `FAKE_LLM_SERIAL=1`) 로컬 Ollama 한 대와 비슷한 상황을 흉내 낸다.
+`npm run bench -- --users 8 --delay 1500`: 읽기 처리량, 동시 채팅 응답 시간, 이야기 정리(배경 작업) 지연, 연속 채팅 꼬리 지연을 잰다.
+
+AI 호출은 `apps/api/src/ai/ai-queue.ts` 대기열을 지난다. 동시 호출 수는 `AI_CONCURRENCY`(기본 2), 기다리는 답이 배경 작업(기억·이야기 요약)보다 먼저 처리되고,
+기다리는 답은 60초 넘게 줄서면 503, 모델 응답은 130초(배경 150초)가 넘으면 504로 끊는다. 현재 상태는 `GET /health`의 `ai`.
+
+측정(사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 33.0초 → 12.0초, 읽기 927 req/s(p95 13ms), 이야기 정리는 평균 약 20초 지연되나 끝까지 완료된다.

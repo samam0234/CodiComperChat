@@ -13,6 +13,7 @@
     "test:api": "npm run test --workspace api",
     "test:api:e2e": "npm run test:e2e --workspace api",
     "typecheck:api": "npm run typecheck --workspace api",
+    "bench": "node e2e/bench.mjs",
     "test:e2e": "node e2e/prepare.mjs && playwright test -c e2e/playwright.config.ts"
   },
   "devDependencies": {

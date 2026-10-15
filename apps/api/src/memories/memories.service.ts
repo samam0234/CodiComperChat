@@ -99,12 +99,12 @@ export class MemoriesService {
             role: m.role === MessageRole.USER ? 'user' : 'character',
             text: m.content,
           }));
-          const { memories } = await postToAi<{ memories: string[] }>('/remember', {
-            characterName: names.characterName,
-            userName: names.userName,
-            existing,
-            turns,
-          });
+          // 평소 자동 정리는 뒤에서 하는 일이라 기다리는 답에 양보한다. "지금 정리하기"(force)는 사용자가 기다리므로 앞선다
+          const { memories } = await postToAi<{ memories: string[] }>(
+            '/remember',
+            { characterName: names.characterName, userName: names.userName, existing, turns },
+            { priority: force ? 'foreground' : 'background' },
+          );
           if (memories.length > 0) {
             await this.prisma.memoryChunk.createMany({
               data: memories.map((content) => ({ campaignId: conversation.campaignId, content })),
