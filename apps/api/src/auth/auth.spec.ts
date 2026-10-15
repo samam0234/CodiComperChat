@@ -60,3 +60,22 @@ describe('token', () => {
     expect(() => assertAuthSecret()).toThrow(/AUTH_SECRET/);
   });
 });
+
+describe('비밀번호 규칙', () => {
+  it('너무 흔하거나 단순한 비밀번호는 거절한다', async () => {
+    const { parseSignup, isWeakPassword } = await import('./auth.dto.js');
+    for (const weak of ['12345678', 'password', 'Password', 'qwertyuiop', 'aaaaaaaa', 'abababab']) {
+      expect(isWeakPassword(weak)).toBe(true);
+      expect(() => parseSignup({ email: 'a@example.com', password: weak, displayName: '가' })).toThrow(/너무 흔하거나 단순/);
+    }
+  });
+  it('이메일 아이디와 같은 비밀번호는 거절한다', async () => {
+    const { isWeakPassword } = await import('./auth.dto.js');
+    expect(isWeakPassword('minjun1234', 'minjun1234@example.com')).toBe(true);
+    expect(isWeakPassword('minjun1234', 'other@example.com')).toBe(false);
+  });
+  it('평범한 비밀번호는 통과한다', async () => {
+    const { parseSignup } = await import('./auth.dto.js');
+    expect(parseSignup({ email: 'a@example.com', password: 'pass1234word', displayName: '가' }).password).toBe('pass1234word');
+  });
+});

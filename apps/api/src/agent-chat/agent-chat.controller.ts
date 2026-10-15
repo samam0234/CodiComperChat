@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { RateLimit } from '../security/rate-limit.js';
 import { AgentChatService, sanitizeHistory } from './agent-chat.service.js';
 
 const MESSAGE_LIMIT = 2000;
@@ -8,6 +9,7 @@ export class AgentChatController {
   constructor(private readonly agentChatService: AgentChatService) {}
 
   @Post('messages')
+  @RateLimit('agent')
   @HttpCode(200)
   send(@Body() body: { message?: unknown; history?: unknown }) {
     const message = typeof body?.message === 'string' ? body.message.trim() : '';

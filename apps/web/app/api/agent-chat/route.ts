@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/auth";
+import { forwardedFor } from "@/lib/client-ip";
 
 // Nest로 넘기기만 하는 얇은 중계다. 추론을 여기서 하지 않는다 (계획서 §7.1).
 // 브라우저에 API 주소를 노출하지 않으려고 둔 것이다.
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
   try {
     res = await fetch(`${API_BASE_URL}/agent-chat/messages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await forwardedFor()) },
       body: JSON.stringify({ message: body.message, history: body.history }),
     });
   } catch {
