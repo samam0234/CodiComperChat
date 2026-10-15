@@ -1,0 +1,34 @@
+// e2e가 쓰는 포트·DB·경로. 쓰시는 개발 서버(3000/4000/8000)·개발 DB와 겹치지 않게 모두 따로 둔다.
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+export const PORTS = { web: 3101, api: 4101, ai: 8101 };
+export const URLS = {
+  web: `http://localhost:${PORTS.web}`,
+  api: `http://localhost:${PORTS.api}`,
+  ai: `http://localhost:${PORTS.ai}`,
+};
+
+const E2E_DB_NAME = "codicomperchat_e2e";
+
+// 개발 DB 주소(apps/api/.env의 DATABASE_URL)에서 데이터베이스 이름만 e2e용으로 바꾼다 — 비밀번호를 코드에 적지 않는다.
+// 다른 DB를 쓰려면 E2E_DATABASE_URL을 지정한다
+function e2eDatabaseUrl() {
+  if (process.env.E2E_DATABASE_URL) return process.env.E2E_DATABASE_URL;
+  const envFile = join(ROOT, "apps", "api", ".env");
+  const match = existsSync(envFile) ? readFileSync(envFile, "utf8").match(/^DATABASE_URL\s*=\s*"?([^"\r\n]+)"?/m) : null;
+  if (!match) throw new Error("e2e: apps/api/.env의 DATABASE_URL을 찾을 수 없다. E2E_DATABASE_URL을 지정하세요.");
+  const url = new URL(match[1]);
+  url.pathname = `/${E2E_DB_NAME}`;
+  return url.toString();
+}
+
+export const E2E_DB = e2eDatabaseUrl();
+export const E2E_DB_NAME_EXPORT = E2E_DB_NAME;
+
+export const AUTH_SECRET = "e2e-only-secret-e2e-only-secret-e2e-only-secret-123456";
+export const PERSONA_DIR = join(ROOT, "e2e", ".tmp", "personas");
+export const NEXT_DIST_DIR = ".next-e2e";

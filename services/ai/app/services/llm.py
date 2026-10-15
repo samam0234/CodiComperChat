@@ -5,6 +5,8 @@ import os
 import httpx
 from fastapi import HTTPException
 
+from app.services import fake_llm
+
 # 로컬에 pull된 모델 태그. 확인: `ollama list`
 DEFAULT_MODEL = "gemma4:e4b"
 DEFAULT_BASE_URL = "http://localhost:11434"
@@ -27,6 +29,10 @@ def generate(
     # 판정·요약처럼 같은 입력에 같은 결과가 나와야 하는 호출에서 고정한다 (대화 연기는 고정하지 않는다)
     seed: int | None = None,
 ) -> str:
+    # 웹 자동 테스트(e2e)용: 모델 없이 고정된 응답을 돌려준다. 실제 품질 확인용이 아니다
+    if os.environ.get("LLM_FAKE") == "1":
+        return fake_llm.generate(response_json_schema)
+
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
     model = os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
 

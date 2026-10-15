@@ -1,13 +1,14 @@
 # 테스트 전략
 
-> 상태: **`apps/api`만 러너가 실재.** `apps/web`과 `services/ai`는 아직 테스트 설정이 없다.
+> 상태: **`apps/api`(vitest 단위)와 웹 화면(Playwright e2e 21개)과 AI 품질 평가(`services/ai/evals`)가 실재.** `services/ai`의 pytest 단위 테스트는 아직 없다.
 
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
 |----|------|------|------|
 | `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — e2e 2건 통과 | 컨트롤러/서비스/DTO |
-| `apps/web` (Next.js) | 컴포넌트 테스트 + (선택) e2e | 미도입 | UI 회귀 |
+| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM, 별도 포트·DB) | 실재 — 21건 통과 | 화면 흐름 회귀. 사용법: [e2e/README.md](../../e2e/README.md) |
+| `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 6묶음 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성. 사용법: [services/ai/README.md](../../services/ai/README.md) |
 | `services/ai` (FastAPI) | pytest | 미도입 (앱은 있으나 테스트 설정 없음) | 라우트/컨텍스트 조립/요약 파싱 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
@@ -17,7 +18,10 @@
 ```bash
 npm run test:api        # vitest 단위 테스트
 npm run test:api:e2e    # vitest e2e (앱을 띄워 라우트 확인)
+npm run test:e2e        # 웹 화면 e2e (Chrome, 가짜 LLM, 별도 DB — 개발 서버와 같이 켜 둬도 된다)
 ```
+
+AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬 Ollama 필요).
 
 ## 자동 테스트보다 먼저 확인해야 하는 것 — 플레이테스트 시트 (계획서 §14)
 
