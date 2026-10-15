@@ -131,5 +131,8 @@
 |  | `` |  |  | [261015_2253_69a9ee8_billing_feature-billing.md](commits/261015_2253_69a9ee8_billing_feature-billing.md) |
 |  | `` |  |  | [261015_2301_11ed59f_billing-e2e-fix_feature-billing.md](commits/261015_2301_11ed59f_billing-e2e-fix_feature-billing.md) |
 | 2026-10-15 | `92d9c22` | develop (merge) | feature/billing → develop 병합 (--no-ff) | [261015_2328_92d9c22_merge-billing_develop.md](commits/261015_2328_92d9c22_merge-billing_develop.md) |
+|  | `` |  |  | [261015_2302_6c39285_shared-limits_feature-shared-limits.md](commits/261015_2302_6c39285_shared-limits_feature-shared-limits.md) |
+|  | `` |  |  | [261015_2304_98582ac_rate-store-flaky_feature-shared-limits.md](commits/261015_2304_98582ac_rate-store-flaky_feature-shared-limits.md) |
+| 2026-10-15 | `a70dbb3` | develop (merge) | feature/shared-limits → develop 병합 (--no-ff) | [261015_2328_a70dbb3_merge-shared-limits_develop.md](commits/261015_2328_a70dbb3_merge-shared-limits_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
