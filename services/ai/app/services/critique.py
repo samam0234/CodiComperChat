@@ -108,8 +108,12 @@ def _llm_checks(
     )
     n = 0
     lines = []
-    for t in turns:
-        if t.role == "character":
+    opening, _ = _split_opening(turns)
+    for i, t in enumerate(turns):
+        if opening is not None and i == 0:
+            # 작성자가 직접 쓴 시작 인사. 장면 설명(지문)이 섞여 있어 말투·길이 판정 대상이 아니다
+            lines.append(f"[시작 인사(작성자가 쓴 글, 판정하지 않는다)] {t.text}")
+        elif t.role == "character":
             n += 1
             lines.append(f"[캐릭터 {n}번째 답] {t.text}")
         else:
@@ -155,8 +159,19 @@ def _llm_checks(
         return False, False, False, False, ["LLM 판정 결과를 읽지 못해 규칙 검사만 반영했다"]
 
 
+def _split_opening(turns: list[Turn]) -> tuple[Turn | None, list[Turn]]:
+    """맨 앞의 캐릭터 말은 모델의 답이 아니라 작성자가 쓴 첫 메시지다. 판정에서 빼고 맥락으로만 쓴다.
+
+    첫 인사는 상황 묘사(지문)와 대사가 섞여 있고 프로 등급에서는 1,200자까지 길어, 그대로 판정하면
+    "강의식으로 길다"·"존댓말 문장이 적다"로 잘못 걸린다 (지문은 높임 말투로 쓰지 않는다)."""
+    if turns and turns[0].role == "character":
+        return turns[0], turns[1:]
+    return None, turns
+
+
 def critique_three_turns(request: CritiqueTestRequest) -> CritiqueTestResponse:
-    replies = [t.text for t in request.turns if t.role == "character"]
+    _opening, judged = _split_opening(request.turns)
+    replies = [t.text for t in judged if t.role == "character"]
     r_tone, r_lecture, r_meta, r_notes = _rule_checks(request.character, replies)
     l_tone, l_lecture, l_meta, l_invented, l_notes = _llm_checks(
         request.character, request.turns, request.facts

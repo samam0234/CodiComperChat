@@ -302,7 +302,7 @@ export default function StudioEditor({
               }}
             />
           )}
-          <StepForm step={step} card={card} update={update} samples={{ draftId: initial.id, ensureSaved: save }} />
+          <StepForm step={step} card={card} update={update} samples={{ draftId: initial.id, ensureSaved: save, multiplier: view.limitMultiplier }} />
           <div className={styles.stepNav}>
             <button type="button" className={styles.secondary} disabled={stepIndex <= 0} onClick={() => setStep(r.steps[stepIndex - 1].key)}>
               이전 단계

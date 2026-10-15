@@ -30,6 +30,10 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
           <dd>{user.email}</dd>
         </div>
         <div className={styles.row}>
+          <dt>요금 등급</dt>
+          <dd>{user.plan === "PRO" ? "프로 (공방 긴 글 칸 3배)" : "무료"}</dd>
+        </div>
+        <div className={styles.row}>
           <dt>가입일</dt>
           <dd>{joined}</dd>
         </div>

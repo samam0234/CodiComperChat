@@ -8,7 +8,12 @@ import styles from "./studio-editor.module.css";
 // 제안만 보여 주고 카드는 바뀌지 않는다 — 유저가 "적용하기"를 눌러야 칸에 들어간다.
 // 서버가 저장된 카드로 만들므로 누르면 먼저 저장을 끝낸다. 비밀·해금 조건은 AI에 보내지 않는다
 
-export type DraftTools = { draftId: string; ensureSaved: () => Promise<boolean> };
+export type DraftTools = {
+  draftId: string;
+  ensureSaved: () => Promise<boolean>;
+  // 긴 글 칸 글자 수 배수(무료 1, 프로 3). 칸마다 이 값으로 상한과 "프롬프트 연장" 버튼 표시를 정한다
+  multiplier: number;
+};
 export const DraftToolsContext = createContext<DraftTools | null>(null);
 
 type State =

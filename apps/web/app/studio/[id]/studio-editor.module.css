@@ -952,3 +952,13 @@ label.secondary {
     flex-direction: column;
   }
 }
+
+.proBadge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}

@@ -63,6 +63,12 @@ export async function makeAdmin(user: User) {
   await sql(`update users set role = 'ADMIN' where email = $1`, [user.email]);
 }
 
+// 요금 등급을 직접 바꾼다 (결제가 없어 운영자가 부여하는 것과 같은 효과). until을 주면 그때까지만 PRO.
+// 시각은 ISO 문자열(UTC)로 넘긴다 — Date 객체를 그대로 주면 pg가 현지 시각으로 써서 시간대만큼 어긋난다
+export async function setPlan(user: User, plan: "FREE" | "PRO", until: Date | null = null) {
+  await sql(`update users set plan = $1::"UserPlan", "planUntil" = $2 where email = $3`, [plan, until?.toISOString() ?? null, user.email]);
+}
+
 export async function createPersona(user: User, name = "민준") {
   const res = await api<{ id: string }>("/me/personas", { token: user.token, json: { name, description: "시험용 주인공" } });
   return res.body.id;

@@ -13,25 +13,38 @@ datasource db {
 }
 
 /// 운영자만 캐릭터를 발행한다 — v1 공방은 운영 도구다 (기획서 §5.4, 유저 광장은 v1 밖 §9.2)
+enum UserPlan {
+  FREE
+  PRO
+}
+
 enum UserRole {
   USER
   ADMIN
 }
 
 model User {
-  id           String           @id @default(cuid())
-  email        String           @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   displayName  String
   // 소셜 로그인 등 비밀번호 없는 계정도 담을 수 있게 nullable (인증 벤더 미정)
   passwordHash String?
-  role         UserRole         @default(USER)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  campaigns    Campaign[]
-  personas     UserPersona[]
-  drafts       CharacterDraft[]
-  extras       UserExtra[]
-  characters   Character[]
+  role         UserRole @default(USER)
+
+  /// 요금 등급. 결제는 아직 없어 운영자가 부여한다(npm run user:plan). PRO면 긴 글 칸 글자 수가 3배
+
+  plan UserPlan @default(FREE)
+
+  /// PRO 만료 시각. 비어 있으면 만료 없음. 지나면 FREE로 본다
+
+  planUntil  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  campaigns  Campaign[]
+  personas   UserPersona[]
+  drafts     CharacterDraft[]
+  extras     UserExtra[]
+  characters Character[]
 
   reports CharacterReport[]
 

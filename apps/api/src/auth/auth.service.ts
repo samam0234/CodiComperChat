@@ -12,6 +12,7 @@ import type {
   SignupInput,
 } from './auth.dto.js';
 import { hashPassword, verifyPassword } from './password.js';
+import { effectivePlan } from '../plan/plan.js';
 import { signToken } from './token.js';
 
 // passwordHash는 어떤 응답에도 넣지 않는다
@@ -21,10 +22,20 @@ const PUBLIC_USER = {
   displayName: true,
   // 웹이 공방 발행 버튼을 보여 줄지 정한다. 권한 판단은 서버가 다시 한다
   role: true,
+  // 요금 등급. 응답에는 만료를 반영한 plan만 싣는다(present)
+  plan: true,
+  planUntil: true,
   createdAt: true,
 } as const;
 
-export type PublicUser = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
+type Raw = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
+export type PublicUser = Omit<Raw, 'planUntil'>;
+
+// PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각 자체는 내보내지 않는다
+function present(user: Raw): PublicUser {
+  const { planUntil: _until, ...rest } = user;
+  return { ...rest, plan: effectivePlan(user) };
+}
 
 // 없는 이메일로 로그인할 때도 해시 비교 시간을 들여, 응답 시간으로 가입 여부가 드러나지 않게 한다
 const DUMMY_HASH = hashPassword('timing-equalizer-not-a-real-password');
@@ -43,7 +54,7 @@ export class AuthService {
         },
         select: PUBLIC_USER,
       });
-      return { token: await signToken(user.id), user };
+      return { token: await signToken(user.id), user: present(user) };
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -70,22 +81,24 @@ export class AuthService {
     }
 
     const { passwordHash: _omit, ...user } = found;
-    return { token: await signToken(user.id), user };
+    return { token: await signToken(user.id), user: present(user) };
   }
 
-  getProfile(userId: string): Promise<PublicUser | null> {
-    return this.prisma.user.findUnique({
+  async getProfile(userId: string): Promise<PublicUser | null> {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: PUBLIC_USER,
     });
+    return user ? present(user) : null;
   }
 
-  updateProfile(userId: string, input: ProfileInput): Promise<PublicUser> {
-    return this.prisma.user.update({
+  async updateProfile(userId: string, input: ProfileInput): Promise<PublicUser> {
+    const user = await this.prisma.user.update({
       where: { id: userId },
       data: { displayName: input.displayName },
       select: PUBLIC_USER,
     });
+    return present(user);
   }
 
   async changePassword(

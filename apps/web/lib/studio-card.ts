@@ -65,6 +65,9 @@ export type TestState = {
 
 export type DraftView = {
   id: string;
+  // 지금 적용되는 요금 등급과 긴 글 칸 글자 수 배수(무료 1, 프로 3)
+  plan: "FREE" | "PRO";
+  limitMultiplier: number;
   card: Card;
   test: TestState;
   characterId: string | null;
@@ -90,7 +93,8 @@ export type DraftSummary = {
   complete: boolean;
 };
 
-export const LIMITS = {
+// 무료 기준 글자 수 상한. 서버(apps/api/src/studio/card.ts)와 같아야 하고, 정본은 서버다
+const BASE_LIMITS = {
   name: 20,
   oneLiner: 40,
   short: 40,
@@ -114,6 +118,18 @@ export const LIMITS = {
   extra: 5,
   extraTitle: 30,
 } as const;
+
+// 프로 등급은 "이름·호칭을 뺀 긴 글 칸"만 배수로 늘어난다 (서버의 limitsFor와 같은 칸)
+export function limitsFor(multiplier: number) {
+  return {
+    ...BASE_LIMITS,
+    description: BASE_LIMITS.description * multiplier,
+    summary: BASE_LIMITS.summary * multiplier,
+    field: BASE_LIMITS.field * multiplier,
+    firstMessage: BASE_LIMITS.firstMessage * multiplier,
+    lore: BASE_LIMITS.lore * multiplier,
+  };
+}
 
 export const ROLE_OPTIONS: { value: Role; label: string; hint: string }[] = [
   { value: "companion", label: "동료", hint: "곁에서 함께 움직인다" },

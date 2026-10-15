@@ -1,10 +1,10 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useContext, useId, type ReactNode } from "react";
 import {
   AXES,
   HONORIFIC_OPTIONS,
-  LIMITS,
+  limitsFor,
   ROLE_OPTIONS,
   type Card,
   type StepKey,
@@ -43,6 +43,7 @@ function Field({
 }) {
   const id = useId();
   const draft = useAiDraft(aiKey);
+  const pro = (useContext(DraftToolsContext)?.multiplier ?? 1) > 1;
   return (
     <div className={styles.field}>
       <div className={styles.fieldHead}>
@@ -55,7 +56,8 @@ function Field({
             <span className={count > max ? styles.countOver : styles.count}>
               {count}/{max}
             </span>
-            {extendable && <PromptExtendButton label={label} max={max} />}
+            {/* 프로 등급은 이미 3배 상한이라 연장 버튼 대신 표시만 한다 */}
+            {extendable && (pro ? <span className={styles.proBadge} title="프로 등급: 글자 수 3배">프로 ×3</span> : <PromptExtendButton label={label} max={max} />)}
             {aiKey && <AiDraftButton label={label} draft={draft} />}
           </span>
         )}
@@ -273,7 +275,7 @@ function Pairs<K extends string>({
 }
 
 // 말투 샘플이 서버에 저장된 카드로 답하므로, 초안 id와 "먼저 저장" 함수를 받는다
-export type SampleProps = { draftId: string; ensureSaved: () => Promise<boolean> };
+export type SampleProps = { draftId: string; ensureSaved: () => Promise<boolean>; multiplier: number };
 
 export function StepForm(props: { step: StepKey; card: Card; update: Update; samples: SampleProps }) {
   return (
@@ -294,6 +296,8 @@ function StepFormBody({
   update: Update;
   samples: SampleProps;
 }) {
+  // 요금 등급에 맞는 글자 수 상한 (프로는 긴 글 칸이 3배)
+  const LIMITS = limitsFor(samples.multiplier);
   switch (step) {
     case "identity": {
       const c = card.identity;

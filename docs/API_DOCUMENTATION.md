@@ -19,7 +19,7 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }` | **201** `{ token, user }` · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
 
@@ -91,8 +91,8 @@
 | `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
 | `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, visibility, hasPortrait, characterId, updatedAt, complete }]` · 🔒 |
 | `POST /studio/characters` | 빈 초안 만들기 | **201** `{ id }` · 🔒 (로그인한 누구나) |
-| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, visibility, hasPortrait, takedown: { at, reason } \| null, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
-| `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
+| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, plan, limitMultiplier, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, visibility, hasPortrait, takedown: { at, reason } \| null, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
+| `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · **글자 수 상한은 요금 등급을 따른다**: 프로(`PRO`)는 이름·호칭을 뺀 긴 글 칸(외형 서술·성격 요약·캠페인 역할 6칸·비밀·해금 조건·관계가 깨지는 것·첫 메시지·대체 인사·로어)이 3배, 무료는 1배. 이미 저장된 긴 글은 그대로이면 상한을 넘어도 통과해, 프로가 끝난 뒤에도 다른 칸을 저장할 수 있다(그 칸을 키우면 무료 상한으로 400) · 🔒 |
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
