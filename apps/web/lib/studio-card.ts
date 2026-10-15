@@ -74,11 +74,16 @@ export type DraftView = {
   published: boolean;
   visibility: Visibility;
   hasPortrait: boolean;
+  // 초상 검수: APPROVED(남에게 보임) / PENDING(운영자 확인 중, 남에게 안 보임) / REJECTED(반려, 사유는 note)
+  portraitReview: PortraitReview | null;
+  portraitReviewNote: string | null;
   // 운영자가 내렸으면 시각과 사유 (다시 발행할 수 없다)
   takedown: { at: string; reason: string } | null;
   updatedAt: string;
   readiness: Readiness;
 };
+
+export type PortraitReview = "APPROVED" | "PENDING" | "REJECTED";
 
 export type DraftSummary = {
   id: string;

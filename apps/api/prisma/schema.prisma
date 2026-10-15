@@ -254,6 +254,10 @@ model CharacterDraft {
   /// 흉상 초상 이미지 (webp·jpeg·png, 150KB 이하). 발행하면 캐릭터에도 실린다
   portrait     Bytes?
   portraitMime String?
+  /// 초상 검수 결과. 승인된 초상만 캐릭터에 실려 남에게 보인다(기다리는 중·반려면 캐릭터에는 초상이 없다)
+  portraitReview     PortraitReview?
+  /// 자동 검수가 운영자에게 넘긴 이유, 또는 운영자의 반려 사유
+  portraitReviewNote String?
   /// 발행할 때(또는 발행 중이면 바로) 캐릭터에 적용할 공개 범위
   visibility   CharacterVisibility @default(PRIVATE)
   characterId  String?             @unique
@@ -346,4 +350,11 @@ model EmailToken {
 
   @@index([userId, purpose])
   @@map("email_tokens")
+}
+
+/// 초상 검수 상태. 자동 검수가 통과시키면 APPROVED, 애매하거나 검수를 못 하면 PENDING(운영자 확인), 운영자가 거절하면 REJECTED
+enum PortraitReview {
+  APPROVED
+  PENDING
+  REJECTED
 }

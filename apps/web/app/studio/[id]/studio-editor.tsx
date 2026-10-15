@@ -295,9 +295,16 @@ export default function StudioEditor({
             <PortraitUploader
               draftId={initial.id}
               hasPortrait={view.hasPortrait}
+              review={view.portraitReview}
+              reviewNote={view.portraitReviewNote}
               version={portraitVersion}
-              onChange={(hasPortrait) => {
-                setView((v) => ({ ...v, hasPortrait }));
+              onChange={(next) => {
+                setView((v) => ({
+                  ...v,
+                  hasPortrait: next.hasPortrait,
+                  portraitReview: next.portraitReview,
+                  portraitReviewNote: next.portraitReviewNote,
+                }));
                 setPortraitVersion(String(Date.now()));
               }}
             />

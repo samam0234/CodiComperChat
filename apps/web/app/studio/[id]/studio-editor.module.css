@@ -962,3 +962,9 @@ label.secondary {
   font-weight: 700;
   white-space: nowrap;
 }
+
+.reviewPending {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}

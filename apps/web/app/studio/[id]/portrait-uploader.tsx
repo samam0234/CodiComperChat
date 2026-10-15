@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { removePortrait, uploadPortrait } from "@/app/actions/studio";
+import type { DraftView, PortraitReview } from "@/lib/studio-card";
 import styles from "./studio-editor.module.css";
 
 // 흉상 초상 (기획서 §6.2 "채팅 옆에 붙을 흉상 초상이 우선, 전신 일러스트 공장은 v1 범위 밖").
@@ -38,17 +39,42 @@ async function toPortraitBlob(file: File): Promise<Blob> {
   throw new Error("이미지를 충분히 줄이지 못했습니다. 다른 그림을 써 주세요.");
 }
 
+type PortraitState = Pick<DraftView, "hasPortrait" | "portraitReview" | "portraitReviewNote">;
+
+// 검수 상태 안내. 승인된 초상만 남에게 보인다
+function ReviewBadge({ review, note }: { review: PortraitReview | null; note: string | null }) {
+  if (review === "PENDING") {
+    return (
+      <p className={styles.reviewPending} role="status">
+        운영자 확인 중 — 확인이 끝날 때까지 다른 사람에게는 초상 없이 보여요.{note ? ` (${note})` : ""}
+      </p>
+    );
+  }
+  if (review === "REJECTED") {
+    return (
+      <p className={styles.errorText} role="status">
+        운영자가 이 그림을 반려했어요{note ? `: ${note}` : "."} 다른 그림으로 바꿔 주세요.
+      </p>
+    );
+  }
+  return null;
+}
+
 export default function PortraitUploader({
   draftId,
   hasPortrait,
+  review,
+  reviewNote,
   version,
   onChange,
 }: {
   draftId: string;
   hasPortrait: boolean;
+  review: PortraitReview | null;
+  reviewNote: string | null;
   // 바뀔 때마다 달라지는 값(미리보기 캐시 무효화용)
   version: string;
-  onChange: (hasPortrait: boolean) => void;
+  onChange: (next: PortraitState) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -67,7 +93,7 @@ export default function PortraitUploader({
       const form = new FormData();
       form.set("file", new File([blob], "portrait", { type: blob.type }));
       const result = await uploadPortrait(draftId, form);
-      if (result.ok) onChange(true);
+      if (result.ok) onChange(result.data);
       else setError(result.error);
     } catch (e) {
       setError(e instanceof Error ? e.message : "이미지를 올리지 못했습니다.");
@@ -82,7 +108,7 @@ export default function PortraitUploader({
     setError(null);
     const result = await removePortrait(draftId);
     setBusy(false);
-    if (result.ok) onChange(false);
+    if (result.ok) onChange(result.data);
     else setError(result.error);
   };
 
@@ -101,8 +127,9 @@ export default function PortraitUploader({
         <p className={styles.label}>흉상 초상</p>
         <p className={styles.hint}>
           채팅 옆과 목록에 붙는 정사각형 얼굴 그림이에요. 그림을 고르면 알아서 정사각형으로 잘라 줄입니다. 직접 그리거나 쓸 권리가 있는
-          그림만 올려 주세요 — 부적절한 그림은 신고되어 내려갈 수 있습니다.
+          그림만 올려 주세요. 올린 그림은 자동으로 검수하고, 애매하면 운영자가 확인한 뒤에 보여요.
         </p>
+        <ReviewBadge review={hasPortrait ? review : null} note={reviewNote} />
         <div className={styles.portraitActions}>
           <input
             ref={input}
@@ -115,7 +142,7 @@ export default function PortraitUploader({
           />
           <label htmlFor={`portrait-${draftId}`} className={busy ? styles.secondaryDisabled : styles.secondary} role="button" tabIndex={busy ? -1 : 0}
             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !busy && (e.preventDefault(), input.current?.click())}>
-            {busy ? "올리는 중…" : hasPortrait ? "그림 바꾸기" : "그림 고르기"}
+            {busy ? "검수하는 중…" : hasPortrait ? "그림 바꾸기" : "그림 고르기"}
           </label>
           {hasPortrait && (
             <button type="button" className={styles.textButton} onClick={() => void remove()} disabled={busy}>

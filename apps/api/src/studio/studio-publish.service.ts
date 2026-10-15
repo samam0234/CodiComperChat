@@ -51,12 +51,16 @@ export class StudioPublishService {
     // 지식 파일을 먼저 쓴다 — 캐릭터가 공개되는 순간 RAG가 이미 준비돼 있어야 첫 대화부터 같은 캐릭터다
     this.writeKnowledge(id, toKnowledge(card));
 
-    // 초상은 카드와 따로 올린 것이라 발행할 때 캐릭터로 옮긴다
-    const art = await this.prisma.characterDraft.findUnique({ where: { id }, select: { portrait: true, portraitMime: true } });
+    // 초상은 카드와 따로 올린 것이라 발행할 때 캐릭터로 옮긴다. 검수에서 승인된 것만 (대기·반려면 초상 없이 발행)
+    const art = await this.prisma.characterDraft.findUnique({
+      where: { id },
+      select: { portrait: true, portraitMime: true, portraitReview: true },
+    });
+    const approved = art?.portrait && art.portraitReview === 'APPROVED';
     const data = {
       ...fields,
-      portrait: art?.portrait ? new Uint8Array(art.portrait) : null,
-      portraitMime: art?.portraitMime ?? null,
+      portrait: approved ? new Uint8Array(art.portrait!) : null,
+      portraitMime: approved ? (art.portraitMime ?? null) : null,
       profile: fields.profile ?? Prisma.DbNull,
       secret: card.boundary.secret,
       secretUnlockCondition: card.boundary.unlockCondition,
