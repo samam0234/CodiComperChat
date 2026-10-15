@@ -38,8 +38,9 @@
   padding: 16px 18px;
   padding-right: 76px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--background);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   color: inherit;
   font: inherit;
   text-align: left;

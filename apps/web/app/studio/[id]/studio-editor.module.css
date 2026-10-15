@@ -250,7 +250,8 @@
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--background);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .stepTitle {
@@ -527,8 +528,9 @@
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--background);
+  background: var(--surface);
   min-width: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .profileName {
@@ -663,9 +665,10 @@
   padding: 5px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--background);
+  background: var(--surface);
   font-size: 12px;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
 }
 
 .chip:hover:not(:disabled) {
@@ -684,7 +687,8 @@
   padding: 6px 6px 6px 10px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: var(--background);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .testInput:focus-within {

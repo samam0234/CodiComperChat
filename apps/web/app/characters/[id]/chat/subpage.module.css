@@ -63,7 +63,8 @@
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--background);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .memoryText {

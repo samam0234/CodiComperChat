@@ -62,7 +62,8 @@
   padding: 16px 18px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: var(--background);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .head {

@@ -154,5 +154,6 @@
 | 2026-10-16 | `dc54a7d` | feature/legal-update | 약관·개인정보처리방침을 실제 동작에 맞추고 결제 전 환불 안내·동의 추가 | [261016_0344_dc54a7d_legal-update_feature-legal-update.md](commits/261016_0344_dc54a7d_legal-update_feature-legal-update.md) |
 | 2026-10-16 | `7905772` | feature/moderation-evals | 이미지 검수 평가 묶음 추가 (규칙·정상 그림·판정 안정성) | [261016_0348_7905772_moderation-evals_feature-moderation-evals.md](commits/261016_0348_7905772_moderation-evals_feature-moderation-evals.md) |
 | 2026-10-16 | `638d4d5` | feature/csp-report | CSP 위반 보고를 받아 서버 로그에 남김 | [261016_0356_638d4d5_csp-report_feature-csp-report.md](commits/261016_0356_638d4d5_csp-report_feature-csp-report.md) |
+| 2026-10-16 | `be98771` | feature/design-polish | 설정·저장한 대화·운영자·패널 화면 다듬기와 스크롤 경고 해결 | [261016_0402_be98771_design-polish_feature-design-polish.md](commits/261016_0402_be98771_design-polish_feature-design-polish.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

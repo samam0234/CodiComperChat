@@ -33,6 +33,7 @@ export default async function PricingPage() {
 
         <article className={`${styles.plan} ${styles.pro}`} aria-label="프로">
           <h2 className={styles.planName}>프로</h2>
+          {info?.products[0] && <p className={styles.price}>{won(Math.min(...info.products.map((p) => p.amount)))}부터</p>}
           <ul className={styles.features}>
             {PRO.map((f) => (
               <li key={f}>{f}</li>
