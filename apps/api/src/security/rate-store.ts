@@ -31,18 +31,19 @@ export class PostgresRateStore implements RateStore {
   constructor(private readonly prisma: PrismaService) {}
 
   // 한 문장으로 "창이 끝났으면 1부터, 아니면 +1"을 한다 — 여러 서버가 동시에 세도 빠지는 수가 없다.
-  // 시각은 DB의 now()를 쓴다(서버마다 시계가 조금씩 달라도 같은 창을 본다)
+  // 시각은 DB의 clock_timestamp()를 쓴다: 서버마다 시계가 조금 달라도 같은 창을 보고,
+  // now()(트랜잭션 시작 시각)와 달리 같은 키에 몰려 줄을 선 요청도 실제 현재 시각으로 센다
   async hit(key: string, rule: Window): Promise<HitResult> {
     try {
       const [row] = await this.prisma.$queryRaw<{ count: number; wait_ms: number }[]>`
         INSERT INTO rate_limit_buckets (key, count, "resetAt")
-        VALUES (${key}, 1, now() + ${rule.windowMs} * interval '1 millisecond')
+        VALUES (${key}, 1, clock_timestamp() + ${rule.windowMs} * interval '1 millisecond')
         ON CONFLICT (key) DO UPDATE SET
-          count = CASE WHEN rate_limit_buckets."resetAt" <= now() THEN 1 ELSE rate_limit_buckets.count + 1 END,
-          "resetAt" = CASE WHEN rate_limit_buckets."resetAt" <= now() THEN EXCLUDED."resetAt" ELSE rate_limit_buckets."resetAt" END
-        RETURNING count, (EXTRACT(EPOCH FROM ("resetAt" - now())) * 1000)::float8 AS wait_ms`;
+          count = CASE WHEN rate_limit_buckets."resetAt" <= clock_timestamp() THEN 1 ELSE rate_limit_buckets.count + 1 END,
+          "resetAt" = CASE WHEN rate_limit_buckets."resetAt" <= clock_timestamp() THEN EXCLUDED."resetAt" ELSE rate_limit_buckets."resetAt" END
+        RETURNING count, (EXTRACT(EPOCH FROM ("resetAt" - clock_timestamp())) * 1000)::float8 AS wait_ms`;
       if (row.count <= rule.limit) return { ok: true, retryAfterSec: 0 };
-      return { ok: false, retryAfterSec: Math.max(1, Math.ceil(row.wait_ms / 1000)) };
+      return { ok: false, retryAfterSec: Math.min(Math.ceil(rule.windowMs / 1000), Math.max(1, Math.ceil(row.wait_ms / 1000))) };
     } catch (error) {
       // 한도 저장소가 잠깐 안 될 때 사이트 전체를 막지 않는다 (DB가 죽었으면 어차피 로그인·대화도 안 된다)
       this.logger.warn(`요청 한도 확인 실패 → 통과: ${error instanceof Error ? error.message : String(error)}`);
@@ -52,7 +53,7 @@ export class PostgresRateStore implements RateStore {
 
   async prune(): Promise<number> {
     try {
-      return await this.prisma.$executeRaw`DELETE FROM rate_limit_buckets WHERE "resetAt" < now() - interval '5 minutes'`;
+      return await this.prisma.$executeRaw`DELETE FROM rate_limit_buckets WHERE "resetAt" < clock_timestamp() - interval '5 minutes'`;
     } catch {
       return 0;
     }

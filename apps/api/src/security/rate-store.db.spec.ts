@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PostgresRateStore } from './rate-store.js';
 
@@ -20,7 +21,16 @@ describe.skipIf(!hasDb)('요청 한도 DB 저장소', () => {
     await Promise.all([serverA.$queryRaw`SELECT 1`, serverB.$queryRaw`SELECT 1`]);
   });
 
+  // 저장소는 DB 오류가 나면 막지 않고 통과시킨다(fail-open). 시험에서는 그 경우를 숨기지 않고 원인과 함께 실패시킨다
+  const warnings: string[] = [];
+  const spy = vi.spyOn(Logger.prototype, 'warn').mockImplementation((message: unknown) => void warnings.push(String(message)));
+  afterEach(() => {
+    expect(warnings, 'DB 한도 저장소가 오류로 통과시켰다').toEqual([]);
+    warnings.length = 0;
+  });
+
   afterAll(async () => {
+    spy.mockRestore();
     await serverA.$executeRaw`DELETE FROM rate_limit_buckets WHERE key LIKE ${prefix + '%'}`;
     await serverA.$disconnect();
     await serverB.$disconnect();
