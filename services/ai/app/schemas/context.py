@@ -103,3 +103,5 @@ class ContextSlice(WireModel):
     address_override: str | None = Field(default=None, max_length=20)
     # 이번 턴에 등장할 수 있는 엑스트라 (조건에 안 맞으면 Nest가 아예 빼고 보낸다)
     extras: list[ExtraCharacter] = Field(default_factory=list, max_length=3)
+    # 이번 유저 말이 건드렸지만 캐릭터 설정에 근거가 없는 개인사 주제. 단정하지 말고 넘기게 한다
+    ungrounded_topics: list[str] = Field(default_factory=list, max_length=4)

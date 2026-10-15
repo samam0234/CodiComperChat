@@ -40,6 +40,8 @@ export type ContextSlicePayload = {
   addressOverride: string | null;
   // 이번 턴 등장 조건에 맞은 엑스트라(유저가 만든 조연)만. 조건에 안 맞으면 아예 안 보낸다
   extras: ExtraPayload[];
+  // 이번 말이 건드렸지만 설정에 근거가 없는 개인사 주제 (모델이 지어내지 못하게 프롬프트 끝에 못 박는다)
+  ungroundedTopics: string[];
 };
 
 export type ExtraPayload = {

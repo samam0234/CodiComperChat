@@ -43,6 +43,11 @@ export class PersonaRagService implements OnModuleInit {
     }
   }
 
+  // 이 캐릭터의 지식 JSON (없거나 RAG를 껐으면 null) — 설정에 근거가 있는지 서버가 따질 때 쓴다
+  knowledgeFor(characterName: string): PersonaKnowledge | null {
+    return ragEnabled() ? this.store.get(characterName) : null;
+  }
+
   // message가 없으면(대답 추천처럼 유저가 아직 말하기 전) 최근 대화만으로 검색한다
   assemble(characterName: string, history: ChatTurn[], message?: string): RagContext | null {
     if (!ragEnabled()) return null;

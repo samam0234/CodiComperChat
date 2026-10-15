@@ -29,6 +29,8 @@ export function buildContextSlice(
   chatState: ChatState | null = null,
   // 이번 턴 등장 조건에 맞은 엑스트라
   extras: ExtraPayload[] = [],
+  // 이번 말이 건드렸지만 설정에 근거가 없는 개인사 주제
+  ungrounded: string[] = [],
 ): ContextSlicePayload {
   const nickname = chatState?.userNickname ?? null;
   const honorific = character.speechStyle.includes('존댓말')
@@ -100,5 +102,6 @@ export function buildContextSlice(
     userPersona: persona,
     addressOverride: nickname,
     extras,
+    ungroundedTopics: ungrounded,
   };
 }
