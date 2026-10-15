@@ -88,6 +88,21 @@ export class StudioPublishService {
     return this.studio.get(userId, id);
   }
 
+  // 계정을 지우기 전에: 그 사람이 발행한 캐릭터를 모두 내리고 지식 파일을 지운다.
+  // 지우지 않으면 계정이 사라진 캐릭터(ownerId 없음)가 운영 공식 캐릭터처럼 계속 보인다
+  async retireAllOf(userId: string): Promise<number> {
+    const drafts = await this.prisma.characterDraft.findMany({ where: { ownerId: userId }, select: { id: true, characterId: true } });
+    const characterIds = drafts.flatMap((d) => (d.characterId ? [d.characterId] : []));
+    // 초안과 연결이 끊긴 채 남은 캐릭터가 없게 ownerId로도 찾는다
+    const { count } = await this.prisma.character.updateMany({
+      where: { OR: [{ id: { in: characterIds } }, { ownerId: userId }] },
+      data: { published: false },
+    });
+    for (const d of drafts) rmSync(join(this.store.directory, knowledgeFileName(d.id)), { force: true });
+    this.store.invalidate();
+    return count;
+  }
+
   // 공개 범위 바꾸기: 카드 지문과 무관해 다시 테스트할 필요 없다. 발행 중이면 캐릭터에 바로 적용한다
   async setVisibility(userId: string, id: string, raw: unknown) {
     const visibility = parseVisibility(raw);

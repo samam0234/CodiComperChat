@@ -36,7 +36,7 @@ export class BillingService {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
     if (!user) throw new NotFoundException('계정을 찾을 수 없습니다.');
     const order = await this.prisma.paymentOrder.create({
-      data: { userId, productId: product.id, amount: product.amount, days: product.days, provider },
+      data: { userId, buyerEmail: user.email, productId: product.id, amount: product.amount, days: product.days, provider },
       select: { id: true },
     });
     return {
@@ -125,7 +125,8 @@ export class BillingService {
         where: { id: order.id, status: PaymentStatus.PAID },
         data: { status: PaymentStatus.REFUNDED, refundedAt: new Date(), refundReason: reason },
       });
-      if (count !== 1) return;
+      // 탈퇴한 계정의 결제면 되돌릴 기간이 없다(환불만 한다)
+      if (count !== 1 || !order.userId) return;
       const user = await tx.user.findUniqueOrThrow({ where: { id: order.userId }, select: { plan: true, planUntil: true } });
       // 만료 없는 프로(운영자 부여)는 건드리지 않는다. 기간이 있으면 그 결제의 일수만큼 줄인다(지금보다 앞이면 지금 끝)
       if (user.plan === 'PRO' && user.planUntil) {

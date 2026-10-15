@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import {
   changePassword,
+  deleteAccount,
   logout,
   updateProfile,
   type FormState,
@@ -139,6 +140,33 @@ export function PasswordForm() {
       <Status state={state} />
       <button type="submit" className={form.secondary} disabled={pending}>
         비밀번호 변경
+      </button>
+    </form>
+  );
+}
+
+// 되돌릴 수 없어 비밀번호와 확인 문구를 함께 받는다
+export function DeleteAccountForm() {
+  const [state, action, pending] = useActionState(deleteAccount, undefined);
+
+  return (
+    <form action={action} className={form.form}>
+      <p className={styles.note}>
+        대화·기억·내 프로필·엑스트라·캐릭터 초안이 모두 지워지고, 발행한 캐릭터는 내려갑니다. 결제 기록은 법에 따라 정해진 기간 보관됩니다.
+        되돌릴 수 없어요.
+      </p>
+      <label className={form.field}>
+        <span className={form.label}>비밀번호</span>
+        <input className={form.input} name="password" type="password" autoComplete="current-password" required />
+      </label>
+      <label className={form.field}>
+        <span className={form.label}>확인 문구</span>
+        <input className={form.input} name="confirm" placeholder="탈퇴합니다" autoComplete="off" required />
+        <span className={form.hint}>&quot;탈퇴합니다&quot;를 그대로 입력해 주세요.</span>
+      </label>
+      <Status state={state} />
+      <button type="submit" className={styles.danger} disabled={pending}>
+        {pending ? "지우는 중…" : "회원 탈퇴"}
       </button>
     </form>
   );

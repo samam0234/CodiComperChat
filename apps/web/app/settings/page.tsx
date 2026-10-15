@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getTheme } from "@/lib/theme";
 import {
+  DeleteAccountForm,
   LogoutButton,
   PasswordForm,
   ProfileForm,
@@ -60,6 +61,13 @@ export default async function SettingsPage() {
             </h2>
             <p className={styles.note}>{user.email}(으)로 로그인되어 있습니다.</p>
             <LogoutButton />
+          </section>
+
+          <section className={styles.section} aria-labelledby="delete-settings">
+            <h2 id="delete-settings" className={styles.heading}>
+              회원 탈퇴
+            </h2>
+            <DeleteAccountForm />
           </section>
         </>
       ) : (

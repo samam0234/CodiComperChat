@@ -372,8 +372,11 @@ enum PaymentStatus {
 model PaymentOrder {
   /// 결제사에 넘기는 주문 번호
   id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 탈퇴하면 비워진다. 결제 기록은 전자상거래법에 따라 정해진 기간 남겨야 해서 주문은 지우지 않는다
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// 결제할 때의 구매자 이메일 (탈퇴 뒤에도 결제 기록을 확인할 수 있게 남긴다)
+  buyerEmail  String?
   /// 상품 코드 (apps/api/src/billing/products.ts)
   productId   String
   /// 원 단위 금액. 승인할 때 결제사가 돌려준 금액과 맞아야 한다

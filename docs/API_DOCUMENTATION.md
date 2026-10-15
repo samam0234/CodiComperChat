@@ -22,6 +22,7 @@
 | `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
+| `DELETE /auth/me` | 회원 탈퇴 `{ password, confirm: "탈퇴합니다" }` | **204** · 비밀번호 틀림 401, 확인 문구 다름 400 · 계정과 대화·기억·프로필·엑스트라·초안·신고를 지우고, 발행한 캐릭터는 먼저 내린다(주인 없는 캐릭터가 공식처럼 보이지 않게). 결제 기록은 계정 연결만 끊고 구매자 이메일과 함께 남긴다 · 🔒 |
 | `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
 | `POST /auth/verify-email` | 메일 링크의 토큰으로 이메일 인증 `{ token }` (24시간, 한 번만) | **200** `{ verified: true }` · 만료·재사용 400 |
 | `POST /auth/password/forgot` | 비밀번호 재설정 링크 메일 `{ email }` | **204** (가입 여부와 상관없이 같음) |

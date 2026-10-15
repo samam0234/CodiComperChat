@@ -98,3 +98,24 @@
   border: 1px solid var(--border);
   background: var(--background);
 }
+
+.danger {
+  justify-self: start;
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--danger);
+  border-radius: 999px;
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: #fff;
+}
+
+.danger:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}

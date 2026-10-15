@@ -195,3 +195,18 @@ export async function resendVerification(_prev: FormState): Promise<FormState> {
   const already = (result.data as { alreadyVerified?: boolean } | null)?.alreadyVerified;
   return { success: already ? "이미 인증된 이메일이에요." : "인증 메일을 다시 보냈어요. 메일함(스팸함 포함)을 확인해 주세요." };
 }
+
+// 회원 탈퇴. 성공하면 이 브라우저의 로그인 쿠키도 지우고 홈으로 보낸다
+export async function deleteAccount(_prev: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login?next=/settings");
+  const result = await callApi("/auth/me", {
+    method: "DELETE",
+    token,
+    body: { password: formData.get("password"), confirm: String(formData.get("confirm") ?? "").trim() },
+  });
+  if (!result.ok) return { error: result.error };
+  (await cookies()).delete(SESSION_COOKIE);
+  revalidatePath("/", "layout");
+  redirect("/?bye=1");
+}
