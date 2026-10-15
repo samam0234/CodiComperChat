@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { URLS } from "../env.mjs";
-import { api, uniq } from "../helpers";
+import { OFFICIAL_ID, api, signedInPage, signup, uniq } from "../helpers";
 
 test.describe("보안·운영", () => {
   test("웹 응답에 보안 헤더가 붙는다", async ({ request }) => {
@@ -11,6 +11,44 @@ test.describe("보안·운영", () => {
     expect(h["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(h["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(h["permissions-policy"]).toContain("camera=()");
+  });
+
+  test("화면마다 새 nonce로 엄격한 CSP가 붙고, 인라인 스크립트는 nonce가 있어야만 실행된다", async ({ request }) => {
+    const a = (await request.get("/")).headers()["content-security-policy"];
+    const b = (await request.get("/")).headers()["content-security-policy"];
+    const nonce = (policy: string) => policy.match(/'nonce-([^']+)'/)?.[1];
+    expect(nonce(a)).toBeTruthy();
+    expect(nonce(a)).not.toBe(nonce(b));
+    const scriptSrc = a.split(";").find((d) => d.trim().startsWith("script-src"))!;
+    expect(scriptSrc).toContain("'strict-dynamic'");
+    expect(scriptSrc).not.toContain("'unsafe-inline'");
+    expect(a).toContain("object-src 'none'");
+    expect(a).toContain("base-uri 'self'");
+
+    // 페이지의 스크립트 태그에 그 요청의 nonce가 붙어 있다
+    const res = await request.get("/login");
+    const html = await res.text();
+    const n = nonce(res.headers()["content-security-policy"])!;
+    const scripts = html.match(/<script\b[^>]*>/g) ?? [];
+    expect(scripts.length).toBeGreaterThan(0);
+    for (const tag of scripts) expect(tag).toContain(`nonce="${n}"`);
+  });
+
+  test("주요 화면을 돌아다녀도 CSP 위반이 없다", async ({ browser }) => {
+    const user = await signup("CSP");
+    const page = await signedInPage(await browser.newContext(), user);
+    const violations: string[] = [];
+    page.on("console", (msg) => {
+      if (/Content Security Policy|Refused to (load|execute|apply|connect|frame)/i.test(msg.text())) violations.push(msg.text());
+    });
+    await page.addInitScript(() => {
+      document.addEventListener("securitypolicyviolation", (e) => console.error(`Refused to load (CSP) ${e.violatedDirective} ${e.blockedURI}`));
+    });
+    for (const path of ["/", "/popular", `/characters/${OFFICIAL_ID}`, "/library", "/studio", "/me", "/settings", "/pricing", "/agents", "/terms"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+    }
+    expect(violations).toEqual([]);
   });
 
   test("API 응답에도 보안 헤더가 붙고 서버 종류를 알리지 않는다", async () => {
