@@ -20,6 +20,10 @@ type PublicCharacter = Awaited<ReturnType<CharactersService['findOnePublished']>
 
 const DEFAULT_TESTER: UserPersonaPayload = { name: '테스트 유저', description: '' };
 
+// 말투 샘플용 고정 질문과 개수 (기획서 §6.2)
+export const SAMPLE_QUESTION = '지금 뭐 해?';
+export const SAMPLE_COUNT = 2;
+
 // 비밀 원문은 모델에 보내지 않으므로 우연히라도 비슷한 말이 나오면 서버가 잡는다 (§7.8, §11 "서버 점검")
 export function secretLeaked(secret: string, replies: string[]): boolean {
   const secretGrams = new Set([...tokenize(secret, true).keys()].filter((g) => g.length === 2));
@@ -96,6 +100,35 @@ export class StudioTestService {
     session.verdict = null;
     await this.save(id, session);
     return { reply, turnsUsed: userTurns(session.turns), turnsTotal: TEST_TURNS };
+  }
+
+  // 성격·말투 단계에서 바로 보는 샘플 답 (기획서 §6.2 "같은 질문 '지금 뭐 해?'에 대한 샘플 답 2개를 즉시 보여 말투를 검증").
+  // 3턴 테스트와 같은 경로(카드 → 페르소나 지식 → 검색 → 조립 → 개인사 가드)로 답하지만 아무것도 저장하지 않는다 —
+  // 테스트 턴을 쓰지 않고, 카드를 고쳐도 테스트 상태를 건드리지 않는다
+  async samples(ownerId: string, id: string) {
+    const draft = await this.studio.findOwned(ownerId, id);
+    const card = draft.card;
+    const missing = [
+      [card.identity.name, '이름'],
+      [card.personality.honorific, '반말/존댓말'],
+    ]
+      .filter(([v]) => !v)
+      .map(([, label]) => label);
+    if (missing.length) throw new BadRequestException(`샘플 답을 보려면 먼저 채워 주세요: ${missing.join(', ')}`);
+
+    const character = { id: draft.id, createdAt: new Date(), ...toCharacterFields(card) } as unknown as PublicCharacter;
+    // 첫 메시지가 아직 없으면 빈 대화에서 시작한다
+    const history: ChatTurn[] = card.greeting.firstMessage ? [{ role: 'character', text: card.greeting.firstMessage }] : [];
+    const knowledge = toKnowledge(card);
+    const grounding = groundingText(knowledge, character as unknown as Record<string, unknown>);
+    const replies: string[] = [];
+    for (let i = 0; i < SAMPLE_COUNT; i++) {
+      const rag = this.personaRag.assembleFrom(knowledge, history, SAMPLE_QUESTION);
+      const context = buildContextSlice(character, history, DEFAULT_TESTER, rag, [], null, [], ungroundedTopics(SAMPLE_QUESTION, grounding));
+      const first = await postToAi<{ reply: string }>('/infer', { context, userTurn: SAMPLE_QUESTION });
+      replies.push(await keepGrounded(context, SAMPLE_QUESTION, first.reply, groundingFacts(grounding)));
+    }
+    return { question: SAMPLE_QUESTION, replies };
   }
 
   async critique(ownerId: string, id: string): Promise<Verdict> {

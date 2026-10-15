@@ -65,6 +65,10 @@ export async function sendTestTurn(id: string, message: string, personaId?: stri
   });
 }
 
+export async function sampleReplies(id: string) {
+  return call<{ question: string; replies: string[] }>(id, "/samples", "POST");
+}
+
 export async function runCritique(id: string) {
   return call<Verdict>(id, "/test/critique", "POST");
 }

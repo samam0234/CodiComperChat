@@ -66,6 +66,7 @@
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
+| `POST /studio/characters/:id/samples` | 말투 샘플 답 2개 (성격·말투 단계) | **200** `{ question: "지금 뭐 해?", replies: [2개] }` · 3턴 테스트와 같은 경로(카드 → 페르소나 지식 → 검색 → 조립 → 개인사 가드)로 답하지만 **아무것도 저장하지 않는다**(테스트 턴을 쓰지 않고 테스트 상태에 영향 없음). 이름·반말/존댓말이 비면 400. 첫 메시지는 없어도 된다 · 🔒 |
 | `POST /studio/characters/:id/test/reset` | 테스트 다시 시작 | **204** · 🔒 |
 | `POST /studio/characters/:id/publish` | 발행 | **200** 초안(`published: true`, `characterId`, `visibility`) · **초안 주인 누구나**(2026-10-15 사용자 결정, 이전에는 운영자만). 필수 단계가 비었거나 지금 카드로 3턴 테스트를 통과하지 않았으면 409, 다른 캐릭터가 같은 이름이면 409(이름은 비공개 캐릭터를 포함해 전체에서 하나). 카드 → 캐릭터(비밀·해금 조건 포함, 서버 전용)로 만들거나 고치고, 초안의 공개 범위와 만든 사람(`ownerId`)을 싣는다. 페르소나 지식 파일 `data/personas/studio-<초안 id>.json`(비밀 제외)을 써서 첫 대화부터 RAG가 붙는다. 다시 발행하면 같은 캐릭터를 고친다(기존 대화 유지) · 🔒 |
 | `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 초안 주인. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
