@@ -10,6 +10,7 @@ import {
   getSessionToken,
   safeNextPath,
 } from "@/lib/auth";
+import { forwardedFor } from "@/lib/client-ip";
 
 // values: 오류 뒤 React가 폼을 비워도 다시 채울 입력값. 비밀번호는 절대 담지 않는다
 export type FormState =
@@ -33,6 +34,8 @@ async function callApi(
       headers: {
         "Content-Type": "application/json",
         ...(init.token ? { Authorization: `Bearer ${init.token}` } : {}),
+        // 로그인·가입의 IP 기준 한도가 이용자별로 세어지도록 실제 IP를 넘긴다
+        ...(await forwardedFor()),
       },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
       cache: "no-store",

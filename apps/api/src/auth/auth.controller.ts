@@ -15,6 +15,7 @@ import {
   parseSignup,
 } from './auth.dto.js';
 import { AuthGuard, CurrentUserId } from './auth.guard.js';
+import { RateLimit } from '../security/rate-limit.js';
 import { AuthService } from './auth.service.js';
 
 @Controller('auth')
@@ -22,12 +23,15 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @RateLimit('signup')
   signup(@Body() body: unknown) {
     return this.authService.signup(parseSignup(body));
   }
 
   @Post('login')
   @HttpCode(200)
+  // 같은 이메일을 같은 곳에서 계속 두드리는 것(무차별 대입)과 한 곳에서 이메일을 바꿔 가며 두드리는 것을 모두 막는다
+  @RateLimit('login', 'loginIp')
   login(@Body() body: unknown) {
     return this.authService.login(parseLogin(body));
   }
@@ -52,6 +56,7 @@ export class AuthController {
   }
 
   @Post('me/password')
+  @RateLimit('password')
   @UseGuards(AuthGuard)
   @HttpCode(204)
   async changePassword(

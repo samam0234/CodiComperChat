@@ -61,6 +61,27 @@
 | `POST /agent-chat/messages` | 에이전트(코디컴퍼챗 안내 챗봇) `{ message(~2000자), history?(최근 20턴) }` | **200** `{ reply }` · 비로그인 가능 · LLM 요청 한도 초과 429 |
 
 🔒 = `Authorization: Bearer <token>` 필요, 없거나 무효하면 401. 토큰은 HS256 JWT(7일, `AUTH_SECRET`로 서명)이고 비밀번호는 scrypt로 저장한다. 응답에 `passwordHash`는 절대 넣지 않는다. 웹은 토큰을 httpOnly 쿠키(`session`)에 넣고 서버에서만 Nest로 전달한다 — 브라우저 JS는 토큰을 볼 수 없다.
+
+**요청 한도(429):** 아래 요청은 횟수를 제한하며, 넘으면 **429**와 `Retry-After`(초) 헤더, "…N초 뒤에 다시 시도해 주세요" 메시지를 돌려준다. 카운터는 서버 메모리의 고정 창이다.
+
+| 대상 | 한도 | 기준 |
+|------|------|------|
+| `POST /auth/login` | 15분에 같은 이메일 10번, 한 IP에서 40번 | 이메일+IP, IP |
+| `POST /auth/signup` | 1시간에 10번 | IP |
+| `POST /auth/me/password` | 15분에 5번 | 사용자 |
+| `POST /characters/:id/chat` (대화 전송) | 1분에 20번 | 사용자 |
+| `POST /characters/:id/chat/suggestions` (대답 추천) | 1분에 10번 | 사용자 |
+| 공방 `test/chat`·`test/critique`·`samples`·`draft-field` (LLM 호출) | 1분에 12번 | 사용자 |
+| `POST /characters/:id/chat/memories/refresh` | 1분에 5번 | 사용자 |
+| `PUT /studio/characters/:id/portrait` (업로드) | 1분에 10번 | 사용자 |
+| `POST /characters/:id/report` (신고) | 1시간에 10번 | 사용자 |
+| `POST /agent-chat/messages` | 1분에 15번 | IP |
+
+- IP 기준은 웹 서버가 넘긴 `X-Forwarded-For`의 실제 이용자 IP로 센다. API는 **루프백·사설 주소에서 온 요청의 이 헤더만** 믿는다(`trust proxy`). 운영에서는 웹 앞단이 이 헤더를 덮어써야 이용자가 IP를 꾸며 한도를 피하지 못한다.
+- `RATE_LIMIT=off`로 끄거나 `RATE_LIMIT_SCALE=<배수>`로 한도를 늘릴 수 있다(웹 자동 테스트가 쓴다). 기본은 켜짐.
+- 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소(Redis 등)가 필요하다.
+
+**보안 헤더:** 모든 API 응답에 `X-Content-Type-Options: nosniff`·`X-Frame-Options: DENY`·`Referrer-Policy: no-referrer`가 붙고 `X-Powered-By`는 없다. 웹 응답에는 nosniff·`X-Frame-Options: DENY`·`frame-ancestors 'none'`·`Referrer-Policy: strict-origin-when-cross-origin`·`Permissions-Policy`(카메라·마이크·위치·결제 끔)가 붙는다. **비밀번호:** 8자 이상 128자 이하이며, 흔한 값(`12345678`·`password` 등)·같은 글자 반복·이메일 아이디와 같은 값은 400.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
 | `POST /campaigns` | 캠페인 시작 | 501 |
 | `GET /campaigns/:id` | 상태 포함 캠페인 조회 | 501 |

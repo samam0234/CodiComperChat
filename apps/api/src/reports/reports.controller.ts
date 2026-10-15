@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { AdminGuard } from '../auth/admin.guard.js';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
+import { RateLimit } from '../security/rate-limit.js';
 import { REPORT_REASONS, ReportsService } from './reports.service.js';
 
 // 로그인한 누구나: 보이는 캐릭터 신고
@@ -16,6 +17,7 @@ export class CharacterReportController {
 
   @Post()
   @HttpCode(204)
+  @RateLimit('report')
   async report(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: unknown) {
     await this.reports.report(userId, id, body);
   }

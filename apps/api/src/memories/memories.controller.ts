@@ -10,6 +10,7 @@ import {
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
 import { CharactersService } from '../characters/characters.service.js';
 import { ConversationsService } from '../conversations/conversations.service.js';
+import { RateLimit } from '../security/rate-limit.js';
 import { MemoriesService } from './memories.service.js';
 
 // 이 캐릭터와의 대화에서 캐릭터가 기억하는 것 — 본인 대화만 보고 지울 수 있다
@@ -47,6 +48,7 @@ export class MemoriesController {
 
   // "지금 정리하기": 3번 오가기를 기다리지 않고 아직 정리 안 된 대화를 바로 정리한다
   @Post('refresh')
+  @RateLimit('memory')
   @HttpCode(200)
   async refresh(@Param('id') characterId: string, @CurrentUserId() userId: string) {
     const character = await this.characters.findOnePublished(characterId, userId);

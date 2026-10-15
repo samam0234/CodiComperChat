@@ -9,6 +9,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { RateLimit } from '../security/rate-limit.js';
 import { CharacterChatService } from './character-chat.service.js';
 
 const MESSAGE_LIMIT = 2000;
@@ -40,6 +41,7 @@ export class CharacterChatController {
 
   @Post()
   @HttpCode(200)
+  @RateLimit('chat')
   send(
     @Param('id') id: string,
     @Body() body: ChatBody,
@@ -61,6 +63,7 @@ export class CharacterChatController {
 
   @Post('suggestions')
   @HttpCode(200)
+  @RateLimit('suggest')
   suggest(
     @Param('id') id: string,
     @Body() body: ChatBody,

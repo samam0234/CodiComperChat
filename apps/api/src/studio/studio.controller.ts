@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
+import { RateLimit } from '../security/rate-limit.js';
 import { parsePortrait } from './portrait.js';
 import { StudioDraftService } from './studio-draft.service.js';
 import { StudioPublishService } from './studio-publish.service.js';
@@ -61,6 +62,7 @@ export class StudioController {
   // 3턴 테스트 (§6.1). 대화는 서버가 들고 있고, 카드를 고치면 새로 시작한다
   @Post(':id/test/chat')
   @HttpCode(200)
+  @RateLimit('studioLlm')
   testChat(
     @CurrentUserId() userId: string,
     @Param('id') id: string,
@@ -75,6 +77,7 @@ export class StudioController {
 
   @Post(':id/test/critique')
   @HttpCode(200)
+  @RateLimit('studioLlm')
   testCritique(@CurrentUserId() userId: string, @Param('id') id: string) {
     return this.test.critique(userId, id);
   }
@@ -82,6 +85,7 @@ export class StudioController {
   // 흉상 초상 이미지. 본문은 이미지 원본(webp·jpeg·png, 150KB 이하). 카드와 따로라 다시 테스트할 필요 없다
   @Put(':id/portrait')
   @HttpCode(200)
+  @RateLimit('upload')
   setPortrait(
     @CurrentUserId() userId: string,
     @Param('id') id: string,
@@ -110,6 +114,7 @@ export class StudioController {
   // "이 칸만 AI로 초안" { field: 'campaign.scene' 등 }. 제안만 돌려주고 카드는 바뀌지 않는다
   @Post(':id/draft-field')
   @HttpCode(200)
+  @RateLimit('studioLlm')
   draftField(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: { field?: unknown }) {
     return this.drafter.draftField(userId, id, body?.field);
   }
@@ -117,6 +122,7 @@ export class StudioController {
   // 성격·말투 단계의 말투 샘플 답 2개. 저장하지 않으며 3턴 테스트에 영향이 없다
   @Post(':id/samples')
   @HttpCode(200)
+  @RateLimit('studioLlm')
   samples(@CurrentUserId() userId: string, @Param('id') id: string) {
     return this.test.samples(userId, id);
   }
