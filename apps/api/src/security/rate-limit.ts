@@ -4,14 +4,17 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Optional,
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request, Response } from 'express';
 import { verifyToken } from '../auth/token.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { MemoryRateStore, PostgresRateStore, storeKind, type RateStore } from './rate-store.js';
 
 // 요청 한도. 로그인 무차별 대입을 막고, LLM을 부르는 요청(비용·속도)과 업로드·신고의 남용을 막는다.
-// 한 서버 프로세스 안의 메모리 카운터라 서버가 여러 대가 되면 공유 저장소(Redis 등)로 옮겨야 한다 — 그때까지의 최소선.
+// 카운터는 기본이 서버 메모리이고, 서버가 여러 대면 RATE_LIMIT_STORE=db로 PostgreSQL에 함께 센다(rate-store.ts).
 
 type By = 'ip' | 'user' | 'ip+email';
 
@@ -123,11 +126,20 @@ async function keyFor(by: By, request: Req): Promise<string> {
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  private readonly limiter = new RateLimiter();
+  private readonly store: RateStore;
   private readonly timer: NodeJS.Timeout;
 
-  constructor(private readonly reflector: Reflector) {
-    this.timer = setInterval(() => this.limiter.prune(), 5 * MIN);
+  constructor(
+    private readonly reflector: Reflector,
+    @Optional() prisma?: PrismaService,
+  ) {
+    if (storeKind() === 'db') {
+      if (!prisma) throw new Error('RATE_LIMIT_STORE=db에는 PrismaService가 필요하다');
+      this.store = new PostgresRateStore(prisma);
+    } else {
+      this.store = new MemoryRateStore(new RateLimiter());
+    }
+    this.timer = setInterval(() => void this.store.prune(), 5 * MIN);
     // 이 타이머 때문에 프로세스가 안 끝나는 일이 없게
     this.timer.unref();
   }
@@ -142,7 +154,7 @@ export class RateLimitGuard implements CanActivate {
     for (const name of names) {
       const rule: Rule = RULES[name];
       const key = `${name}|${await keyFor(rule.by, request)}`;
-      const { ok, retryAfterSec } = this.limiter.hit(key, { limit: Math.floor(rule.limit * factor), windowMs: rule.windowMs });
+      const { ok, retryAfterSec } = await this.store.hit(key, { limit: Math.floor(rule.limit * factor), windowMs: rule.windowMs });
       if (!ok) {
         context.switchToHttp().getResponse<Response>().setHeader('Retry-After', String(retryAfterSec));
         throw new HttpException(`${rule.label} ${formatWait(retryAfterSec)} 다시 시도해 주세요.`, HttpStatus.TOO_MANY_REQUESTS);

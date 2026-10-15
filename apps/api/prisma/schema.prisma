@@ -391,3 +391,14 @@ model PaymentOrder {
   @@index([userId, createdAt])
   @@map("payment_orders")
 }
+
+/// 요청 한도 카운터 (RATE_LIMIT_STORE=db일 때). API 서버가 여러 대여도 같은 한도를 나눠 쓰게 DB에 둔다.
+/// 고정 창: resetAt이 지나면 처음부터 센다. 지난 창은 주기적으로 지운다
+model RateLimitBucket {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+  @@map("rate_limit_buckets")
+}
