@@ -5,6 +5,9 @@
 """
 
 import json
+import os
+import threading
+import time
 
 REPLY = "네, 알겠어요. 오늘도 천천히 이야기해 봐요."
 
@@ -38,7 +41,25 @@ def _value(name: str, spec: dict) -> object:
     return ""
 
 
+# 부하 측정용: 실제 모델처럼 느리고 한 번에 하나씩만 처리하는 상황을 흉내 낸다
+#   FAKE_LLM_DELAY_MS=2000  호출 하나에 걸리는 시간
+#   FAKE_LLM_SERIAL=1       여러 요청이 와도 한 번에 하나만 처리 (로컬 Ollama 한 대처럼)
+_SERIAL_LOCK = threading.Lock()
+
+
+def _simulate_latency() -> None:
+    delay = float(os.environ.get("FAKE_LLM_DELAY_MS", "0")) / 1000
+    if delay <= 0:
+        return
+    if os.environ.get("FAKE_LLM_SERIAL") == "1":
+        with _SERIAL_LOCK:
+            time.sleep(delay)
+    else:
+        time.sleep(delay)
+
+
 def generate(response_json_schema: dict | None) -> str:
+    _simulate_latency()
     if response_json_schema is None:
         return REPLY
     props: dict = response_json_schema.get("properties", {})

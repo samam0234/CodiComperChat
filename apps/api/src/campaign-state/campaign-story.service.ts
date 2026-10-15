@@ -145,7 +145,8 @@ export class CampaignStoryService {
           const context = buildContextSlice(names.character, [], names.persona, null, [], chatState, [], [], story);
           // 이전 요약을 "지금까지의 이야기"로 넘겨 거기에 이번 대화를 합쳐 새 요약을 쓰게 한다
           context.storySoFar = story.brief || null;
-          const result = await postToAi<DigestResult>('/summarize', { context, sessionTurns: turns });
+          // 뒤에서 하는 정리라 사용자가 기다리는 답에 양보한다 (ai-queue)
+          const result = await postToAi<DigestResult>('/summarize', { context, sessionTurns: turns }, { priority: 'background' });
 
           // 응답을 기다리는 사이 유저가 친밀도를 직접 바꿨을 수 있어, 반영 직전에 다시 읽는다
           const fresh = await this.prisma.campaignState.findUnique({ where: { campaignId: conversation.campaignId }, select: STORY_SELECT });
