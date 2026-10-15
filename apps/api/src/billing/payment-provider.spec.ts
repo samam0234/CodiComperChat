@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { activeProvider, clientKey, confirmPayment } from './payment-provider.js';
+import { activeProvider, cancelPayment, clientKey, confirmPayment } from './payment-provider.js';
 
 const ENV = ['BILLING_PROVIDER', 'TOSS_SECRET_KEY', 'TOSS_CLIENT_KEY', 'NODE_ENV'] as const;
 const saved = Object.fromEntries(ENV.map((k) => [k, process.env[k]]));
@@ -40,7 +40,7 @@ describe('토스 결제 승인', () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ status: 'DONE', totalAmount: 4900 }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     const result = await confirmPayment('toss', { paymentKey: 'pk', orderId: 'o1', amount: 4900 });
-    expect(result).toEqual({ ok: true, amount: 4900 });
+    expect(result).toEqual({ ok: true, amount: 4900, receiptUrl: null });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('https://api.tosspayments.com/v1/payments/confirm');
     expect((init.headers as Record<string, string>).Authorization).toBe(`Basic ${Buffer.from('test_sk_x:').toString('base64')}`);
@@ -55,5 +55,29 @@ describe('토스 결제 승인', () => {
   it('가짜 결제는 가짜 결제창이 만든 키만 받는다', async () => {
     expect((await confirmPayment('mock', { paymentKey: 'mock_abc', orderId: 'o', amount: 1 })).ok).toBe(true);
     expect((await confirmPayment('mock', { paymentKey: 'real', orderId: 'o', amount: 1 })).ok).toBe(false);
+  });
+});
+
+describe('토스 결제 취소(환불)', () => {
+  it('결제 키 주소로 사유와 함께 취소를 요청하고 CANCELED면 성공', async () => {
+    process.env.TOSS_SECRET_KEY = 'test_sk_x';
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ status: 'CANCELED' }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await cancelPayment('toss', 'pk/1', '고객 요청')).toEqual({ ok: true });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('https://api.tosspayments.com/v1/payments/pk%2F1/cancel');
+    expect(JSON.parse(String(init.body))).toEqual({ cancelReason: '고객 요청' });
+    expect((init.headers as Record<string, string>)['Idempotency-Key']).toBe('cancel-pk/1');
+  });
+
+  it('결제사가 거절하면 사유를 돌려주고, 가짜 결제는 바로 성공', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: '이미 취소된 결제' }), { status: 400 })));
+    expect(await cancelPayment('toss', 'pk', '사유')).toEqual({ ok: false, reason: '이미 취소된 결제' });
+    expect(await cancelPayment('mock', 'mock_1', '사유')).toEqual({ ok: true });
+  });
+
+  it('승인 응답의 영수증 주소를 함께 돌려준다 (https만)', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ status: 'DONE', totalAmount: 4900, receipt: { url: 'https://dashboard.tosspayments.com/receipt/x' } }), { status: 200 })));
+    expect(await confirmPayment('toss', { paymentKey: 'pk', orderId: 'o', amount: 4900 })).toEqual({ ok: true, amount: 4900, receiptUrl: 'https://dashboard.tosspayments.com/receipt/x' });
   });
 });

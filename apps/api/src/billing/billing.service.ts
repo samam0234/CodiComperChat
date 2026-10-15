@@ -8,8 +8,10 @@ import {
 import { PaymentStatus } from '@prisma/client';
 import { extendPro } from '../plan/plan.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { activeProvider, clientKey, confirmPayment, type ProviderName } from './payment-provider.js';
-import { PRODUCTS, findProduct } from './products.js';
+import { activeProvider, cancelPayment, clientKey, confirmPayment, type ProviderName } from './payment-provider.js';
+import { findProduct, products } from './products.js';
+
+const DAY_MS = 86_400_000;
 
 @Injectable()
 export class BillingService {
@@ -17,7 +19,7 @@ export class BillingService {
 
   products() {
     const provider = activeProvider();
-    return { products: PRODUCTS, provider, clientKey: provider ? clientKey(provider) : null };
+    return { products: products(), provider, clientKey: provider ? clientKey(provider) : null };
   }
 
   private provider(): ProviderName {
@@ -81,7 +83,7 @@ export class BillingService {
     await this.prisma.$transaction(async (tx) => {
       const { count } = await tx.paymentOrder.updateMany({
         where: { id: order.id, status: PaymentStatus.PENDING },
-        data: { status: PaymentStatus.PAID, paymentKey, paidAt: new Date() },
+        data: { status: PaymentStatus.PAID, paymentKey, paidAt: new Date(), receiptUrl: confirmed.receiptUrl },
       });
       if (count !== 1) return;
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { plan: true, planUntil: true } });
@@ -105,13 +107,55 @@ export class BillingService {
     return { paid: true, ...order, planUntil: user.planUntil };
   }
 
+  // 운영자: 결제를 전액 환불하고, 그 결제로 늘어난 프로 기간을 되돌린다.
+  // 결제사 환불이 먼저 성공해야 우리 기록을 바꾼다(돈은 돌려주지 않았는데 기간만 줄어드는 일이 없게)
+  async refund(orderId: string, body: { reason?: unknown } | undefined) {
+    const reason = typeof body?.reason === 'string' ? body.reason.trim().slice(0, 200) : '';
+    if (!reason) throw new BadRequestException('환불 사유를 적어 주세요.');
+    const order = await this.prisma.paymentOrder.findUnique({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('주문을 찾을 수 없습니다.');
+    if (order.status === PaymentStatus.REFUNDED) throw new ConflictException('이미 환불한 결제입니다.');
+    if (order.status !== PaymentStatus.PAID || !order.paymentKey) throw new ConflictException('결제가 끝난 주문만 환불할 수 있습니다.');
+
+    const cancelled = await cancelPayment(order.provider as ProviderName, order.paymentKey, reason);
+    if (!cancelled.ok) throw new BadRequestException(cancelled.reason);
+
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.paymentOrder.updateMany({
+        where: { id: order.id, status: PaymentStatus.PAID },
+        data: { status: PaymentStatus.REFUNDED, refundedAt: new Date(), refundReason: reason },
+      });
+      if (count !== 1) return;
+      const user = await tx.user.findUniqueOrThrow({ where: { id: order.userId }, select: { plan: true, planUntil: true } });
+      // 만료 없는 프로(운영자 부여)는 건드리지 않는다. 기간이 있으면 그 결제의 일수만큼 줄인다(지금보다 앞이면 지금 끝)
+      if (user.plan === 'PRO' && user.planUntil) {
+        const until = new Date(Math.max(Date.now(), user.planUntil.getTime() - order.days * DAY_MS));
+        await tx.user.update({ where: { id: order.userId }, data: { planUntil: until } });
+      }
+    });
+    return { refunded: true };
+  }
+
+  // 운영자: 계정의 결제 목록 (환불할 주문을 고른다)
+  async ordersOf(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() }, select: { id: true } });
+    if (!user) throw new NotFoundException('계정을 찾을 수 없습니다.');
+    const orders = await this.prisma.paymentOrder.findMany({
+      where: { userId: user.id, status: { in: [PaymentStatus.PAID, PaymentStatus.REFUNDED] } },
+      orderBy: { paidAt: 'desc' },
+      take: 50,
+      select: { id: true, productId: true, amount: true, days: true, provider: true, status: true, paidAt: true, refundedAt: true, refundReason: true },
+    });
+    return orders.map((o) => ({ ...o, name: findProduct(o.productId)?.name ?? o.productId }));
+  }
+
   async orders(userId: string) {
     const [orders, user] = await Promise.all([
       this.prisma.paymentOrder.findMany({
-        where: { userId, status: PaymentStatus.PAID },
+        where: { userId, status: { in: [PaymentStatus.PAID, PaymentStatus.REFUNDED] } },
         orderBy: { paidAt: 'desc' },
         take: 50,
-        select: { id: true, productId: true, amount: true, days: true, paidAt: true },
+        select: { id: true, productId: true, amount: true, days: true, paidAt: true, receiptUrl: true, status: true, refundedAt: true },
       }),
       this.prisma.user.findUnique({ where: { id: userId }, select: { plan: true, planUntil: true } }),
     ]);

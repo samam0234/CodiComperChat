@@ -4,7 +4,17 @@ import { API_BASE_URL, getSessionToken } from "./auth";
 
 export type Product = { id: string; name: string; amount: number; days: number };
 export type BillingInfo = { products: Product[]; provider: "toss" | "mock" | null; clientKey: string | null };
-export type PaidOrder = { id: string; name: string; amount: number; days: number; paidAt: string };
+export type PaidOrder = {
+  id: string;
+  name: string;
+  amount: number;
+  days: number;
+  paidAt: string;
+  // 결제사 영수증 (시험 결제는 없음)
+  receiptUrl: string | null;
+  status: "PAID" | "REFUNDED";
+  refundedAt: string | null;
+};
 
 export async function getBillingInfo(): Promise<BillingInfo | null> {
   try {

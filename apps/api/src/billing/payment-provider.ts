@@ -7,7 +7,8 @@
 export type ProviderName = 'toss' | 'mock';
 
 export type ConfirmInput = { paymentKey: string; orderId: string; amount: number };
-export type ConfirmResult = { ok: true; amount: number } | { ok: false; reason: string };
+export type ConfirmResult = { ok: true; amount: number; receiptUrl: string | null } | { ok: false; reason: string };
+export type CancelResult = { ok: true } | { ok: false; reason: string };
 
 export function activeProvider(): ProviderName | null {
   const chosen = process.env.BILLING_PROVIDER;
@@ -30,16 +31,17 @@ const TOSS_CONFIRM_URL = 'https://api.tosspayments.com/v1/payments/confirm';
 export async function confirmPayment(provider: ProviderName, input: ConfirmInput): Promise<ConfirmResult> {
   if (provider === 'mock') {
     // 가짜 결제는 웹의 가짜 결제창이 만든 키만 받는다
-    return input.paymentKey.startsWith('mock_') ? { ok: true, amount: input.amount } : { ok: false, reason: '가짜 결제 키가 아닙니다.' };
+    return input.paymentKey.startsWith('mock_')
+      ? { ok: true, amount: input.amount, receiptUrl: null }
+      : { ok: false, reason: '가짜 결제 키가 아닙니다.' };
   }
 
-  const secret = process.env.TOSS_SECRET_KEY ?? '';
   let res: Response;
   try {
     res = await fetch(TOSS_CONFIRM_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(`${secret}:`).toString('base64')}`,
+        Authorization: tossAuth(),
         'Content-Type': 'application/json',
         // 같은 결제를 두 번 승인하지 않게 (네트워크 재시도 대비)
         'Idempotency-Key': input.orderId,
@@ -50,9 +52,45 @@ export async function confirmPayment(provider: ProviderName, input: ConfirmInput
   } catch {
     return { ok: false, reason: '결제사에 연결하지 못했습니다. 잠시 뒤에 다시 시도해 주세요.' };
   }
-  const data = (await res.json().catch(() => null)) as { totalAmount?: number; status?: string; message?: string } | null;
+  const data = (await res.json().catch(() => null)) as {
+    totalAmount?: number;
+    status?: string;
+    message?: string;
+    receipt?: { url?: string } | null;
+  } | null;
   if (!res.ok || data?.status !== 'DONE') {
     return { ok: false, reason: data?.message ?? `결제 승인에 실패했습니다 (HTTP ${res.status}).` };
   }
-  return { ok: true, amount: Number(data.totalAmount) };
+  const receipt = data.receipt?.url;
+  return { ok: true, amount: Number(data.totalAmount), receiptUrl: typeof receipt === 'string' && receipt.startsWith('https://') ? receipt : null };
+}
+
+function tossAuth(): string {
+  return `Basic ${Buffer.from(`${process.env.TOSS_SECRET_KEY ?? ''}:`).toString('base64')}`;
+}
+
+// 결제 취소(전액 환불). 토스: POST /v1/payments/{paymentKey}/cancel
+export async function cancelPayment(provider: ProviderName, paymentKey: string, reason: string): Promise<CancelResult> {
+  if (provider === 'mock') return { ok: true };
+  let res: Response;
+  try {
+    res = await fetch(`https://api.tosspayments.com/v1/payments/${encodeURIComponent(paymentKey)}/cancel`, {
+      method: 'POST',
+      headers: {
+        Authorization: tossAuth(),
+        'Content-Type': 'application/json',
+        // 같은 환불을 두 번 하지 않게
+        'Idempotency-Key': `cancel-${paymentKey}`,
+      },
+      body: JSON.stringify({ cancelReason: reason }),
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch {
+    return { ok: false, reason: '결제사에 연결하지 못했습니다. 잠시 뒤에 다시 시도해 주세요.' };
+  }
+  const data = (await res.json().catch(() => null)) as { status?: string; message?: string } | null;
+  if (!res.ok || (data?.status !== 'CANCELED' && data?.status !== 'PARTIAL_CANCELED')) {
+    return { ok: false, reason: data?.message ?? `환불에 실패했습니다 (HTTP ${res.status}).` };
+  }
+  return { ok: true };
 }

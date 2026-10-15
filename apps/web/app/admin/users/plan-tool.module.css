@@ -61,3 +61,38 @@
 .days input {
   width: 80px;
 }
+
+.orders {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.orders ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+
+.order {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--background);
+  font-size: 13px;
+}
+
+.order button {
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.refunded {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--danger);
+}

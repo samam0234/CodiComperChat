@@ -1,4 +1,5 @@
-import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard.js';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
 import { RateLimit } from '../security/rate-limit.js';
 import { BillingService } from './billing.service.js';
@@ -33,5 +34,25 @@ export class BillingController {
   @UseGuards(AuthGuard)
   orders(@CurrentUserId() userId: string) {
     return this.billing.orders(userId);
+  }
+}
+
+// 운영자만: 계정의 결제 보기·환불 (환불하면 결제사 환불 후 그 결제로 늘어난 프로 기간을 되돌린다)
+@Controller('admin/orders')
+@UseGuards(AuthGuard, AdminGuard)
+export class AdminOrdersController {
+  constructor(private readonly billing: BillingService) {}
+
+  @Get()
+  list(@Query('email') email?: string) {
+    if (!email?.trim()) throw new BadRequestException('이메일을 입력해 주세요.');
+    return this.billing.ordersOf(email);
+  }
+
+  // { reason } 필수
+  @Post(':id/refund')
+  @HttpCode(200)
+  refund(@Param('id') id: string, @Body() body: { reason?: unknown } | undefined) {
+    return this.billing.refund(id, body);
   }
 }
