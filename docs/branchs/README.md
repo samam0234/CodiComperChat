@@ -133,5 +133,6 @@
 | 2026-10-15 | `de62551` | feature/ci | GitHub Actions로 린트·타입 검사·단위 테스트·웹 e2e 자동 실행 | [261015_2305_de62551_ci_feature-ci.md](commits/261015_2305_de62551_ci_feature-ci.md) |
 | 2026-10-15 | `95ee354` | feature/strict-csp | 요청마다 nonce를 쓰는 엄격한 CSP 적용 | [261015_2308_95ee354_strict-csp_feature-strict-csp.md](commits/261015_2308_95ee354_strict-csp_feature-strict-csp.md) |
 | 2026-10-15 | `e82d7ad` | feature/web-redesign | 캐릭터 챗봇 콘셉트로 사이트 디자인 개편 | [261015_2326_e82d7ad_web-redesign_feature-web-redesign.md](commits/261015_2326_e82d7ad_web-redesign_feature-web-redesign.md) |
+| 2026-10-15 | `f058052` | feature/branch-records-index | 커밋 기록 목록에 빠진 기록 87건 추가 | [261015_2327_f058052_branch-records-index_feature-branch-records-index.md](commits/261015_2327_f058052_branch-records-index_feature-branch-records-index.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
