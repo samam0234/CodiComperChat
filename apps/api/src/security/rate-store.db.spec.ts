@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PostgresRateStore } from './rate-store.js';
 
@@ -14,6 +14,11 @@ describe.skipIf(!hasDb)('요청 한도 DB 저장소', () => {
   const a = new PostgresRateStore(serverA);
   const b = new PostgresRateStore(serverB);
   const prefix = `test:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+
+  // 연결을 미리 열어 둔다. 첫 연결 시간(수백 ms)이 짧은 창을 잡아먹어 시험이 흔들리지 않게
+  beforeAll(async () => {
+    await Promise.all([serverA.$queryRaw`SELECT 1`, serverB.$queryRaw`SELECT 1`]);
+  });
 
   afterAll(async () => {
     await serverA.$executeRaw`DELETE FROM rate_limit_buckets WHERE key LIKE ${prefix + '%'}`;
@@ -33,10 +38,10 @@ describe.skipIf(!hasDb)('요청 한도 DB 저장소', () => {
 
   it('창이 끝나면 처음부터 센다', async () => {
     const key = `${prefix}:window`;
-    const rule = { limit: 1, windowMs: 300 };
+    const rule = { limit: 1, windowMs: 1500 };
     expect((await a.hit(key, rule)).ok).toBe(true);
     expect((await b.hit(key, rule)).ok).toBe(false);
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 1700));
     expect((await b.hit(key, rule)).ok).toBe(true);
   });
 
