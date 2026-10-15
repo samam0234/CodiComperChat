@@ -141,5 +141,6 @@
 | 2026-10-15 | `8af27ee` | develop (merge) | feature/ci → develop 병합 (--no-ff) | [261015_2328_8af27ee_merge-ci_develop.md](commits/261015_2328_8af27ee_merge-ci_develop.md) |
 | 2026-10-15 | `92d9c22` | develop (merge) | feature/billing → develop 병합 (--no-ff) | [261015_2328_92d9c22_merge-billing_develop.md](commits/261015_2328_92d9c22_merge-billing_develop.md) |
 | 2026-10-15 | `a70dbb3` | develop (merge) | feature/shared-limits → develop 병합 (--no-ff) | [261015_2328_a70dbb3_merge-shared-limits_develop.md](commits/261015_2328_a70dbb3_merge-shared-limits_develop.md) |
+| 2026-10-15 | `d064bdb` | develop (merge) | feature/branch-records-index → develop 병합 (--no-ff) | [261015_2328_d064bdb_merge-branch-records-index_develop.md](commits/261015_2328_d064bdb_merge-branch-records-index_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
