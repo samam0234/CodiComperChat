@@ -147,5 +147,6 @@
 | 2026-10-16 | `ce1b3ee` | feature/mail-smtp-verify | 실제 SMTP 서버로 메일 발송을 확인하는 시험과 발송 확인 도구 추가 | [261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md](commits/261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md) |
 | 2026-10-16 | `d8265bf` | feature/ci-verify | E2E_DATABASE_URL의 데이터베이스 이름을 그대로 만들고 쓰게 고침 | [261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md](commits/261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md) |
 | 2026-10-16 | `541e78b` | feature/ci-verify | RATE_LIMIT_SCALE가 빈 값이면 기본 배수(1000)를 쓰게 고침 | [261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md](commits/261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md) |
+| 2026-10-16 | `599d417` | feature/ci-verify | CI 단계를 깨끗한 클론에서 재현하는 npm run ci:local 추가 | [261016_0325_599d417_ci-local_feature-ci-verify.md](commits/261016_0325_599d417_ci-local_feature-ci-verify.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
