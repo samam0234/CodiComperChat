@@ -1,4 +1,4 @@
-import { effectivePlan, multiplierFor } from './plan.js';
+import { effectivePlan, extendPro, multiplierFor } from './plan.js';
 import { limitsFor, normalizeCard, EMPTY_CARD, type Card } from '../studio/card.js';
 import { fullCard } from '../studio/card.fixture.js';
 import { splitText, toKnowledge } from '../studio/card-export.js';
@@ -91,5 +91,24 @@ describe('긴 글은 잘리지 않고 여러 지식 조각이 된다', () => {
     expect(scene.map((c) => c.text).join(' ').replace(/\s+/g, '')).toBe(card.campaign.scene.replace(/\s+/g, ''));
     expect(knowledge.chunks.some((c) => c.id === 'card-personality')).toBe(true);
     for (const c of knowledge.chunks) expect(c.text.length).toBeLessThanOrEqual(500);
+  });
+});
+
+describe('프로 기간 늘리기', () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  const day = 86_400_000;
+
+  it('프로가 아니거나 끝났으면 지금부터 센다', () => {
+    expect(extendPro({ plan: 'FREE', planUntil: null }, 30, now)).toEqual(new Date(now.getTime() + 30 * day));
+    expect(extendPro({ plan: 'PRO', planUntil: new Date('2026-09-01T00:00:00Z') }, 30, now)).toEqual(new Date(now.getTime() + 30 * day));
+  });
+
+  it('남은 프로 기간이 있으면 그 뒤에 붙인다', () => {
+    const until = new Date('2026-10-11T00:00:00Z');
+    expect(extendPro({ plan: 'PRO', planUntil: until }, 30, now)).toEqual(new Date(until.getTime() + 30 * day));
+  });
+
+  it('만료 없는 프로는 그대로 만료 없음', () => {
+    expect(extendPro({ plan: 'PRO', planUntil: null }, 30, now)).toBeNull();
   });
 });

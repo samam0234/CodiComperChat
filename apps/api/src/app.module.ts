@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AgentChatModule } from './agent-chat/agent-chat.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { BillingModule } from './billing/billing.module.js';
 import { CampaignsModule } from './campaigns/campaigns.module.js';
 import { CharacterChatModule } from './character-chat/character-chat.module.js';
 import { CharactersModule } from './characters/characters.module.js';
@@ -28,6 +29,7 @@ import { StudioModule } from './studio/studio.module.js';
     StudioModule,
     ReportsModule,
     AgentChatModule,
+    BillingModule,
   ],
   // 요청 한도: @RateLimit이 붙은 라우트만 센다 (apps/api/src/security/rate-limit.ts)
   providers: [{ provide: APP_GUARD, useClass: RateLimitGuard }],

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { requireUser, safeNextPath } from "@/lib/auth";
+import { getMyOrders, won } from "@/lib/billing";
+import { formatDay } from "@/lib/format-time";
 import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
 import Personas from "./personas";
 import VerifyEmailNotice from "./verify-email-notice";
@@ -7,7 +9,7 @@ import styles from "./page.module.css";
 
 export default async function MyPage({ searchParams }: PageProps<"/me">) {
   const user = await requireUser("/me");
-  const personas = await getMyPersonas();
+  const [personas, billing] = await Promise.all([getMyPersonas(), getMyOrders()]);
   const joined = new Date(user.createdAt).toLocaleDateString("ko-KR");
   // 채팅에서 프로필을 만들러 온 경우 돌아갈 길을 준다 (사이트 안 경로만 허용)
   const back = safeNextPath((await searchParams).back);
@@ -34,7 +36,14 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
         </div>
         <div className={styles.row}>
           <dt>요금 등급</dt>
-          <dd>{user.plan === "PRO" ? "프로 (공방 긴 글 칸 3배)" : "무료"}</dd>
+          <dd>
+            {user.plan === "PRO"
+              ? `프로 (공방 긴 글 칸 3배${billing?.planUntil ? `, ${formatDay(billing.planUntil)}까지` : ""})`
+              : "무료"}{" "}
+            <Link href="/pricing" className={styles.inlineLink}>
+              {user.plan === "PRO" ? "기간 늘리기" : "프로 알아보기"}
+            </Link>
+          </dd>
         </div>
         <div className={styles.row}>
           <dt>가입일</dt>
@@ -43,6 +52,19 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
       </dl>
 
       {!user.emailVerified && <VerifyEmailNotice />}
+
+      {billing && billing.orders.length > 0 && (
+        <section className={styles.orders} aria-label="결제 내역">
+          <h2 className={styles.ordersTitle}>결제 내역</h2>
+          <ul>
+            {billing.orders.map((o) => (
+              <li key={o.id}>
+                {formatDay(o.paidAt)} · {o.name} · {won(o.amount)}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <Link href="/settings" className={styles.link}>
         계정 설정으로 가기 →
@@ -55,6 +77,9 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
           </Link>
           <Link href="/admin/portraits" className={styles.link}>
             운영자 · 초상 검수 →
+          </Link>
+          <Link href="/admin/users" className={styles.link}>
+            운영자 · 계정 등급 →
           </Link>
         </>
       )}

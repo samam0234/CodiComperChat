@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const MEMBER_ONLY = ["/library", "/studio", "/me", "/admin"];
+const MEMBER_ONLY = ["/library", "/studio", "/me", "/admin", "/billing"];
 // 캐릭터 채팅은 내 프로필 캐릭터가 있어야 하므로 로그인 전용이다. 캐릭터 상세는 누구나 본다
 const MEMBER_ONLY_PATTERN = /^\/characters\/[^/]+\/chat(\/|$)/;
 
@@ -21,5 +21,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/library/:path*", "/studio/:path*", "/me/:path*", "/admin/:path*", "/characters/:id/chat", "/characters/:id/chat/:path*"],
+  matcher: ["/library/:path*", "/studio/:path*", "/me/:path*", "/admin/:path*", "/billing/:path*", "/characters/:id/chat", "/characters/:id/chat/:path*"],
 };
