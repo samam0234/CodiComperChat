@@ -148,5 +148,8 @@
 | 2026-10-16 | `d8265bf` | feature/ci-verify | E2E_DATABASE_URL의 데이터베이스 이름을 그대로 만들고 쓰게 고침 | [261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md](commits/261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md) |
 | 2026-10-16 | `541e78b` | feature/ci-verify | RATE_LIMIT_SCALE가 빈 값이면 기본 배수(1000)를 쓰게 고침 | [261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md](commits/261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md) |
 | 2026-10-16 | `599d417` | feature/ci-verify | CI 단계를 깨끗한 클론에서 재현하는 npm run ci:local 추가 | [261016_0325_599d417_ci-local_feature-ci-verify.md](commits/261016_0325_599d417_ci-local_feature-ci-verify.md) |
+| 2026-10-16 | `be92412` | feature/account-delete | 회원 탈퇴 추가, 탈퇴한 계정의 캐릭터가 공식으로 보이던 문제 막음 | [261016_0333_be92412_account-delete_feature-account-delete.md](commits/261016_0333_be92412_account-delete_feature-account-delete.md) |
+| 2026-10-16 | `d8bd0aa` | fix/test-load-stability | 비밀번호 규칙 시험이 바쁜 PC에서 시간 초과로 실패하지 않게 고침 | [261016_0340_d8bd0aa_auth-spec-timeout_fix-test-load-stability.md](commits/261016_0340_d8bd0aa_auth-spec-timeout_fix-test-load-stability.md) |
+| 2026-10-16 | `9283d28` | fix/test-load-stability | DB 한도 저장소가 몰린 요청에 창보다 긴 Retry-After를 주던 문제 고침 | [261016_0340_9283d28_rate-store-clock_fix-test-load-stability.md](commits/261016_0340_9283d28_rate-store-clock_fix-test-load-stability.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
