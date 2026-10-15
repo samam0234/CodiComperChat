@@ -14,7 +14,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const [user, theme] = await Promise.all([getCurrentUser(), getTheme()]);
 
   return (
-    <html lang="ko" data-theme={theme === "system" ? undefined : theme}>
+    // data-scroll-behavior: 화면을 옮길 때는 Next가 부드러운 스크롤을 잠시 꺼 바로 맨 위로 간다 (globals.css의 scroll-behavior: smooth)
+    <html lang="ko" data-theme={theme === "system" ? undefined : theme} data-scroll-behavior="smooth">
       <body>
         <SiteHeader viewer={user ? { displayName: user.displayName } : null} />
         <main className="mainArea">{children}</main>
