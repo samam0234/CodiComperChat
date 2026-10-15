@@ -79,6 +79,7 @@ def summarize_session(request: SummarizeRequest) -> SummarizeResponse:
         contents=[llm.turn("user", "\n\n".join(parts))],
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=0.2,
+        seed=7,
         response_json_schema=SCHEMA,
     )
     try:
