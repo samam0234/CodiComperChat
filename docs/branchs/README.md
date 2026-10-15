@@ -146,5 +146,6 @@
 | 2026-10-16 | `3ece31e` | fix/flaky-rate-store-test | DB 한도 저장소의 창 만료 시험을 기다리지 않는 방식으로 바꿈 | [261016_0309_3ece31e_flaky-rate-store-test_fix-flaky-rate-store-test.md](commits/261016_0309_3ece31e_flaky-rate-store-test_fix-flaky-rate-store-test.md) |
 | 2026-10-16 | `ce1b3ee` | feature/mail-smtp-verify | 실제 SMTP 서버로 메일 발송을 확인하는 시험과 발송 확인 도구 추가 | [261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md](commits/261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md) |
 | 2026-10-16 | `d8265bf` | feature/ci-verify | E2E_DATABASE_URL의 데이터베이스 이름을 그대로 만들고 쓰게 고침 | [261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md](commits/261016_0315_d8265bf_e2e-db-name_feature-ci-verify.md) |
+| 2026-10-16 | `541e78b` | feature/ci-verify | RATE_LIMIT_SCALE가 빈 값이면 기본 배수(1000)를 쓰게 고침 | [261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md](commits/261016_0318_541e78b_e2e-rate-scale-empty_feature-ci-verify.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
