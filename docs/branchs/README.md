@@ -138,5 +138,7 @@
 | 2026-10-15 | `8af27ee` | develop (merge) | feature/ci → develop 병합 (--no-ff) | [261015_2328_8af27ee_merge-ci_develop.md](commits/261015_2328_8af27ee_merge-ci_develop.md) |
 |  | `` |  |  | [261015_2308_95ee354_strict-csp_feature-strict-csp.md](commits/261015_2308_95ee354_strict-csp_feature-strict-csp.md) |
 | 2026-10-15 | `6917045` | develop (merge) | feature/strict-csp → develop 병합 (--no-ff) | [261015_2328_6917045_merge-strict-csp_develop.md](commits/261015_2328_6917045_merge-strict-csp_develop.md) |
+|  | `` |  |  | [261015_2326_e82d7ad_web-redesign_feature-web-redesign.md](commits/261015_2326_e82d7ad_web-redesign_feature-web-redesign.md) |
+| 2026-10-15 | `6683124` | develop (merge) | feature/web-redesign → develop 병합 (--no-ff) | [261015_2328_6683124_merge-web-redesign_develop.md](commits/261015_2328_6683124_merge-web-redesign_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
