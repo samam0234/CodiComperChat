@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { startCheckout, type Checkout } from "@/app/actions/billing";
+import { useConsent } from "./purchase-consent";
 import styles from "./pricing.module.css";
 
 type TossPayment = { requestPayment: (options: Record<string, unknown>) => Promise<void> };
@@ -48,8 +49,13 @@ export default function BuyButton({ productId, label, provider }: { productId: s
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const agreed = useConsent();
 
   const buy = async () => {
+    if (!agreed) {
+      setError("위의 주문·환불 안내를 확인하고 동의해 주세요.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {

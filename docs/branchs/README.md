@@ -151,5 +151,6 @@
 | 2026-10-16 | `be92412` | feature/account-delete | 회원 탈퇴 추가, 탈퇴한 계정의 캐릭터가 공식으로 보이던 문제 막음 | [261016_0333_be92412_account-delete_feature-account-delete.md](commits/261016_0333_be92412_account-delete_feature-account-delete.md) |
 | 2026-10-16 | `d8bd0aa` | fix/test-load-stability | 비밀번호 규칙 시험이 바쁜 PC에서 시간 초과로 실패하지 않게 고침 | [261016_0340_d8bd0aa_auth-spec-timeout_fix-test-load-stability.md](commits/261016_0340_d8bd0aa_auth-spec-timeout_fix-test-load-stability.md) |
 | 2026-10-16 | `9283d28` | fix/test-load-stability | DB 한도 저장소가 몰린 요청에 창보다 긴 Retry-After를 주던 문제 고침 | [261016_0340_9283d28_rate-store-clock_fix-test-load-stability.md](commits/261016_0340_9283d28_rate-store-clock_fix-test-load-stability.md) |
+| 2026-10-16 | `dc54a7d` | feature/legal-update | 약관·개인정보처리방침을 실제 동작에 맞추고 결제 전 환불 안내·동의 추가 | [261016_0344_dc54a7d_legal-update_feature-legal-update.md](commits/261016_0344_dc54a7d_legal-update_feature-legal-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

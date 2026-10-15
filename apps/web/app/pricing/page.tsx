@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getBillingInfo, won } from "@/lib/billing";
 import BuyButton from "./buy-button";
+import PurchaseConsent from "./purchase-consent";
 import styles from "./pricing.module.css";
 
 export const metadata: Metadata = { title: "요금 안내 · 코디컴퍼챗" };
@@ -44,6 +45,7 @@ export default async function PricingPage() {
           ) : !info.provider ? (
             <p className={styles.notice}>결제는 준비 중이에요. 프로가 필요하면 고객센터로 문의해 주세요.</p>
           ) : (
+            <PurchaseConsent>
             <ul className={styles.products}>
               {info.products.map((p) => (
                 <li key={p.id} className={styles.product}>
@@ -61,6 +63,7 @@ export default async function PricingPage() {
                 </li>
               ))}
             </ul>
+            </PurchaseConsent>
           )}
           {info?.provider === "mock" && (
             <p className={styles.testMode}>지금은 시험 모드예요. 실제 돈이 나가지 않는 가짜 결제창이 열립니다.</p>
