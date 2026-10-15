@@ -134,5 +134,7 @@
 |  | `` |  |  | [261015_2302_6c39285_shared-limits_feature-shared-limits.md](commits/261015_2302_6c39285_shared-limits_feature-shared-limits.md) |
 |  | `` |  |  | [261015_2304_98582ac_rate-store-flaky_feature-shared-limits.md](commits/261015_2304_98582ac_rate-store-flaky_feature-shared-limits.md) |
 | 2026-10-15 | `a70dbb3` | develop (merge) | feature/shared-limits → develop 병합 (--no-ff) | [261015_2328_a70dbb3_merge-shared-limits_develop.md](commits/261015_2328_a70dbb3_merge-shared-limits_develop.md) |
+|  | `` |  |  | [261015_2305_de62551_ci_feature-ci.md](commits/261015_2305_de62551_ci_feature-ci.md) |
+| 2026-10-15 | `8af27ee` | develop (merge) | feature/ci → develop 병합 (--no-ff) | [261015_2328_8af27ee_merge-ci_develop.md](commits/261015_2328_8af27ee_merge-ci_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
