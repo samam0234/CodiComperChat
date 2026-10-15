@@ -115,7 +115,7 @@ test.describe("캐릭터 공방", () => {
     await context.close();
   });
 
-  test("긴 글 칸의 프롬프트 연장 버튼은 프로 등급 안내를 띄운다", async ({ browser }) => {
+  test("긴 글 칸의 프롬프트 연장 버튼은 프로 등급 안내를 띄우고 요금 안내로 보낸다", async ({ browser }) => {
     const user = await signup("연장");
     const { body } = await api<{ id: string }>("/studio/characters", { token: user.token, method: "POST" });
     const { context, page } = await open(browser, user, `/studio/${body.id}`);
@@ -123,8 +123,12 @@ test.describe("캐릭터 공방", () => {
     await page.getByRole("button", { name: "시작 장면 프롬프트 연장" }).click();
     const dialog = page.getByRole("dialog", { name: /프로등급/ });
     await expect(dialog).toContainText("이 기능을 사용하실려면 프로등급으로 전환해야 합니다.");
-    await dialog.getByRole("button", { name: "확인" }).click();
+    await dialog.getByRole("button", { name: "닫기" }).click();
     await expect(dialog).toBeHidden();
+    // 다시 열어 "요금 안내 보기"를 누르면 요금 안내로 간다
+    await page.getByRole("button", { name: "시작 장면 프롬프트 연장" }).click();
+    await dialog.getByRole("button", { name: "요금 안내 보기" }).click();
+    await expect(page).toHaveURL(/\/pricing$/);
     await context.close();
   });
 
