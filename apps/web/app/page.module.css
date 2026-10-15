@@ -308,3 +308,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+.bye {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}

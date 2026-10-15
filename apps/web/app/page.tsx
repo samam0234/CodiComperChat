@@ -5,13 +5,18 @@ import { getCurrentUser } from "@/lib/auth";
 import { getMyConversations } from "@/lib/conversations";
 import styles from "./page.module.css";
 
-export default async function HomePage() {
-  const user = await getCurrentUser();
+export default async function HomePage({ searchParams }: PageProps<"/">) {
+  const [user, params] = await Promise.all([getCurrentUser(), searchParams]);
   // 로그인했으면 이어서 할 대화(최근 3개)를 맨 위에 둔다
   const conversations = user ? ((await getMyConversations()) ?? []).filter((c) => c.active).slice(0, 3) : [];
 
   return (
     <>
+      {params.bye === "1" && (
+        <p className={styles.bye} role="status">
+          탈퇴가 끝났어요. 그동안 함께해 주셔서 고마워요.
+        </p>
+      )}
       <section className={styles.hero} aria-labelledby="home-title">
         <div className={styles.heroText}>
           <p className={styles.eyebrow}>
