@@ -126,5 +126,7 @@
 | 2026-10-15 | `f914430` | develop (merge) | feature/perf-limits → develop 병합 (--no-ff) | [261015_1312_f914430_merge-perf-limits_develop.md](commits/261015_1312_f914430_merge-perf-limits_develop.md) |
 |  | `` |  |  | [261015_2235_067d012_auth-email_feature-auth-email.md](commits/261015_2235_067d012_auth-email_feature-auth-email.md) |
 | 2026-10-15 | `2c6cd43` | develop (merge) | feature/auth-email → develop 병합 (--no-ff) | [261015_2328_2c6cd43_merge-auth-email_develop.md](commits/261015_2328_2c6cd43_merge-auth-email_develop.md) |
+|  | `` |  |  | [261015_2245_9de4510_image-moderation_feature-image-moderation.md](commits/261015_2245_9de4510_image-moderation_feature-image-moderation.md) |
+| 2026-10-15 | `349a230` | develop (merge) | feature/image-moderation → develop 병합 (--no-ff) | [261015_2328_349a230_merge-image-moderation_develop.md](commits/261015_2328_349a230_merge-image-moderation_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
