@@ -9,6 +9,11 @@ test.describe("결제", () => {
     await page.goto("/pricing");
     await page.waitForLoadState("networkidle");
     await expect(page.getByText("시험 모드")).toBeVisible();
+    // 동의하기 전에는 결제창이 열리지 않는다
+    await page.getByRole("button", { name: "프로 30일 결제" }).click();
+    await expect(page.getByText("주문·환불 안내를 확인하고 동의해 주세요")).toBeVisible();
+    await expect(page.getByRole("region", { name: "환불 안내" })).toContainText("7일 이내");
+    await page.getByLabel("주문 내용(상품·기간·금액)과 환불 기준을 확인했고 결제에 동의합니다").check();
     await page.getByRole("button", { name: "프로 30일 결제" }).click();
 
     await expect(page).toHaveURL(/\/billing\/mock\?/);

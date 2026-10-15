@@ -140,3 +140,35 @@
     grid-template-columns: 1fr;
   }
 }
+
+.refund {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--background);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.refund a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--foreground);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.consent input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
