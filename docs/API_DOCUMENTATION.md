@@ -30,7 +30,7 @@
 | `GET /characters` | 홈·인기 캐릭터 목록 | **200** `[공개 필드…, visibility]` · **공개(PUBLIC)만**. 링크 공개·비공개는 나오지 않는다 |
 | `GET /characters/:id` | 캐릭터 상세 | **200** 공개 필드(비밀·해금 조건 제외) · 공개·링크 공개는 누구나, 비공개는 만든 사람만(토큰을 보내면 판단). 남의 비공개 캐릭터는 없는 것과 같은 404 · 대화·메모리·상태설정·엑스트라 API도 같은 규칙 · 응답에 `official`(운영 캐릭터인가)·`mine`(내가 만들었는가)이 붙는다(ownerId는 싣지 않음). **운영자가 내린 캐릭터는 목록·상세·대화·메모리·상태설정·엑스트라 모두 404**(만든 사람도) |
 | `GET /characters/:id/chat` | 이 캐릭터와의 **지금 대화** | **200** `{ started, persona, savedCount, messages: [{ id, role, text, speaker, createdAt }] }` (최근 200개). 대화 전이면 `started: false`와 시작 장면 1개. `persona`(`{ id, name }` 또는 null)는 이 대화에 고정된 내 프로필 · 🔒 |
-| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 |
+| `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
 | `POST /characters/:id/report` | 캐릭터 신고 `{ reason, detail?(~500자) }` | **204** · 로그인한 누구나. 보이는(공개·링크 공개, 안 내려간) 캐릭터만, 없으면 404 · 내 캐릭터 400 · 사유 없음·기타인데 내용 없음 400 · 같은 캐릭터에 열린 신고가 있으면 409 · 한 사람이 열어 둔 신고 20건 상한 · 🔒 |
 | `GET /admin/reports` | 운영자 신고함 | **200** `{ reasons, open: [{ character: { id, name, oneLiner, visibility, owner }, reports: [{ id, reason, detail, createdAt, reporter }] }], takenDown: [{ id, name, takenDownAt, takedownReason, owner }] }` · **운영자(ADMIN)만**, 아니면 403(DB의 role을 매번 읽는다). 신고가 많은 캐릭터가 위로 · 🔒 |
@@ -44,8 +44,10 @@
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
-| `GET /characters/:id/chat/state` | 캐릭터 내 상태설정 조회 | **200** `{ character: { id, name, addressing }, state: { relationshipValue, relationshipNote, userNickname, relationshipLabel } }` · 대화 전이면 기본값(0) · 🔒 |
-| `PATCH /characters/:id/chat/state` | 상태설정 저장 `{ relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자) }` | **200** · 보낸 필드만 바꾸고 빈 문자열은 지우기. 대화가 없으면 만든다. 범위·형식 오류 400 · 🔒. 친밀도는 구간 이름(처음 만난 사이~각별한 사이)과 메모를 근거로 모델에 넘기고, 호칭은 카드 호칭 규칙보다 우선한다(말투 높낮이는 카드대로) |
+| `GET /characters/:id/chat/state` | 캐릭터 내 상태설정 조회 | **200** `{ character: { id, name, addressing }, state: { relationshipValue, relationshipNote, userNickname, autoRelationship, relationshipLabel } }` · 대화 전이면 기본값(0) · 🔒 |
+| `PATCH /characters/:id/chat/state` | 상태설정 저장 `{ relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자), autoRelationship?(true/false) }` | **200** · 보낸 필드만 바꾸고 빈 문자열은 지우기. 대화가 없으면 만든다. 범위·형식 오류 400 · 🔒. 친밀도는 구간 이름(처음 만난 사이~각별한 사이)과 메모를 근거로 모델에 넘기고, 호칭은 카드 호칭 규칙보다 우선한다(말투 높낮이는 카드대로) |
+| `GET /characters/:id/chat/story` | 지금 대화의 이야기 상태 | **200** `{ started, brief, openHooks: [{ id, text }], closedEvents: [문장], auto, relation: { value, label, reason, log: [{ at, delta, value, reason }] } }` · 지난 이야기 요약·열린 복선·끝난 일·친밀도 자동 변화 기록(최근 10개) · 🔒 |
+| `DELETE /characters/:id/chat/story/hooks/:hookId` | 잘못 잡힌 복선 지우기 | **204** · 없으면 404 · 🔒 |
 | `GET /me/extras` | 내 엑스트라 목록 | **200** `[{ id, name, summary, personality, relation, situation, place, updatedAt }]` · 🔒 |
 | `POST /me/extras` | 엑스트라 만들기 `{ name(~20, 필수), summary(~60, 필수), personality?(~200), relation?(~120), situation?(~200), place?(~120) }` | **201** · 1인당 20개(넘으면 409), 형식·글자 수 400 · 🔒 |
 | `PATCH /me/extras/:extraId` | 엑스트라 고치기 (같은 본문) | **200** · 칸을 비우면 대화들에 적용해 둔 그 조건만 빠진다(조건이 다 빠지면 적용 해제) · 🔒 |
@@ -92,7 +94,7 @@
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
-| `POST /summarize` | 세션 종료 시. 관계/훅/지식 델타 반환 (형태는 아래 §13.4) | 501 |
+| `POST /summarize` | 대화 조각 요약·상태 갱신 `{ context, sessionTurns }` (기획서 13.4장) | **200** `{ brief, relationDelta: [{ axis: "친밀도", delta(-8~+8), reason }], hooksOpen: [{ text }], hooksClosed: [{ id }], knowledgeGained: [], unlocks: [], nextPressure }` · `context.storySoFar`(이전 요약)에 이번 대화를 합쳐 새 요약을 쓴다. 근거는 유저의 행동과 두 사람 사이에 일어난 일, 확실하지 않으면 변화 0. 형식이 깨지면 상태를 바꾸지 않는다 |
 | `POST /critique-test` | 공방 3턴 테스트 판정 `{ character, turns, facts }` | **200** · 규칙 검사(메타 낱말, 420자 넘는 답·목록 3줄, 높임 어긋남)와 LLM 판정(말투 붕괴, 설명충, 메타, 설정에 없는 개인사 단정)을 합친다. 둘 중 하나라도 걸리면 걸린 것 |
 | `POST /train` | 학습 시작 | **403 — v1 정책 차단** |
 | `GET /train/{job_id}` | 학습 진행률 | **403 — v1 정책 차단** |

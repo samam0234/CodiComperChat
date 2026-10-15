@@ -30,11 +30,15 @@ export type ContextSlicePayload = {
     relations: { name: string; value: number; reason: string }[];
     openHooks: { id: string; text: string }[];
     knowledge: string[];
+    // 이미 끝난 일 (모델이 다시 처음 상태로 되돌리지 못하게)
+    closedEvents: string[];
   };
   activeLore: { keyword: string; content: string }[];
   recentTurns: ChatTurn[];
   retrievedMemories: { id: string; text: string }[];
   directorNote: string | null;
+  // 지금까지의 이야기 요약. 대화가 길어져 앞부분이 최근 대화에서 밀려났을 때만 싣는다
+  storySoFar?: string | null;
   userPersona: UserPersonaPayload | null;
   // 유저가 캐릭터 상태설정에서 정한 호칭. 있으면 카드의 호칭 규칙보다 우선한다
   addressOverride: string | null;

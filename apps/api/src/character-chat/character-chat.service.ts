@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { postToAi } from '../ai/ai-client.js';
 import { verifyToken } from '../auth/token.js';
+import { CampaignStoryService } from '../campaign-state/campaign-story.service.js';
 import { ChatStateService } from '../chat-state/chat-state.service.js';
 import { CharactersService } from '../characters/characters.service.js';
 import {
@@ -28,6 +29,7 @@ export class CharacterChatService {
     private readonly memories: MemoriesService,
     private readonly chatState: ChatStateService,
     private readonly extras: ExtrasService,
+    private readonly story: CampaignStoryService,
   ) {}
 
   private async resolveUser(authorization: string | undefined): Promise<string> {
@@ -64,7 +66,8 @@ export class CharacterChatService {
       ? await this.conversations.recentTurns(conversation.sessionId)
       : [{ role: 'character', text: character.openingScene }];
     const chatState = conversation ? await this.chatState.get(conversation.campaignId) : null;
-    return { character, userId, persona, conversation, history, chatState };
+    const story = conversation ? await this.story.get(conversation.campaignId) : null;
+    return { character, userId, persona, conversation, history, chatState, story };
   }
 
   async history(characterId: string, authorization?: string) {
@@ -95,7 +98,12 @@ export class CharacterChatService {
   async startNew(characterId: string, save: boolean, authorization?: string) {
     const userId = await this.resolveUser(authorization);
     await this.charactersService.findOnePublished(characterId, userId);
+    const active = save ? await this.conversations.find(userId, characterId) : null;
     const { saved } = await this.conversations.closeActive(userId, characterId, save);
+    if (saved && active?.persona) {
+      const character = await this.charactersService.findOnePublished(characterId, userId);
+      this.story.digestInBackground(active, { character, persona: active.persona }, true);
+    }
     return { saved, ...(await this.history(characterId, authorization)) };
   }
 
@@ -139,7 +147,7 @@ export class CharacterChatService {
   }
 
   async send(characterId: string, userTurn: string, options: PersonaOptions) {
-    const { character, userId, persona, conversation: existing, history, chatState } = await this.prepare(
+    const { character, userId, persona, conversation: existing, history, chatState, story } = await this.prepare(
       characterId,
       options,
     );
@@ -157,6 +165,7 @@ export class CharacterChatService {
       chatState,
       extras,
       ungroundedTopics(userTurn, grounding),
+      story,
     );
     const first = await postToAi<{ reply: string }>('/infer', { context, userTurn });
     // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
@@ -170,17 +179,19 @@ export class CharacterChatService {
       characterName: character.name,
       userName: persona.name,
     });
+    // 같은 박자로 이야기 상태(지난 이야기 요약·친밀도 자동 변화·복선)도 뒤에서 정리한다
+    this.story.digestInBackground(conversation, { character, persona });
     return { reply };
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {
-    const { character, persona, conversation, history, chatState } = await this.prepare(characterId, options);
+    const { character, persona, conversation, history, chatState, story } = await this.prepare(characterId, options);
     const rag = this.personaRag.assemble(character.name, history);
     const memories = await this.memoriesFor(conversation, history);
     // 대답 추천은 직전 캐릭터 말을 기준으로 엑스트라를 고른다
     const extras = await this.extras.activeFor(conversation, history.slice(0, -1), history.at(-1)?.text ?? '', character.name);
     return postToAi<{ suggestions: string[] }>('/suggest-replies', {
-      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras),
+      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras, [], story),
       avoid,
     });
   }

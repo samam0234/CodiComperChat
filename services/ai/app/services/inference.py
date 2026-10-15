@@ -118,9 +118,20 @@ def _build_system_prompt(context: ContextSlice) -> str:
             "이 관계는 대화 내용의 거리감(얼마나 마음을 열고 챙기는지)에만 반영한다. "
             "말투의 높낮이(존댓말·반말)는 관계가 가까워져도 바꾸지 않고 위 말투 설정을 그대로 따른다."
         )
+    if context.story_so_far:
+        lines.append(
+            "지금까지의 이야기(이 대화에서 실제로 있었던 일이다. 사실로 다루고, 앞 내용과 모순되게 말하지 않는다):\n"
+            + context.story_so_far
+        )
     if context.state.open_hooks:
-        hooks = ", ".join(hook.text for hook in context.state.open_hooks)
-        lines.append(f"아직 회수하지 않은 복선: {hooks}")
+        hooks = " / ".join(hook.text for hook in context.state.open_hooks)
+        lines.append(
+            f"아직 회수하지 않은 복선(약속·단서·다가오는 일): {hooks}\n"
+            "유저가 먼저 꺼내거나 자연스러울 때만 다룬다. 억지로 한꺼번에 꺼내거나 해결해 버리지 않는다."
+        )
+    if context.state.closed_events:
+        done = " / ".join(context.state.closed_events)
+        lines.append(f"이미 끝난 일(다시 처음 상태로 되돌리지 않는다): {done}")
 
     if context.director_note:
         lines.append("캐릭터 핵심 설정:\n" + context.director_note)
