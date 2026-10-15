@@ -72,6 +72,13 @@ export class StudioController {
     return this.test.critique(userId, id);
   }
 
+  // 성격·말투 단계의 말투 샘플 답 2개. 저장하지 않으며 3턴 테스트에 영향이 없다
+  @Post(':id/samples')
+  @HttpCode(200)
+  samples(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.test.samples(userId, id);
+  }
+
   @Post(':id/test/reset')
   @HttpCode(204)
   async testReset(@CurrentUserId() userId: string, @Param('id') id: string) {

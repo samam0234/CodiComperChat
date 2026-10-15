@@ -790,3 +790,26 @@
     display: none;
   }
 }
+
+/* ---- 말투 샘플 (성격·말투 단계) ---- */
+
+.samples {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.samplesHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sampleList {
+  display: grid;
+  gap: 8px;
+}

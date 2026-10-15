@@ -10,6 +10,7 @@ import {
   type StepKey,
 } from "@/lib/studio-card";
 import PromptExtendButton from "./prompt-extend";
+import SampleReplies from "./sample-replies";
 import styles from "./studio-editor.module.css";
 
 export type Update = (mutate: (card: Card) => void) => void;
@@ -243,7 +244,20 @@ function Pairs<K extends string>({
   );
 }
 
-export function StepForm({ step, card, update }: { step: StepKey; card: Card; update: Update }) {
+// 말투 샘플이 서버에 저장된 카드로 답하므로, 초안 id와 "먼저 저장" 함수를 받는다
+export type SampleProps = { draftId: string; ensureSaved: () => Promise<boolean> };
+
+export function StepForm({
+  step,
+  card,
+  update,
+  samples,
+}: {
+  step: StepKey;
+  card: Card;
+  update: Update;
+  samples: SampleProps;
+}) {
   switch (step) {
     case "identity": {
       const c = card.identity;
@@ -298,6 +312,11 @@ export function StepForm({ step, card, update }: { step: StepKey; card: Card; up
           <Lines label="말투 습관" required value={c.habits} maxItems={LIMITS.habits} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.habits = v))} placeholder="말끝을 살짝 흐린다" />
           <Lines label="금지 말투" value={c.forbidden} maxItems={LIMITS.forbidden} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.forbidden = v))} placeholder="인터넷 말투" />
           <Text label="성격 요약" required rows={2} value={c.summary} max={LIMITS.summary} onChange={(v) => update((d) => void (d.personality.summary = v))} />
+          <SampleReplies
+            draftId={samples.draftId}
+            ready={card.identity.name.trim() !== "" && card.personality.honorific !== ""}
+            ensureSaved={samples.ensureSaved}
+          />
         </>
       );
     }
