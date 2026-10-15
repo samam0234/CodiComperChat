@@ -46,5 +46,85 @@
 | 2026-09-16 | `6bf36e0` | develop (merge) | fix/web-lan-dev-origin → develop 병합 (--no-ff) | [260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md](commits/260916_2126_6bf36e0_merge-web-lan-dev-origin_develop.md) |
 | 2026-09-26 | `75bacbf` | feature/ollama-llm | 호스티드 LLM을 Gemini에서 로컬 Ollama(gemma4:e4b)로 교체 | [260926_0103_75bacbf_ollama-llm_feature-ollama-llm.md](commits/260926_0103_75bacbf_ollama-llm_feature-ollama-llm.md) |
 | 2026-09-26 | `5165738` | develop (merge) | feature/ollama-llm → develop 병합 (--no-ff) | [260926_0104_5165738_merge-ollama-llm_develop.md](commits/260926_0104_5165738_merge-ollama-llm_develop.md) |
+|  | `` |  |  | [260925_2017_28768a2_vscode-python-interpreter_feature-vscode-python-interpreter.md](commits/260925_2017_28768a2_vscode-python-interpreter_feature-vscode-python-interpreter.md) |
+|  | `` |  |  | [260925_2018_22f408c_root-readme_feature-root-readme.md](commits/260925_2018_22f408c_root-readme_feature-root-readme.md) |
+| 2026-09-25 | `5589736` | develop (merge) | feature/vscode-python-interpreter → develop 병합 (--no-ff) | [260925_2018_5589736_merge-vscode-python-interpreter_develop.md](commits/260925_2018_5589736_merge-vscode-python-interpreter_develop.md) |
+| 2026-09-25 | `d792a32` | develop (merge) | feature/root-readme → develop 병합 (--no-ff) | [260925_2018_d792a32_merge-root-readme_develop.md](commits/260925_2018_d792a32_merge-root-readme_develop.md) |
+|  | `` |  |  | [260925_2328_27dedee_prisma-client-hoist_fix-prisma-client-hoist.md](commits/260925_2328_27dedee_prisma-client-hoist_fix-prisma-client-hoist.md) |
+|  | `` |  |  | [260925_2328_37c0716_merge-user-personas_develop.md](commits/260925_2328_37c0716_merge-user-personas_develop.md) |
+|  | `` |  |  | [260925_2328_44e7e9f_merge-gemini-llm_develop.md](commits/260925_2328_44e7e9f_merge-gemini-llm_develop.md) |
+|  | `` |  |  | [260925_2328_4f091c9_merge-email-auth_develop.md](commits/260925_2328_4f091c9_merge-email-auth_develop.md) |
+|  | `` |  |  | [260925_2328_91f9d86_user-personas_feature-user-personas.md](commits/260925_2328_91f9d86_user-personas_feature-user-personas.md) |
+|  | `` |  |  | [260925_2328_9b66f8f_merge-prisma-client-hoist_develop.md](commits/260925_2328_9b66f8f_merge-prisma-client-hoist_develop.md) |
+|  | `` |  |  | [260925_2328_9fb0de0_gemini-llm_feature-gemini-llm.md](commits/260925_2328_9fb0de0_gemini-llm_feature-gemini-llm.md) |
+|  | `` |  |  | [260925_2328_bffbe07_merge-local-postgres_develop.md](commits/260925_2328_bffbe07_merge-local-postgres_develop.md) |
+|  | `` |  |  | [260925_2328_d05d83a_email-auth_feature-auth.md](commits/260925_2328_d05d83a_email-auth_feature-auth.md) |
+|  | `` |  |  | [260925_2328_f54e566_local-postgres_feature-local-postgres.md](commits/260925_2328_f54e566_local-postgres_feature-local-postgres.md) |
+|  | `` |  |  | [260925_2351_741b0d5_reply-suggestions_feature-reply-suggestions.md](commits/260925_2351_741b0d5_reply-suggestions_feature-reply-suggestions.md) |
+|  | `` |  |  | [260925_2351_7dfb314_required-persona_feature-required-persona.md](commits/260925_2351_7dfb314_required-persona_feature-required-persona.md) |
+|  | `` |  |  | [260925_2351_8b69fba_agent-llm_feature-agent-llm.md](commits/260925_2351_8b69fba_agent-llm_feature-agent-llm.md) |
+|  | `` |  |  | [260925_2352_6c3ba8c_merge-reply-suggestions_develop.md](commits/260925_2352_6c3ba8c_merge-reply-suggestions_develop.md) |
+|  | `` |  |  | [260925_2352_a8f64d6_merge-required-persona_develop.md](commits/260925_2352_a8f64d6_merge-required-persona_develop.md) |
+|  | `` |  |  | [260925_2352_bd29041_merge-agent-llm_develop.md](commits/260925_2352_bd29041_merge-agent-llm_develop.md) |
+|  | `` |  |  | [260926_0038_5d3b969_gemini-model-name_fix-gemini-model-name.md](commits/260926_0038_5d3b969_gemini-model-name_fix-gemini-model-name.md) |
+| 2026-09-26 | `c2abc24` | develop (merge) | fix/gemini-model-name → develop 병합 (--no-ff) | [260926_0039_c2abc24_merge-gemini-model-name_develop.md](commits/260926_0039_c2abc24_merge-gemini-model-name_develop.md) |
+|  | `` |  |  | [260926_0138_1e0c60e_persona-rag-context_feature-persona-rag-context.md](commits/260926_0138_1e0c60e_persona-rag-context_feature-persona-rag-context.md) |
+|  | `` |  |  | [260926_0138_231677e_persona-knowledge-store_feature-persona-knowledge-store.md](commits/260926_0138_231677e_persona-knowledge-store_feature-persona-knowledge-store.md) |
+|  | `` |  |  | [260926_0138_791a981_persona-retriever_feature-persona-retriever.md](commits/260926_0138_791a981_persona-retriever_feature-persona-retriever.md) |
+| 2026-09-26 | `769dccc` | develop (merge) | feature/persona-retriever → develop 병합 (--no-ff) | [260926_0144_769dccc_merge-persona-retriever_develop.md](commits/260926_0144_769dccc_merge-persona-retriever_develop.md) |
+| 2026-09-26 | `a7a4870` | develop (merge) | feature/persona-knowledge-store → develop 병합 (--no-ff) | [260926_0144_a7a4870_merge-persona-knowledge-store_develop.md](commits/260926_0144_a7a4870_merge-persona-knowledge-store_develop.md) |
+| 2026-09-26 | `d0016de` | develop (merge) | feature/persona-rag-context → develop 병합 (--no-ff) | [260926_0144_d0016de_merge-persona-rag-context_develop.md](commits/260926_0144_d0016de_merge-persona-rag-context_develop.md) |
+| 2026-09-26 | `a4ffebb` | develop (merge) | feature/chat-multiline-input → develop 병합 (--no-ff) | [260926_0151_a4ffebb_merge-chat-multiline-input_develop.md](commits/260926_0151_a4ffebb_merge-chat-multiline-input_develop.md) |
+|  | `` |  |  | [260926_0151_de1dfd0_chat-multiline-input_feature-chat-multiline-input.md](commits/260926_0151_de1dfd0_chat-multiline-input_feature-chat-multiline-input.md) |
+|  | `` |  |  | [260927_0012_171c216_chat-history_feature-chat-history.md](commits/260927_0012_171c216_chat-history_feature-chat-history.md) |
+|  | `` |  |  | [260927_0020_5282d10_chat-memory_feature-chat-memory.md](commits/260927_0020_5282d10_chat-memory_feature-chat-memory.md) |
+|  | `` |  |  | [260927_0027_ae49ebb_chat-state_feature-chat-state.md](commits/260927_0027_ae49ebb_chat-state_feature-chat-state.md) |
+|  | `` |  |  | [260927_0034_4df26b8_chat-settings-menu_feature-chat-settings-menu.md](commits/260927_0034_4df26b8_chat-settings-menu_feature-chat-settings-menu.md) |
+| 2026-09-27 | `49c8422` | develop (merge) | feature/chat-memory → develop 병합 (--no-ff) | [260927_0041_49c8422_merge-chat-memory_develop.md](commits/260927_0041_49c8422_merge-chat-memory_develop.md) |
+| 2026-09-27 | `6a37e70` | develop (merge) | feature/chat-history → develop 병합 (--no-ff) | [260927_0041_6a37e70_merge-chat-history_develop.md](commits/260927_0041_6a37e70_merge-chat-history_develop.md) |
+| 2026-09-27 | `7206a12` | develop (merge) | feature/chat-state → develop 병합 (--no-ff) | [260927_0041_7206a12_merge-chat-state_develop.md](commits/260927_0041_7206a12_merge-chat-state_develop.md) |
+| 2026-09-27 | `d1e1457` | develop (merge) | feature/chat-settings-menu → develop 병합 (--no-ff) | [260927_0041_d1e1457_merge-chat-settings-menu_develop.md](commits/260927_0041_d1e1457_merge-chat-settings-menu_develop.md) |
+|  | `` |  |  | [260927_0113_15fe22d_api-stale-dist_fix-api-stale-dist.md](commits/260927_0113_15fe22d_api-stale-dist_fix-api-stale-dist.md) |
+| 2026-09-27 | `25a56bc` | develop (merge) | fix/api-stale-dist → develop 병합 (--no-ff) | [260927_0113_25a56bc_merge-api-stale-dist_develop.md](commits/260927_0113_25a56bc_merge-api-stale-dist_develop.md) |
+|  | `` |  |  | [261015_0400_561855f_studio-drafts_feature-studio-drafts.md](commits/261015_0400_561855f_studio-drafts_feature-studio-drafts.md) |
+|  | `` |  |  | [261015_0411_daf95f2_studio-test_feature-studio-test.md](commits/261015_0411_daf95f2_studio-test_feature-studio-test.md) |
+|  | `` |  |  | [261015_0418_6b77d4a_studio-publish_feature-studio-publish.md](commits/261015_0418_6b77d4a_studio-publish_feature-studio-publish.md) |
+|  | `` |  |  | [261015_0430_77fc6a0_studio-web_feature-studio-web.md](commits/261015_0430_77fc6a0_studio-web_feature-studio-web.md) |
+| 2026-10-15 | `d512c35` | develop (merge) | feature/studio-drafts → develop 병합 (--no-ff) | [261015_0433_d512c35_merge-studio-drafts_develop.md](commits/261015_0433_d512c35_merge-studio-drafts_develop.md) |
+| 2026-10-15 | `38f93e7` | develop (merge) | feature/studio-publish → develop 병합 (--no-ff) | [261015_0434_38f93e7_merge-studio-publish_develop.md](commits/261015_0434_38f93e7_merge-studio-publish_develop.md) |
+| 2026-10-15 | `9b2fc53` | develop (merge) | feature/studio-test → develop 병합 (--no-ff) | [261015_0434_9b2fc53_merge-studio-test_develop.md](commits/261015_0434_9b2fc53_merge-studio-test_develop.md) |
+| 2026-10-15 | `d232d1a` | develop (merge) | feature/studio-web → develop 병합 (--no-ff) | [261015_0434_d232d1a_merge-studio-web_develop.md](commits/261015_0434_d232d1a_merge-studio-web_develop.md) |
+|  | `` |  |  | [261015_0525_aa05e14_chat-sessions_feature-chat-sessions.md](commits/261015_0525_aa05e14_chat-sessions_feature-chat-sessions.md) |
+|  | `` |  |  | [261015_0539_df0825a_chat-extras_feature-chat-extras.md](commits/261015_0539_df0825a_chat-extras_feature-chat-extras.md) |
+|  | `` |  |  | [261015_0546_5451e72_studio-visibility_feature-studio-visibility.md](commits/261015_0546_5451e72_studio-visibility_feature-studio-visibility.md) |
+|  | `` |  |  | [261015_0549_cbdafef_prompt-extension_feature-studio-prompt-extension.md](commits/261015_0549_cbdafef_prompt-extension_feature-studio-prompt-extension.md) |
+| 2026-10-15 | `574e514` | develop (merge) | feature/chat-sessions → develop 병합 (--no-ff) | [261015_0556_574e514_merge-chat-sessions_develop.md](commits/261015_0556_574e514_merge-chat-sessions_develop.md) |
+| 2026-10-15 | `31a5f79` | develop (merge) | feature/studio-prompt-extension → develop 병합 (--no-ff) | [261015_0557_31a5f79_merge-studio-prompt-extension_develop.md](commits/261015_0557_31a5f79_merge-studio-prompt-extension_develop.md) |
+| 2026-10-15 | `482e292` | develop (merge) | feature/chat-extras → develop 병합 (--no-ff) | [261015_0557_482e292_merge-chat-extras_develop.md](commits/261015_0557_482e292_merge-chat-extras_develop.md) |
+| 2026-10-15 | `af90d19` | develop (merge) | feature/studio-visibility → develop 병합 (--no-ff) | [261015_0557_af90d19_merge-studio-visibility_develop.md](commits/261015_0557_af90d19_merge-studio-visibility_develop.md) |
+|  | `` |  |  | [261015_1046_65bb4df_chat-grounding_feature-chat-grounding.md](commits/261015_1046_65bb4df_chat-grounding_feature-chat-grounding.md) |
+|  | `` |  |  | [261015_1048_8eee97e_studio-samples_feature-studio-samples.md](commits/261015_1048_8eee97e_studio-samples_feature-studio-samples.md) |
+|  | `` |  |  | [261015_1101_2854137_studio-reports_feature-studio-reports.md](commits/261015_1101_2854137_studio-reports_feature-studio-reports.md) |
+|  | `` |  |  | [261015_1106_cd9eb88_studio-ai-draft_feature-studio-ai-draft.md](commits/261015_1106_cd9eb88_studio-ai-draft_feature-studio-ai-draft.md) |
+|  | `` |  |  | [261015_1116_28f05a3_campaign-state_feature-campaign-state.md](commits/261015_1116_28f05a3_campaign-state_feature-campaign-state.md) |
+|  | `` |  |  | [261015_1123_332be48_studio-portrait_feature-studio-portrait.md](commits/261015_1123_332be48_studio-portrait_feature-studio-portrait.md) |
+| 2026-10-15 | `f907e65` | develop (merge) | feature/chat-grounding → develop 병합 (--no-ff) | [261015_1136_f907e65_merge-chat-grounding_develop.md](commits/261015_1136_f907e65_merge-chat-grounding_develop.md) |
+| 2026-10-15 | `319d500` | develop (merge) | feature/campaign-state → develop 병합 (--no-ff) | [261015_1137_319d500_merge-campaign-state_develop.md](commits/261015_1137_319d500_merge-campaign-state_develop.md) |
+| 2026-10-15 | `385b714` | develop (merge) | feature/studio-portrait → develop 병합 (--no-ff) | [261015_1137_385b714_merge-studio-portrait_develop.md](commits/261015_1137_385b714_merge-studio-portrait_develop.md) |
+| 2026-10-15 | `40b4442` | develop (merge) | feature/studio-reports → develop 병합 (--no-ff) | [261015_1137_40b4442_merge-studio-reports_develop.md](commits/261015_1137_40b4442_merge-studio-reports_develop.md) |
+| 2026-10-15 | `52f451e` | develop (merge) | feature/studio-samples → develop 병합 (--no-ff) | [261015_1137_52f451e_merge-studio-samples_develop.md](commits/261015_1137_52f451e_merge-studio-samples_develop.md) |
+| 2026-10-15 | `fc453a7` | develop (merge) | feature/studio-ai-draft → develop 병합 (--no-ff) | [261015_1137_fc453a7_merge-studio-ai-draft_develop.md](commits/261015_1137_fc453a7_merge-studio-ai-draft_develop.md) |
+|  | `` |  |  | [261015_1215_daf9ce4_quality-eval_feature-quality-eval.md](commits/261015_1215_daf9ce4_quality-eval_feature-quality-eval.md) |
+|  | `` |  |  | [261015_1234_7c53ceb_web-e2e_feature-web-e2e.md](commits/261015_1234_7c53ceb_web-e2e_feature-web-e2e.md) |
+|  | `` |  |  | [261015_1243_adbc6db_security-hardening_feature-security-hardening.md](commits/261015_1243_adbc6db_security-hardening_feature-security-hardening.md) |
+|  | `` |  |  | [261015_1256_043e40a_pro-plan_feature-pro-plan.md](commits/261015_1256_043e40a_pro-plan_feature-pro-plan.md) |
+| 2026-10-15 | `2f998d2` | develop (merge) | feature/security-hardening → develop 병합 (--no-ff) | [261015_1312_2f998d2_merge-security-hardening_develop.md](commits/261015_1312_2f998d2_merge-security-hardening_develop.md) |
+| 2026-10-15 | `4081f35` | develop (merge) | feature/quality-eval → develop 병합 (--no-ff) | [261015_1312_4081f35_merge-quality-eval_develop.md](commits/261015_1312_4081f35_merge-quality-eval_develop.md) |
+| 2026-10-15 | `5f3fbde` | develop (merge) | feature/web-e2e → develop 병합 (--no-ff) | [261015_1312_5f3fbde_merge-web-e2e_develop.md](commits/261015_1312_5f3fbde_merge-web-e2e_develop.md) |
+| 2026-10-15 | `a468bd8` | develop (merge) | feature/pro-plan → develop 병합 (--no-ff) | [261015_1312_a468bd8_merge-pro-plan_develop.md](commits/261015_1312_a468bd8_merge-pro-plan_develop.md) |
+|  | `` |  |  | [261015_1312_cd1640d_perf-limits_feature-perf-limits.md](commits/261015_1312_cd1640d_perf-limits_feature-perf-limits.md) |
+| 2026-10-15 | `f914430` | develop (merge) | feature/perf-limits → develop 병합 (--no-ff) | [261015_1312_f914430_merge-perf-limits_develop.md](commits/261015_1312_f914430_merge-perf-limits_develop.md) |
+|  | `` |  |  | [261015_2235_067d012_auth-email_feature-auth-email.md](commits/261015_2235_067d012_auth-email_feature-auth-email.md) |
+| 2026-10-15 | `2c6cd43` | develop (merge) | feature/auth-email → develop 병합 (--no-ff) | [261015_2328_2c6cd43_merge-auth-email_develop.md](commits/261015_2328_2c6cd43_merge-auth-email_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
