@@ -144,5 +144,6 @@
 | 2026-10-15 | `d064bdb` | develop (merge) | feature/branch-records-index → develop 병합 (--no-ff) | [261015_2328_d064bdb_merge-branch-records-index_develop.md](commits/261015_2328_d064bdb_merge-branch-records-index_develop.md) |
 | 2026-10-16 | `ba51a7f` | feature/toss-verify | 환불·영수증·가격 설정과 토스 키 확인 도구 추가 | [261016_0308_ba51a7f_toss-verify_feature-toss-verify.md](commits/261016_0308_ba51a7f_toss-verify_feature-toss-verify.md) |
 | 2026-10-16 | `3ece31e` | fix/flaky-rate-store-test | DB 한도 저장소의 창 만료 시험을 기다리지 않는 방식으로 바꿈 | [261016_0309_3ece31e_flaky-rate-store-test_fix-flaky-rate-store-test.md](commits/261016_0309_3ece31e_flaky-rate-store-test_fix-flaky-rate-store-test.md) |
+| 2026-10-16 | `ce1b3ee` | feature/mail-smtp-verify | 실제 SMTP 서버로 메일 발송을 확인하는 시험과 발송 확인 도구 추가 | [261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md](commits/261016_0313_ce1b3ee_mail-smtp-verify_feature-mail-smtp-verify.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
