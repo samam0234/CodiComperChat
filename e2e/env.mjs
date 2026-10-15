@@ -27,7 +27,9 @@ function e2eDatabaseUrl() {
 }
 
 export const E2E_DB = e2eDatabaseUrl();
-export const E2E_DB_NAME_EXPORT = E2E_DB_NAME;
+// 실제로 쓰는 데이터베이스 이름 (E2E_DATABASE_URL을 주면 그 주소의 이름). prepare.mjs가 없으면 만든다
+export const E2E_DB_NAME_EXPORT = decodeURIComponent(new URL(E2E_DB).pathname.slice(1));
+if (!/^[A-Za-z0-9_]+$/.test(E2E_DB_NAME_EXPORT)) throw new Error(`e2e: 데이터베이스 이름은 영문·숫자·_만 쓴다 (${E2E_DB_NAME_EXPORT})`);
 
 export const AUTH_SECRET = "e2e-only-secret-e2e-only-secret-e2e-only-secret-123456";
 export const PERSONA_DIR = join(ROOT, "e2e", ".tmp", "personas");
