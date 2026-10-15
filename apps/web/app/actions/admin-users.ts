@@ -42,3 +42,24 @@ export async function findUser(email: string) {
 export async function setUserPlan(email: string, plan: "PRO" | "FREE", days: string) {
   return call<unknown>("/admin/users/plan", { method: "POST", body: { email, plan, days: days.trim() || null } });
 }
+
+export type AdminOrder = {
+  id: string;
+  name: string;
+  amount: number;
+  days: number;
+  provider: string;
+  status: "PAID" | "REFUNDED";
+  paidAt: string;
+  refundedAt: string | null;
+  refundReason: string | null;
+};
+
+export async function findOrders(email: string) {
+  return call<AdminOrder[]>(`/admin/orders?email=${encodeURIComponent(email)}`);
+}
+
+// 결제사 환불이 먼저 되고, 그 결제로 늘어난 프로 기간이 되돌아간다
+export async function refundOrder(orderId: string, reason: string) {
+  return call<unknown>(`/admin/orders/${encodeURIComponent(orderId)}/refund`, { method: "POST", body: { reason } });
+}

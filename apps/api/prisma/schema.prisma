@@ -365,6 +365,7 @@ enum PaymentStatus {
   PENDING
   PAID
   FAILED
+  REFUNDED
 }
 
 /// 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다
@@ -385,6 +386,11 @@ model PaymentOrder {
   /// 결제사가 준 결제 키 (승인·취소 조회에 쓴다)
   paymentKey  String?       @unique
   failReason  String?
+  /// 결제사 영수증 주소 (토스 승인 응답의 receipt.url)
+  receiptUrl  String?
+  /// 환불한 시각과 사유 (운영자가 처리)
+  refundedAt  DateTime?
+  refundReason String?
   createdAt   DateTime      @default(now())
   paidAt      DateTime?
 

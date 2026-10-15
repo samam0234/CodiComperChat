@@ -60,6 +60,15 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
             {billing.orders.map((o) => (
               <li key={o.id}>
                 {formatDay(o.paidAt)} · {o.name} · {won(o.amount)}
+                {o.status === "REFUNDED" && " · 환불됨"}
+                {o.receiptUrl && (
+                  <>
+                    {" "}
+                    <a href={o.receiptUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+                      영수증
+                    </a>
+                  </>
+                )}
               </li>
             ))}
           </ul>
