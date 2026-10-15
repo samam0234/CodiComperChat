@@ -9,7 +9,8 @@
   position: absolute;
   inset: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(13, 8, 30, 0.5);
+  backdrop-filter: blur(3px);
   opacity: 0;
   transition: opacity 0.2s ease;
   cursor: default;
@@ -21,12 +22,14 @@
   right: 0;
   display: flex;
   flex-direction: column;
-  width: min(300px, 82vw);
+  width: min(320px, 84vw);
   height: 100%;
-  background: var(--background);
+  background: var(--surface);
   border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  border-radius: 24px 0 0 24px;
   transform: translateX(100%);
-  transition: transform 0.22s ease;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .root[data-open] {
@@ -52,8 +55,11 @@
 
 .panelTitle {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .closeButton {
@@ -62,12 +68,12 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 15px;
 }
 
 .closeButton:hover {
-  background: var(--surface);
+  background: var(--surface-2);
 }
 
 .nav {
@@ -78,21 +84,22 @@
 }
 
 .navLink {
-  padding: 12px 14px;
-  border-radius: 10px;
+  padding: 13px 14px;
+  border-radius: 14px;
   font-size: 15px;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .navLink:hover {
-  background: var(--surface);
+  background: var(--surface-2);
   color: var(--foreground);
 }
 
 .navLink[aria-current="page"] {
-  background: var(--surface);
-  color: var(--foreground);
-  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .navLink {
@@ -142,14 +149,15 @@
   justify-content: center;
   width: 100%;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 999px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .loginLink {
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
+  box-shadow: var(--glow);
 }
 
 .accountButton {
@@ -157,7 +165,7 @@
 }
 
 .accountButton:hover {
-  background: var(--surface);
+  background: var(--surface-2);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -11,7 +11,7 @@ export type HistoryMessage = {
 
 export type ConversationSummary = {
   id: string;
-  character: { id: string; name: string; oneLiner: string };
+  character: { id: string; name: string; oneLiner: string; portraitMime: string | null; updatedAt: string };
   messageCount: number;
   updatedAt: string;
   lastMessage: { role: "user" | "character"; text: string; speaker: string | null; createdAt: string } | null;

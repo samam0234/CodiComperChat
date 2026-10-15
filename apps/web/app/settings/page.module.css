@@ -1,7 +1,7 @@
 .title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
 }
 
 .description {
@@ -90,7 +90,7 @@
 }
 
 .primaryLink {
-  background: var(--accent);
+  background: var(--gradient);
   color: #fff;
 }
 

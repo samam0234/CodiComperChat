@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CharacterAvatar from "@/components/character-avatar";
 import { requireUser } from "@/lib/auth";
 import { getMyConversations } from "@/lib/conversations";
 import styles from "./page.module.css";
@@ -41,6 +42,13 @@ export default async function LibraryPage() {
           {conversations.map((c) => (
             <li key={c.id}>
               <Link href={`/characters/${c.character.id}/chat`} className={styles.card}>
+                <CharacterAvatar
+                  characterId={c.character.id}
+                  name={c.character.name}
+                  hasPortrait={!!c.character.portraitMime}
+                  version={c.character.updatedAt}
+                />
+                <div className={styles.cardBody}>
                 <div className={styles.cardHead}>
                   <span className={styles.name}>{c.character.name}</span>
                   <span className={styles.when}>{formatWhen(c.updatedAt)}</span>
@@ -54,6 +62,7 @@ export default async function LibraryPage() {
                   {c.active ? `메시지 ${c.messageCount}개` : "지금 대화 없음"}
                   {c.savedCount > 0 && ` · 저장한 대화 ${c.savedCount}개`}
                 </span>
+                </div>
               </Link>
             </li>
           ))}

@@ -1,22 +1,23 @@
 .input {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
+  min-height: 44px;
+  padding: 11px 8px;
+  border: none;
+  background: transparent;
   color: var(--foreground);
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   /* 높이는 chat-input.tsx가 내용에 맞춰 조절한다 */
   resize: none;
   overflow-y: hidden;
 }
 
-.input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
+/* 테두리·빛은 감싼 입력 상자(form:focus-within)가 맡는다 */
+.input:focus,
+.input:focus-visible {
+  outline: none;
 }
 
 .input:disabled {
@@ -25,6 +26,7 @@
 
 /* 좁은 화면에서 안내 문구가 두 줄로 접혀 잘려 보이지 않게 한 줄로 두고 말줄임한다 */
 .input::placeholder {
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

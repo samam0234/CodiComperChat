@@ -1,7 +1,7 @@
 .title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
 }
 
 .description {
@@ -21,7 +21,7 @@
   margin-top: 24px;
   padding: 28px 20px;
   border: 1px dashed var(--border);
-  border-radius: 16px;
+  border-radius: 24px;
   background: var(--surface);
   font-size: 14px;
   color: var(--muted);
@@ -43,15 +43,25 @@
 }
 
 .card {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   padding: 16px 18px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--background);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
 }
 
 .cardHead {
@@ -63,7 +73,7 @@
 
 .name {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .when {
@@ -87,6 +97,10 @@
 .count {
   display: inline-block;
   margin-top: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
   font-size: 12px;
-  color: var(--muted);
+  font-weight: 600;
+  color: var(--accent);
 }

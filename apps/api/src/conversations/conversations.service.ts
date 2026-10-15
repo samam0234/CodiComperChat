@@ -305,7 +305,8 @@ export class ConversationsService {
         status: true,
         characterId: true,
         updatedAt: true,
-        character: { select: { id: true, name: true, oneLiner: true } },
+        // 목록에 초상을 붙이려고 초상 형식과 바뀐 시각(캐시 무효화)도 싣는다
+        character: { select: { id: true, name: true, oneLiner: true, portraitMime: true, updatedAt: true } },
         sessions: { select: { id: true, _count: { select: { messages: true } } }, take: 1 },
       },
     });

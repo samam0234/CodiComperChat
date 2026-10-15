@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import BrandMark from "./brand-mark";
 import SiteDrawer, { type Viewer } from "./site-drawer";
 import styles from "./site-header.module.css";
 
@@ -20,8 +21,9 @@ export default function SiteHeader({ viewer }: { viewer: Viewer }) {
     <>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href="/" className={styles.brand}>
-            코디컴퍼챗
+          <Link href="/" className={styles.brand} aria-label="코디컴퍼챗 홈">
+            <BrandMark id="header-brand" />
+            <span className={styles.brandText}>코디컴퍼챗</span>
           </Link>
 
           <nav className={styles.nav} aria-label="주요 메뉴">
@@ -37,18 +39,34 @@ export default function SiteHeader({ viewer }: { viewer: Viewer }) {
             ))}
           </nav>
 
-          <button
-            type="button"
-            className={styles.menuButton}
-            aria-label="전체 메뉴 열기"
-            aria-expanded={drawerOpen}
-            aria-controls="site-drawer"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <span className={styles.menuBar} />
-            <span className={styles.menuBar} />
-            <span className={styles.menuBar} />
-          </button>
+          <div className={styles.actions}>
+            {viewer ? (
+              <>
+                <Link href="/studio" className={styles.create}>
+                  <span aria-hidden="true">＋</span> 캐릭터 만들기
+                </Link>
+                <Link href="/me" className={styles.me} title={`${viewer.displayName} · 마이페이지`} aria-label="마이페이지">
+                  {viewer.displayName.trim().slice(0, 1) || "나"}
+                </Link>
+              </>
+            ) : (
+              <Link href={`/login?next=${encodeURIComponent(pathname)}`} className={styles.login}>
+                시작하기
+              </Link>
+            )}
+            <button
+              type="button"
+              className={styles.menuButton}
+              aria-label="전체 메뉴 열기"
+              aria-expanded={drawerOpen}
+              aria-controls="site-drawer"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <span className={styles.menuBar} />
+              <span className={styles.menuBar} />
+              <span className={styles.menuBar} />
+            </button>
+          </div>
         </div>
       </header>
 
