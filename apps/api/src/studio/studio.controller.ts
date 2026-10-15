@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
+import { StudioDraftService } from './studio-draft.service.js';
 import { StudioPublishService } from './studio-publish.service.js';
 import { StudioTestService } from './studio-test.service.js';
 import { StudioService } from './studio.service.js';
@@ -23,6 +24,7 @@ export class StudioController {
     private readonly studio: StudioService,
     private readonly test: StudioTestService,
     private readonly publisher: StudioPublishService,
+    private readonly drafter: StudioDraftService,
   ) {}
 
   @Get()
@@ -70,6 +72,13 @@ export class StudioController {
   @HttpCode(200)
   testCritique(@CurrentUserId() userId: string, @Param('id') id: string) {
     return this.test.critique(userId, id);
+  }
+
+  // "이 칸만 AI로 초안" { field: 'campaign.scene' 등 }. 제안만 돌려주고 카드는 바뀌지 않는다
+  @Post(':id/draft-field')
+  @HttpCode(200)
+  draftField(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: { field?: unknown }) {
+    return this.drafter.draftField(userId, id, body?.field);
   }
 
   // 성격·말투 단계의 말투 샘플 답 2개. 저장하지 않으며 3턴 테스트에 영향이 없다
