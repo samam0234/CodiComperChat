@@ -5,12 +5,17 @@ import {
   Delete,
   Get,
   HttpCode,
+  Headers,
   Param,
   Patch,
   Post,
+  Put,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
+import { parsePortrait } from './portrait.js';
 import { StudioDraftService } from './studio-draft.service.js';
 import { StudioPublishService } from './studio-publish.service.js';
 import { StudioTestService } from './studio-test.service.js';
@@ -72,6 +77,34 @@ export class StudioController {
   @HttpCode(200)
   testCritique(@CurrentUserId() userId: string, @Param('id') id: string) {
     return this.test.critique(userId, id);
+  }
+
+  // 흉상 초상 이미지. 본문은 이미지 원본(webp·jpeg·png, 150KB 이하). 카드와 따로라 다시 테스트할 필요 없다
+  @Put(':id/portrait')
+  @HttpCode(200)
+  setPortrait(
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Headers('content-type') contentType: string | undefined,
+    @Body() body: unknown,
+  ) {
+    return this.studio.setPortrait(userId, id, parsePortrait(contentType, body));
+  }
+
+  @Delete(':id/portrait')
+  @HttpCode(200)
+  removePortrait(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.studio.setPortrait(userId, id, null);
+  }
+
+  @Get(':id/portrait')
+  async portrait(@CurrentUserId() userId: string, @Param('id') id: string, @Res() res: Response) {
+    const image = await this.studio.portrait(userId, id);
+    res.setHeader('Content-Type', image.mime);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    res.send(image.data);
   }
 
   // "이 칸만 AI로 초안" { field: 'campaign.scene' 등 }. 제안만 돌려주고 카드는 바뀌지 않는다

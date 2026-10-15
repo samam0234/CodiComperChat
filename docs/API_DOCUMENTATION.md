@@ -27,8 +27,9 @@
 | `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
-| `GET /characters` | 홈·인기 캐릭터 목록 | **200** `[공개 필드…, visibility]` · **공개(PUBLIC)만**. 링크 공개·비공개는 나오지 않는다 |
+| `GET /characters` | 홈·인기 캐릭터 목록 | **200** `[공개 필드…, visibility]` · 각 항목에 `official`(운영 캐릭터인가)·`portraitMime`(초상이 있으면 형식, 없으면 null)·`updatedAt`(초상 캐시 무효화용). **공개(PUBLIC)만**. 링크 공개·비공개는 나오지 않는다 |
 | `GET /characters/:id` | 캐릭터 상세 | **200** 공개 필드(비밀·해금 조건 제외) · 공개·링크 공개는 누구나, 비공개는 만든 사람만(토큰을 보내면 판단). 남의 비공개 캐릭터는 없는 것과 같은 404 · 대화·메모리·상태설정·엑스트라 API도 같은 규칙 · 응답에 `official`(운영 캐릭터인가)·`mine`(내가 만들었는가)이 붙는다(ownerId는 싣지 않음). **운영자가 내린 캐릭터는 목록·상세·대화·메모리·상태설정·엑스트라 모두 404**(만든 사람도) |
+| `GET /characters/:id/portrait` | 흉상 초상 이미지 | **200** 이미지 본문(`image/webp`·`jpeg`·`png`) · 공개·링크 공개는 누구나(`Cache-Control: public, max-age=300`), 비공개는 만든 사람만(`private, no-store`), 내려간 캐릭터·초상 없음은 404. `nosniff`와 `Content-Security-Policy: sandbox`를 붙여 그림 안의 스크립트가 실행되지 않게 한다 |
 | `GET /characters/:id/chat` | 이 캐릭터와의 **지금 대화** | **200** `{ started, persona, savedCount, messages: [{ id, role, text, speaker, createdAt }] }` (최근 200개). 대화 전이면 `started: false`와 시작 장면 1개. `persona`(`{ id, name }` 또는 null)는 이 대화에 고정된 내 프로필 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
@@ -67,14 +68,17 @@
 | `POST /campaigns/:id/messages` | 유저 메시지 전송 + 스트림 응답 | 501 (컨텍스트 조립 + FastAPI `/infer` 중계 자리) |
 | `POST /campaigns/:id/sessions/:sessionId/close` | 세션 종료·요약 트리거 | 501 (`/summarize` 결과를 CampaignState에 머지하는 자리) |
 | `GET /campaigns/:id/logbook` | 회차 목록 | 501 |
-| `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, visibility, characterId, updatedAt, complete }]` · 🔒 |
+| `GET /studio/characters` | 내 공방 초안 목록 | **200** `[{ id, name, oneLiner, published, visibility, hasPortrait, characterId, updatedAt, complete }]` · 🔒 |
 | `POST /studio/characters` | 빈 초안 만들기 | **201** `{ id }` · 🔒 (로그인한 누구나) |
-| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, visibility, takedown: { at, reason } \| null, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
+| `GET /studio/characters/:id` | 초안 열기 | **200** `{ id, card, test: { turns, turnsUsed, turnsTotal, verdict, passed, stale }, characterId, published, visibility, hasPortrait, takedown: { at, reason } \| null, updatedAt, readiness }` · 내 초안만(남의 것 404) · 🔒 |
 | `PATCH /studio/characters/:id` | 초안 저장 `{ card }` (카드 7층 전체를 통째로) | **200** 저장 결과 · 빈칸은 허용, 형식·글자 수 상한 위반은 어느 칸인지 알려 주며 400 · 🔒 |
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
 | `POST /studio/characters/:id/draft-field` | "이 칸만 AI로 초안" `{ field }` (예: `campaign.scene`, `personality.habits`) | **200** `{ field, kind: "text" \| "list", value: 문자열 \| 문자열[] }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 지원 칸: 한 줄 소개·태그, 외형 서술·키워드, 호칭 규칙·말투 습관·금지 말투·성격 요약, 캠페인 역할 6칸, 절대 하지 않는 것·관계가 깨지는 것, 첫 메시지·대체 인사, 로어 3칸. **비밀·해금 조건·이름·예시 대화·추가 로어는 400**(비밀은 AI에 보내지 않는다, §7.8). 결과는 칸의 글자 수·항목 수 상한에 맞춰 다듬는다 · 🔒 |
+| `PUT /studio/characters/:id/portrait` | 흉상 초상 올리기 — **본문은 이미지 원본**, `Content-Type: image/webp\|jpeg\|png` | **200** 초안 · 150KB 이하(넘으면 400, 300KB 넘으면 413), 파일 첫 바이트가 선언한 형식과 맞아야 한다(그림인 척하는 파일은 400), gif·svg 등은 400. 카드와 따로라 다시 테스트할 필요 없고, 발행 중이면 캐릭터에 바로 적용 · 🔒 |
+| `DELETE /studio/characters/:id/portrait` | 초상 지우기 | **200** 초안 · 발행 중이면 캐릭터에서도 지운다 · 🔒 |
+| `GET /studio/characters/:id/portrait` | 내 초안의 초상 미리보기 | **200** 이미지(`private, no-store`) · 없으면 404, 남의 초안은 404 · 🔒 |
 | `POST /studio/characters/:id/samples` | 말투 샘플 답 2개 (성격·말투 단계) | **200** `{ question: "지금 뭐 해?", replies: [2개] }` · 3턴 테스트와 같은 경로(카드 → 페르소나 지식 → 검색 → 조립 → 개인사 가드)로 답하지만 **아무것도 저장하지 않는다**(테스트 턴을 쓰지 않고 테스트 상태에 영향 없음). 이름·반말/존댓말이 비면 400. 첫 메시지는 없어도 된다 · 🔒 |
 | `POST /studio/characters/:id/test/reset` | 테스트 다시 시작 | **204** · 🔒 |
 | `POST /studio/characters/:id/publish` | 발행 | **200** 초안(`published: true`, `characterId`, `visibility`) · **초안 주인 누구나**(2026-10-15 사용자 결정, 이전에는 운영자만). 필수 단계가 비었거나 지금 카드로 3턴 테스트를 통과하지 않았으면 409, 다른 캐릭터가 같은 이름이면 409(이름은 비공개 캐릭터를 포함해 전체에서 하나). 카드 → 캐릭터(비밀·해금 조건 포함, 서버 전용)로 만들거나 고치고, 초안의 공개 범위와 만든 사람(`ownerId`)을 싣는다. 페르소나 지식 파일 `data/personas/studio-<초안 id>.json`(비밀 제외)을 써서 첫 대화부터 RAG가 붙는다. 다시 발행하면 같은 캐릭터를 고친다(기존 대화 유지) · 운영자가 내린 캐릭터는 409(복구되기 전에는 다시 발행할 수 없다) · 🔒 |
