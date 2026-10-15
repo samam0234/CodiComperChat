@@ -166,6 +166,7 @@ Nest는 이 객체를 `CampaignState`에 머지한다.
 - 캐릭터 **발행**은 이메일을 인증한 계정만 할 수 있다(403). 도입 전에 가입한 계정은 인증된 것으로 옮겼다.
 - 로그인 토큰에는 계정의 토큰 세대(`users.sessionVersion`)가 실린다. 비밀번호를 바꾸거나 재설정하면 세대가 올라 이전 토큰이 모두 401이 된다.
 - 메일 발송 설정(`apps/api/.env`): `MAIL_SMTP_URL`(실제 발송), `MAIL_FROM`, `WEB_BASE_URL`(링크 주소). SMTP가 없으면 개발 중에는 서버 로그에 링크가 찍히고, `MAIL_OUTBOX_DIR`를 주면 그 폴더에 JSON으로 남는다(e2e가 쓴다).
+- 발송 확인: `npm run mail:check --workspace api -- 받을주소` 로 설정한 SMTP로 시험 메일 한 통을 보낸다. 자동 시험(`src/mail/mail.service.spec.ts`)은 시험 안에 실제 SMTP 서버를 띄워 인증·한글 제목·본문·보낸 사람이 그대로 도착하는지, 인증이 틀리면 실패하는지 본다.
 
 ## 결제 (요금 등급)
 
