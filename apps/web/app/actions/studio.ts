@@ -65,6 +65,10 @@ export async function sendTestTurn(id: string, message: string, personaId?: stri
   });
 }
 
+export async function draftField(id: string, field: string) {
+  return call<{ field: string; kind: "text" | "list"; value: string | string[] }>(id, "/draft-field", "POST", { field });
+}
+
 export async function sampleReplies(id: string) {
   return call<{ question: string; replies: string[] }>(id, "/samples", "POST");
 }

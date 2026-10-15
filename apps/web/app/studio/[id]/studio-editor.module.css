@@ -813,3 +813,64 @@
   display: grid;
   gap: 8px;
 }
+
+/* ---- AI 초안 (이 칸만) ---- */
+
+.aiButton {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.aiButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.aiButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.aiButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.aiPanel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.aiTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.aiPreview {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.aiActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}

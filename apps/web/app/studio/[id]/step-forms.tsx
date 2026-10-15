@@ -9,6 +9,7 @@ import {
   type Card,
   type StepKey,
 } from "@/lib/studio-card";
+import { AiDraftButton, AiDraftPanel, DraftToolsContext, useAiDraft } from "./ai-draft";
 import PromptExtendButton from "./prompt-extend";
 import SampleReplies from "./sample-replies";
 import styles from "./studio-editor.module.css";
@@ -22,6 +23,9 @@ function Field({
   count,
   max,
   extendable,
+  aiKey,
+  hasContent,
+  onApplyAi,
   children,
 }: {
   label: string;
@@ -31,9 +35,14 @@ function Field({
   max?: number;
   // 긴 글 칸이면 "프롬프트 연장"(프로 등급 안내)을 붙인다
   extendable?: boolean;
+  // "이 칸만 AI로 초안" 대상 칸의 키(서버 목록과 같다). 비밀·해금 조건·예시 대화에는 주지 않는다
+  aiKey?: string;
+  hasContent?: boolean;
+  onApplyAi?: (value: string | string[]) => void;
   children: (id: string) => ReactNode;
 }) {
   const id = useId();
+  const draft = useAiDraft(aiKey);
   return (
     <div className={styles.field}>
       <div className={styles.fieldHead}>
@@ -47,10 +56,12 @@ function Field({
               {count}/{max}
             </span>
             {extendable && <PromptExtendButton label={label} max={max} />}
+            {aiKey && <AiDraftButton label={label} draft={draft} />}
           </span>
         )}
       </div>
       {children(id)}
+      {aiKey && onApplyAi && <AiDraftPanel label={label} draft={draft} hasContent={!!hasContent} onApply={onApplyAi} />}
       {hint && <p className={styles.hint}>{hint}</p>}
     </div>
   );
@@ -65,6 +76,7 @@ function Text({
   required,
   placeholder,
   rows,
+  aiKey,
 }: {
   label: string;
   value: string;
@@ -74,9 +86,20 @@ function Text({
   required?: boolean;
   placeholder?: string;
   rows?: number;
+  aiKey?: string;
 }) {
   return (
-    <Field label={label} hint={hint} required={required} count={value.length} max={max} extendable={rows !== undefined}>
+    <Field
+      label={label}
+      hint={hint}
+      required={required}
+      count={value.length}
+      max={max}
+      extendable={rows !== undefined}
+      aiKey={aiKey}
+      hasContent={value.trim() !== ""}
+      onApplyAi={(v) => onChange(String(v))}
+    >
       {(id) =>
         rows ? (
           <textarea
@@ -113,6 +136,7 @@ function Lines({
   hint,
   required,
   placeholder,
+  aiKey,
 }: {
   label: string;
   value: string[];
@@ -122,6 +146,7 @@ function Lines({
   hint?: string;
   required?: boolean;
   placeholder?: string;
+  aiKey?: string;
 }) {
   const filled = value.filter((v) => v.trim() !== "").length;
   return (
@@ -131,6 +156,9 @@ function Lines({
       required={required}
       count={filled}
       max={maxItems}
+      aiKey={aiKey}
+      hasContent={filled > 0}
+      onApplyAi={(v) => onChange(Array.isArray(v) ? v : [v])}
     >
       {(id) => (
         <textarea
@@ -247,7 +275,15 @@ function Pairs<K extends string>({
 // 말투 샘플이 서버에 저장된 카드로 답하므로, 초안 id와 "먼저 저장" 함수를 받는다
 export type SampleProps = { draftId: string; ensureSaved: () => Promise<boolean> };
 
-export function StepForm({
+export function StepForm(props: { step: StepKey; card: Card; update: Update; samples: SampleProps }) {
+  return (
+    <DraftToolsContext.Provider value={props.samples}>
+      <StepFormBody {...props} />
+    </DraftToolsContext.Provider>
+  );
+}
+
+function StepFormBody({
   step,
   card,
   update,
@@ -264,13 +300,13 @@ export function StepForm({
       return (
         <>
           <Text label="이름" required value={c.name} max={LIMITS.name} onChange={(v) => update((d) => void (d.identity.name = v))} hint="목록과 대화에 나가는 이름. 발행 뒤에는 다른 캐릭터와 겹칠 수 없습니다." />
-          <Text label="한 줄 소개" required value={c.oneLiner} max={LIMITS.oneLiner} onChange={(v) => update((d) => void (d.identity.oneLiner = v))} placeholder="골목 끝 카페를 혼자 꾸리는 바리스타" />
+          <Text label="한 줄 소개" aiKey="identity.oneLiner" required value={c.oneLiner} max={LIMITS.oneLiner} onChange={(v) => update((d) => void (d.identity.oneLiner = v))} placeholder="골목 끝 카페를 혼자 꾸리는 바리스타" />
           <Choice label="캠페인 역할" required value={c.role} options={ROLE_OPTIONS} onChange={(v) => update((d) => void (d.identity.role = v))} />
           <div className={styles.row}>
             <Text label="종족/직업" value={c.occupation} max={LIMITS.short} onChange={(v) => update((d) => void (d.identity.occupation = v))} />
             <Text label="겉보기 나이" value={c.apparentAge} max={LIMITS.short} onChange={(v) => update((d) => void (d.identity.apparentAge = v))} placeholder="30대 초반" />
           </div>
-          <Lines label="태그" value={c.tags} maxItems={LIMITS.tags} maxLen={LIMITS.tag} onChange={(v) => update((d) => void (d.identity.tags = v))} />
+          <Lines label="태그" aiKey="identity.tags" value={c.tags} maxItems={LIMITS.tags} maxLen={LIMITS.tag} onChange={(v) => update((d) => void (d.identity.tags = v))} />
         </>
       );
     }
@@ -278,8 +314,8 @@ export function StepForm({
       const c = card.appearance;
       return (
         <>
-          <Text label="외형 서술" rows={4} value={c.description} max={LIMITS.description} onChange={(v) => update((d) => void (d.appearance.description = v))} hint="모델이 장면을 묘사할 때 쓰는 서술입니다. 초상 이미지는 v1 범위 밖이에요." />
-          <Lines label="분위기 키워드" value={c.keywords} maxItems={LIMITS.keywords} maxLen={LIMITS.keyword} onChange={(v) => update((d) => void (d.appearance.keywords = v))} />
+          <Text label="외형 서술" aiKey="appearance.description" rows={4} value={c.description} max={LIMITS.description} onChange={(v) => update((d) => void (d.appearance.description = v))} hint="모델이 장면을 묘사할 때 쓰는 서술입니다. 초상 이미지는 v1 범위 밖이에요." />
+          <Lines label="분위기 키워드" aiKey="appearance.keywords" value={c.keywords} maxItems={LIMITS.keywords} maxLen={LIMITS.keyword} onChange={(v) => update((d) => void (d.appearance.keywords = v))} />
         </>
       );
     }
@@ -308,10 +344,10 @@ export function StepForm({
             ))}
           </fieldset>
           <Choice label="말투" required value={c.honorific} options={HONORIFIC_OPTIONS} onChange={(v) => update((d) => void (d.personality.honorific = v))} />
-          <Text label="호칭 규칙" required value={c.addressing} max={LIMITS.addressing} onChange={(v) => update((d) => void (d.personality.addressing = v))} placeholder="손님이라 부르고, 단골이 되면 이름 뒤에 씨를 붙인다" hint="대화 상태설정에서 유저가 호칭을 정하면 그쪽이 우선합니다." />
-          <Lines label="말투 습관" required value={c.habits} maxItems={LIMITS.habits} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.habits = v))} placeholder="말끝을 살짝 흐린다" />
-          <Lines label="금지 말투" value={c.forbidden} maxItems={LIMITS.forbidden} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.forbidden = v))} placeholder="인터넷 말투" />
-          <Text label="성격 요약" required rows={2} value={c.summary} max={LIMITS.summary} onChange={(v) => update((d) => void (d.personality.summary = v))} />
+          <Text label="호칭 규칙" aiKey="personality.addressing" required value={c.addressing} max={LIMITS.addressing} onChange={(v) => update((d) => void (d.personality.addressing = v))} placeholder="손님이라 부르고, 단골이 되면 이름 뒤에 씨를 붙인다" hint="대화 상태설정에서 유저가 호칭을 정하면 그쪽이 우선합니다." />
+          <Lines label="말투 습관" aiKey="personality.habits" required value={c.habits} maxItems={LIMITS.habits} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.habits = v))} placeholder="말끝을 살짝 흐린다" />
+          <Lines label="금지 말투" aiKey="personality.forbidden" value={c.forbidden} maxItems={LIMITS.forbidden} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.personality.forbidden = v))} placeholder="인터넷 말투" />
+          <Text label="성격 요약" aiKey="personality.summary" required rows={2} value={c.summary} max={LIMITS.summary} onChange={(v) => update((d) => void (d.personality.summary = v))} />
           <SampleReplies
             draftId={samples.draftId}
             ready={card.identity.name.trim() !== "" && card.personality.honorific !== ""}
@@ -323,7 +359,7 @@ export function StepForm({
     case "campaign": {
       const c = card.campaign;
       const t = (label: string, key: keyof Card["campaign"], required = false, hint?: string) => (
-        <Text label={label} required={required} rows={2} value={c[key]} max={LIMITS.field} hint={hint} onChange={(v) => update((d) => void (d.campaign[key] = v))} />
+        <Text label={label} aiKey={`campaign.${key}`} required={required} rows={2} value={c[key]} max={LIMITS.field} hint={hint} onChange={(v) => update((d) => void (d.campaign[key] = v))} />
       );
       return (
         <>
@@ -344,8 +380,8 @@ export function StepForm({
           <p className={styles.stepNote}>비밀과 해금 조건은 서버에만 남습니다. 모델에도, 페르소나 지식 파일에도 들어가지 않습니다.</p>
           <Text label="비밀" rows={2} value={c.secret} max={LIMITS.field} onChange={(v) => update((d) => void (d.boundary.secret = v))} />
           <Text label="해금 조건" required={c.secret.trim() !== ""} rows={2} value={c.unlockCondition} max={LIMITS.field} onChange={(v) => update((d) => void (d.boundary.unlockCondition = v))} hint="비밀은 항상 해금 조건과 쌍입니다. 조건 없는 비밀은 언젠가 먼저 말해집니다." />
-          <Lines label="절대 하지 않는 것" value={c.neverDo} maxItems={LIMITS.neverDo} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.boundary.neverDo = v))} placeholder="AI라고 말하기" />
-          <Text label="관계가 깨지는 것" rows={2} value={c.breakers} max={LIMITS.field} onChange={(v) => update((d) => void (d.boundary.breakers = v))} />
+          <Lines label="절대 하지 않는 것" aiKey="boundary.neverDo" value={c.neverDo} maxItems={LIMITS.neverDo} maxLen={LIMITS.item} onChange={(v) => update((d) => void (d.boundary.neverDo = v))} placeholder="AI라고 말하기" />
+          <Text label="관계가 깨지는 것" aiKey="boundary.breakers" rows={2} value={c.breakers} max={LIMITS.field} onChange={(v) => update((d) => void (d.boundary.breakers = v))} />
         </>
       );
     }
@@ -353,8 +389,8 @@ export function StepForm({
       const c = card.greeting;
       return (
         <>
-          <Text label="첫 메시지" required rows={5} value={c.firstMessage} max={LIMITS.firstMessage} onChange={(v) => update((d) => void (d.greeting.firstMessage = v))} hint="자기소개 대신 상황 2~4줄 + 대사 1~2줄. 대화를 열면 이 메시지가 처음 보입니다." />
-          <Lines label="대체 인사" value={c.alternates} maxItems={LIMITS.alternates} maxLen={LIMITS.firstMessage} onChange={(v) => update((d) => void (d.greeting.alternates = v))} hint="한 줄에 하나씩, 2개까지" />
+          <Text label="첫 메시지" aiKey="greeting.firstMessage" required rows={5} value={c.firstMessage} max={LIMITS.firstMessage} onChange={(v) => update((d) => void (d.greeting.firstMessage = v))} hint="자기소개 대신 상황 2~4줄 + 대사 1~2줄. 대화를 열면 이 메시지가 처음 보입니다." />
+          <Lines label="대체 인사" aiKey="greeting.alternates" value={c.alternates} maxItems={LIMITS.alternates} maxLen={LIMITS.firstMessage} onChange={(v) => update((d) => void (d.greeting.alternates = v))} hint="한 줄에 하나씩, 2개까지" />
           <Pairs
             label="예시 대화"
             items={c.examples}
@@ -374,9 +410,9 @@ export function StepForm({
       const c = card.lore;
       return (
         <>
-          <Text label="세계 규칙" rows={3} value={c.world} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.world = v))} />
-          <Text label="중요 인물" rows={3} value={c.person} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.person = v))} />
-          <Text label="금기" rows={3} value={c.taboo} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.taboo = v))} />
+          <Text label="세계 규칙" aiKey="lore.world" rows={3} value={c.world} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.world = v))} />
+          <Text label="중요 인물" aiKey="lore.person" rows={3} value={c.person} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.person = v))} />
+          <Text label="금기" aiKey="lore.taboo" rows={3} value={c.taboo} max={LIMITS.lore} onChange={(v) => update((d) => void (d.lore.taboo = v))} />
           <Pairs
             label="추가 로어"
             items={c.extra}
