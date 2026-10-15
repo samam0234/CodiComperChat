@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { postToAi } from '../ai/ai-client.js';
-import { verifyToken } from '../auth/token.js';
+import { readSession } from '../auth/session.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { CampaignStoryService } from '../campaign-state/campaign-story.service.js';
 import { ChatStateService } from '../chat-state/chat-state.service.js';
 import { CharactersService } from '../characters/characters.service.js';
@@ -30,11 +31,11 @@ export class CharacterChatService {
     private readonly chatState: ChatStateService,
     private readonly extras: ExtrasService,
     private readonly story: CampaignStoryService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private async resolveUser(authorization: string | undefined): Promise<string> {
-    const [scheme, token] = authorization?.split(' ') ?? [];
-    const userId = scheme === 'Bearer' && token ? await verifyToken(token) : null;
+    const userId = await readSession(this.prisma, authorization);
     if (!userId) {
       throw new UnauthorizedException('캐릭터와 대화하려면 로그인이 필요합니다.');
     }

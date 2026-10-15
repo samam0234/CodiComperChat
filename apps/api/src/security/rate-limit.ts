@@ -32,6 +32,12 @@ export const RULES = {
   loginIp: { limit: 40, windowMs: 15 * MIN, by: 'ip', label: '로그인 시도가 너무 많습니다.' },
   signup: { limit: 10, windowMs: 60 * MIN, by: 'ip', label: '가입 요청이 너무 많습니다.' },
   password: { limit: 5, windowMs: 15 * MIN, by: 'user', label: '비밀번호 변경 시도가 너무 많습니다.' },
+  // 메일 발송: 남의 주소로 메일을 퍼붓지 못하게 계정별·주소별·IP별로 막는다
+  mail: { limit: 3, windowMs: 15 * MIN, by: 'user', label: '인증 메일을 너무 자주 요청했어요. 잠시 뒤에 다시 시도해 주세요.' },
+  forgot: { limit: 3, windowMs: 15 * MIN, by: 'ip+email', label: '비밀번호 찾기를 너무 자주 요청했어요.' },
+  forgotIp: { limit: 10, windowMs: 15 * MIN, by: 'ip', label: '비밀번호 찾기를 너무 자주 요청했어요.' },
+  // 메일 링크 토큰 맞히기 방어
+  emailToken: { limit: 20, windowMs: 15 * MIN, by: 'ip', label: '요청이 너무 많습니다. 잠시 뒤에 다시 시도해 주세요.' },
   // LLM 호출: 느린 모델 하나를 여럿이 나눠 쓰므로 한 사람이 독점하지 못하게
   chat: { limit: 20, windowMs: MIN, by: 'user', label: '메시지를 너무 빨리 보내고 있어요.' },
   suggest: { limit: 10, windowMs: MIN, by: 'user', label: '대답 추천을 너무 자주 요청하고 있어요.' },

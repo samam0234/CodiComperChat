@@ -32,3 +32,5 @@ export const E2E_DB_NAME_EXPORT = E2E_DB_NAME;
 export const AUTH_SECRET = "e2e-only-secret-e2e-only-secret-e2e-only-secret-123456";
 export const PERSONA_DIR = join(ROOT, "e2e", ".tmp", "personas");
 export const NEXT_DIST_DIR = ".next-e2e";
+// 메일은 실제로 보내지 않고 이 폴더에 JSON으로 쌓는다 (helpers.ts의 latestMail이 읽는다)
+export const MAIL_DIR = join(ROOT, "e2e", ".tmp", "mail");

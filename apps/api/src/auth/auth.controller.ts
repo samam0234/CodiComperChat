@@ -9,8 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  parseEmailOnly,
   parseLogin,
   parsePasswordChange,
+  parsePasswordReset,
   parseProfile,
   parseSignup,
 } from './auth.dto.js';
@@ -55,14 +57,47 @@ export class AuthController {
     return this.authService.updateProfile(userId, parseProfile(body));
   }
 
+  // 다른 기기의 로그인은 끊기고, 지금 기기는 돌려받은 새 토큰으로 이어 간다
   @Post('me/password')
   @RateLimit('password')
   @UseGuards(AuthGuard)
-  @HttpCode(204)
-  async changePassword(
+  @HttpCode(200)
+  changePassword(
     @CurrentUserId() userId: string,
     @Body() body: unknown,
   ) {
-    await this.authService.changePassword(userId, parsePasswordChange(body));
+    return this.authService.changePassword(userId, parsePasswordChange(body));
+  }
+
+  // 인증 메일 다시 보내기
+  @Post('me/verify-email')
+  @RateLimit('mail')
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  requestVerification(@CurrentUserId() userId: string) {
+    return this.authService.requestVerification(userId);
+  }
+
+  // 메일 속 링크의 토큰으로 인증을 끝낸다. 다른 기기에서 메일을 열 수 있으니 로그인은 요구하지 않는다
+  @Post('verify-email')
+  @RateLimit('emailToken')
+  @HttpCode(200)
+  verifyEmail(@Body() body: { token?: unknown } | undefined) {
+    return this.authService.verifyEmail(body?.token);
+  }
+
+  // 비밀번호 찾기: 재설정 링크를 메일로 보낸다. 가입 여부와 상관없이 항상 204
+  @Post('password/forgot')
+  @RateLimit('forgot', 'forgotIp')
+  @HttpCode(204)
+  async forgotPassword(@Body() body: unknown) {
+    await this.authService.forgotPassword(parseEmailOnly(body));
+  }
+
+  @Post('password/reset')
+  @RateLimit('emailToken')
+  @HttpCode(204)
+  async resetPassword(@Body() body: unknown) {
+    await this.authService.resetPassword(parsePasswordReset(body));
   }
 }

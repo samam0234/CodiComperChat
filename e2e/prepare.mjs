@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
-import { E2E_DB, E2E_DB_NAME_EXPORT, NEXT_DIST_DIR, PERSONA_DIR, ROOT } from "./env.mjs";
+import { E2E_DB, E2E_DB_NAME_EXPORT, MAIL_DIR, NEXT_DIST_DIR, PERSONA_DIR, ROOT } from "./env.mjs";
 
 const run = (cmd, args, cwd, env = {}) =>
   execFileSync(cmd, args, { cwd, stdio: "inherit", env: { ...process.env, ...env }, shell: process.platform === "win32" });
@@ -43,6 +43,7 @@ run("npx", ["prisma", "migrate", "deploy"], join(ROOT, "apps", "api"), { DATABAS
 // e2e 전용 tsconfig (Next가 이 파일을 고쳐 쓰므로 매번 새로 만들고 git에는 올리지 않는다)
 writeFileSync(join(ROOT, "apps", "web", "tsconfig.e2e.json"), JSON.stringify({ extends: "./tsconfig.json" }, null, 2));
 rmSync(PERSONA_DIR, { recursive: true, force: true });
+rmSync(MAIL_DIR, { recursive: true, force: true });
 rmSync(join(ROOT, "apps", "web", NEXT_DIST_DIR), { recursive: true, force: true });
 run("npm", ["run", "build:verify", "--workspace", "api", "--silent"], ROOT);
 console.log("e2e: 준비 끝");

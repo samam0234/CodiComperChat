@@ -142,5 +142,56 @@ export async function changePassword(
       newPassword: formData.get("newPassword"),
     },
   });
-  return result.ok ? { success: "비밀번호를 바꿨습니다." } : { error: result.error };
+  if (!result.ok) return { error: result.error };
+  // 비밀번호를 바꾸면 이전 토큰이 모두 무효가 된다. 이 기기는 새 토큰으로 이어 간다
+  await startSession(result.data);
+  return { success: "비밀번호를 바꿨습니다. 다른 기기에서는 다시 로그인해야 합니다." };
+}
+
+// 비밀번호 찾기: 가입 여부를 알려 주지 않도록 결과와 상관없이 같은 안내를 보인다
+export async function forgotPassword(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = keep(formData, "email");
+  const result = await callApi("/auth/password/forgot", {
+    method: "POST",
+    body: { email: formData.get("email") },
+  });
+  if (!result.ok) return { error: result.error, values };
+  return {
+    success: "가입된 이메일이라면 비밀번호 재설정 링크를 보냈어요. 메일함(스팸함 포함)을 확인해 주세요. 링크는 30분 동안 쓸 수 있어요.",
+    values,
+  };
+}
+
+export async function resetPassword(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (formData.get("newPassword") !== formData.get("newPasswordConfirm")) {
+    return { error: "새 비밀번호 확인이 일치하지 않습니다." };
+  }
+  const result = await callApi("/auth/password/reset", {
+    method: "POST",
+    body: { token: formData.get("token"), newPassword: formData.get("newPassword") },
+  });
+  if (!result.ok) return { error: result.error };
+  // 재설정하면 모든 기기의 로그인이 끊기므로 이 브라우저의 옛 쿠키도 지운다
+  (await cookies()).delete(SESSION_COOKIE);
+  redirect("/login?reset=1");
+}
+
+// 메일 속 링크를 연 뒤 버튼을 눌러야 인증된다 (메일 보안 검사기가 링크를 미리 열어도 인증되지 않게)
+export async function verifyEmail(_prev: FormState, formData: FormData): Promise<FormState> {
+  const result = await callApi("/auth/verify-email", {
+    method: "POST",
+    body: { token: formData.get("token") },
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/", "layout");
+  return { success: "이메일 인증을 마쳤어요. 이제 공방에서 캐릭터를 발행할 수 있어요." };
+}
+
+export async function resendVerification(_prev: FormState): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login?next=/me");
+  const result = await callApi("/auth/me/verify-email", { method: "POST", token });
+  if (!result.ok) return { error: result.error };
+  const already = (result.data as { alreadyVerified?: boolean } | null)?.alreadyVerified;
+  return { success: already ? "이미 인증된 이메일이에요." : "인증 메일을 다시 보냈어요. 메일함(스팸함 포함)을 확인해 주세요." };
 }

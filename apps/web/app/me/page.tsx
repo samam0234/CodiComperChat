@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser, safeNextPath } from "@/lib/auth";
 import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
 import Personas from "./personas";
+import VerifyEmailNotice from "./verify-email-notice";
 import styles from "./page.module.css";
 
 export default async function MyPage({ searchParams }: PageProps<"/me">) {
@@ -27,7 +28,9 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
         </div>
         <div className={styles.row}>
           <dt>이메일</dt>
-          <dd>{user.email}</dd>
+          <dd>
+            {user.email} {user.emailVerified ? "(인증됨)" : "(미인증)"}
+          </dd>
         </div>
         <div className={styles.row}>
           <dt>요금 등급</dt>
@@ -38,6 +41,8 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
           <dd>{joined}</dd>
         </div>
       </dl>
+
+      {!user.emailVerified && <VerifyEmailNotice />}
 
       <Link href="/settings" className={styles.link}>
         계정 설정으로 가기 →

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
@@ -30,6 +30,11 @@ export class StudioPublishService {
     // 운영자가 내린 캐릭터는 주인이 다시 올릴 수 없다 (운영자가 복구해야 한다)
     if (draft.character?.takenDownAt) {
       throw new ConflictException(`운영자가 내린 캐릭터라 다시 발행할 수 없습니다. 사유: ${draft.character.takedownReason ?? ''}`);
+    }
+    // 남이 보는 캐릭터를 올리는 일이라 연락이 닿는(이메일을 인증한) 계정만 발행한다
+    const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { emailVerifiedAt: true } });
+    if (!owner?.emailVerifiedAt) {
+      throw new ForbiddenException('이메일 인증을 마쳐야 캐릭터를 발행할 수 있습니다. 마이페이지에서 인증 메일을 받아 주세요.');
     }
     if (!readiness(card).complete) throw new ConflictException('필수 단계를 모두 채워야 발행할 수 있습니다.');
     // 테스트 상태는 카드 지문으로 판단하므로, 통과한 뒤 카드를 고쳤다면 여기서 막힌다
