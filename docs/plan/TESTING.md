@@ -67,3 +67,9 @@ develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈
 | e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
 
 AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
+
+### CI를 내 PC에서 재현 (`npm run ci:local`)
+
+GitHub Actions 결과를 바로 볼 수 없을 때, 같은 단계를 **지금 커밋의 깨끗한 클론**(`e2e/.tmp/ci-clone`)에서 돌린다. 내 PC에만 있는 파일·설치물·환경변수에 기대는 곳을 찾는 용도다.
+DB는 개발 DB와 같은 서버에 `codicomperchat_ci`·`codicomperchat_ci_e2e`를 매번 새로 만들어 쓴다(개발 DB는 그대로). 개발 PC의 DB·키 환경변수는 넘기지 않는다. 커밋하지 않은 변경은 들어가지 않는다.
+`npm run ci:local -- checks`·`-- e2e`로 나눠 돌릴 수 있고, 실패한 단계의 로그는 `e2e/.tmp/ci-logs/`에 남는다.
