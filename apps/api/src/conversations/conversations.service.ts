@@ -288,7 +288,8 @@ export class ConversationsService {
   // 대화 목록: 캐릭터마다 한 줄. 지금 대화가 있으면 그것을, 없으면 가장 최근에 저장한 대화를 보여 준다
   async listForUser(userId: string) {
     const all = await this.prisma.campaign.findMany({
-      where: { userId },
+      // 운영자가 내린 캐릭터와의 대화는 목록에서 뺀다(열어도 404라서)
+      where: { userId, character: { takenDownAt: null } },
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,

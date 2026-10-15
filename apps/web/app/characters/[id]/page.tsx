@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getSessionToken } from "@/lib/auth";
+import { getCurrentUser, getSessionToken } from "@/lib/auth";
+import ReportButton from "./report-button";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -25,6 +26,11 @@ type CharacterDetail = {
   conflictSeed: string;
   openingScene: string;
   profile: CharacterProfile | null;
+  // 내가 만든 캐릭터인가 (그러면 신고 대신 공방 링크)
+  mine?: boolean;
+  // 운영 캐릭터인가 (아니면 유저가 공방에서 만든 캐릭터)
+  official?: boolean;
+  visibility?: "PUBLIC" | "UNLISTED" | "PRIVATE";
 };
 
 async function getCharacter(id: string): Promise<CharacterDetail | null> {
@@ -74,7 +80,7 @@ export default async function CharacterDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const character = await getCharacter(id);
+  const [character, user] = await Promise.all([getCharacter(id), getCurrentUser()]);
 
   if (!character) {
     notFound();
@@ -88,7 +94,7 @@ export default async function CharacterDetailPage({
 
       <header className={styles.header}>
         <h1 className={styles.name}>{character.name}</h1>
-        <span className={styles.role}>공식</span>
+        <span className={styles.role}>{character.official === false ? (character.mine ? "내 캐릭터" : "유저 제작") : "공식"}</span>
       </header>
       <p className={styles.oneLiner}>{character.oneLiner}</p>
 
@@ -135,6 +141,20 @@ export default async function CharacterDetailPage({
       <Link href={`/characters/${character.id}/chat`} className={styles.startButton}>
         {character.name}와 대화 시작하기
       </Link>
+
+      <div className={styles.footerLinks}>
+        {character.mine ? (
+          <Link href="/studio" className={styles.editLink}>
+            내 캐릭터 · 공방에서 고치기
+          </Link>
+        ) : user ? (
+          <ReportButton characterId={character.id} characterName={character.name} />
+        ) : (
+          <Link href={`/login?next=${encodeURIComponent(`/characters/${character.id}`)}`} className={styles.editLink}>
+            신고하려면 로그인
+          </Link>
+        )}
+      </div>
     </article>
   );
 }

@@ -28,7 +28,7 @@ export class StudioService {
         visibility: true,
         characterId: true,
         updatedAt: true,
-        character: { select: { published: true } },
+        character: { select: { published: true, takenDownAt: true } },
       },
     });
     return drafts.map((d) => {
@@ -37,7 +37,8 @@ export class StudioService {
         id: d.id,
         name: card.identity.name,
         oneLiner: card.identity.oneLiner,
-        published: d.character?.published ?? false,
+        published: (d.character?.published ?? false) && !d.character?.takenDownAt,
+        takenDown: !!d.character?.takenDownAt,
         visibility: d.visibility,
         characterId: d.characterId,
         updatedAt: d.updatedAt,
@@ -64,7 +65,7 @@ export class StudioService {
         visibility: true,
         characterId: true,
         updatedAt: true,
-        character: { select: { published: true } },
+        character: { select: { published: true, takenDownAt: true, takedownReason: true } },
       },
     });
     if (!draft) throw new NotFoundException('초안을 찾을 수 없습니다.');
@@ -78,8 +79,12 @@ export class StudioService {
       card: draft.card,
       test: testState(draft.card, draft.lastTest),
       characterId: draft.characterId,
-      published: draft.character?.published ?? false,
+      published: (draft.character?.published ?? false) && !draft.character?.takenDownAt,
       visibility: draft.visibility,
+      // 운영자가 내렸으면 시각과 사유(다시 발행할 수 없다)
+      takedown: draft.character?.takenDownAt
+        ? { at: draft.character.takenDownAt, reason: draft.character.takedownReason ?? '' }
+        : null,
       updatedAt: draft.updatedAt,
       readiness: readiness(draft.card),
     };

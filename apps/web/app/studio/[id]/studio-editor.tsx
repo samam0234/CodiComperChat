@@ -94,7 +94,7 @@ export default function StudioEditor({
 
   const r = view.readiness;
   const stepIndex = r.steps.findIndex((s) => s.key === step);
-  const canPublish = r.complete && view.test.passed && saveState === "saved";
+  const canPublish = r.complete && view.test.passed && saveState === "saved" && !view.takedown;
   const visibilityOption = VISIBILITY_OPTIONS.find((o) => o.value === view.visibility) ?? VISIBILITY_OPTIONS[2];
   const [copied, setCopied] = useState(false);
 
@@ -169,7 +169,9 @@ export default function StudioEditor({
     if (result && !result.ok) setPublishMessage({ ok: false, text: result.error });
   }
 
-  const publishHint = !r.complete
+  const publishHint = view.takedown
+    ? "운영자가 내린 캐릭터라 다시 발행할 수 없습니다."
+    : !r.complete
       ? "필수 단계를 모두 채워야 합니다."
       : !view.test.passed
         ? "지금 카드로 테스트 3턴을 통과해야 합니다."
@@ -225,6 +227,12 @@ export default function StudioEditor({
         </div>
       </header>
 
+      {view.takedown && (
+        <p className={styles.errorBanner} role="alert">
+          운영자가 이 캐릭터를 내렸습니다. 사유: {view.takedown.reason || "(사유 없음)"} — 홈·링크·대화에서 보이지 않고 다시 발행할 수
+          없습니다. 문제가 해결되면 운영자가 복구할 수 있어요.
+        </p>
+      )}
       {saveError && (
         <p className={styles.errorBanner} role="alert">
           {saveError}

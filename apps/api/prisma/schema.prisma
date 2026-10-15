@@ -33,6 +33,8 @@ model User {
   extras       UserExtra[]
   characters   Character[]
 
+  reports CharacterReport[]
+
   @@map("users")
 }
 
@@ -72,13 +74,21 @@ model Character {
   /// 공개: 홈·인기 목록에 나온다 / 링크 공개: 목록에는 없고 주소를 아는 사람만 / 비공개: 만든 사람만
   visibility            CharacterVisibility @default(PUBLIC)
   /// 공방에서 발행한 사람. 운영 캐릭터는 비어 있다. 계정이 지워지면 비워지고, 비공개 캐릭터는 아무도 못 보게 된다
-  ownerId               String?
-  owner                 User?               @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-  campaigns             Campaign[]
+  /// 운영자가 내린 시각. 값이 있으면 목록·상세·대화 어디에도 나오지 않는다(만든 사람은 공방에서 사유를 본다)
+
+  takenDownAt DateTime?
+
+  takedownReason String?
+
+  ownerId   String?
+  owner     User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  campaigns Campaign[]
   /// 공방에서 만들어 발행한 캐릭터면 그 초안
-  draft                 CharacterDraft?
+  draft     CharacterDraft?
+
+  reports CharacterReport[]
 
   @@map("characters")
 }
@@ -248,4 +258,31 @@ model CampaignExtra {
 
   @@id([campaignId, extraId])
   @@map("campaign_extras")
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+/// 공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED)
+model CharacterReport {
+  id          String       @id @default(cuid())
+  characterId String
+  character   Character    @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  reporterId  String
+  reporter    User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  /// SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER
+  reason      String
+  detail      String
+  status      ReportStatus @default(OPEN)
+  /// 처리 때 운영자가 남긴 말(캐릭터 주인에게도 보인다)
+  resolution  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([status, createdAt])
+  @@index([characterId, status])
+  @@map("character_reports")
 }

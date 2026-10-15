@@ -39,6 +39,12 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
         계정 설정으로 가기 →
       </Link>
 
+      {user.role === "ADMIN" && (
+        <Link href="/admin/reports" className={styles.link}>
+          운영자 · 신고함 →
+        </Link>
+      )}
+
       <Personas personas={personas} limit={PERSONA_LIMIT} />
 
       <section className={styles.upcoming}>

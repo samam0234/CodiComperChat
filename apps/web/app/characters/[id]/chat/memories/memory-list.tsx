@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import type { FormState } from "@/app/actions/auth";
 import { deleteMemory, refreshMemories } from "@/app/actions/memories";
 import form from "@/components/form.module.css";
+import { formatDay } from "@/lib/format-time";
 import styles from "../subpage.module.css";
 
 type Memory = { id: string; content: string; createdAt: string };
@@ -20,7 +21,7 @@ function MemoryItem({ characterId, memory }: { characterId: string; memory: Memo
     <li className={styles.memory}>
       <p className={styles.memoryText}>{memory.content}</p>
       <div className={styles.memoryMeta}>
-        <span>{new Date(memory.createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}</span>
+        <span>{formatDay(memory.createdAt)}</span>
         <form action={action}>
           <input type="hidden" name="characterId" value={characterId} />
           <input type="hidden" name="memoryId" value={memory.id} />

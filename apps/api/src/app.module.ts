@@ -8,6 +8,7 @@ import { ConversationsModule } from './conversations/conversations.module.js';
 import { HealthModule } from './health/health.module.js';
 import { PersonasModule } from './personas/personas.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 import { StudioModule } from './studio/studio.module.js';
 
 @Module({
@@ -21,6 +22,7 @@ import { StudioModule } from './studio/studio.module.js';
     CharacterChatModule,
     CampaignsModule,
     StudioModule,
+    ReportsModule,
     AgentChatModule,
   ],
 })
