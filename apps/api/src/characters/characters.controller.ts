@@ -16,6 +16,7 @@ export class CharactersController {
   async findOne(@Param('id') id: string, @Headers('authorization') authorization?: string) {
     const [scheme, token] = authorization?.split(' ') ?? [];
     const viewerId = scheme === 'Bearer' && token ? await verifyToken(token) : null;
-    return this.charactersService.findOnePublished(id, viewerId);
+    const character = await this.charactersService.findOnePublished(id, viewerId);
+    return { ...character, ...(await this.charactersService.origin(id, viewerId)) };
   }
 }

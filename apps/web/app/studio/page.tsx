@@ -51,7 +51,9 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
                 <div className={styles.cardHead}>
                   <span className={styles.name}>{d.name || "이름 없는 초안"}</span>
                   <span className={d.published ? styles.badgePublished : d.complete ? styles.badgeReady : styles.badge}>
-                    {d.published
+                    {d.takenDown
+                      ? "운영자가 내림"
+                      : d.published
                       ? `발행됨 · ${VISIBILITY_OPTIONS.find((o) => o.value === d.visibility)?.label ?? ""}`
                       : d.complete
                         ? "필수 완료"

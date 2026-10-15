@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteSavedConversation, resumeConversation } from "@/app/actions/conversations";
 import ChoiceDialog from "@/components/choice-dialog";
+import { formatDayTime } from "@/lib/format-time";
 import type { SavedConversation } from "@/lib/conversations";
 import styles from "./saved-list.module.css";
 
-function formatWhen(iso: string | null): string {
-  if (!iso) return "";
-  return new Date(iso).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-}
+const formatWhen = (iso: string | null) => (iso ? formatDayTime(iso) : "");
 
 export default function SavedList({
   characterId,

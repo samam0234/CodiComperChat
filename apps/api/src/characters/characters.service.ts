@@ -30,10 +30,16 @@ export class CharactersService {
   // 홈·인기 목록: 공개만. 링크 공개·비공개는 목록에 나오지 않는다
   findPublished() {
     return this.prisma.character.findMany({
-      where: { published: true, visibility: CharacterVisibility.PUBLIC },
+      where: { published: true, takenDownAt: null, visibility: CharacterVisibility.PUBLIC },
       select: PUBLIC_FIELDS,
       orderBy: { createdAt: 'asc' },
     });
+  }
+
+  // 누가 만든 캐릭터인가: 운영 캐릭터(official) / 내가 만든 것(mine) / 다른 유저. ownerId 자체는 응답에 싣지 않는다
+  async origin(id: string, viewerId: string | null): Promise<{ official: boolean; mine: boolean }> {
+    const row = await this.prisma.character.findUnique({ where: { id }, select: { ownerId: true } });
+    return { official: row?.ownerId == null, mine: !!viewerId && row?.ownerId === viewerId };
   }
 
   // 공개·링크 공개는 누구나(주소를 알면), 비공개는 만든 사람만 본다.
@@ -43,6 +49,8 @@ export class CharactersService {
       where: {
         id,
         published: true,
+        // 운영자가 내린 캐릭터는 만든 사람에게도 보이지 않는다(만든 사람은 공방에서 사유를 본다)
+        takenDownAt: null,
         OR: [
           { visibility: { in: [CharacterVisibility.PUBLIC, CharacterVisibility.UNLISTED] } },
           ...(viewerId ? [{ ownerId: viewerId }] : []),

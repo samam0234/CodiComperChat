@@ -70,6 +70,8 @@ export type DraftView = {
   characterId: string | null;
   published: boolean;
   visibility: Visibility;
+  // 운영자가 내렸으면 시각과 사유 (다시 발행할 수 없다)
+  takedown: { at: string; reason: string } | null;
   updatedAt: string;
   readiness: Readiness;
 };
@@ -79,6 +81,7 @@ export type DraftSummary = {
   name: string;
   oneLiner: string;
   published: boolean;
+  takenDown?: boolean;
   visibility: Visibility;
   characterId: string | null;
   updatedAt: string;

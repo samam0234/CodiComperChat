@@ -27,6 +27,10 @@ export class StudioPublishService {
     const draft = await this.studio.findOwned(userId, id);
     const card = draft.card;
 
+    // 운영자가 내린 캐릭터는 주인이 다시 올릴 수 없다 (운영자가 복구해야 한다)
+    if (draft.character?.takenDownAt) {
+      throw new ConflictException(`운영자가 내린 캐릭터라 다시 발행할 수 없습니다. 사유: ${draft.character.takedownReason ?? ''}`);
+    }
     if (!readiness(card).complete) throw new ConflictException('필수 단계를 모두 채워야 발행할 수 있습니다.');
     // 테스트 상태는 카드 지문으로 판단하므로, 통과한 뒤 카드를 고쳤다면 여기서 막힌다
     if (!testState(card, draft.lastTest).passed) {
