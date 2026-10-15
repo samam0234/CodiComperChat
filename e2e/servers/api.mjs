@@ -20,6 +20,10 @@ const child = spawn(process.execPath, ["dist-verify/main.js"], {
     MAIL_OUTBOX_DIR: MAIL_DIR,
     MAIL_SMTP_URL: "",
     WEB_BASE_URL: URLS.web,
+    // 돈이 오가지 않는 가짜 결제. 개발자의 토스 키가 환경에 있어도 쓰지 않는다
+    BILLING_PROVIDER: "mock",
+    TOSS_SECRET_KEY: "",
+    TOSS_CLIENT_KEY: "",
     // 짧은 시간에 가입·요청을 많이 하는 시험이라 한도를 크게 곱한다. 한도 동작은 apps/api의 통합 테스트(security/rate-limit.http.spec.ts)가 본다
     RATE_LIMIT_SCALE: process.env.RATE_LIMIT_SCALE ?? '1000',
   },

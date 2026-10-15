@@ -1,4 +1,4 @@
-// 계정의 요금 등급을 바꾼다. 결제 연동 전이라 운영자가 부여한다 (PRO면 공방 긴 글 칸 글자 수 3배)
+// 계정의 요금 등급을 바꾼다 (운영자 화면 /admin/users와 같은 일. 결제와 따로) (PRO면 공방 긴 글 칸 글자 수 3배)
 //   npm run user:plan --workspace api -- someone@example.com pro          만료 없음
 //   npm run user:plan --workspace api -- someone@example.com pro 30       30일 뒤 FREE로
 //   npm run user:plan --workspace api -- someone@example.com free

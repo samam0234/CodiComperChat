@@ -1,0 +1,92 @@
+import { expect, test } from "@playwright/test";
+import { api, makeAdmin, signedInPage, signup, sql } from "../helpers";
+
+// e2e는 가짜 결제(BILLING_PROVIDER=mock)로 돈 없이 결제 흐름 전체를 시험한다. 토스 승인 요청 모양은 apps/api 단위 테스트가 본다
+test.describe("결제", () => {
+  test("요금 안내 → 시험 결제 → 승인되면 프로가 되고, 공방 상한·마이페이지·결제 내역이 바뀐다", async ({ browser }) => {
+    const user = await signup("결제");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto("/pricing");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("시험 모드")).toBeVisible();
+    await page.getByRole("button", { name: "프로 30일 결제" }).click();
+
+    await expect(page).toHaveURL(/\/billing\/mock\?/);
+    await page.getByRole("link", { name: "시험 결제 승인" }).click();
+    await expect(page).toHaveURL(/\/billing\/success\?/);
+    await expect(page.getByText("결제가 끝났어요")).toBeVisible();
+
+    const me = await api<{ plan: string }>("/auth/me", { token: user.token });
+    expect(me.body.plan).toBe("PRO");
+    const orders = await api<{ orders: { amount: number; days: number }[]; planUntil: string }>("/billing/orders", { token: user.token });
+    expect(orders.body.orders).toHaveLength(1);
+    expect(orders.body.orders[0]).toMatchObject({ amount: 4900, days: 30 });
+    const left = new Date(orders.body.planUntil).getTime() - Date.now();
+    expect(left).toBeGreaterThan(29 * 86_400_000);
+    expect(left).toBeLessThan(31 * 86_400_000);
+
+    // 같은 결제 화면을 새로고침해도 두 번 늘지 않는다
+    await page.reload();
+    await expect(page.getByText("결제가 끝났어요")).toBeVisible();
+    const again = await api<{ planUntil: string }>("/billing/orders", { token: user.token });
+    expect(again.body.planUntil).toBe(orders.body.planUntil);
+
+    await page.goto("/me");
+    await expect(page.getByRole("region", { name: "결제 내역" })).toContainText("프로 30일");
+    await expect(page.getByRole("link", { name: "기간 늘리기" })).toBeVisible();
+  });
+
+  test("남은 프로 기간이 있으면 결제한 기간이 그 뒤에 붙는다", async () => {
+    const user = await signup("연장");
+    const pay = async () => {
+      const checkout = await api<{ orderId: string; amount: number }>("/billing/checkout", { token: user.token, json: { productId: "pro-30" } });
+      return api<{ planUntil: string }>("/billing/confirm", {
+        token: user.token,
+        json: { orderId: checkout.body.orderId, paymentKey: `mock_${checkout.body.orderId}`, amount: checkout.body.amount },
+      });
+    };
+    const first = new Date((await pay()).body.planUntil).getTime();
+    const second = new Date((await pay()).body.planUntil).getTime();
+    expect(Math.round((second - first) / 86_400_000)).toBe(30);
+  });
+
+  test("금액을 바꾸거나, 남의 주문이거나, 없는 상품이면 승인되지 않는다", async () => {
+    const user = await signup("변조");
+    const other = await signup("남주문");
+    expect((await api("/billing/checkout", { token: user.token, json: { productId: "free-money" } })).status).toBe(400);
+
+    const checkout = await api<{ orderId: string; amount: number }>("/billing/checkout", { token: user.token, json: { productId: "pro-30" } });
+    const { orderId } = checkout.body;
+    // 남이 내 주문을 승인할 수 없다
+    expect((await api("/billing/confirm", { token: other.token, json: { orderId, paymentKey: `mock_${orderId}`, amount: 4900 } })).status).toBe(404);
+    // 금액을 바꾸면 거절되고 그 주문은 실패로 끝난다
+    expect((await api("/billing/confirm", { token: user.token, json: { orderId, paymentKey: `mock_${orderId}`, amount: 100 } })).status).toBe(400);
+    expect((await api("/billing/confirm", { token: user.token, json: { orderId, paymentKey: `mock_${orderId}`, amount: 4900 } })).status).toBe(409);
+    const [order] = await sql<{ status: string }>('SELECT status FROM payment_orders WHERE id = $1', [orderId]);
+    expect(order.status).toBe("FAILED");
+    expect((await api<{ plan: string }>("/auth/me", { token: user.token })).body.plan).toBe("FREE");
+  });
+
+  test("운영자는 계정 등급 화면에서 이메일로 찾아 프로·무료로 바꾼다. 일반 유저는 못 한다", async ({ browser }) => {
+    const admin = await signup("등급운영자");
+    await makeAdmin(admin);
+    const target = await signup("등급대상");
+    expect((await api(`/admin/users?email=${target.email}`, { token: target.token })).status).toBe(403);
+
+    const page = await signedInPage(await browser.newContext(), admin);
+    await page.goto("/admin/users");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("계정 이메일").fill(target.email);
+    await page.getByRole("button", { name: "찾기" }).click();
+    const found = page.getByRole("region", { name: "찾은 계정" });
+    await expect(found).toContainText("지금 등급: 무료");
+
+    await found.getByLabel("프로 일수").fill("7");
+    await found.getByRole("button", { name: "프로로" }).click();
+    await expect(found).toContainText("지금 등급: 프로");
+    expect((await api<{ plan: string }>("/auth/me", { token: target.token })).body.plan).toBe("PRO");
+
+    await found.getByRole("button", { name: "무료로" }).click();
+    await expect(found).toContainText("지금 등급: 무료");
+  });
+});

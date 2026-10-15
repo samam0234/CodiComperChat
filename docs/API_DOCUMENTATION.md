@@ -166,3 +166,20 @@ Nest는 이 객체를 `CampaignState`에 머지한다.
 - 캐릭터 **발행**은 이메일을 인증한 계정만 할 수 있다(403). 도입 전에 가입한 계정은 인증된 것으로 옮겼다.
 - 로그인 토큰에는 계정의 토큰 세대(`users.sessionVersion`)가 실린다. 비밀번호를 바꾸거나 재설정하면 세대가 올라 이전 토큰이 모두 401이 된다.
 - 메일 발송 설정(`apps/api/.env`): `MAIL_SMTP_URL`(실제 발송), `MAIL_FROM`, `WEB_BASE_URL`(링크 주소). SMTP가 없으면 개발 중에는 서버 로그에 링크가 찍히고, `MAIL_OUTBOX_DIR`를 주면 그 폴더에 JSON으로 남는다(e2e가 쓴다).
+
+## 결제 (요금 등급)
+
+| 메서드·경로 | 설명 | 응답 |
+|---|---|---|
+| `GET /billing/products` | 상품표와 지금 켜진 결제 방식 | **200** `{ products: [{ id, name, amount, days }], provider: "toss" \| "mock" \| null, clientKey }` · 로그인 불필요. `provider: null`이면 결제를 열지 않는다 |
+| `POST /billing/checkout` | 주문 만들기 `{ productId }` | **201** `{ orderId, orderName, amount, provider, clientKey, customerKey, customerEmail, customerName }` · 금액은 서버 상품표가 정한다. 없는 상품 400, 결제 미설정 503 · 🔒 |
+| `POST /billing/confirm` | 결제창이 돌려준 결제 승인 `{ orderId, paymentKey, amount }` | **200** `{ paid: true, productId, amount, days, planUntil }` · 금액이 주문과 다르면 400(주문은 FAILED), 남의 주문 404, 실패한 주문 409. **같은 주문을 다시 승인해도 기간은 한 번만 늘어난다** · 🔒 |
+| `GET /billing/orders` | 내 결제 내역(최근 50건)과 프로 만료 시각 | **200** `{ orders: [{ id, name, amount, days, paidAt }], planUntil }` · 🔒 |
+| `GET /admin/users?email=` | 운영자: 계정 찾기 | **200** `{ email, displayName, role, plan, effectivePlan, planUntil, createdAt, orders }` · 403·404 · 🔒 |
+| `POST /admin/users/plan` | 운영자: 등급 직접 변경 `{ email, plan: "PRO" \| "FREE", days? }` | **200** · days 없으면 만료 없는 프로. 환불·보상·시험 계정용(결제 기록은 바뀌지 않음) · 🔒 |
+
+- 결제 방식(`apps/api/.env`): `BILLING_PROVIDER=toss` + `TOSS_SECRET_KEY`(서버 승인용, 절대 웹에 보내지 않음)·`TOSS_CLIENT_KEY`(웹 결제창용). 개발 중 설정이 없으면 돈이 오가지 않는 **가짜 결제(mock)**, 운영(`NODE_ENV=production`)에서는 아무것도 없으면 결제를 열지 않는다.
+- 흐름: 웹 `/pricing` → `checkout`(주문) → 결제창(토스 SDK v2 `requestPayment`, 가짜면 `/billing/mock`) → `/billing/success?paymentKey&orderId&amount` → `confirm` → 서버가 결제사에 승인 요청(토스 `POST /v1/payments/confirm`, `Idempotency-Key`=주문 번호) → 승인 금액까지 맞으면 PAID + 프로 기간 연장.
+- 기간: 남은 프로 기간이 있으면 그 뒤에 붙고, 만료 없는 프로는 그대로, 아니면 지금부터. 자동 결제(정기 결제)는 없다.
+- 금액(프로 30일 4,900원, 1년 49,000원)은 **운영 전 확정이 필요한 임시값**이다(`apps/api/src/billing/products.ts`). 환불은 고객센터 → 운영자가 결제사 관리 화면에서 취소하고 `/admin/users`에서 등급을 되돌린다.
+- 요청 한도: `checkout`·`confirm` 10분에 20번(사용자).

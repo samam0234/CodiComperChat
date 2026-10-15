@@ -58,6 +58,8 @@ model User {
 
   emailTokens EmailToken[]
 
+  orders PaymentOrder[]
+
   @@map("users")
 }
 
@@ -357,4 +359,35 @@ enum PortraitReview {
   APPROVED
   PENDING
   REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+/// 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다
+model PaymentOrder {
+  /// 결제사에 넘기는 주문 번호
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 상품 코드 (apps/api/src/billing/products.ts)
+  productId   String
+  /// 원 단위 금액. 승인할 때 결제사가 돌려준 금액과 맞아야 한다
+  amount      Int
+  /// 결제하면 늘어나는 프로 등급 일수
+  days        Int
+  /// toss | mock(개발·시험용 가짜 결제)
+  provider    String
+  status      PaymentStatus @default(PENDING)
+  /// 결제사가 준 결제 키 (승인·취소 조회에 쓴다)
+  paymentKey  String?       @unique
+  failReason  String?
+  createdAt   DateTime      @default(now())
+  paidAt      DateTime?
+
+  @@index([userId, createdAt])
+  @@map("payment_orders")
 }

@@ -13,6 +13,7 @@ const DRAWER_NAV = [
   { href: "/library", label: "대화 목록 (라이브러리)", memberOnly: true },
   { href: "/studio", label: "제작", memberOnly: true },
   { href: "/me", label: "마이페이지", memberOnly: true },
+  { href: "/pricing", label: "요금 안내", memberOnly: false },
   { href: "/settings", label: "설정", memberOnly: false },
 ];
 
