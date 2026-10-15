@@ -1,0 +1,45 @@
+"""LLM_FAKE=1일 때 Ollama 대신 쓰는 가짜 LLM. 웹 자동 테스트(e2e)가 모델 없이 빠르고 같은 결과로 돌게 한다.
+
+실제 품질을 확인하는 용도가 아니다(그건 evals). 요청이 JSON 스키마를 주면 그 모양에 맞는 고정값을,
+스키마가 없으면 존댓말 한 줄을 돌려준다. 판정류는 "문제 없음"으로 나오게 해 3턴 테스트가 통과한다.
+"""
+
+import json
+
+REPLY = "네, 알겠어요. 오늘도 천천히 이야기해 봐요."
+
+# 속성 이름별 고정값 (스키마가 요구하는 이름에 맞춘다)
+BY_NAME: dict[str, object] = {
+    "text": "테스트 초안이에요. 설정에 맞게 고쳐 쓰세요.",
+    "items": ["테스트 항목"],
+    "memories": ["민준은 시험 때문에 힘들어한다"],
+    "suggestions": ["오늘은 어떠셨어요?", "그건 조금 더 이야기해 줄래요?", "저는 괜찮아요, 고마워요."],
+    "brief": "민준이 속마음을 털어놓았고 둘은 다음 만남을 약속했다.",
+    "relationDelta": 2,
+    "relationReason": "속마음을 털어놓고 위로를 나눴다",
+    "hooksOpen": ["다음 주에 다시 만나기로 했다"],
+    "nextPressure": "다음 만남",
+    "invented": False,
+    "note": "",
+    "notes": [],
+}
+
+
+def _value(name: str, spec: dict) -> object:
+    if name in BY_NAME:
+        return BY_NAME[name]
+    kind = spec.get("type")
+    if kind == "boolean":
+        return False
+    if kind == "integer":
+        return 0
+    if kind == "array":
+        return []
+    return ""
+
+
+def generate(response_json_schema: dict | None) -> str:
+    if response_json_schema is None:
+        return REPLY
+    props: dict = response_json_schema.get("properties", {})
+    return json.dumps({name: _value(name, spec) for name, spec in props.items()}, ensure_ascii=False)

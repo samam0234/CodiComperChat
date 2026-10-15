@@ -12,6 +12,10 @@
     "build:api": "npm run build --workspace api",
     "test:api": "npm run test --workspace api",
     "test:api:e2e": "npm run test:e2e --workspace api",
-    "typecheck:api": "npm run typecheck --workspace api"
+    "typecheck:api": "npm run typecheck --workspace api",
+    "test:e2e": "node e2e/prepare.mjs && playwright test -c e2e/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }
