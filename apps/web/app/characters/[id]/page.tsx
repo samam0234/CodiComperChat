@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser, getSessionToken } from "@/lib/auth";
+import CharacterAvatar from "@/components/character-avatar";
 import ReportButton from "./report-button";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
@@ -28,6 +29,8 @@ type CharacterDetail = {
   profile: CharacterProfile | null;
   // 내가 만든 캐릭터인가 (그러면 신고 대신 공방 링크)
   mine?: boolean;
+  portraitMime?: string | null;
+  updatedAt?: string;
   // 운영 캐릭터인가 (아니면 유저가 공방에서 만든 캐릭터)
   official?: boolean;
   visibility?: "PUBLIC" | "UNLISTED" | "PRIVATE";
@@ -93,6 +96,7 @@ export default async function CharacterDetailPage({
       </Link>
 
       <header className={styles.header}>
+        <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} size="lg" />
         <h1 className={styles.name}>{character.name}</h1>
         <span className={styles.role}>{character.official === false ? (character.mine ? "내 캐릭터" : "유저 제작") : "공식"}</span>
       </header>

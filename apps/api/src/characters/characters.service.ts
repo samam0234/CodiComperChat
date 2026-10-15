@@ -20,7 +20,10 @@ const PUBLIC_FIELDS = {
   openingScene: true,
   profile: true,
   visibility: true,
+  // 초상 이미지 본문은 싣지 않는다(목록이 무거워진다). 있는지만 알려 주고 GET /characters/:id/portrait로 받는다
+  portraitMime: true,
   createdAt: true,
+  updatedAt: true,
 } as const;
 
 @Injectable()
@@ -28,12 +31,25 @@ export class CharactersService {
   constructor(private readonly prisma: PrismaService) {}
 
   // 홈·인기 목록: 공개만. 링크 공개·비공개는 목록에 나오지 않는다
-  findPublished() {
-    return this.prisma.character.findMany({
+  async findPublished() {
+    const rows = await this.prisma.character.findMany({
       where: { published: true, takenDownAt: null, visibility: CharacterVisibility.PUBLIC },
-      select: PUBLIC_FIELDS,
+      select: { ...PUBLIC_FIELDS, ownerId: true },
       orderBy: { createdAt: 'asc' },
     });
+    // ownerId는 응답에 싣지 않고, 운영 캐릭터인지(official)만 알려 준다
+    return rows.map(({ ownerId, ...rest }) => ({ ...rest, official: ownerId === null }));
+  }
+
+  // 초상 이미지 본문. 보이는 캐릭터만(공개·링크 공개는 누구나, 비공개는 만든 사람만, 내려간 것은 아무도)
+  async portrait(id: string, viewerId: string | null) {
+    await this.findOnePublished(id, viewerId);
+    const row = await this.prisma.character.findUnique({
+      where: { id },
+      select: { portrait: true, portraitMime: true, visibility: true, updatedAt: true },
+    });
+    if (!row?.portrait || !row.portraitMime) throw new NotFoundException('초상이 없습니다.');
+    return { data: Buffer.from(row.portrait), mime: row.portraitMime, visibility: row.visibility, updatedAt: row.updatedAt };
   }
 
   // 누가 만든 캐릭터인가: 운영 캐릭터(official) / 내가 만든 것(mine) / 다른 유저. ownerId 자체는 응답에 싣지 않는다

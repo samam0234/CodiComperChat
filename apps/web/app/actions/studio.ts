@@ -69,6 +69,37 @@ export async function draftField(id: string, field: string) {
   return call<{ field: string; kind: "text" | "list"; value: string | string[] }>(id, "/draft-field", "POST", { field });
 }
 
+// 흉상 초상. 브라우저가 줄여 보낸 이미지 파일을 Nest에 원본 그대로 넘긴다 (Nest가 형식·크기를 다시 검사한다)
+export async function uploadPortrait(id: string, formData: FormData): Promise<StudioResult<DraftView>> {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "이미지가 비어 있습니다." };
+  const token = await getSessionToken();
+  if (!token) redirect(`/login?next=${encodeURIComponent(`/studio/${id}`)}`);
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/studio/characters/${encodeURIComponent(id)}/portrait`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": file.type },
+      body: Buffer.from(await file.arrayBuffer()),
+      cache: "no-store",
+    });
+  } catch {
+    return { ok: false, error: "서버에 연결할 수 없습니다. apps/api가 켜져 있는지 확인하세요." };
+  }
+  if (res.status === 401) redirect(`/login?next=${encodeURIComponent(`/studio/${id}`)}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) return { ok: false, error: data?.message ?? `이미지를 올리지 못했습니다 (HTTP ${res.status}).` };
+  // 발행 중이면 홈·상세의 초상도 바로 바뀐다
+  revalidatePath("/", "layout");
+  return { ok: true, data: data as DraftView };
+}
+
+export async function removePortrait(id: string) {
+  const result = await call<DraftView>(id, "/portrait", "DELETE");
+  if (result.ok) revalidatePath("/", "layout");
+  return result;
+}
+
 export async function sampleReplies(id: string) {
   return call<{ question: string; replies: string[] }>(id, "/samples", "POST");
 }

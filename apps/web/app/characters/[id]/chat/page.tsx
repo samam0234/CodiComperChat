@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSessionToken, requireUser } from "@/lib/auth";
 import { getChatHistory } from "@/lib/conversations";
 import { getMyPersonas } from "@/lib/personas";
+import CharacterAvatar from "@/components/character-avatar";
 import CharacterChat from "./character-chat";
 import styles from "./page.module.css";
 
@@ -11,6 +12,8 @@ type CharacterSummary = {
   name: string;
   oneLiner: string;
   openingScene: string;
+  portraitMime?: string | null;
+  updatedAt?: string;
 };
 
 async function getCharacter(id: string): Promise<CharacterSummary | null> {
@@ -60,7 +63,10 @@ export default async function CharacterChatPage({
         ← {character.name} 프로필로
       </Link>
 
-      <h1 className={styles.title}>{character.name}</h1>
+      <div className={styles.titleRow}>
+        <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} />
+        <h1 className={styles.title}>{character.name}</h1>
+      </div>
       <p className={styles.description}>{character.oneLiner}</p>
 
       <CharacterChat

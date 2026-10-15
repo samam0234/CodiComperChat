@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { CharacterVisibility, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
+import type { PortraitMime } from './portrait.js';
 import { testState } from './test-session.js';
 
 export const VISIBILITIES = Object.values(CharacterVisibility);
@@ -26,6 +27,7 @@ export class StudioService {
         id: true,
         card: true,
         visibility: true,
+        portraitMime: true,
         characterId: true,
         updatedAt: true,
         character: { select: { published: true, takenDownAt: true } },
@@ -40,6 +42,7 @@ export class StudioService {
         published: (d.character?.published ?? false) && !d.character?.takenDownAt,
         takenDown: !!d.character?.takenDownAt,
         visibility: d.visibility,
+        hasPortrait: d.portraitMime !== null,
         characterId: d.characterId,
         updatedAt: d.updatedAt,
         complete: readiness(card).complete,
@@ -63,6 +66,7 @@ export class StudioService {
         card: true,
         lastTest: true,
         visibility: true,
+        portraitMime: true,
         characterId: true,
         updatedAt: true,
         character: { select: { published: true, takenDownAt: true, takedownReason: true } },
@@ -81,6 +85,7 @@ export class StudioService {
       characterId: draft.characterId,
       published: (draft.character?.published ?? false) && !draft.character?.takenDownAt,
       visibility: draft.visibility,
+      hasPortrait: draft.portraitMime !== null,
       // 운영자가 내렸으면 시각과 사유(다시 발행할 수 없다)
       takedown: draft.character?.takenDownAt
         ? { at: draft.character.takenDownAt, reason: draft.character.takedownReason ?? '' }
@@ -88,6 +93,24 @@ export class StudioService {
       updatedAt: draft.updatedAt,
       readiness: readiness(draft.card),
     };
+  }
+
+  // 초상은 카드(지문)와 따로다 — 바꿔도 다시 테스트할 필요 없다. 발행 중이면 캐릭터에도 바로 적용한다
+  async setPortrait(ownerId: string, id: string, image: { data: Buffer; mime: PortraitMime } | null) {
+    const draft = await this.findOwned(ownerId, id);
+    const data = image
+      ? { portrait: new Uint8Array(image.data), portraitMime: image.mime }
+      : { portrait: null, portraitMime: null };
+    await this.prisma.characterDraft.update({ where: { id }, data });
+    if (draft.characterId) await this.prisma.character.update({ where: { id: draft.characterId }, data });
+    return this.get(ownerId, id);
+  }
+
+  async portrait(ownerId: string, id: string) {
+    await this.findOwned(ownerId, id);
+    const row = await this.prisma.characterDraft.findUnique({ where: { id }, select: { portrait: true, portraitMime: true } });
+    if (!row?.portrait || !row.portraitMime) throw new NotFoundException('초상이 없습니다.');
+    return { data: Buffer.from(row.portrait), mime: row.portraitMime };
   }
 
   async save(ownerId: string, id: string, rawCard: unknown) {

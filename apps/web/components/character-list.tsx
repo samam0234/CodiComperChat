@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CharacterAvatar from "./character-avatar";
 import styles from "./character-list.module.css";
 
 type CharacterProfile = {
@@ -15,6 +16,10 @@ type Character = {
   oneLiner: string;
   role: string;
   profile: CharacterProfile | null;
+  portraitMime?: string | null;
+  updatedAt?: string;
+  // 운영 캐릭터인가 (아니면 유저가 공방에서 만든 캐릭터)
+  official?: boolean;
 };
 
 type CharactersResult =
@@ -77,8 +82,9 @@ export default async function CharacterList({
         <li key={character.id}>
           <Link href={`/characters/${character.id}`} className={styles.card}>
             <div className={styles.cardHead}>
+              <CharacterAvatar characterId={character.id} name={character.name} hasPortrait={!!character.portraitMime} version={character.updatedAt} />
               <span className={styles.name}>{character.name}</span>
-              <span className={styles.role}>공식</span>
+              <span className={styles.role}>{character.official === false ? "유저 제작" : "공식"}</span>
             </div>
             <p className={styles.oneLiner}>{character.oneLiner}</p>
             {character.profile && (

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteDraft, publishDraft, saveDraft, setDraftVisibility, unpublishDraft } from "@/app/actions/studio";
 import { VISIBILITY_OPTIONS, type Card, type DraftView, type StepKey, type Visibility } from "@/lib/studio-card";
 import { StepForm, type Update } from "./step-forms";
+import PortraitUploader from "./portrait-uploader";
 import TestPanel from "./test-panel";
 import styles from "./studio-editor.module.css";
 
@@ -30,6 +31,8 @@ export default function StudioEditor({
   const [publishMessage, setPublishMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  // 초상은 카드와 따로 올라가므로 바뀔 때마다 미리보기 캐시를 새로 받게 값을 바꾼다
+  const [portraitVersion, setPortraitVersion] = useState(initial.updatedAt);
 
   // 저장 중에 또 고치면, 저장이 끝난 뒤 최신 카드로 한 번 더 저장한다
   const latest = useRef(card);
@@ -288,6 +291,17 @@ export default function StudioEditor({
           {r.steps[stepIndex]?.missing.length > 0 && (
             <p className={styles.missingLine}>비어 있는 필수 칸: {r.steps[stepIndex].missing.join(", ")}</p>
           )}
+          {step === "appearance" && (
+            <PortraitUploader
+              draftId={initial.id}
+              hasPortrait={view.hasPortrait}
+              version={portraitVersion}
+              onChange={(hasPortrait) => {
+                setView((v) => ({ ...v, hasPortrait }));
+                setPortraitVersion(String(Date.now()));
+              }}
+            />
+          )}
           <StepForm step={step} card={card} update={update} samples={{ draftId: initial.id, ensureSaved: save }} />
           <div className={styles.stepNav}>
             <button type="button" className={styles.secondary} disabled={stepIndex <= 0} onClick={() => setStep(r.steps[stepIndex - 1].key)}>
@@ -313,6 +327,16 @@ export default function StudioEditor({
 
         <aside className={styles.preview} aria-label="라이브 미리보기">
           <div className={styles.profile}>
+            {view.hasPortrait && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className={styles.profileArt}
+                src={`/api/studio/${encodeURIComponent(initial.id)}/portrait?v=${encodeURIComponent(portraitVersion)}`}
+                alt="초상 미리보기"
+                width={72}
+                height={72}
+              />
+            )}
             <p className={styles.profileName}>{card.identity.name.trim() || "이름"}</p>
             <p className={styles.profileLine}>{card.identity.oneLiner.trim() || "한 줄 소개"}</p>
             {card.identity.tags.some((t) => t.trim()) && (

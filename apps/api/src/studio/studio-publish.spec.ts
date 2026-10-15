@@ -14,7 +14,7 @@ const passedTest = (card: Card) => ({
   verdict: { passed: true },
 });
 
-function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTakenBy?: string } = {}) {
+function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTakenBy?: string; portrait?: Buffer } = {}) {
   const card = fullCard();
   const draft: Draft = { id: 'd1', card, lastTest: passedTest(card), characterId: null, visibility: 'UNLISTED', ...opts.draft };
   const characters: Record<string, unknown>[] = [];
@@ -32,6 +32,7 @@ function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTake
       },
     },
     characterDraft: {
+      findUnique: async () => ({ portrait: opts.portrait ?? null, portraitMime: opts.portrait ? 'image/png' : null }),
       update: async ({ data }: { data: { characterId?: string; visibility?: string } }) => {
         if (data.characterId) draft.characterId = data.characterId;
         if (data.visibility) draft.visibility = data.visibility;
@@ -54,6 +55,19 @@ describe('공방 발행', () => {
     dirs.push(t.dir);
     await t.service.publish('u', 'd1');
     expect(t.characters[0]).toMatchObject({ visibility: 'UNLISTED', ownerId: 'u', published: true });
+  });
+
+  it('올린 초상은 발행할 때 캐릭터로 옮겨지고, 없으면 비어 있다', async () => {
+    const withArt = setup({ portrait: Buffer.from([0x89, 0x50, 0x4e, 0x47]) });
+    dirs.push(withArt.dir);
+    await withArt.service.publish('u', 'd1');
+    expect(withArt.characters[0].portraitMime).toBe('image/png');
+    expect(Buffer.from(withArt.characters[0].portrait as Uint8Array)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+
+    const without = setup();
+    dirs.push(without.dir);
+    await without.service.publish('u', 'd1');
+    expect(without.characters[0]).toMatchObject({ portrait: null, portraitMime: null });
   });
 
   it('공개 범위를 바꾸면 발행 중인 캐릭터에도 바로 적용되고, 잘못된 값은 400', async () => {

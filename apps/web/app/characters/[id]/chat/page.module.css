@@ -8,6 +8,17 @@
   color: var(--foreground);
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.titleRow .title {
+  margin-top: 0;
+}
+
 .title {
   margin-top: 16px;
   font-size: 24px;
