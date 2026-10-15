@@ -60,6 +60,17 @@ def _extras_directive(context: ContextSlice) -> str:
     return "이번 답에서 엑스트라(반드시 지킨다, 적힌 것 밖의 사실은 지어내지 않는다):\n" + "\n".join(lines)
 
 
+def _ungrounded_directive(context: ContextSlice) -> str:
+    """유저가 설정에 없는 개인사를 물었다. Nest가 근거 없음을 확인했으니 프롬프트 맨 끝에서 단정을 막는다."""
+    topics = ", ".join(context.ungrounded_topics)
+    return (
+        f"이번 질문은 [{topics}]에 관한 것이다. 이 캐릭터의 설정에는 이것이 적혀 있지 않다.\n"
+        "- 있다/없다, 몇 살·어디·무엇 같은 구체적인 내용을 절대 말하지 않는다. 즉석에서 만들어 내지 않는다"
+        "(예: 나이를 숫자로 말하기, 취미·반려동물·가족이 있거나 없다고 말하기 모두 금지).\n"
+        "- 캐릭터답게 말을 돌리거나, 가볍게 넘기거나, 유저에게 되묻는다. 대화 상대를 불쾌하게 하지 않는 짧은 한두 문장으로 답한다."
+    )
+
+
 def _build_system_prompt(context: ContextSlice) -> str:
     """캐릭터 카드(ContextSlice)를 시스템 프롬프트로 조립한다 (기획서 13.3장).
 
@@ -157,6 +168,8 @@ def _build_system_prompt(context: ContextSlice) -> str:
     lines.append(GROUNDING_RULES)
     if context.extras:
         lines.append(_extras_directive(context))
+    if context.ungrounded_topics:
+        lines.append(_ungrounded_directive(context))
 
     return "\n\n".join(lines)
 
@@ -170,8 +183,11 @@ def _build_messages(context: ContextSlice, user_turn: str) -> llm.Contents:
 
 
 def run(request: InferRequest) -> InferResponse:
+    system = _build_system_prompt(request.context)
+    if request.retry_note:
+        system += "\n\n다시 쓰기: " + request.retry_note
     reply = llm.generate(
-        system=_build_system_prompt(request.context),
+        system=system,
         contents=_build_messages(request.context, request.user_turn),
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=TEMPERATURE,

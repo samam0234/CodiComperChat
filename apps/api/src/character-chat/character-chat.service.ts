@@ -13,6 +13,7 @@ import { MemoriesService } from '../memories/memories.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
+import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from './grounding.js';
 import type { ChatTurn } from './character-chat.types.js';
 
 type PersonaOptions = { personaId: string; authorization?: string };
@@ -146,10 +147,20 @@ export class CharacterChatService {
     const memories = await this.memoriesFor(existing, history, userTurn);
     const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
 
-    const { reply } = await postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras),
-      userTurn,
-    });
+    const grounding = groundingText(this.personaRag.knowledgeFor(character.name), character);
+    const context = buildContextSlice(
+      character,
+      history,
+      persona,
+      rag,
+      memories,
+      chatState,
+      extras,
+      ungroundedTopics(userTurn, grounding),
+    );
+    const first = await postToAi<{ reply: string }>('/infer', { context, userTurn });
+    // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
+    const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding));
 
     // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
     const conversation = await this.conversations.findOrCreate(userId, character, persona);

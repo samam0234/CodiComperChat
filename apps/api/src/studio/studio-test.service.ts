@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { Prisma } from '@prisma/client';
 import { postToAi } from '../ai/ai-client.js';
 import { buildContextSlice } from '../character-chat/character-chat.context.js';
+import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from '../character-chat/grounding.js';
 import type { ChatTurn, UserPersonaPayload } from '../character-chat/character-chat.types.js';
 import type { CharactersService } from '../characters/characters.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
@@ -82,12 +83,14 @@ export class StudioTestService {
     // 발행 뒤 실제 대화와 같은 경로로 맥락을 만든다: 카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립
     const character = { id: draft.id, createdAt: new Date(), ...toCharacterFields(card) } as unknown as PublicCharacter;
     const history: ChatTurn[] = [{ role: 'character', text: card.greeting.firstMessage }, ...session.turns];
-    const rag = this.personaRag.assembleFrom(toKnowledge(card), history, message);
+    const knowledge = toKnowledge(card);
+    const rag = this.personaRag.assembleFrom(knowledge, history, message);
 
-    const { reply } = await postToAi<{ reply: string }>('/infer', {
-      context: buildContextSlice(character, history, persona, rag),
-      userTurn: message,
-    });
+    // 발행 뒤 실제 대화와 같은 개인사 가드: 설정에 없는 개인사를 물으면 지어내지 못하게 막는다
+    const grounding = groundingText(knowledge, character as unknown as Record<string, unknown>);
+    const context = buildContextSlice(character, history, persona, rag, [], null, [], ungroundedTopics(message, grounding));
+    const first = await postToAi<{ reply: string }>('/infer', { context, userTurn: message });
+    const reply = await keepGrounded(context, message, first.reply, groundingFacts(grounding));
 
     session.turns.push({ role: 'user', text: message }, { role: 'character', text: reply });
     session.verdict = null;
