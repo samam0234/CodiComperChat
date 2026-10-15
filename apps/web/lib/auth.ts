@@ -15,6 +15,8 @@ export type CurrentUser = {
   displayName: string;
   // 공방 발행 버튼 표시용. 권한 판단은 Nest가 다시 한다
   role: "USER" | "ADMIN";
+  // 지금 적용되는 요금 등급 (PRO는 공방 긴 글 칸 글자 수 3배)
+  plan: "FREE" | "PRO";
   createdAt: string;
 };
 

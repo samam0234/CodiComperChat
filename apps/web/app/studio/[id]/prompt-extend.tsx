@@ -28,8 +28,8 @@ export default function PromptExtendButton({ label, max }: { label: string; max:
         choices={[{ label: "확인", tone: "primary", onSelect: () => setOpen(false) }]}
       >
         프로 등급에서는 이름·호칭을 뺀 긴 글 칸의 글자 수를 {PRO_MULTIPLIER}배로 늘릴 수 있어요. 이 칸({label})은{" "}
-        {max.toLocaleString("ko-KR")}자 → {(max * PRO_MULTIPLIER).toLocaleString("ko-KR")}자가 됩니다. 프로 등급은 준비
-        중입니다.
+        {max.toLocaleString("ko-KR")}자 → {(max * PRO_MULTIPLIER).toLocaleString("ko-KR")}자가 됩니다. 결제는 아직 준비 중이라 지금은
+        운영자가 프로 등급을 열어 드립니다. 필요하면 고객센터로 문의해 주세요.
       </ChoiceDialog>
     </>
   );

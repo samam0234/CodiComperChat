@@ -57,8 +57,8 @@ export type Card = {
   };
 };
 
-// 글자 수 상한. 길면 매 턴 컨텍스트를 잡아먹어 최근 대화가 밀려난다 (§6.3)
-const L = {
+// 글자 수 상한(무료 기준). 길면 매 턴 컨텍스트를 잡아먹어 최근 대화가 밀려난다 (§6.3)
+const BASE = {
   name: 20,
   oneLiner: 40, // §6.2 "한 줄 소개 40자 제한"
   short: 40,
@@ -83,6 +83,19 @@ const L = {
   extraTitle: 30,
 } as const;
 
+// 프로 등급은 "이름·호칭을 뺀 긴 글 칸"만 배수로 늘어난다. 이름·한 줄 소개·태그·호칭 규칙·습관 같은 항상 들어가는 짧은 칸과
+// 예시 대화 줄은 그대로다(컨텍스트 예산을 지킨다). multiplier가 Infinity면 길이를 보지 않는다(이미 저장된 카드를 읽을 때)
+export function limitsFor(multiplier: number) {
+  return {
+    ...BASE,
+    description: BASE.description * multiplier,
+    summary: BASE.summary * multiplier,
+    field: BASE.field * multiplier,
+    firstMessage: BASE.firstMessage * multiplier,
+    lore: BASE.lore * multiplier,
+  };
+}
+
 export const EMPTY_CARD: Card = {
   identity: { name: '', oneLiner: '', role: '', occupation: '', apparentAge: '', tags: [] },
   appearance: { description: '', keywords: [] },
@@ -106,18 +119,19 @@ export const EMPTY_CARD: Card = {
 type Obj = Record<string, unknown>;
 const obj = (v: unknown): Obj => (typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Obj) : {});
 
-function text(v: unknown, max: number, label: string): string {
+// same: 이 칸에 이미 저장돼 있던 값. 그대로이면 상한을 넘어도 받는다 — 프로 등급이 끝난 뒤에도 다른 칸을 고쳐 저장할 수 있게
+function text(v: unknown, max: number, label: string, same?: string): string {
   if (v === undefined || v === null) return '';
   if (typeof v !== 'string') throw new BadRequestException(`${label}은(는) 글이어야 합니다.`);
   const t = v.trim();
-  if (t.length > max) throw new BadRequestException(`${label}은(는) ${max}자 이하로 써 주세요 (지금 ${t.length}자).`);
+  if (t.length > max && t !== same) throw new BadRequestException(`${label}은(는) ${max}자 이하로 써 주세요 (지금 ${t.length}자).`);
   return t;
 }
 
-function list(v: unknown, maxItems: number, maxLen: number, label: string): string[] {
+function list(v: unknown, maxItems: number, maxLen: number, label: string, keep: string[] = []): string[] {
   if (v === undefined || v === null) return [];
   if (!Array.isArray(v)) throw new BadRequestException(`${label}은(는) 목록이어야 합니다.`);
-  const items = v.map((x, i) => text(x, maxLen, `${label} ${i + 1}번`)).filter(Boolean);
+  const items = v.map((x, i) => text(x, maxLen, `${label} ${i + 1}번`, typeof x === 'string' && keep.includes(x.trim()) ? x.trim() : undefined)).filter(Boolean);
   if (items.length > maxItems) throw new BadRequestException(`${label}은(는) ${maxItems}개까지입니다.`);
   return [...new Set(items)];
 }
@@ -136,8 +150,12 @@ function oneOf<T extends string>(v: unknown, options: readonly T[], label: strin
   return v as T;
 }
 
-// 초안 저장용: 형식·길이만 검사하고 빈칸은 허용한다. 모르는 필드는 버린다
-export function normalizeCard(raw: unknown): Card {
+// 초안 저장용: 형식·길이만 검사하고 빈칸은 허용한다. 모르는 필드는 버린다.
+// multiplier: 요금 등급의 긴 글 배수(무료 1, 프로 3). 이미 저장된 카드를 읽을 때는 Infinity(길이를 보지 않는다).
+// existing: 지금 저장돼 있는 카드 — 안 바뀐 긴 글은 상한을 넘어도 통과시킨다
+export function normalizeCard(raw: unknown, opts: { multiplier?: number; existing?: Card | null } = {}): Card {
+  const L = limitsFor(opts.multiplier ?? 1);
+  const ex = opts.existing ?? null;
   const c = obj(raw);
   const id = obj(c.identity);
   const ap = obj(c.appearance);
@@ -162,7 +180,7 @@ export function normalizeCard(raw: unknown): Card {
       tags: list(id.tags, L.tags, L.tag, '태그'),
     },
     appearance: {
-      description: text(ap.description, L.description, '외형 서술'),
+      description: text(ap.description, L.description, '외형 서술', ex?.appearance.description),
       keywords: list(ap.keywords, L.keywords, L.keyword, '분위기 키워드'),
     },
     personality: {
@@ -174,25 +192,25 @@ export function normalizeCard(raw: unknown): Card {
       addressing: text(pe.addressing, L.addressing, '호칭 규칙'),
       habits: list(pe.habits, L.habits, L.item, '말투 습관'),
       forbidden: list(pe.forbidden, L.forbidden, L.item, '금지 말투'),
-      summary: text(pe.summary, L.summary, '성격 요약'),
+      summary: text(pe.summary, L.summary, '성격 요약', ex?.personality.summary),
     },
     campaign: {
-      scene: text(ca.scene, L.field, '시작 장면'),
-      knows: text(ca.knows, L.field, '아는 것'),
-      unknown: text(ca.unknown, L.field, '모르는 것'),
-      goal: text(ca.goal, L.field, '목표'),
-      stance: text(ca.stance, L.field, '유저에게 거는 태도'),
-      conflictSeed: text(ca.conflictSeed, L.field, '갈등 씨앗'),
+      scene: text(ca.scene, L.field, '시작 장면', ex?.campaign.scene),
+      knows: text(ca.knows, L.field, '아는 것', ex?.campaign.knows),
+      unknown: text(ca.unknown, L.field, '모르는 것', ex?.campaign.unknown),
+      goal: text(ca.goal, L.field, '목표', ex?.campaign.goal),
+      stance: text(ca.stance, L.field, '유저에게 거는 태도', ex?.campaign.stance),
+      conflictSeed: text(ca.conflictSeed, L.field, '갈등 씨앗', ex?.campaign.conflictSeed),
     },
     boundary: {
-      secret: text(bo.secret, L.field, '비밀'),
-      unlockCondition: text(bo.unlockCondition, L.field, '해금 조건'),
+      secret: text(bo.secret, L.field, '비밀', ex?.boundary.secret),
+      unlockCondition: text(bo.unlockCondition, L.field, '해금 조건', ex?.boundary.unlockCondition),
       neverDo: list(bo.neverDo, L.neverDo, L.item, '절대 하지 않는 것'),
-      breakers: text(bo.breakers, L.field, '관계가 깨지는 것'),
+      breakers: text(bo.breakers, L.field, '관계가 깨지는 것', ex?.boundary.breakers),
     },
     greeting: {
-      firstMessage: text(gr.firstMessage, L.firstMessage, '첫 메시지'),
-      alternates: list(gr.alternates, L.alternates, L.firstMessage, '대체 인사'),
+      firstMessage: text(gr.firstMessage, L.firstMessage, '첫 메시지', ex?.greeting.firstMessage),
+      alternates: list(gr.alternates, L.alternates, L.firstMessage, '대체 인사', ex?.greeting.alternates),
       examples: examples
         .map((e, i) => {
           const pair = obj(e);
@@ -204,15 +222,15 @@ export function normalizeCard(raw: unknown): Card {
         .filter((e) => e.user || e.character),
     },
     lore: {
-      world: text(lo.world, L.lore, '세계 규칙'),
-      person: text(lo.person, L.lore, '중요 인물'),
-      taboo: text(lo.taboo, L.lore, '금기'),
+      world: text(lo.world, L.lore, '세계 규칙', ex?.lore.world),
+      person: text(lo.person, L.lore, '중요 인물', ex?.lore.person),
+      taboo: text(lo.taboo, L.lore, '금기', ex?.lore.taboo),
       extra: extra
         .map((e, i) => {
           const item = obj(e);
           return {
             title: text(item.title, L.extraTitle, `추가 로어 ${i + 1} 제목`),
-            text: text(item.text, L.lore, `추가 로어 ${i + 1} 본문`),
+            text: text(item.text, L.lore, `추가 로어 ${i + 1} 본문`, ex?.lore.extra[i]?.text),
           };
         })
         .filter((e) => e.title || e.text),

@@ -57,18 +57,41 @@ export function toCharacterFields(card: Card) {
 
 const cut = (s: string, max: number) => (s.length <= max ? s : s.slice(0, max - 1) + '…');
 
-function chunk(id: string, type: string, topic: string, text: string, keywords: string[] = []): PersonaChunk[] {
+// 조각 하나의 본문 상한보다 짧게 나눈다(약간 여유). 프로 등급의 긴 글이 잘려 나가지 않게 문장 단위로 여러 조각이 된다
+const PIECE = LIMITS.textLength - 20;
+
+// 긴 글을 PIECE 이하로 쪼갠다. 문장 끝(. ! ? … 따옴표, 줄바꿈)에서 먼저 자르고, 한 문장이 길면 글자 수로 자른다
+export function splitText(text: string, max = PIECE): string[] {
   const body = text.trim();
-  if (!body) return [];
-  return [
-    {
-      id,
-      type,
-      topic: cut(topic, LIMITS.topicLength),
-      keywords: keywords.map((k) => cut(k, LIMITS.keywordLength)).slice(0, LIMITS.keywords),
-      text: cut(body, LIMITS.textLength),
-    },
-  ];
+  if (body.length <= max) return body ? [body] : [];
+  const sentences = body.split(/(?<=[.!?…"”』」])\s+|\n+/).map((x) => x.trim()).filter(Boolean);
+  const pieces: string[] = [];
+  let current = '';
+  const flush = () => {
+    if (current) pieces.push(current);
+    current = '';
+  };
+  for (const sentence of sentences) {
+    // 한 문장이 상한보다 길면 글자 수로 잘라 이어 붙인다
+    for (let i = 0; i < sentence.length; i += max) {
+      const part = sentence.slice(i, i + max);
+      if (current && current.length + part.length + 1 > max) flush();
+      current = current ? `${current} ${part}` : part;
+    }
+  }
+  flush();
+  return pieces;
+}
+
+// 본문이 길면 id, id-2, id-3 … 으로 여러 조각을 만든다 (검색이 관련 있는 조각만 골라 넣는다)
+function chunk(id: string, type: string, topic: string, text: string, keywords: string[] = []): PersonaChunk[] {
+  return splitText(text).map((piece, i) => ({
+    id: i === 0 ? id : `${id}-${i + 1}`,
+    type,
+    topic: cut(topic, LIMITS.topicLength),
+    keywords: keywords.map((k) => cut(k, LIMITS.keywordLength)).slice(0, LIMITS.keywords),
+    text: piece,
+  }));
 }
 
 export function toKnowledge(card: Card): PersonaKnowledge {
@@ -87,6 +110,8 @@ export function toKnowledge(card: Card): PersonaKnowledge {
     .slice(0, LIMITS.coreLines);
 
   const chunks: PersonaChunk[] = [
+    // 성격 요약이 길면 core 한 줄(240자)에서 잘리는 나머지를 조각으로도 둔다 (프로 등급)
+    ...(p.summary.length > 150 ? chunk('card-personality', 'profile', '성격 자세히', p.summary, ['성격', '어떤 사람']) : []),
     ...chunk('card-scene', 'world', '처음 만나는 장면', ca.scene, ['처음', '첫날', '첫 만남']),
     ...chunk('card-knows', 'knowledge', '캐릭터가 아는 것', ca.knows && `캐릭터가 아는 것: ${ca.knows}`),
     // 카드의 '모르는 것'은 캐릭터 본인이 모르는 사실이다. 표시를 붙여 아는 것처럼 말하지 않게 한다

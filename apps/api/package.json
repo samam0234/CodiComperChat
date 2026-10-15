@@ -25,6 +25,7 @@
     "persona:build": "node scripts/persona-build.mjs",
     "persona:search": "node scripts/persona-search.mjs",
     "user:role": "node scripts/user-role.mjs",
+    "user:plan": "node scripts/user-plan.mjs",
     "typecheck": "tsc -p tsconfig.build.json --noEmit --incremental false",
     "build:verify": "tsc -p tsconfig.build.json --outDir dist-verify --tsBuildInfoFile dist-verify/.tsbuildinfo"
   },

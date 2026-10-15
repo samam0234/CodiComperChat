@@ -1,9 +1,13 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CharacterVisibility, Prisma } from '@prisma/client';
+import { effectivePlan, multiplierFor } from '../plan/plan.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
 import type { PortraitMime } from './portrait.js';
 import { testState } from './test-session.js';
+
+// 이미 저장된 카드를 읽을 때는 길이를 보지 않는다 — 프로 등급이 끝난 뒤에도 긴 글을 그대로 보고 쓸 수 있어야 한다
+const READ = { multiplier: Number.POSITIVE_INFINITY } as const;
 
 export const VISIBILITIES = Object.values(CharacterVisibility);
 
@@ -34,7 +38,7 @@ export class StudioService {
       },
     });
     return drafts.map((d) => {
-      const card = normalizeCard(d.card);
+      const card = normalizeCard(d.card, READ);
       return {
         id: d.id,
         name: card.identity.name,
@@ -73,13 +77,22 @@ export class StudioService {
       },
     });
     if (!draft) throw new NotFoundException('초안을 찾을 수 없습니다.');
-    return { ...draft, card: normalizeCard(draft.card) };
+    return { ...draft, card: normalizeCard(draft.card, READ) };
+  }
+
+  // 이 사용자에게 지금 적용되는 요금 등급과 긴 글 칸 배수
+  async planOf(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { plan: true, planUntil: true } });
+    const plan = user ? effectivePlan(user) : 'FREE';
+    return { plan, multiplier: multiplierFor(plan) };
   }
 
   async get(ownerId: string, id: string) {
-    const draft = await this.findOwned(ownerId, id);
+    const [draft, { plan, multiplier }] = await Promise.all([this.findOwned(ownerId, id), this.planOf(ownerId)]);
     return {
       id: draft.id,
+      plan,
+      limitMultiplier: multiplier,
       card: draft.card,
       test: testState(draft.card, draft.lastTest),
       characterId: draft.characterId,
@@ -114,8 +127,9 @@ export class StudioService {
   }
 
   async save(ownerId: string, id: string, rawCard: unknown) {
-    await this.findOwned(ownerId, id);
-    const card: Card = normalizeCard(rawCard);
+    const [current, { multiplier }] = await Promise.all([this.findOwned(ownerId, id), this.planOf(ownerId)]);
+    // 등급이 허용하는 길이까지 받고, 지금 저장된 값 그대로인 긴 글은 상한을 넘어도 받는다
+    const card: Card = normalizeCard(rawCard, { multiplier, existing: current.card });
     await this.prisma.characterDraft.update({
       where: { id },
       data: { card: card as unknown as Prisma.InputJsonValue },
