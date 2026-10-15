@@ -4,6 +4,7 @@ import { effectivePlan, multiplierFor } from '../plan/plan.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
 import type { PortraitMime } from './portrait.js';
+import { PortraitReviewService } from './portrait-review.service.js';
 import { testState } from './test-session.js';
 
 // 이미 저장된 카드를 읽을 때는 길이를 보지 않는다 — 프로 등급이 끝난 뒤에도 긴 글을 그대로 보고 쓸 수 있어야 한다
@@ -21,7 +22,10 @@ export function parseVisibility(raw: unknown): CharacterVisibility {
 // 초안 목록·편집. 초안은 만든 사람만 보고 고친다 (모든 조회에 ownerId 조건)
 @Injectable()
 export class StudioService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly reviews: PortraitReviewService,
+  ) {}
 
   async list(ownerId: string) {
     const drafts = await this.prisma.characterDraft.findMany({
@@ -71,6 +75,8 @@ export class StudioService {
         lastTest: true,
         visibility: true,
         portraitMime: true,
+        portraitReview: true,
+        portraitReviewNote: true,
         characterId: true,
         updatedAt: true,
         character: { select: { published: true, takenDownAt: true, takedownReason: true } },
@@ -99,6 +105,9 @@ export class StudioService {
       published: (draft.character?.published ?? false) && !draft.character?.takenDownAt,
       visibility: draft.visibility,
       hasPortrait: draft.portraitMime !== null,
+      // 초상 검수: APPROVED(남에게 보임) / PENDING(운영자 확인 중, 남에게 안 보임) / REJECTED(반려, note에 사유)
+      portraitReview: draft.portraitMime !== null ? draft.portraitReview : null,
+      portraitReviewNote: draft.portraitReviewNote,
       // 운영자가 내렸으면 시각과 사유(다시 발행할 수 없다)
       takedown: draft.character?.takenDownAt
         ? { at: draft.character.takenDownAt, reason: draft.character.takedownReason ?? '' }
@@ -108,14 +117,23 @@ export class StudioService {
     };
   }
 
-  // 초상은 카드(지문)와 따로다 — 바꿔도 다시 테스트할 필요 없다. 발행 중이면 캐릭터에도 바로 적용한다
+  // 초상은 카드(지문)와 따로다 — 바꿔도 다시 테스트할 필요 없다.
+  // 올리면 자동 검수를 거친다(명백히 안 되는 그림은 400). 발행 중이면 승인된 초상만 캐릭터에 바로 싣고,
+  // 검수 대기면 캐릭터에서는 초상을 내려 둔다(운영자가 승인하면 실린다)
   async setPortrait(ownerId: string, id: string, image: { data: Buffer; mime: PortraitMime } | null) {
     const draft = await this.findOwned(ownerId, id);
-    const data = image
+    const review = image ? await this.reviews.moderate(image) : null;
+    const art = image
       ? { portrait: new Uint8Array(image.data), portraitMime: image.mime }
       : { portrait: null, portraitMime: null };
-    await this.prisma.characterDraft.update({ where: { id }, data });
-    if (draft.characterId) await this.prisma.character.update({ where: { id: draft.characterId }, data });
+    await this.prisma.characterDraft.update({
+      where: { id },
+      data: { ...art, portraitReview: review?.review ?? null, portraitReviewNote: review?.note ?? null },
+    });
+    if (draft.characterId) {
+      const visible = review?.review === 'APPROVED' ? art : { portrait: null, portraitMime: null };
+      await this.prisma.character.update({ where: { id: draft.characterId }, data: visible });
+    }
     return this.get(ownerId, id);
   }
 

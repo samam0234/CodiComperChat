@@ -14,7 +14,7 @@ const passedTest = (card: Card) => ({
   verdict: { passed: true },
 });
 
-function setup(opts: { role?: 'ADMIN' | 'USER'; verified?: boolean; draft?: Partial<Draft>; nameTakenBy?: string; portrait?: Buffer } = {}) {
+function setup(opts: { role?: 'ADMIN' | 'USER'; verified?: boolean; draft?: Partial<Draft>; nameTakenBy?: string; portrait?: Buffer; portraitReview?: 'APPROVED' | 'PENDING' | 'REJECTED' } = {}) {
   const card = fullCard();
   const draft: Draft = { id: 'd1', card, lastTest: passedTest(card), characterId: null, visibility: 'UNLISTED', ...opts.draft };
   const characters: Record<string, unknown>[] = [];
@@ -32,7 +32,11 @@ function setup(opts: { role?: 'ADMIN' | 'USER'; verified?: boolean; draft?: Part
       },
     },
     characterDraft: {
-      findUnique: async () => ({ portrait: opts.portrait ?? null, portraitMime: opts.portrait ? 'image/png' : null }),
+      findUnique: async () => ({
+        portrait: opts.portrait ?? null,
+        portraitMime: opts.portrait ? 'image/png' : null,
+        portraitReview: opts.portrait ? (opts.portraitReview ?? 'APPROVED') : null,
+      }),
       update: async ({ data }: { data: { characterId?: string; visibility?: string } }) => {
         if (data.characterId) draft.characterId = data.characterId;
         if (data.visibility) draft.visibility = data.visibility;
@@ -68,6 +72,15 @@ describe('공방 발행', () => {
     dirs.push(without.dir);
     await without.service.publish('u', 'd1');
     expect(without.characters[0]).toMatchObject({ portrait: null, portraitMime: null });
+  });
+
+  it('검수를 기다리거나 반려된 초상은 캐릭터에 싣지 않는다', async () => {
+    for (const portraitReview of ['PENDING', 'REJECTED'] as const) {
+      const t = setup({ portrait: Buffer.from([0x89, 0x50, 0x4e, 0x47]), portraitReview });
+      dirs.push(t.dir);
+      await t.service.publish('u', 'd1');
+      expect(t.characters[0]).toMatchObject({ portrait: null, portraitMime: null });
+    }
   });
 
   it('공개 범위를 바꾸면 발행 중인 캐릭터에도 바로 적용되고, 잘못된 값은 400', async () => {

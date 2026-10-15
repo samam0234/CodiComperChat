@@ -13,3 +13,24 @@ export async function getAdminReports(): Promise<AdminReportsView | null> {
     return null;
   }
 }
+
+export type PendingPortrait = {
+  draftId: string;
+  name: string;
+  note: string;
+  updatedAt: string;
+  published: boolean;
+  owner: string;
+  ownerEmail: string;
+};
+
+export async function getPendingPortraits(): Promise<PendingPortrait[] | null> {
+  const token = await getSessionToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/portraits`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+    return res.ok ? ((await res.json()) as PendingPortrait[]) : null;
+  } catch {
+    return null;
+  }
+}
