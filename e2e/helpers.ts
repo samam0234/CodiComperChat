@@ -1,6 +1,8 @@
 import type { BrowserContext, Page } from "@playwright/test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import pg from "pg";
-import { E2E_DB, URLS } from "./env.mjs";
+import { E2E_DB, MAIL_DIR, URLS } from "./env.mjs";
 
 export const OFFICIAL_ID = "e2e-official";
 
@@ -30,13 +32,38 @@ export async function api<T = any>(path: string, init: Init = {}): Promise<{ sta
 
 export type User = { email: string; token: string; name: string };
 
-export async function signup(tag = "user"): Promise<User> {
+// 대부분의 시험은 이메일 인증과 상관없으므로 인증된 계정을 만든다. 인증 자체를 시험할 때만 { verified: false }
+export async function signup(tag = "user", options: { verified?: boolean } = {}): Promise<User> {
   const name = uniq(tag);
   // 화면에서 같은 이메일로 로그인해도 되도록 아이디 부분은 영문·숫자만 쓴다
   const email = `${uniq("u")}@e2e.test`;
-  const res = await api<{ token: string }>("/auth/signup", { json: { email, password: "pass1234word", displayName: name } });
+  const res = await api<{ token: string }>("/auth/signup", { json: { email, password: PASSWORD, displayName: name } });
   if (res.status !== 201 && res.status !== 200) throw new Error(`가입 실패 ${res.status}`);
+  if (options.verified !== false) await sql('UPDATE users SET "emailVerifiedAt" = now() WHERE email = $1', [email]);
   return { email, token: res.body.token, name };
+}
+
+export const PASSWORD = "pass1234word";
+
+// 그 주소로 온 가장 최근 메일 (메일은 뒤에서 보내므로 잠깐 기다린다)
+export async function latestMail(to: string, subjectIncludes: string): Promise<{ subject: string; text: string; link: string }> {
+  for (let i = 0; i < 50; i++) {
+    let files: string[] = [];
+    try {
+      files = readdirSync(MAIL_DIR).sort().reverse();
+    } catch {
+      // 폴더가 아직 없다
+    }
+    for (const file of files) {
+      const mail = JSON.parse(readFileSync(join(MAIL_DIR, file), "utf8")) as { to: string; subject: string; text: string };
+      if (mail.to === to && mail.subject.includes(subjectIncludes)) {
+        const link = mail.text.match(/https?:\/\/\S+/)?.[0] ?? "";
+        return { ...mail, link };
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error(`${to}에게 "${subjectIncludes}" 메일이 오지 않았다`);
 }
 
 // 로그인한 브라우저로 만든다 (웹의 httpOnly 세션 쿠키를 직접 심는다)

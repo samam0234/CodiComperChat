@@ -17,6 +17,8 @@ export type CurrentUser = {
   role: "USER" | "ADMIN";
   // 지금 적용되는 요금 등급 (PRO는 공방 긴 글 칸 글자 수 3배)
   plan: "FREE" | "PRO";
+  // 이메일 인증을 마쳤는지 (캐릭터 발행은 인증 뒤에만)
+  emailVerified: boolean;
   createdAt: string;
 };
 

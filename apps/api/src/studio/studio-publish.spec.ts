@@ -14,12 +14,12 @@ const passedTest = (card: Card) => ({
   verdict: { passed: true },
 });
 
-function setup(opts: { role?: 'ADMIN' | 'USER'; draft?: Partial<Draft>; nameTakenBy?: string; portrait?: Buffer } = {}) {
+function setup(opts: { role?: 'ADMIN' | 'USER'; verified?: boolean; draft?: Partial<Draft>; nameTakenBy?: string; portrait?: Buffer } = {}) {
   const card = fullCard();
   const draft: Draft = { id: 'd1', card, lastTest: passedTest(card), characterId: null, visibility: 'UNLISTED', ...opts.draft };
   const characters: Record<string, unknown>[] = [];
   const prisma = {
-    user: { findUnique: async () => ({ role: opts.role ?? 'ADMIN' }) },
+    user: { findUnique: async () => ({ role: opts.role ?? 'ADMIN', emailVerifiedAt: opts.verified === false ? null : new Date() }) },
     character: {
       findUnique: async () => (opts.nameTakenBy ? { id: opts.nameTakenBy } : null),
       create: async ({ data }: { data: Record<string, unknown> }) => {
@@ -90,6 +90,12 @@ describe('공방 발행', () => {
     const t2 = setup({ draft: { card, lastTest: stale } });
     dirs.push(t2.dir);
     await expect(t2.service.publish('u', 'd1')).rejects.toThrow(/테스트/);
+  });
+
+  it('이메일을 인증하지 않은 계정은 발행하지 못한다(403)', async () => {
+    const t = setup({ role: 'USER', verified: false });
+    dirs.push(t.dir);
+    await expect(t.service.publish('u', 'd1')).rejects.toThrow(/이메일 인증/);
   });
 
   it('필수 단계가 비면 409', async () => {

@@ -36,6 +36,10 @@ export default function LoginForm({ next }: { next: string }) {
           />
         </label>
 
+        <Link href="/forgot-password" className={styles.forgot}>
+          비밀번호를 잊었나요?
+        </Link>
+
         {state?.error && (
           <p className={styles.error} role="alert">
             {state.error}

@@ -11,6 +11,7 @@ export type PasswordChangeInput = {
   currentPassword: string;
   newPassword: string;
 };
+export type PasswordResetInput = { token: string; newPassword: string };
 
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 128;
@@ -109,4 +110,13 @@ export function parsePasswordChange(body: unknown): PasswordChangeInput {
     currentPassword: text(data.currentPassword, '현재 비밀번호'),
     newPassword: newPassword(data.newPassword, '새 비밀번호'),
   };
+}
+
+export function parseEmailOnly(body: unknown): string {
+  return email(asRecord(body).email);
+}
+
+export function parsePasswordReset(body: unknown): PasswordResetInput {
+  const data = asRecord(body);
+  return { token: text(data.token, '재설정 링크'), newPassword: newPassword(data.newPassword, '새 비밀번호') };
 }

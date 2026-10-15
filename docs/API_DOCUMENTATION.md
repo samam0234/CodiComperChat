@@ -16,12 +16,16 @@
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp, ai }` — `ai`는 AI 호출 대기열 상태(`inFlight`, `waitingForeground`, `waitingBackground`, `concurrency`) |
-| `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }` | **201** `{ token, user }` · 중복 이메일 409 · 형식 오류 400 |
+| `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }`. 인증 메일을 보낸다 | **201** `{ token, user }` (`user.emailVerified: false`) · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
 | `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
-| `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }` | **204** · 현재 비밀번호 틀림 401 · 🔒 |
+| `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
+| `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
+| `POST /auth/verify-email` | 메일 링크의 토큰으로 이메일 인증 `{ token }` (24시간, 한 번만) | **200** `{ verified: true }` · 만료·재사용 400 |
+| `POST /auth/password/forgot` | 비밀번호 재설정 링크 메일 `{ email }` | **204** (가입 여부와 상관없이 같음) |
+| `POST /auth/password/reset` | 새 비밀번호 `{ token, newPassword }` (30분, 한 번만). 모든 기기의 로그인이 끊긴다 | **204** · 만료·재사용 400 |
 
 | `GET /me/personas` | 내 프로필 캐릭터(주인공) 목록 | **200** `[{ id, name, description, updatedAt }]` · 🔒 |
 | `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
@@ -69,6 +73,9 @@
 | `POST /auth/login` | 15분에 같은 이메일 10번, 한 IP에서 40번 | 이메일+IP, IP |
 | `POST /auth/signup` | 1시간에 10번 | IP |
 | `POST /auth/me/password` | 15분에 5번 | 사용자 |
+| `POST /auth/me/verify-email` | 15분에 3번 | 사용자 |
+| `POST /auth/password/forgot` | 15분에 같은 이메일 3번, 한 IP에서 10번 | 이메일+IP, IP |
+| `POST /auth/verify-email`, `POST /auth/password/reset` | 15분에 20번 | IP |
 | `POST /characters/:id/chat` (대화 전송) | 1분에 20번 | 사용자 |
 | `POST /characters/:id/chat/suggestions` (대답 추천) | 1분에 10번 | 사용자 |
 | 공방 `test/chat`·`test/critique`·`samples`·`draft-field` (LLM 호출) | 1분에 12번 | 사용자 |
@@ -147,3 +154,11 @@ Nest는 이 객체를 `CampaignState`에 머지한다.
 
 - 웹(Next.js)에서 `/infer`, `/summarize` 등 FastAPI 엔드포인트를 직접 호출 (계획서 §7.1, §13 위반)
 - `/train`을 v1에서 외부에 여는 것
+
+## 이메일 인증·비밀번호 찾기
+
+- 메일 링크의 토큰은 원문을 메일에만 싣고 DB(`email_tokens`)에는 SHA-256 해시만 둔다. 한 번 쓰면 끝이고, 새로 보내면 전에 보낸 링크는 무효다.
+- 인증 링크는 열기만 해서는 인증되지 않고 화면의 버튼을 눌러야 한다(메일 보안 검사기가 링크를 미리 열어도 안전하게).
+- 캐릭터 **발행**은 이메일을 인증한 계정만 할 수 있다(403). 도입 전에 가입한 계정은 인증된 것으로 옮겼다.
+- 로그인 토큰에는 계정의 토큰 세대(`users.sessionVersion`)가 실린다. 비밀번호를 바꾸거나 재설정하면 세대가 올라 이전 토큰이 모두 401이 된다.
+- 메일 발송 설정(`apps/api/.env`): `MAIL_SMTP_URL`(실제 발송), `MAIL_FROM`, `WEB_BASE_URL`(링크 주소). SMTP가 없으면 개발 중에는 서버 로그에 링크가 찍히고, `MAIL_OUTBOX_DIR`를 주면 그 폴더에 JSON으로 남는다(e2e가 쓴다).

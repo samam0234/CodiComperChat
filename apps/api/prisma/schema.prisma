@@ -38,6 +38,14 @@ model User {
   /// PRO 만료 시각. 비어 있으면 만료 없음. 지나면 FREE로 본다
 
   planUntil  DateTime?
+
+  /// 이메일 인증을 마친 시각. 비어 있으면 미인증 (캐릭터 공개 발행은 인증 뒤에만)
+
+  emailVerifiedAt DateTime?
+
+  /// 로그인 토큰 세대. 비밀번호를 바꾸거나 재설정하면 1 올려 이전에 발급한 토큰을 모두 무효로 만든다
+
+  sessionVersion Int @default(0)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
   campaigns  Campaign[]
@@ -47,6 +55,8 @@ model User {
   characters Character[]
 
   reports CharacterReport[]
+
+  emailTokens EmailToken[]
 
   @@map("users")
 }
@@ -316,4 +326,24 @@ model CharacterReport {
   @@index([status, createdAt])
   @@index([characterId, status])
   @@map("character_reports")
+}
+
+enum EmailTokenPurpose {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+/// 메일로 보낸 일회용 링크 토큰. 원문은 메일에만 있고 DB에는 SHA-256 해시만 둔다
+model EmailToken {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   EmailTokenPurpose
+  tokenHash String            @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  @@index([userId, purpose])
+  @@map("email_tokens")
 }

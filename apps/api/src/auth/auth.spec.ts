@@ -1,6 +1,6 @@
 import { SignJWT } from 'jose';
 import { hashPassword, verifyPassword } from './password.js';
-import { assertAuthSecret, signToken, verifyToken } from './token.js';
+import { assertAuthSecret, readToken, signToken, verifyToken } from './token.js';
 
 describe('password', () => {
   it('맞는 비밀번호만 통과시킨다', async () => {
@@ -33,6 +33,12 @@ describe('token', () => {
 
   it('서명한 토큰에서 userId를 되찾는다', async () => {
     expect(await verifyToken(await signToken('user-1'))).toBe('user-1');
+  });
+
+  it('토큰에 계정의 토큰 세대를 싣고, 세대가 없는 옛 토큰은 0세대로 읽는다', async () => {
+    expect(await readToken(await signToken('user-1', 3))).toEqual({ userId: 'user-1', sessionVersion: 3 });
+    const old = await new SignJWT({}).setProtectedHeader({ alg: 'HS256' }).setSubject('user-1').setExpirationTime('1h').sign(assertAuthSecret());
+    expect(await readToken(old)).toEqual({ userId: 'user-1', sessionVersion: 0 });
   });
 
   it('다른 키로 서명한 토큰은 거부한다', async () => {

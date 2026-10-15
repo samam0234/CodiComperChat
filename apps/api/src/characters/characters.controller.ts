@@ -1,11 +1,15 @@
 import { Controller, Get, Headers, Param, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { verifyToken } from '../auth/token.js';
+import { readSession } from '../auth/session.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { CharactersService } from './characters.service.js';
 
 @Controller('characters')
 export class CharactersController {
-  constructor(private readonly charactersService: CharactersService) {}
+  constructor(
+    private readonly charactersService: CharactersService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get()
   findPublished() {
@@ -15,8 +19,7 @@ export class CharactersController {
   // 흉상 초상 이미지. 공개·링크 공개는 누구나(캐시 가능), 비공개는 만든 사람만(캐시하지 않음)
   @Get(':id/portrait')
   async portrait(@Param('id') id: string, @Res() res: Response, @Headers('authorization') authorization?: string) {
-    const [scheme, token] = authorization?.split(' ') ?? [];
-    const viewerId = scheme === 'Bearer' && token ? await verifyToken(token) : null;
+    const viewerId = await readSession(this.prisma, authorization);
     const image = await this.charactersService.portrait(id, viewerId);
     res.setHeader('Content-Type', image.mime);
     res.setHeader('Cache-Control', image.visibility === 'PRIVATE' ? 'private, no-store' : 'public, max-age=300');
@@ -29,8 +32,7 @@ export class CharactersController {
   // 로그인 없이도 공개·링크 공개 캐릭터는 본다. 토큰이 있으면 내 비공개 캐릭터도 보인다
   @Get(':id')
   async findOne(@Param('id') id: string, @Headers('authorization') authorization?: string) {
-    const [scheme, token] = authorization?.split(' ') ?? [];
-    const viewerId = scheme === 'Bearer' && token ? await verifyToken(token) : null;
+    const viewerId = await readSession(this.prisma, authorization);
     const character = await this.charactersService.findOnePublished(id, viewerId);
     return { ...character, ...(await this.charactersService.origin(id, viewerId)) };
   }
