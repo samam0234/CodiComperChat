@@ -51,6 +51,38 @@ test.describe("보안·운영", () => {
     expect(violations).toEqual([]);
   });
 
+  test("CSP가 막으면 브라우저가 /api/csp-report로 바로 알려 주고, 받는 쪽은 두 보고 형식을 받으며 이상한 본문에도 204로 답한다", async ({ page, request }) => {
+    const policy = (await request.get("/")).headers()["content-security-policy"];
+    expect(policy).toContain("report-uri /api/csp-report");
+
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // 허용하지 않은 외부 그림을 불러오게 해 실제 위반을 만든다 → 브라우저가 바로 /api/csp-report로 보고를 보낸다
+    const report = page.waitForRequest((r) => r.url().endsWith("/api/csp-report") && r.method() === "POST");
+    const violated = await page.evaluate(
+      () =>
+        new Promise<string>((resolve) => {
+          document.addEventListener("securitypolicyviolation", (e) => resolve(`${e.effectiveDirective} ${e.blockedURI}`), { once: true });
+          const img = document.createElement("img");
+          img.src = "https://example.com/not-allowed.png?token=secret";
+          document.body.appendChild(img);
+        }),
+    );
+    expect(violated).toContain("img-src");
+    const sent = await report;
+    expect(sent.postData() ?? "").toContain("example.com/not-allowed.png");
+    expect((await sent.response())?.status()).toBe(204);
+
+    // 받는 쪽: 예전 형식(report-uri)과 새 형식(Reporting API) 모두 받는다
+    const legacy = { "csp-report": { "effective-directive": "img-src", "blocked-uri": "https://example.com/x.png?token=secret", "document-uri": "http://localhost/" } };
+    const modern = [{ type: "csp-violation", url: "http://localhost/", body: { effectiveDirective: "script-src-elem", blockedURL: "https://evil.example/a.js", documentURL: "http://localhost/" } }];
+    expect((await request.post("/api/csp-report", { data: JSON.stringify(legacy), headers: { "Content-Type": "application/csp-report" } })).status()).toBe(204);
+    expect((await request.post("/api/csp-report", { data: JSON.stringify(modern), headers: { "Content-Type": "application/reports+json" } })).status()).toBe(204);
+    for (const body of ["not json", "{}", JSON.stringify([{ type: "other" }]), "x".repeat(20_000)]) {
+      expect((await request.post("/api/csp-report", { data: body, headers: { "Content-Type": "application/csp-report" } })).status()).toBe(204);
+    }
+  });
+
   test("API 응답에도 보안 헤더가 붙고 서버 종류를 알리지 않는다", async () => {
     const res = await fetch(`${URLS.api}/health`);
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");

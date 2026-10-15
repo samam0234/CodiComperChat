@@ -25,6 +25,9 @@ export function contentSecurityPolicy(nonce: string, dev: boolean): string {
     "base-uri 'self'",
     `form-action 'self' ${TOSS}`,
     "frame-ancestors 'none'",
+    // 막은 내용을 /api/csp-report로 바로 알려 준다. report-to(Reporting API)를 함께 쓰면 크롬이 report-uri를 무시하는데,
+    // report-to는 모아서 늦게 보내고 http 개발 환경에서는 전달되지 않아 확인할 수 없었다 — 바로 보내는 report-uri만 쓴다
+    "report-uri /api/csp-report",
     ...(dev ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 }

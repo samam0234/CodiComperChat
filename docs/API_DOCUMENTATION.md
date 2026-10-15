@@ -89,7 +89,7 @@
 - `RATE_LIMIT=off`로 끄거나 `RATE_LIMIT_SCALE=<배수>`로 한도를 늘릴 수 있다(웹 자동 테스트가 쓴다). 기본은 켜짐.
 - 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소(Redis 등)가 필요하다.
 
-**보안 헤더:** 모든 API 응답에 `X-Content-Type-Options: nosniff`·`X-Frame-Options: DENY`·`Referrer-Policy: no-referrer`가 붙고 `X-Powered-By`는 없다. 웹 응답에는 nosniff·`X-Frame-Options: DENY`·`frame-ancestors 'none'`·`Referrer-Policy: strict-origin-when-cross-origin`·`Permissions-Policy`(카메라·마이크·위치·결제 끔)가 붙는다. 화면 응답에는 **엄격한 CSP**(`apps/web/proxy.ts`)가 붙는다: 요청마다 새 nonce, `script-src 'nonce-…' 'strict-dynamic'`(인라인 스크립트는 nonce가 있어야만 실행, `unsafe-inline` 없음), `object-src 'none'`, `base-uri 'self'`, 외부는 토스페이먼츠 결제창만. 스타일만 인라인 허용. 개발 서버는 HMR 때문에 `unsafe-eval`·웹소켓을 더 연다. **비밀번호:** 8자 이상 128자 이하이며, 흔한 값(`12345678`·`password` 등)·같은 글자 반복·이메일 아이디와 같은 값은 400.
+**보안 헤더:** 모든 API 응답에 `X-Content-Type-Options: nosniff`·`X-Frame-Options: DENY`·`Referrer-Policy: no-referrer`가 붙고 `X-Powered-By`는 없다. 웹 응답에는 nosniff·`X-Frame-Options: DENY`·`frame-ancestors 'none'`·`Referrer-Policy: strict-origin-when-cross-origin`·`Permissions-Policy`(카메라·마이크·위치·결제 끔)가 붙는다. 화면 응답에는 **엄격한 CSP**(`apps/web/proxy.ts`)가 붙는다: 요청마다 새 nonce, `script-src 'nonce-…' 'strict-dynamic'`(인라인 스크립트는 nonce가 있어야만 실행, `unsafe-inline` 없음), `object-src 'none'`, `base-uri 'self'`, 외부는 토스페이먼츠 결제창만. 스타일만 인라인 허용. 개발 서버는 HMR 때문에 `unsafe-eval`·웹소켓을 더 연다. 막은 내용은 `report-uri /api/csp-report`로 브라우저가 바로 알려 주고, 웹 서버 로그에 `[CSP 위반] 지시어 막음: 주소 · 화면: 주소` 한 줄로 남는다(주소의 쿼리는 버림, 본문 16KB·1분 30줄 제한). 새 외부 자원을 붙였는데 CSP에 출처를 더하지 않았으면 여기서 보인다. **비밀번호:** 8자 이상 128자 이하이며, 흔한 값(`12345678`·`password` 등)·같은 글자 반복·이메일 아이디와 같은 값은 400.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
 | `POST /campaigns` | 캠페인 시작 | 501 |
 | `GET /campaigns/:id` | 상태 포함 캠페인 조회 | 501 |
