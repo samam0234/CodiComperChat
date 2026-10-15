@@ -14,6 +14,8 @@ from app.schemas.critique import CritiqueTestRequest, CritiqueTestResponse
 from app.services import llm
 
 MAX_OUTPUT_TOKENS = 700
+# 판정은 같은 대화에 같은 결과가 나와야 발행 가드를 믿을 수 있다
+JUDGE_SEED = 7
 
 META_PATTERN = re.compile(
     # \b는 한글이 붙으면("AI라서") 경계로 안 본다. 영문자만 경계로 본다
@@ -126,6 +128,7 @@ def _llm_checks(
         ],
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=0.1,
+        seed=JUDGE_SEED,
         response_json_schema={
             "type": "object",
             "properties": {

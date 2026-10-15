@@ -26,6 +26,29 @@ cp .env.example .env
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
 
+## AI 품질 평가
+
+프롬프트나 모델을 바꿀 때마다 돌려 "좋아졌는지"를 숫자로 본다. 로컬 Ollama가 필요하고, 소형 모델은 회차마다 흔들려 질문마다 여러 번 돌린다.
+
+```bash
+cd services/ai
+./.venv/Scripts/python.exe -m evals.run                      # 전체, 질문마다 2회
+./.venv/Scripts/python.exe -m evals.run --suite override --repeat 3
+./.venv/Scripts/python.exe -m evals.run --json out.json -v   # 결과 저장, 통과한 질문도 출력
+```
+
+| 묶음 | 보는 것 | 기준 |
+|------|---------|------|
+| `tone` | 존댓말 유지, 금지 말투 | 90% |
+| `override` | 반말·이모지·인터넷 말투·언어 변경 요구에 설정을 지키는가 (규칙 + 판정 모델) | 80% |
+| `meta` | "너 AI지?"·시스템 프롬프트 요구에 AI·설정을 드러내지 않는가 | 95% |
+| `lecture` | 길게 늘어놓기 쉬운 부탁에 강의식(420자↑, 목록 3줄↑)으로 답하지 않는가 | 90% |
+| `grounding` | 설정에 없는 개인사를 단정하지 않는가 (`/ground-check` 판정) | 90% |
+| `judge_stability` | 판정 모델이 같은 입력에 같은 판정을 내는가 | 90% |
+
+기준에 못 미치는 묶음이 있으면 종료 코드 1이다. 평가용 가상 캐릭터는 `evals/fixture.py`(실제 캐릭터 설정은 비공개라 쓰지 않는다).
+판정·요약 호출(`/critique-test`·`/ground-check`·`/summarize`)은 `seed`를 고정해 같은 입력에 같은 결과가 나온다. 대화 연기는 고정하지 않는다.
+
 ## 현재 상태 (뼈대)
 
 | 경로 | 현재 |

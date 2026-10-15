@@ -38,6 +38,7 @@ def check(request: GroundCheckRequest) -> GroundCheckResponse:
         ],
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=0.1,
+        seed=7,
         response_json_schema={
             "type": "object",
             "properties": {"invented": {"type": "boolean"}, "note": {"type": "string"}},
