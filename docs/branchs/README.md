@@ -175,5 +175,6 @@
 | 2026-10-17 | `bcce9c4` | develop (merge) | feature/docs-refresh → develop 병합 (--no-ff) | [261017_0005_bcce9c4_merge-docs-refresh_develop.md](commits/261017_0005_bcce9c4_merge-docs-refresh_develop.md) |
 | 2026-10-17 | `012d742` | develop | 커밋 기록 목록에 병합 기록 2건 추가 | [261017_0005_012d742_merge-index-2_develop.md](commits/261017_0005_012d742_merge-index-2_develop.md) |
 | 2026-10-17 | `ab11016` | feature/vscode-env-file | VS Code 터미널이 .env를 읽도록 설정 | [261017_0008_ab11016_vscode-env-file_feature-vscode-env-file.md](commits/261017_0008_ab11016_vscode-env-file_feature-vscode-env-file.md) |
+| 2026-10-17 | `65b80c3` | develop (merge) | feature/vscode-env-file → develop 병합 (--no-ff) | [261017_0008_65b80c3_merge-vscode-env-file_develop.md](commits/261017_0008_65b80c3_merge-vscode-env-file_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
