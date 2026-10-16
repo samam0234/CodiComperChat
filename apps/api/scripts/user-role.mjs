@@ -1,4 +1,5 @@
-// 계정 권한을 바꾼다. 공방 발행은 운영자(ADMIN)만 할 수 있다 (기획서 §5.4, §9.2)
+// 계정 권한을 바꾼다. 운영자(ADMIN)는 신고함·초상 검수·계정 등급·환불 화면을 쓴다 (docs/guidance/operations.md).
+// 공방 발행은 이메일을 인증한 누구나 할 수 있다(처음에는 운영자 전용이었다, 기획서 §5.4·§9.2)
 //   npm run user:role --workspace api -- someone@example.com admin
 //   npm run user:role --workspace api -- someone@example.com user
 import 'dotenv/config';

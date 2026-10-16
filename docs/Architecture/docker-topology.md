@@ -1,6 +1,6 @@
 # Docker 토폴로지 (목표)
 
-> 상태: **`docker-compose.yml`이 아직 저장소에 없다.** 아래는 계획서 §7.3 근거의 목표 토폴로지다. 실제 파일이 생기면 서비스명·포트·프로젝트명을 이 문서에 반영한다.
+> 상태(2026-10-16): `docker-compose.yml`은 **`postgres` 하나만** 있다(로컬 개발은 설치형 PostgreSQL을 쓴다 · [../guidance/docker-run.md](../guidance/docker-run.md)). web·api·ai 컨테이너는 배포 단계에서 만든다. 아래는 계획서 §7.3 근거의 목표 토폴로지다. Redis는 지금 쓰지 않는다(요청 한도·대기열을 메모리/PostgreSQL로 해결).
 
 ## 목표 서비스 구성
 

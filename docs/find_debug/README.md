@@ -12,4 +12,6 @@
 
 find_debug(일지)에서 정제된 내용이, 다시 터질 수 있는 이슈라면 [../repeater/](../repeater/)로, 포트/배포 이슈라면 [../web_management/ports-inventory.md](../web_management/ports-inventory.md)로 옮겨진다.
 
-아직 코드가 없어 기록된 항목이 없다. 첫 디버깅이 생기면 이 폴더에 `YYYY-MM-DD.md`를 추가한다.
+## 기록
+
+- [2026-10-16.md](2026-10-16.md) — 부하에서만 실패하는 시험, DB 한도 Retry-After 61초, 깨끗한 클론에서 429, e2e DB 이름 어긋남, CSP report-to 미전달, 토스 테스트 키 확인 범위
