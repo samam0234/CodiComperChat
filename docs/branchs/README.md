@@ -167,5 +167,6 @@
 | 2026-10-16 | `aed202a` | develop (merge) | feature/ci-verify → develop 병합 (--no-ff) | [261016_0403_aed202a_merge-ci-verify_develop.md](commits/261016_0403_aed202a_merge-ci-verify_develop.md) |
 | 2026-10-16 | `1bf882b` | develop | 커밋 기록 목록에 병합 기록 10건 추가 | [261016_0403_1bf882b_merge-index_develop.md](commits/261016_0403_1bf882b_merge-index_develop.md) |
 | 2026-10-16 | `d0b0c6a` | feature/ai-env-example | .env.example에 시험용 환경변수(LLM_FAKE 등) 안내 추가 | [261016_2346_d0b0c6a_ai-env-example_feature-ai-env-example.md](commits/261016_2346_d0b0c6a_ai-env-example_feature-ai-env-example.md) |
+| 2026-10-16 | `8d96e77` | feature/docs-refresh | 스택·DB·구조·화면 지도를 실제 구현에 맞춤 | [261016_2352_8d96e77_docs-plan_feature-docs-refresh.md](commits/261016_2352_8d96e77_docs-plan_feature-docs-refresh.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
