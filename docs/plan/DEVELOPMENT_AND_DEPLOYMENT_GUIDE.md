@@ -1,6 +1,6 @@
 # 개발·배포 가이드 (목표 절차)
 
-> 상태: **모노레포·의존성 파일이 아직 없다.** 아래는 계획서 §7.3, §7.4를 근거로 한 목표 절차이며, 실제 `package.json`/`docker-compose.yml`/`.env.example`이 생기면 이 문서를 실제 명령으로 교체한다. 지금 이 문서의 명령을 그대로 실행할 수는 없다.
+> 상태(2026-10-16): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다(컨테이너화·배포는 아직). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
 
 ## 사전 준비 체크리스트 (스캐폴딩 전에 정해야 하는 것)
 

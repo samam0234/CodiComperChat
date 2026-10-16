@@ -1,6 +1,6 @@
-# API 문서 (경계 초안)
+# API 문서
 
-> 상태: **라우트 뼈대만 존재.** `GET /health`를 제외한 모든 엔드포인트는 라우팅만 되어 있고 **501 Not Implemented**를 반환한다. 요청/응답 스키마는 Prisma 스키마와 DTO가 생기면 채운다. 상세 DB는 [plan/DATABASE.md](plan/DATABASE.md).
+> 상태(2026-10-16): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 

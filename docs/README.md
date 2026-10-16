@@ -1,10 +1,10 @@
 # docs/ 안내 (문서 허브)
 
-`docs/`는 이 프로젝트의 문서 허브다. 코드 옆 README(각 앱의 `README.md` 등, 아직 없음)와 분리해서 기획·아키텍처·Git 기록·실행 가이드·운영 기록을 **폴더별로 고정된 용도**로 모은다.
+`docs/`는 이 프로젝트의 문서 허브다. 코드 옆 README(`services/ai/README.md`, `e2e/README.md`, `apps/api/data/personas/README.md`)와 분리해서 기획·아키텍처·Git 기록·실행 가이드·운영 기록을 **폴더별로 고정된 용도**로 모은다.
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재 세 앱 모두 **뼈대만** 있다 — 화면/라우트는 서고, 내용은 비어 있다. DB/Redis/Docker는 아직 없고, 앱끼리 연결(web→api, api→ai)도 아직 없다. 아래 문서 중 상당수는 "지금 이렇게 동작한다"가 아니라 **계획서 기준의 목표/템플릿**이며, 그렇게 표시해 두었다.
+> 현재(2026-10-16) 세 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라) → 공방 제작·3턴 테스트·발행, 신고·초상 검수, 프로 결제·환불, 회원 탈퇴. DB는 PostgreSQL(테이블 15개), Redis는 쓰지 않는다. **배포는 아직이다.** `web_management/`·`DEPLOYMENT.md`의 배포 절차는 아직 목표 문서이고, 그렇게 표시해 두었다.
 
 ---
 
@@ -13,9 +13,9 @@
 ```text
 docs/
 ├── README.md                 ← 이 파일 (허브 인덱스)
-├── API_DOCUMENTATION.md      ← API 경계 초안
-├── DEPLOYMENT.md             ← 배포 짧은 진입
-├── WORKFLOW.md               ← AI 호출 파이프라인 요약
+├── API_DOCUMENTATION.md      ← API 전체 (Nest·FastAPI 경로, 요청 한도, 보안 헤더, 메일, 결제)
+├── DEPLOYMENT.md             ← 배포 짧은 진입 + 배포 때 꼭 할 것
+├── WORKFLOW.md               ← AI 호출 파이프라인 요약 (대화 한 턴, AI 대기열)
 ├── plan/                     ← 기획·정책·스택 정본급
 ├── Architecture/             ← 시스템 구조 설명
 ├── branchs/                  ← 브랜치·커밋 기록 (필수)
@@ -41,13 +41,13 @@ docs/
 
 ## 앱과 포트 (계획 §7.3, 포트는 미확정)
 
-| 앱 | 스택 | 위치 | 포트 | 상태 |
+| 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
-| web | Next.js 16 (TSX) | `apps/web/` | 3000 | 전역 셸 구현됨 |
-| api | Nest.js 12 (TypeScript, ESM) | `apps/api/` | 4000 | 라우트 뼈대 구현됨 (health 외 501) |
-| ai | FastAPI (Python 3.12) | `services/ai/` | 8000 | 라우트 뼈대 구현됨 (health 외 501, train 403) |
-| DB | PostgreSQL | — | 5432(제안) | 미착수 |
-| 캐시/잡 | Redis | — | 6379(제안) | 미착수 |
+| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 30여 개, 엄격 CSP, 라이트·다크) |
+| api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
+| ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` |
+| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 15개) |
+| 캐시/잡 | Redis | — | — | 쓰지 않음 |
 
 정본: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
 
@@ -58,6 +58,10 @@ docs/
 - 기획 원본: [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)
 - 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
 - 현재 스택: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
+- 처음 띄우기: [guidance/getting-started.md](guidance/getting-started.md) · 환경변수: [guidance/environment.md](guidance/environment.md)
+- 운영자 할 일: [guidance/operations.md](guidance/operations.md)
+- API 전체: [API_DOCUMENTATION.md](API_DOCUMENTATION.md) · DB: [plan/DATABASE.md](plan/DATABASE.md)
+- 테스트·CI: [plan/TESTING.md](plan/TESTING.md) · 디자인: [plan/DESIGN.md](plan/DESIGN.md)
 - 커밋 메시지: [guidance/commit-message.md](guidance/commit-message.md)
 - 브랜치·병합: [guidance/branch-merge.md](guidance/branch-merge.md)
 - 커밋 기록: [branchs/README.md](branchs/README.md)
