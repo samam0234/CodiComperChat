@@ -171,5 +171,7 @@
 | 2026-10-16 | `a08bbff` | feature/docs-refresh | 시스템·앱·계층·데이터 흐름과 AI 파이프라인을 실제 동작으로 갱신 | [261016_2357_a08bbff_docs-architecture_feature-docs-refresh.md](commits/261016_2357_a08bbff_docs-architecture_feature-docs-refresh.md) |
 | 2026-10-17 | `42e24c6` | feature/docs-refresh | 시작하기·환경변수·운영·API·웹·공방·AI 가이드를 지금 기준으로 | [261017_0001_42e24c6_docs-guidance_feature-docs-refresh.md](commits/261017_0001_42e24c6_docs-guidance_feature-docs-refresh.md) |
 | 2026-10-17 | `a869cc9` | feature/docs-refresh | 문서 허브·API 머리말·포트·배포 준비·디버그 일지를 지금 상태로 | [261017_0005_a869cc9_docs-hub_feature-docs-refresh.md](commits/261017_0005_a869cc9_docs-hub_feature-docs-refresh.md) |
+| 2026-10-17 | `2e8bc42` | develop (merge) | feature/ai-env-example → develop 병합 (--no-ff) | [261017_0005_2e8bc42_merge-ai-env-example_develop.md](commits/261017_0005_2e8bc42_merge-ai-env-example_develop.md) |
+| 2026-10-17 | `bcce9c4` | develop (merge) | feature/docs-refresh → develop 병합 (--no-ff) | [261017_0005_bcce9c4_merge-docs-refresh_develop.md](commits/261017_0005_bcce9c4_merge-docs-refresh_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
