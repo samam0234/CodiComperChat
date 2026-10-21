@@ -180,5 +180,6 @@
 | 2026-10-21 | `05e6ed0` | feature/admin-console | 운영 콘솔용 통계·캐릭터 전체 목록 API 추가 | [261021_1926_05e6ed0_admin-api_feature-admin-console.md](commits/261021_1926_05e6ed0_admin-api_feature-admin-console.md) |
 | 2026-10-21 | `9bd36bd` | feature/admin-console | 운영자 전용 콘솔 앱을 루트에 분리 | [261021_1926_9bd36bd_admin-console-app_feature-admin-console.md](commits/261021_1926_9bd36bd_admin-console-app_feature-admin-console.md) |
 | 2026-10-21 | `3af3398` | feature/admin-console | next-env.d.ts를 저장소에서 빼기 | [261021_1927_3af3398_console-next-env_feature-admin-console.md](commits/261021_1927_3af3398_console-next-env_feature-admin-console.md) |
+| 2026-10-21 | `4f3dcce` | feature/admin-console | 운영 콘솔 분리를 문서에 반영 | [261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md](commits/261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
