@@ -68,9 +68,10 @@ if (which === 'all' || which === 'checks') {
   const env = { DATABASE_URL: dbUrl('codicomperchat_ci') };
   step('패키지 설치 (npm ci)', 'npm ci', '.', env) &&
     step('Prisma 생성·마이그레이션', 'npx prisma generate && npx prisma migrate deploy', 'apps/api', env) &&
-    step('린트 (oxlint --deny-warnings)', 'npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components e2e', '.', env) &&
+    step('린트 (oxlint --deny-warnings)', 'npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e', '.', env) &&
     step('타입 검사 (api)', 'npm run typecheck:api', '.', env) &&
     step('타입 검사 (web)', 'npx next typegen && npx tsc --noEmit', 'apps/web', env) &&
+    step('타입 검사 (console)', 'npx next typegen && npx tsc --noEmit', 'console', env) &&
     step('API 단위 테스트', 'npm run test:api', '.', env);
   step('AI 서비스 불러오기', `"${python}" -m venv .venv && ${venvPy} -m pip install -q -r requirements.txt && ${venvPy} -m compileall -q app evals && ${venvPy} -c "import app.main"`, 'services/ai');
 }

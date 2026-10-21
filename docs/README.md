@@ -43,6 +43,7 @@ docs/
 
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
+| console | Next.js 16 (TSX) | `console/` | 3001 / 3102 | 동작 (운영자 전용 콘솔, 2026-10-21) |
 | web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 30여 개, 엄격 CSP, 라이트·다크) |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
 | ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` |

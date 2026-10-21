@@ -5,6 +5,7 @@
 | 서비스 | 개발 | e2e(자동 테스트) | 확정 여부 |
 |--------|------|------------------|-----------|
 | Next.js (`apps/web`) | 3000 | 3101 | **확정** (`npm run dev:web`) |
+| Next.js (`console`, 운영 콘솔) | 3001 | 3102 | **확정** (`npm run dev:console`) |
 | Nest.js (`apps/api`) | 4000 | 4101 | **확정** (`PORT` env로 변경 가능) |
 | FastAPI (`services/ai`, 내부 전용) | 8000 | 8101 | **확정** (uvicorn `--port 8000`) |
 | PostgreSQL | 5432 | 5432 (DB `codicomperchat_e2e`) | **확정** (설치형 서비스, localhost 전용) |

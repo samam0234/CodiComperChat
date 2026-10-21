@@ -10,6 +10,7 @@ repo/
 ├── apps/
 │   ├── web/                # Next.js 16 (React 19, App Router, TSX)
 │   └── api/                # Nest.js 12 (TypeScript, ESM) + Prisma 7
+├── console/                # 운영자 전용 콘솔 — Next.js 16, 포트 3001 (워크스페이스)
 ├── services/
 │   └── ai/                 # FastAPI (Python 3.12) — 워크스페이스 밖, 자체 .venv
 ├── e2e/                    # 웹 화면 자동 테스트(Playwright) + 부하 측정(bench.mjs)
@@ -35,15 +36,31 @@ apps/web/
 │   ├── me/ settings/       # 마이페이지(프로필 캐릭터, 결제 내역, 이메일 인증) · 설정(테마, 계정, 비밀번호, 탈퇴)
 │   ├── login/ signup/ forgot-password/ reset-password/ verify-email/
 │   ├── pricing/ billing/{mock,success,fail}/   # 요금 안내 · 결제 흐름
-│   ├── admin/{reports,portraits,users}/        # 운영자: 신고함 · 초상 검수 · 계정 등급·환불
 │   ├── terms/ privacy/ business/ support/      # 약관 등 (법률 검토 전 초안)
 │   ├── actions/            # 서버 액션 — Nest를 부르는 곳 (auth, studio, billing, admin-* …)
-│   └── api/                # 라우트 핸들러: 초상 그림 중계(characters·studio·admin), CSP 보고 받기
+│   └── api/                # 라우트 핸들러: 초상 그림 중계(characters·studio), CSP 보고 받기
 ├── components/             # 셸, 캐릭터 카드·아바타, 입력창, 대화 상자, 약관 틀, 로고
 └── lib/                    # 서버 전용 데이터 읽기(auth, conversations, billing …), 카드 타입, 시간 표시
 ```
 
 웹은 **Nest만** 부른다(`API_BASE_URL`). 로그인 토큰은 httpOnly 쿠키에 있고 서버 액션·서버 컴포넌트가 붙여 보낸다.
+
+## `console` (운영 콘솔)
+
+```text
+console/
+├── proxy.ts                # 요청마다 CSP(nonce, 외부 출처 없음) + 로그인 화면 말고는 쿠키 없으면 로그인으로
+├── next.config.ts          # 보안 헤더 + X-Robots-Tag noindex
+├── app/
+│   ├── layout.tsx          # 왼쪽 메뉴 셸 (로그인 전에는 가운데 상자만)
+│   ├── page.tsx            # 대시보드 (GET /admin/stats)
+│   ├── login/              # 운영자만 로그인 (console_session 쿠키)
+│   ├── reports/ portraits/ characters/ users/
+│   ├── actions/            # 서버 액션: 로그인·로그아웃, 운영자 처리(내리기·복구·검수·등급·환불)
+│   └── api/                # 운영자 전용 그림 중계 (검수 대기 초상, 캐릭터 초상)
+├── components/             # 메뉴, 페이지 머리말, 확인 상자, 폼, 로고
+└── lib/                    # api.ts(Nest 주소·쿠키·requireAdmin), relay.ts, 타입, 시간 표시
+```
 
 ## `apps/api`
 
@@ -71,6 +88,7 @@ apps/api/
     ├── personas/           # 내 프로필 캐릭터
     ├── persona-rag/        # 페르소나 지식 저장소·검색
     ├── studio/             # 공방: 초안·AI 초안·3턴 테스트·발행·초상·검수(+운영자 초상 검수)
+    ├── admin/              # 콘솔 대시보드 통계·캐릭터 전체 목록·운영자 초상
     ├── reports/            # 신고 + 운영자 신고함·내리기·복구
     ├── billing/            # 상품·주문·승인·환불·결제 내역 + 운영자 계정 등급·주문
     ├── plan/               # 요금 등급 계산

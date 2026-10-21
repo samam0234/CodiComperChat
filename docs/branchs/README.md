@@ -177,5 +177,9 @@
 | 2026-10-17 | `ab11016` | feature/vscode-env-file | VS Code 터미널이 .env를 읽도록 설정 | [261017_0008_ab11016_vscode-env-file_feature-vscode-env-file.md](commits/261017_0008_ab11016_vscode-env-file_feature-vscode-env-file.md) |
 | 2026-10-17 | `65b80c3` | develop (merge) | feature/vscode-env-file → develop 병합 (--no-ff) | [261017_0008_65b80c3_merge-vscode-env-file_develop.md](commits/261017_0008_65b80c3_merge-vscode-env-file_develop.md) |
 | 2026-10-21 | `179e573` | feature/mail-dev-server | 개발용 메일 서버(Mailpit)를 docker compose에 추가 | [261021_1908_179e573_mail-dev-server_feature-mail-dev-server.md](commits/261021_1908_179e573_mail-dev-server_feature-mail-dev-server.md) |
+| 2026-10-21 | `05e6ed0` | feature/admin-console | 운영 콘솔용 통계·캐릭터 전체 목록 API 추가 | [261021_1926_05e6ed0_admin-api_feature-admin-console.md](commits/261021_1926_05e6ed0_admin-api_feature-admin-console.md) |
+| 2026-10-21 | `9bd36bd` | feature/admin-console | 운영자 전용 콘솔 앱을 루트에 분리 | [261021_1926_9bd36bd_admin-console-app_feature-admin-console.md](commits/261021_1926_9bd36bd_admin-console-app_feature-admin-console.md) |
+| 2026-10-21 | `3af3398` | feature/admin-console | next-env.d.ts를 저장소에서 빼기 | [261021_1927_3af3398_console-next-env_feature-admin-console.md](commits/261021_1927_3af3398_console-next-env_feature-admin-console.md) |
+| 2026-10-21 | `4f3dcce` | feature/admin-console | 운영 콘솔 분리를 문서에 반영 | [261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md](commits/261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

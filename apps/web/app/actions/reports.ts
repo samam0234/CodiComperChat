@@ -1,10 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
-// 신고·운영자 처리. Nest로 넘기기만 하고 권한(운영자 여부)은 Nest가 DB의 role로 판단한다
+// 신고하기. 운영자 처리(내리기·기각·복구)는 운영 콘솔(console/)로 옮겼다
 
 export type ReportResult = { ok: true } | { ok: false; error: string };
 
@@ -33,24 +32,3 @@ export async function reportCharacter(characterId: string, reason: string, detai
   return call(`/characters/${encodeURIComponent(characterId)}/report`, { reason, detail }, `/characters/${characterId}`);
 }
 
-async function admin(path: string, id: string, note: string) {
-  const result = await call(`/admin/characters/${encodeURIComponent(id)}/${path}`, { note }, "/admin/reports");
-  if (result.ok) {
-    revalidatePath("/admin/reports");
-    // 홈·인기 목록에서 빠지거나 다시 나온다
-    revalidatePath("/", "layout");
-  }
-  return result;
-}
-
-export async function takeDownCharacter(id: string, note: string) {
-  return admin("take-down", id, note);
-}
-
-export async function dismissReports(id: string, note: string) {
-  return admin("dismiss-reports", id, note);
-}
-
-export async function restoreCharacter(id: string) {
-  return admin("restore", id, "");
-}

@@ -10,6 +10,8 @@ build/
 # 웹 자동 테스트(e2e) 산출물
 .next-e2e/
 apps/web/tsconfig.e2e.json
+console/tsconfig.e2e.json
+console/next-env.d.ts
 e2e/.tmp/
 
 # Python

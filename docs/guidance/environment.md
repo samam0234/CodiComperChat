@@ -53,6 +53,19 @@
 | `NEXT_DIST_DIR` | `.next` | 빌드 폴더. e2e는 `.next-e2e`로 개발 서버와 나눈다 |
 | `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·웹소켓)을 빼고 쿠키를 https 전용으로 |
 
+| `CONSOLE_BASE_URL` | `http://localhost:3001` | 운영 콘솔 주소(마이페이지의 "운영 콘솔 열기", 예전 `/admin/*` 이동) |
+
+## `console` (운영 콘솔, Next.js)
+
+`.env` 파일 없이 기본값으로 돈다.
+
+| 키 | 기본값 | 무엇 |
+|----|--------|------|
+| `API_BASE_URL` | `http://localhost:4000` | Nest 주소 (서버에서만 쓰인다) |
+| `WEB_BASE_URL` | `http://localhost:3000` | 이용자 사이트 주소(캐릭터 이름을 누르면 실제 화면으로) |
+| `NEXT_DIST_DIR` | `.next` | e2e는 `.next-e2e` |
+| `NODE_ENV` | — | `production`이면 CSP 개발용 허용을 빼고 쿠키를 https 전용으로 |
+
 ## 자동 테스트·CI가 쓰는 것
 
 | 키 | 쓰는 곳 | 무엇 |

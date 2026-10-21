@@ -6,6 +6,9 @@
 브라우저
   │  (화면·서버 액션. 로그인 토큰은 httpOnly 쿠키)
   ▼
+Next.js  apps/web :3000          Next.js  console :3001 (운영자 전용, 따로 로그인)
+  │                                 │  같은 방식으로 Nest만 부른다 (/admin/*, AdminGuard)
+  │                                 ▼
 Next.js  apps/web :3000
   │  proxy.ts: 요청마다 CSP(nonce) · 회원 전용 화면 1차 거름망
   │  서버 컴포넌트·서버 액션만 Nest를 부른다 (API_BASE_URL, Authorization: Bearer)

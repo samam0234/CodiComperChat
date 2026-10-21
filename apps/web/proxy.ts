@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const MEMBER_ONLY = ["/library", "/studio", "/me", "/admin", "/billing"];
+const MEMBER_ONLY = ["/library", "/studio", "/me", "/billing"];
 // 캐릭터 채팅은 내 프로필 캐릭터가 있어야 하므로 로그인 전용이다. 캐릭터 상세는 누구나 본다
 const MEMBER_ONLY_PATTERN = /^\/characters\/[^/]+\/chat(\/|$)/;
 

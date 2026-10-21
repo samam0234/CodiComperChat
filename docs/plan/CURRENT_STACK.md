@@ -8,13 +8,13 @@
 
 | 영역 | 값 |
 |------|-----|
-| 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` |
+| 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` (이용자 사이트), `console/` (운영 콘솔, 2026-10-21 분리) |
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
 | ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 15개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
-| 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`만) |
+| 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
 ## 구현하면서 정한 것
 
@@ -29,7 +29,8 @@
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
 | 요청 한도 | 고정 창. 기본은 서버 메모리, 서버가 여러 대면 `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`) | `security/rate-limit.ts`, `security/rate-store.ts` |
 | 요금 등급 | FREE / PRO. PRO는 공방 긴 글 칸 글자 수 3배(매 턴 들어가는 짧은 칸은 그대로) | `plan/plan.ts`, `studio/card.ts` |
-| 결제 | **토스페이먼츠**(SDK v2 결제창 + 승인·취소 API). 키가 없으면 개발 중 가짜 결제(mock), 운영에서는 결제를 열지 않음. 정기 결제 없음 | `billing/`, 확인 `npm run billing:check --workspace api` |
+| 운영 콘솔 | 별도 Next.js 앱(`console/`). 운영자만 로그인(`console_session`), 대시보드·신고·초상 검수·캐릭터·계정 등급. 이용자 사이트의 `/admin/*`는 콘솔로 보낸다 | [../guidance/operations.md](../guidance/operations.md) |
+| 결제 (**보류**, 2026-10-21 사용자 결정) | **토스페이먼츠**(SDK v2 결제창 + 승인·취소 API). 키가 없으면 개발 중 가짜 결제(mock), 운영에서는 결제를 열지 않음. 정기 결제 없음 | `billing/`, 확인 `npm run billing:check --workspace api` |
 | 가격 | 프로 30일 4,900원 · 1년 49,000원 — **출시 전 임시값**, `BILLING_PRICE_PRO_30/365`로 바꾼다 | `billing/products.ts` |
 | 초상 이미지 | 공방에서 올림(webp·jpeg·png, 150KB). **자동 검수**(로컬 모델) → 통과·운영자 검수·거절. 승인된 것만 남에게 보임 | `studio/portrait-review.service.ts`, FastAPI `/moderate-image` |
 | 페르소나 지식 RAG | 캐릭터별 비공개 JSON(`apps/api/data/personas`, git 제외) → 글자 2-gram BM25로 관련 조각만 | `persona-rag/`, [../Architecture/data-flow.md](../Architecture/data-flow.md) |
@@ -70,6 +71,7 @@
 | 서비스 | 개발 | e2e(자동 테스트) | 비고 |
 |--------|------|------------------|------|
 | Next.js (`apps/web`) | 3000 | 3101 | e2e는 별도 빌드 폴더 `.next-e2e` |
+| Next.js (`console`, 운영 콘솔) | 3001 | 3102 | `npm run dev:console`. 바깥에 열 때는 따로 막는다 |
 | Nest.js (`apps/api`) | 4000 | 4101 | `PORT` env로 변경 |
 | FastAPI (`services/ai`) | 8000 | 8101 | 내부 전용. e2e는 가짜 LLM(`LLM_FAKE=1`) |
 | PostgreSQL | 5432 | 5432 (DB `codicomperchat_e2e`) | `npm run ci:local`은 `codicomperchat_ci`·`codicomperchat_ci_e2e` |

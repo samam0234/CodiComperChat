@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { api, makeAdmin, publishedCharacter, signedInPage, signup, uniq } from "../helpers";
+import { URLS } from "../env.mjs";
+import { api, consolePage, makeAdmin, publishedCharacter, signedInPage, signup, uniq } from "../helpers";
 
 test.describe("신고와 운영자 처리", () => {
   test("신고 → 운영자 내리기 → 숨김·주인 안내 → 복구", async ({ browser }) => {
@@ -26,14 +27,16 @@ test.describe("신고와 운영자 처리", () => {
     expect((await api(`/characters/${characterId}/report`, { token: reporter.token, json: { reason: "SPAM" } })).status).toBe(409);
     expect((await api(`/characters/${characterId}/report`, { token: owner.token, json: { reason: "SPAM" } })).status).toBe(400);
 
-    // 일반 유저는 신고함을 못 본다
-    expect((await reporterPage.goto("/admin/reports"))?.status()).toBe(404);
+    // 일반 유저는 신고함을 못 본다 (API 403, 콘솔은 로그인 화면으로)
     expect((await api("/admin/reports", { token: reporter.token })).status).toBe(403);
+    const userConsole = await consolePage(await browser.newContext(), reporter);
+    await userConsole.goto(`${URLS.console}/reports`);
+    await expect(userConsole).toHaveURL(/\/login/);
 
-    // 운영자: 신고함에서 사유를 쓰고 내린다
+    // 운영자: 운영 콘솔 신고함에서 사유를 쓰고 내린다
     const adminCtx = await browser.newContext();
-    const adminPage = await signedInPage(adminCtx, admin);
-    await adminPage.goto("/admin/reports");
+    const adminPage = await consolePage(adminCtx, admin);
+    await adminPage.goto(`${URLS.console}/reports`);
     await adminPage.waitForLoadState("networkidle");
     const card = adminPage.locator("li", { hasText: name }).first();
     await expect(card).toContainText("신고 1건");

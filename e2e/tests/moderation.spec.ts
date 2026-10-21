@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { api, makeAdmin, passedDraft, signedInPage, signup, uniq, type User } from "../helpers";
+import { URLS } from "../env.mjs";
+import { api, consolePage, makeAdmin, passedDraft, signedInPage, signup, uniq, type User } from "../helpers";
 
 // 가짜 LLM의 검수기는 그림 바이트 안의 표시로 갈래를 정한다 (services/ai/app/services/image_moderation.py의 _fake)
 const PNG_HEAD = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -58,9 +59,9 @@ test.describe("초상 자동 검수", () => {
     // 일반 유저는 검수 목록을 못 본다
     expect((await api("/admin/portraits", { token: owner.token })).status).toBe(403);
 
-    // 운영자 화면에서 승인
-    const adminPage = await signedInPage(await browser.newContext(), admin);
-    await adminPage.goto("/admin/portraits");
+    // 운영 콘솔에서 승인
+    const adminPage = await consolePage(await browser.newContext(), admin);
+    await adminPage.goto(`${URLS.console}/portraits`);
     await adminPage.waitForLoadState("networkidle");
     const item = adminPage.getByRole("listitem", { name: `${name} 초상` });
     await expect(item).toBeVisible();

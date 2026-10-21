@@ -5,9 +5,10 @@ import { fileURLToPath } from "node:url";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-export const PORTS = { web: 3101, api: 4101, ai: 8101 };
+export const PORTS = { web: 3101, console: 3102, api: 4101, ai: 8101 };
 export const URLS = {
   web: `http://localhost:${PORTS.web}`,
+  console: `http://localhost:${PORTS.console}`,
   api: `http://localhost:${PORTS.api}`,
   ai: `http://localhost:${PORTS.ai}`,
 };

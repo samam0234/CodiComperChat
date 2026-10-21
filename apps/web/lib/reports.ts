@@ -1,4 +1,4 @@
-// 신고·운영자 화면의 웹 쪽 모양. 정본(사유 목록·검증)은 Nest(apps/api/src/reports)다
+// 신고 사유 목록의 웹 쪽 모양. 정본(사유 목록·검증)은 Nest(apps/api/src/reports)다. 운영자 신고함은 console/
 
 export const REPORT_REASONS = [
   { value: "SEXUAL", label: "선정적·성적인 내용" },
@@ -11,25 +11,3 @@ export const REPORT_REASONS = [
 ] as const;
 
 export const reasonLabel = (value: string) => REPORT_REASONS.find((r) => r.value === value)?.label ?? value;
-
-export type OpenGroup = {
-  character: {
-    id: string;
-    name: string;
-    oneLiner: string;
-    visibility: "PUBLIC" | "UNLISTED" | "PRIVATE";
-    takenDownAt: string | null;
-    owner: { id: string; displayName: string; email: string } | null;
-  };
-  reports: { id: string; reason: string; detail: string; createdAt: string; reporter: { displayName: string } }[];
-};
-
-export type TakenDown = {
-  id: string;
-  name: string;
-  takenDownAt: string;
-  takedownReason: string | null;
-  owner: { displayName: string } | null;
-};
-
-export type AdminReportsView = { open: OpenGroup[]; takenDown: TakenDown[] };

@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // 운영자 화면은 운영 콘솔(console/)로 옮겼다. 예전 주소로 오면 콘솔로 보낸다
+  async redirects() {
+    const consoleUrl = process.env.CONSOLE_BASE_URL ?? "http://localhost:3001";
+    return [
+      { source: "/admin", destination: consoleUrl, permanent: false },
+      { source: "/admin/:page(reports|portraits|users)", destination: `${consoleUrl}/:page`, permanent: false },
+    ];
+  },
   allowedDevOrigins: ["192.168.45.24"],
 };
 

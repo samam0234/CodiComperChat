@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "console"
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace web",
     "build:web": "npm run build --workspace web",
+    "dev:console": "npm run dev --workspace console",
+    "build:console": "npm run build --workspace console",
     "dev:api": "npm run start:dev --workspace api",
     "build:api": "npm run build --workspace api",
     "test:api": "npm run test --workspace api",
