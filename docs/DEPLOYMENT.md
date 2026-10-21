@@ -32,6 +32,7 @@ repo/
 | FastAPI를 바깥에 열지 않고 서비스 토큰으로 막기 | 지금은 내부망 전제라 인증이 없다(계획서 §7.8) | `services/ai` |
 | `apps/api/data/personas/*.json` 옮기기 | git에 없다(발행하면 공방이 만든다). 서버를 새로 만들면 다시 발행하거나 파일을 옮긴다 | [`apps/api/data/personas/README.md`](../apps/api/data/personas/README.md) |
 | https | CSP `upgrade-insecure-requests`, 쿠키 `secure` | |
+| 운영 콘솔(`console/`)을 바깥에 열지 않기 | 운영자 로그인만 있으면 신고 처리·내리기·등급 변경을 할 수 있다. 사내망·VPN·IP 허용 목록 뒤에 두고, 이용자 사이트와 다른 도메인으로 | `CONSOLE_BASE_URL`(웹), `API_BASE_URL`·`WEB_BASE_URL`(콘솔) |
 
 이 항목들이 정해지기 전까지 `web_management/`의 배포 문서는 체크리스트 수준으로만 유지한다.
 

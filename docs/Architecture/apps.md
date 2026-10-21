@@ -4,7 +4,8 @@
 
 | 앱 | 스택 | 위치 | 역할 |
 |----|------|------|------|
-| web | Next.js 16 (React 19, App Router) | `apps/web/` | 홈·인기·캐릭터 상세, 대화(채팅)·이어하기·기억·상태설정·지난 이야기·엑스트라, 공방(7단계), 대화 목록, 마이페이지·설정, 로그인·가입·이메일 인증·비밀번호 찾기, 요금·결제, 운영자 화면, 약관 |
+| web | Next.js 16 (React 19, App Router) | `apps/web/` | 홈·인기·캐릭터 상세, 대화(채팅)·이어하기·기억·상태설정·지난 이야기·엑스트라, 공방(7단계), 대화 목록, 마이페이지·설정, 로그인·가입·이메일 인증·비밀번호 찾기, 요금·결제, 약관 |
+| console | Next.js 16 | `console/` | 운영자 전용 콘솔 (아래 "운영 콘솔은 별도 앱이다") |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 인증·계정, 캐릭터, 대화와 컨텍스트 조립, 기억·이야기 정리, 공방(초안·테스트·발행·초상 검수), 신고, 결제, 요청 한도, AI 호출 대기열. 웹이 유일하게 직접 치는 대상 |
 | ai | FastAPI (Python 3.12) | `services/ai/` | `/infer` `/summarize` `/critique-test` `/remember` `/suggest-replies` `/assist` `/ground-check` `/draft-field` `/moderate-image`, `/train`(403). Nest만 내부에서 호출 |
 
@@ -27,8 +28,16 @@
 - **api → ai**: `apps/api/src/ai/ai-client.ts`의 `postToAi`가 대기열을 거쳐 부른다(`AI_BASE_URL`, 기본 `http://localhost:8000`). ai에는 아직 서비스 토큰 인증이 없다 — 내부망 전제(배포 때 막는다)
 - **ai → Ollama**: `services/ai/app/services/llm.py`(`OLLAMA_BASE_URL`, `OLLAMA_MODEL`)
 
-## 공방(Studio)은 별도 앱이 아니다
+## 운영 콘솔은 별도 앱이다 (2026-10-21)
 
-공방은 `apps/web` 안의 화면이다. 별도 콘솔 앱/포트를 만들지 않았다.
+| 앱 | 스택 | 위치 | 포트 | 역할 |
+|----|------|------|------|------|
+| console | Next.js 16 (React 19, App Router) | `console/` (저장소 루트) | 3001 (e2e 3102) | 운영자 전용: 대시보드, 신고함, 초상 검수, 캐릭터 관리, 계정 등급 |
+
+- 이용자 사이트와 나눈 이유: 운영 화면을 바깥에 열지 않고(사내망·VPN·IP 제한) 따로 막을 수 있게, 운영자 로그인 쿠키(`console_session`, SameSite=Strict)를 이용자 쿠키와 섞지 않게, 배포·장애를 따로 다루게
+- 콘솔도 **Nest만** 부른다(`API_BASE_URL`). 권한은 Nest `AdminGuard`가 판단한다. FastAPI는 모른다
+- 디자인 토큰은 이용자 사이트와 같다(`console/app/globals.css`는 `apps/web/app/globals.css`의 토큰을 그대로 쓴다)
+
+공방(Studio)은 여전히 `apps/web` 안의 화면이다(만드는 사람이 이용자라서).
 
 관련: [overview.md](overview.md), [../guidance/web-frontend.md](../guidance/web-frontend.md), [../guidance/studio-workshop.md](../guidance/studio-workshop.md)

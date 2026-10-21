@@ -76,7 +76,7 @@ AI 초안       칸 하나씩 /draft-field (제안만, 카드는 안 바뀜. 비
 업로드 PUT /studio/characters/:id/portrait (원본 그대로, 150KB, 첫 바이트로 형식 확인)
   → FastAPI /moderate-image (gemma4가 항목별 참·거짓 + 확신 → 규칙)
       block   → 400, 저장 안 함
-      review  → 저장, portraitReview=PENDING (캐릭터에는 안 실림) → 운영자 /admin/portraits 승인·반려
+      review  → 저장, portraitReview=PENDING (캐릭터에는 안 실림) → 운영 콘솔 /portraits 승인·반려
       ok      → 저장, APPROVED (발행 중이면 캐릭터에 바로)
   AI가 꺼져 있으면 → PENDING (통과시키지 않는다)
 ```
@@ -98,7 +98,7 @@ AI 초안       칸 하나씩 /draft-field (제안만, 카드는 안 바뀜. 비
       주문 금액 = 결제창 금액 = 결제사 승인 금액이어야 함 (아니면 FAILED)
       토스 POST /v1/payments/confirm (Idempotency-Key=주문 번호)
       PENDING→PAID로 바꾼 쪽만 프로 기간 연장 (새로고침·동시 요청에도 한 번)
-환불: 운영자 /admin/users → 토스 cancel 성공 뒤에만 REFUNDED + 기간 되돌림
+환불: 운영 콘솔 /users → 토스 cancel 성공 뒤에만 REFUNDED + 기간 되돌림
 ```
 
 ## 왜 원문 전체를 매번 안 넣는가

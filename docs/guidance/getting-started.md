@@ -62,7 +62,7 @@ npm run prisma:seed         # 공식 캐릭터 넣기
 cd ../..
 ```
 
-운영자 계정이 필요하면(신고함·초상 검수·계정 등급 화면) 가입한 뒤:
+운영자 계정이 필요하면(운영 콘솔 `http://localhost:3001` — 대시보드·신고함·초상 검수·캐릭터·계정 등급) 가입한 뒤:
 
 ```bash
 npm run user:role --workspace api -- 내이메일@example.com admin
@@ -75,6 +75,7 @@ ollama serve                                                     # 이미 떠 �
 cd services/ai && ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 npm run dev:api        # http://localhost:4000
 npm run dev:web        # http://localhost:3000
+npm run dev:console    # http://localhost:3001  운영 콘솔 (운영자만, 필요할 때)
 ```
 
 ## 기대 결과

@@ -39,6 +39,9 @@
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId }` | **200** `{ reply }` · 🔒 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
 | `POST /characters/:id/report` | 캐릭터 신고 `{ reason, detail?(~500자) }` | **204** · 로그인한 누구나. 보이는(공개·링크 공개, 안 내려간) 캐릭터만, 없으면 404 · 내 캐릭터 400 · 사유 없음·기타인데 내용 없음 400 · 같은 캐릭터에 열린 신고가 있으면 409 · 한 사람이 열어 둔 신고 20건 상한 · 🔒 |
+| `GET /admin/stats` | 운영자: 콘솔 대시보드 숫자 | **200** `{ users: { total, verified, new7d, admins, pro }, characters: { published, public, takenDown, drafts }, moderation: { openReports, reportedCharacters, pendingPortraits }, activity: { activeConversations, messages24h }, ai: { inFlight, waitingForeground, waitingBackground, concurrency }, at }` · 운영자 아니면 403 · 🔒 |
+| `GET /admin/characters?q=&filter=&take=` | 운영자: 모든 캐릭터(비공개·내려간 것까지) | **200** `[{ id, name, oneLiner, published, visibility, hasPortrait, takenDownAt, takedownReason, official, owner, conversations, openReports, … }]` · filter `all\|public\|unlisted\|private\|official\|taken-down\|unpublished`, take 1~200(기본 100) · 🔒 |
+| `GET /admin/characters/:id/portrait` | 운영자: 캐릭터 초상(비공개·내려간 것 포함) | **200** 이미지(`private, no-store`) · 🔒 |
 | `GET /admin/reports` | 운영자 신고함 | **200** `{ reasons, open: [{ character: { id, name, oneLiner, visibility, owner }, reports: [{ id, reason, detail, createdAt, reporter }] }], takenDown: [{ id, name, takenDownAt, takedownReason, owner }] }` · **운영자(ADMIN)만**, 아니면 403(DB의 role을 매번 읽는다). 신고가 많은 캐릭터가 위로 · 🔒 |
 | `POST /admin/characters/:id/take-down` | 캐릭터 내리기 `{ note(~300자, 필수) }` | **204** · 열린 신고를 모두 처리됨으로. 사유는 만든 사람에게 보인다 · 운영자만 · 🔒 |
 | `POST /admin/characters/:id/dismiss-reports` | 신고 기각 `{ note? }` | **204** · 열린 신고가 없으면 404 · 운영자만 · 🔒 |
@@ -186,7 +189,7 @@ Nest는 이 객체를 `CampaignState`에 머지한다.
 - 흐름: 웹 `/pricing` → `checkout`(주문) → 결제창(토스 SDK v2 `requestPayment`, 가짜면 `/billing/mock`) → `/billing/success?paymentKey&orderId&amount` → `confirm` → 서버가 결제사에 승인 요청(토스 `POST /v1/payments/confirm`, `Idempotency-Key`=주문 번호) → 승인 금액까지 맞으면 PAID + 프로 기간 연장.
 - 기간: 남은 프로 기간이 있으면 그 뒤에 붙고, 만료 없는 프로는 그대로, 아니면 지금부터. 자동 결제(정기 결제)는 없다.
 - 금액은 코드를 고치지 않고 `BILLING_PRICE_PRO_30`·`BILLING_PRICE_PRO_365`(원, 100~10,000,000 정수)로 정한다. 없거나 잘못 적으면 기본값(4,900원·49,000원, 출시 전 임시값).
-- 환불: 운영자 `/admin/users`에서 계정을 찾아 결제 옆 "환불"(사유 필수). 결제사 환불(토스 `POST /v1/payments/{paymentKey}/cancel`, `Idempotency-Key`)이 성공해야 기록을 바꾸고, 그 결제의 일수만큼 프로 기간을 되돌린다(만료 없는 프로는 그대로).
+- 환불: 운영 콘솔 `/users`에서 계정을 찾아 결제 옆 "환불"(사유 필수). 결제사 환불(토스 `POST /v1/payments/{paymentKey}/cancel`, `Idempotency-Key`)이 성공해야 기록을 바꾸고, 그 결제의 일수만큼 프로 기간을 되돌린다(만료 없는 프로는 그대로).
 - 영수증: 토스 승인 응답의 `receipt.url`을 저장해 마이페이지 결제 내역에 링크한다.
 - 키 확인: `npm run billing:check --workspace api` — 없는 결제로 승인을 요청해 `NOT_FOUND_PAYMENT…`이면 키·연결 정상(돈은 오가지 않는다). 토스 문서용 테스트 키로 확인한 결과: 정상 키는 `NOT_FOUND_PAYMENT_SESSION`, 틀린 키는 `UNAUTHORIZED_KEY`.
 - 요청 한도: `checkout`·`confirm` 10분에 20번(사용자).
