@@ -31,9 +31,9 @@ function Status({ state }: { state: FormState }) {
 }
 
 const THEME_OPTIONS = [
-  { value: "system", label: "기기 설정 따르기", hint: "기기가 어두우면 어둡게" },
-  { value: "light", label: "밝게", hint: "언제나 밝은 화면" },
-  { value: "dark", label: "어둡게", hint: "눈이 편한 어두운 화면" },
+  { value: "auto", label: "시간에 따라 자동", hint: "오전 7시~오후 10시 밝게, 밤에는 어둡게" },
+  { value: "light", label: "밝기 모드 영구 설정", hint: "시간과 상관없이 언제나 밝게" },
+  { value: "dark", label: "다크 모드 영구 설정", hint: "시간과 상관없이 언제나 어둡게" },
 ];
 
 export function ThemeForm({ current }: { current: string }) {
@@ -52,7 +52,7 @@ export function ThemeForm({ current }: { current: string }) {
                 value={option.value}
                 defaultChecked={current === option.value}
               />
-              {/* 미리보기: 밝은 면과 어두운 면. 기기 설정은 반반 */}
+              {/* 미리보기: 밝은 면과 어두운 면. 자동은 반반 */}
               <span className={`${styles.swatch} ${styles[`swatch_${option.value}`]}`} aria-hidden="true">
                 <span />
                 <span />

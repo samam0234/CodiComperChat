@@ -193,7 +193,9 @@
 | 2026-10-21 | `48a653d` | develop (merge) | feature/chat-format → develop 병합 (--no-ff) | [261021_2246_48a653d_merge-chat-format_develop.md](commits/261021_2246_48a653d_merge-chat-format_develop.md) |
 | 2026-10-21 | `58d3c3c` | develop (merge) | feature/credits-commands → develop 병합 (--no-ff) | [261021_2246_58d3c3c_merge-credits-commands_develop.md](commits/261021_2246_58d3c3c_merge-credits-commands_develop.md) |
 | 2026-10-21 | `af0c44c` | feature/mypage-upgrade | 마이페이지와 설정 화면 개편 | [261021_2344_af0c44c_mypage-settings-redesign_feature-mypage-upgrade.md](commits/261021_2344_af0c44c_mypage-settings-redesign_feature-mypage-upgrade.md) |
+| 2026-10-22 | `9ca8965` | feature/theme-schedule | 헤더 밝기 버튼과 시간에 따른 자동 테마 | [261022_0011_9ca8965_theme-schedule-toggle_feature-theme-schedule.md](commits/261022_0011_9ca8965_theme-schedule-toggle_feature-theme-schedule.md) |
 |  | `` |  |  | [261021_2315_a385fa3_console-readme_feature-console-readme.md](commits/261021_2315_a385fa3_console-readme_feature-console-readme.md) |
+| 2026-10-22 | `2aa4978` | develop (merge) | feature/mypage-upgrade → develop 병합 (--no-ff) | [261022_0024_2aa4978_merge-mypage-upgrade_develop.md](commits/261022_0024_2aa4978_merge-mypage-upgrade_develop.md) |
 | 2026-10-22 | `4711378` | develop (merge) | feature/console-readme → develop 병합 (--no-ff) | [261022_0024_4711378_merge-console-readme_develop.md](commits/261022_0024_4711378_merge-console-readme_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

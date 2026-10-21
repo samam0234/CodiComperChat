@@ -139,7 +139,8 @@ export default function PrivacyPage() {
           body: (
             <ul>
               <li><code>session</code>: 로그인 상태(최대 7일). 자바스크립트가 읽지 못하게(HttpOnly) 저장됩니다.</li>
-              <li><code>theme</code>: 화면 테마(밝게·어둡게) 선택.</li>
+              <li><code>theme</code>: 화면 테마 기본값(시간에 따라 자동·밝기 영구·다크 영구).</li>
+              <li><code>theme_override</code>: 헤더의 밝기 버튼으로 잠깐 바꾼 밝기와 끝나는 시각(다음 전환 시각까지, 최대 하루).</li>
               <li>광고·추적용 쿠키는 쓰지 않습니다.</li>
             </ul>
           ),

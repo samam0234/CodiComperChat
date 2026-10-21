@@ -31,7 +31,8 @@
   --aurora-3: rgba(90, 180, 255, 0.12);
 }
 
-/* data-theme은 설정 > 화면 테마(쿠키)에서 온다. 없거나 system이면 기기 설정을 따른다 */
+/* data-theme은 서버가 늘 정해 보낸다: 설정 기본값(자동 시간표·영구)과 헤더에서 잠깐 바꾼 것 (lib/theme-schedule.ts).
+   아래 기기 설정 규칙은 data-theme이 없을 때(자바스크립트·쿠키 없이 그린 예전 화면)를 위한 대비다 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --background: #0d0a1a;
