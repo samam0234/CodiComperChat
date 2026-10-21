@@ -16,6 +16,12 @@ export class CharactersController {
     return this.charactersService.findPublished();
   }
 
+  // 인기 순위 (공개 캐릭터만, 대화한 사람 수·최근 7일 말 수). :id보다 먼저 둬야 "popular"를 캐릭터 id로 읽지 않는다
+  @Get('popular')
+  popular() {
+    return this.charactersService.popular();
+  }
+
   // 흉상 초상 이미지. 공개·링크 공개는 누구나(캐시 가능), 비공개는 만든 사람만(캐시하지 않음)
   @Get(':id/portrait')
   async portrait(@Param('id') id: string, @Res() res: Response, @Headers('authorization') authorization?: string) {
