@@ -12,6 +12,8 @@ import {
 } from '../conversations/conversations.service.js';
 import { ExtrasService } from '../extras/extras.service.js';
 import { MemoriesService } from '../memories/memories.service.js';
+import { DEFAULT_MODEL_ID, findModel } from '../models/models.js';
+import { ModelsService } from '../models/models.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
@@ -19,6 +21,7 @@ import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from '.
 import type { ChatTurn } from './character-chat.types.js';
 
 type PersonaOptions = { personaId: string; authorization?: string };
+type SendOptions = PersonaOptions & { model?: string };
 
 @Injectable()
 export class CharacterChatService {
@@ -31,6 +34,7 @@ export class CharacterChatService {
     private readonly chatState: ChatStateService,
     private readonly extras: ExtrasService,
     private readonly story: CampaignStoryService,
+    private readonly models: ModelsService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -82,6 +86,7 @@ export class CharacterChatService {
       // 아직 대화 전이면 시작 장면만 보여 준다 (저장은 첫 메시지를 보낼 때)
       return {
         started: false,
+        model: DEFAULT_MODEL_ID,
         persona: null,
         savedCount,
         messages: [{ id: 'opening', role: 'character', text: character.openingScene, speaker: null }],
@@ -89,6 +94,7 @@ export class CharacterChatService {
     }
     return {
       started: true,
+      model: findModel(conversation.chatModel) ? conversation.chatModel : DEFAULT_MODEL_ID,
       persona: conversation.persona ? { id: conversation.persona.id, name: conversation.persona.name } : null,
       savedCount,
       messages: await this.conversations.messages(conversation.sessionId, DISPLAY_MESSAGES),
@@ -147,7 +153,7 @@ export class CharacterChatService {
     return this.memories.forContext(conversation.campaignId, query);
   }
 
-  async send(characterId: string, userTurn: string, options: PersonaOptions) {
+  async send(characterId: string, userTurn: string, options: SendOptions) {
     const { character, userId, persona, conversation: existing, history, chatState, story } = await this.prepare(
       characterId,
       options,
@@ -168,12 +174,24 @@ export class CharacterChatService {
       ungroundedTopics(userTurn, grounding),
       story,
     );
-    const first = await postToAi<{ reply: string }>('/infer', { context, userTurn });
-    // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
-    const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding));
+    // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(프로 아님·한도 초과) 이유와 함께 거절한다
+    const model = options.model
+      ? await this.models.authorize(userId, options.model)
+      : await this.models.usableOrDefault(userId, existing?.chatModel ?? DEFAULT_MODEL_ID);
+    // 하루 한도가 있는 모델이면 답을 만들기 전에 1번을 잡고, 못 만들면 돌려준다
+    await this.models.reserve(userId, model);
+    let reply: string;
+    try {
+      const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime });
+      // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
+      reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime);
+    } catch (error) {
+      await this.models.release(userId, model);
+      throw error;
+    }
 
     // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
-    const conversation = await this.conversations.findOrCreate(userId, character, persona);
+    const conversation = await this.conversations.findOrCreate(userId, character, persona, model.id);
     await this.conversations.appendExchange(conversation, userTurn, persona.name, reply);
     // 대화가 충분히 쌓였으면 답을 돌려준 뒤 뒤에서 기억을 정리한다 (답 속도에 영향 없음)
     this.memories.memorizeInBackground(conversation, {
@@ -182,7 +200,7 @@ export class CharacterChatService {
     });
     // 같은 박자로 이야기 상태(지난 이야기 요약·친밀도 자동 변화·복선)도 뒤에서 정리한다
     this.story.digestInBackground(conversation, { character, persona });
-    return { reply };
+    return { reply, model: model.id, usage: await this.models.usage(userId, model) };
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {

@@ -22,6 +22,7 @@ export async function POST(
       body: JSON.stringify({
         message: body.message,
         personaId: body.personaId,
+        model: body.model,
       }),
     });
   } catch {

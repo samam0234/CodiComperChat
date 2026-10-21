@@ -28,13 +28,15 @@ def generate(
     response_json_schema: dict | None = None,
     # 판정·요약처럼 같은 입력에 같은 결과가 나와야 하는 호출에서 고정한다 (대화 연기는 고정하지 않는다)
     seed: int | None = None,
+    # 이 호출만 쓸 모델 태그. 없으면 OLLAMA_MODEL(기본 gemma4:e4b)
+    model: str | None = None,
 ) -> str:
     # 웹 자동 테스트(e2e)용: 모델 없이 고정된 응답을 돌려준다. 실제 품질 확인용이 아니다
     if os.environ.get("LLM_FAKE") == "1":
         return fake_llm.generate(response_json_schema)
 
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
-    model = os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
+    model = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
 
     messages: list[dict[str, object]] = [{"role": "system", "content": system}, *contents]
     options: dict[str, object] = {"num_predict": max_output_tokens}

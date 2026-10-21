@@ -120,6 +120,8 @@ export async function keepGrounded(
   userTurn: string,
   firstReply: string,
   facts: string[],
+  // 다시 쓸 때도 처음 답과 같은 모델로 (기본 모델이면 null)
+  model: string | null = null,
 ): Promise<string> {
   const topics = context.ungroundedTopics;
   if (topics.length === 0) return firstReply;
@@ -133,6 +135,7 @@ export async function keepGrounded(
       const retry = await postToAi<{ reply: string }>('/infer', {
         context,
         userTurn,
+        model,
         retryNote:
           `방금 쓴 답은 설정에 없는 [${topics.join(', ')}] 내용을 단정했다(${reply.slice(0, 120).replace(/\s+/g, ' ')}). ` +
           '그 내용을 빼고, 있다/없다·구체적인 내용을 말하지 않고 캐릭터답게 말을 돌리거나 되묻는 짧은 한두 문장으로 다시 쓴다.',

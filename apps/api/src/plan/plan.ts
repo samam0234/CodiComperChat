@@ -1,5 +1,5 @@
 // 요금 등급. 결제(apps/api/src/billing)로 사거나, 운영자가 부여한다(/admin/users, scripts/user-plan.mjs).
-// 등급이 바꾸는 것은 지금은 하나: 공방 카드의 "긴 글 칸" 글자 수 상한 3배 (기획서 §6.3 컨텍스트 예산은 그대로 지킨다 — 항상 들어가는 칸은 늘리지 않는다).
+// 등급이 바꾸는 것: (1) 공방 카드의 "긴 글 칸" 글자 수 상한 3배 (기획서 §6.3 컨텍스트 예산은 그대로 지킨다 — 항상 들어가는 칸은 늘리지 않는다), (2) 프리미엄 대화 모델(Claude·Grok)을 고를 수 있음 (src/models/models.ts, 연동 전이라 아직 잠김).
 export type Plan = 'FREE' | 'PRO';
 
 export const PRO_MULTIPLIER = 3;
