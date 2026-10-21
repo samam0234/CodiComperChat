@@ -54,9 +54,12 @@ function PersonaItem({ persona }: { persona: Persona }) {
     <li className={styles.item}>
       <details>
         <summary className={styles.summary}>
-          <span className={styles.name}>{persona.name}</span>
-          <span className={styles.description}>
-            {persona.description || "소개 없음"}
+          <span className={styles.avatar} aria-hidden="true">
+            {Array.from(persona.name.trim())[0] ?? "?"}
+          </span>
+          <span className={styles.text}>
+            <span className={styles.name}>{persona.name}</span>
+            <span className={styles.description}>{persona.description || "소개 없음"}</span>
           </span>
           <span className={styles.edit}>수정</span>
         </summary>
@@ -95,35 +98,42 @@ export default function Personas({ personas, limit }: { personas: Persona[]; lim
 
   return (
     <section className={styles.section} aria-labelledby="personas-heading">
-      <h2 id="personas-heading" className={styles.heading}>
-        내 프로필 캐릭터 <span className={styles.count}>{personas.length}/{limit}</span>
-      </h2>
+      <div className={styles.head}>
+        <h2 id="personas-heading" className={styles.heading}>
+          내 프로필 캐릭터 <span className={styles.count}>{personas.length}/{limit}</span>
+        </h2>
+      </div>
       <p className={styles.lead}>
         대화할 때 내가 연기할 주인공입니다. 채팅 입력창 아래에서 골라 쓸 수 있고, 나만 볼 수 있습니다.
       </p>
 
-      {personas.length > 0 ? (
-        <ul className={styles.list}>
-          {personas.map((persona) => (
-            <PersonaItem key={`${persona.id}:${persona.name}:${persona.description}`} persona={persona} />
-          ))}
-        </ul>
-      ) : (
-        <p className={styles.empty}>아직 만든 프로필 캐릭터가 없습니다.</p>
+      {personas.length === 0 && (
+        <p className={styles.empty}>
+          아직 만든 프로필 캐릭터가 없습니다.
+          <br />
+          이름만 정해도 바로 대화를 시작할 수 있어요.
+        </p>
       )}
 
-      {full ? (
-        <p className={styles.empty}>최대 {limit}개까지 만들 수 있습니다. 새로 만들려면 하나를 삭제하세요.</p>
-      ) : (
-        <form action={action} className={`${form.form} ${styles.createForm}`}>
-          <h3 className={styles.subheading}>새로 만들기</h3>
-          <PersonaFields values={state?.values} />
-          <Status state={state} />
-          <button type="submit" className={form.submit} disabled={pending}>
-            {pending ? "만드는 중…" : "프로필 캐릭터 만들기"}
-          </button>
-        </form>
-      )}
+      <ul className={styles.grid}>
+        {personas.map((persona) => (
+          <PersonaItem key={`${persona.id}:${persona.name}:${persona.description}`} persona={persona} />
+        ))}
+        <li>
+          {full ? (
+            <p className={styles.empty}>최대 {limit}개까지 만들 수 있습니다. 새로 만들려면 하나를 삭제하세요.</p>
+          ) : (
+            <form action={action} className={`${form.form} ${styles.createForm}`}>
+              <h3 className={styles.subheading}>새로 만들기</h3>
+              <PersonaFields values={state?.values} />
+              <Status state={state} />
+              <button type="submit" className={form.submit} disabled={pending}>
+                {pending ? "만드는 중…" : "프로필 캐릭터 만들기"}
+              </button>
+            </form>
+          )}
+        </li>
+      </ul>
     </section>
   );
 }

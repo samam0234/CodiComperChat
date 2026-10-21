@@ -1,12 +1,14 @@
 .card {
   display: grid;
+  align-content: start;
   gap: 10px;
-  max-width: 560px;
-  margin-top: 20px;
-  padding: 16px 18px;
+  padding: 20px 22px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(320px 140px at 100% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
   font-size: 14px;
 }
 
