@@ -1,0 +1,99 @@
+.list {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.item img {
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--background);
+}
+
+.body {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.tag {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.meta,
+.empty {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.note {
+  font-size: 14px;
+}
+
+.input {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.approve,
+.reject {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.approve {
+  background: var(--gradient);
+  color: #fff;
+}
+
+.reject {
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.error {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--danger);
+}
+
+@media (max-width: 520px) {
+  .item {
+    flex-direction: column;
+  }
+}

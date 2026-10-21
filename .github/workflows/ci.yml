@@ -53,13 +53,19 @@ jobs:
           npx prisma migrate deploy
 
       - name: 린트 (oxlint)
-        run: npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components e2e
+        run: npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e
 
       - name: 타입 검사 (api)
         run: npm run typecheck:api
 
       - name: 타입 검사 (web)
         working-directory: apps/web
+        run: |
+          npx next typegen
+          npx tsc --noEmit
+
+      - name: 타입 검사 (console)
+        working-directory: console
         run: |
           npx next typegen
           npx tsc --noEmit

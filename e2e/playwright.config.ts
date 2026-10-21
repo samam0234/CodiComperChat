@@ -25,5 +25,7 @@ export default defineConfig({
     { command: "node e2e/servers/ai.mjs", url: `${URLS.ai}/health`, cwd: ROOT, timeout: 60_000, reuseExistingServer: false },
     { command: "node e2e/servers/api.mjs", url: `${URLS.api}/health`, cwd: ROOT, timeout: 60_000, reuseExistingServer: false },
     { command: "node e2e/servers/web.mjs", url: URLS.web, cwd: ROOT, timeout: 180_000, reuseExistingServer: false },
+    // 운영 콘솔: 로그인 화면이 뜨면 준비된 것
+    { command: "node e2e/servers/console.mjs", url: `${URLS.console}/login`, cwd: ROOT, timeout: 180_000, reuseExistingServer: false },
   ],
 });

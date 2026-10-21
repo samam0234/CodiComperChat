@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser, safeNextPath } from "@/lib/auth";
+import { CONSOLE_BASE_URL, requireUser, safeNextPath } from "@/lib/auth";
 import { getMyOrders, won } from "@/lib/billing";
 import { formatDay } from "@/lib/format-time";
 import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
@@ -80,17 +80,10 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
       </Link>
 
       {user.role === "ADMIN" && (
-        <>
-          <Link href="/admin/reports" className={styles.link}>
-            운영자 · 신고함 →
-          </Link>
-          <Link href="/admin/portraits" className={styles.link}>
-            운영자 · 초상 검수 →
-          </Link>
-          <Link href="/admin/users" className={styles.link}>
-            운영자 · 계정 등급 →
-          </Link>
-        </>
+        // 운영자 화면은 별도 운영 콘솔(console/, 기본 3001)에 있다. 콘솔은 따로 로그인한다
+        <a href={CONSOLE_BASE_URL} className={styles.link} target="_blank" rel="noopener noreferrer">
+          운영 콘솔 열기 →
+        </a>
       )}
 
       <Personas personas={personas} limit={PERSONA_LIMIT} />

@@ -71,6 +71,12 @@ export async function loginAs(context: BrowserContext, user: User) {
   await context.addCookies([{ name: "session", value: user.token, url: URLS.web, httpOnly: true }]);
 }
 
+// 운영 콘솔에 로그인한 페이지 (콘솔 쿠키는 이용자 사이트의 session과 이름이 다르다). 주소는 콘솔 기준으로 연다
+export async function consolePage(context: BrowserContext, user: User): Promise<Page> {
+  await context.addCookies([{ name: "console_session", value: user.token, url: URLS.console, httpOnly: true }]);
+  return context.newPage();
+}
+
 export async function signedInPage(context: BrowserContext, user: User): Promise<Page> {
   await loginAs(context, user);
   return context.newPage();

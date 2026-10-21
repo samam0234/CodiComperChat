@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { api, makeAdmin, signedInPage, signup, sql } from "../helpers";
+import { URLS } from "../env.mjs";
+import { api, consolePage, makeAdmin, signedInPage, signup, sql } from "../helpers";
 
 // e2e는 가짜 결제(BILLING_PROVIDER=mock)로 돈 없이 결제 흐름 전체를 시험한다. 토스 승인 요청 모양은 apps/api 단위 테스트가 본다
 test.describe("결제", () => {
@@ -78,8 +79,8 @@ test.describe("결제", () => {
     const target = await signup("등급대상");
     expect((await api(`/admin/users?email=${target.email}`, { token: target.token })).status).toBe(403);
 
-    const page = await signedInPage(await browser.newContext(), admin);
-    await page.goto("/admin/users");
+    const page = await consolePage(await browser.newContext(), admin);
+    await page.goto(`${URLS.console}/users`);
     await page.waitForLoadState("networkidle");
     await page.getByLabel("계정 이메일").fill(target.email);
     await page.getByRole("button", { name: "찾기" }).click();
@@ -117,8 +118,8 @@ test.describe("환불", () => {
     expect((await api(`/admin/orders/${second}/refund`, { token: user.token, json: { reason: "셀프" } })).status).toBe(403);
     expect((await api(`/admin/orders/${second}/refund`, { token: admin.token, json: { reason: "" } })).status).toBe(400);
 
-    const page = await signedInPage(await browser.newContext(), admin);
-    await page.goto("/admin/users");
+    const page = await consolePage(await browser.newContext(), admin);
+    await page.goto(`${URLS.console}/users`);
     await page.waitForLoadState("networkidle");
     await page.getByLabel("계정 이메일").fill(user.email);
     await page.getByRole("button", { name: "찾기" }).click();

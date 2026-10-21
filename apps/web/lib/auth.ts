@@ -8,6 +8,8 @@ export const SESSION_COOKIE = "session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
 export const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000";
+// 운영 콘솔 주소 (운영자에게만 링크를 보인다)
+export const CONSOLE_BASE_URL = process.env.CONSOLE_BASE_URL ?? "http://localhost:3001";
 
 export type CurrentUser = {
   id: string;
