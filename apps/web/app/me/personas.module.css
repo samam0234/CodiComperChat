@@ -1,56 +1,90 @@
+/* 내 프로필 캐릭터: 카드 격자. 카드를 펼치면 그 자리에서 고친다 */
 .section {
-  max-width: 560px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .heading {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .count {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .lead {
-  margin-top: 6px;
   font-size: 14px;
   line-height: 1.6;
   color: var(--muted);
 }
 
-.list {
+.grid {
   display: grid;
-  gap: 8px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  align-items: start;
   list-style: none;
 }
 
 .item {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s;
+}
+
+.item:hover,
+.item:has(details[open]) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
 }
 
 .summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 12px;
-  padding: 14px 16px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
   cursor: pointer;
   list-style: none;
 }
 
 .summary::-webkit-details-marker {
   display: none;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-soft);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .name {
@@ -60,20 +94,18 @@
 }
 
 .description {
-  grid-column: 1;
   font-size: 13px;
+  line-height: 1.5;
   color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .edit {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -83,7 +115,7 @@ details[open] .edit {
 
 .editForm {
   margin-top: 0;
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
 .actions {
@@ -92,7 +124,7 @@ details[open] .edit {
 }
 
 .delete {
-  margin: 8px 16px 16px;
+  margin: 8px 18px 16px;
   font-size: 13px;
   font-weight: 600;
   color: var(--danger);
@@ -103,20 +135,24 @@ details[open] .edit {
 }
 
 .empty {
-  margin-top: 16px;
-  padding: 14px 16px;
+  padding: 28px 20px;
   border: 1px dashed var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
   color: var(--muted);
   background: var(--surface);
 }
 
 .createForm {
-  margin-top: 20px;
-  padding: 18px 16px;
-  border-radius: 12px;
+  margin-top: 0;
+  padding: 20px 18px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: var(--radius-md);
   background: var(--surface);
+  gap: 14px;
+  align-content: start;
 }
 
 .subheading {

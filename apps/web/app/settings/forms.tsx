@@ -31,9 +31,9 @@ function Status({ state }: { state: FormState }) {
 }
 
 const THEME_OPTIONS = [
-  { value: "system", label: "기기 설정 따르기" },
-  { value: "light", label: "밝게" },
-  { value: "dark", label: "어둡게" },
+  { value: "system", label: "기기 설정 따르기", hint: "기기가 어두우면 어둡게" },
+  { value: "light", label: "밝게", hint: "언제나 밝은 화면" },
+  { value: "dark", label: "어둡게", hint: "눈이 편한 어두운 화면" },
 ];
 
 export function ThemeForm({ current }: { current: string }) {
@@ -43,17 +43,25 @@ export function ThemeForm({ current }: { current: string }) {
     <form action={action} className={form.form}>
       <fieldset className={styles.choices}>
         <legend className={form.label}>화면 테마</legend>
-        {THEME_OPTIONS.map((option) => (
-          <label key={option.value} className={styles.choice}>
-            <input
-              type="radio"
-              name="theme"
-              value={option.value}
-              defaultChecked={current === option.value}
-            />
-            {option.label}
-          </label>
-        ))}
+        <div className={styles.themeGrid}>
+          {THEME_OPTIONS.map((option) => (
+            <label key={option.value} className={styles.themeCard}>
+              <input
+                type="radio"
+                name="theme"
+                value={option.value}
+                defaultChecked={current === option.value}
+              />
+              {/* 미리보기: 밝은 면과 어두운 면. 기기 설정은 반반 */}
+              <span className={`${styles.swatch} ${styles[`swatch_${option.value}`]}`} aria-hidden="true">
+                <span />
+                <span />
+              </span>
+              <span className={styles.themeLabel}>{option.label}</span>
+              <span className={styles.themeHint}>{option.hint}</span>
+            </label>
+          ))}
+        </div>
       </fieldset>
       <Status state={state} />
       <button type="submit" className={form.secondary} disabled={pending}>
