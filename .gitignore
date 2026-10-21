@@ -11,6 +11,7 @@ build/
 .next-e2e/
 apps/web/tsconfig.e2e.json
 console/tsconfig.e2e.json
+console/next-env.d.ts
 e2e/.tmp/
 
 # Python
