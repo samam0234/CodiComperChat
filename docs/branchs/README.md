@@ -192,5 +192,6 @@
 | 2026-10-21 | `1ea027f` | develop (merge) | feature/model-select → develop 병합 (--no-ff) | [261021_2246_1ea027f_merge-model-select_develop.md](commits/261021_2246_1ea027f_merge-model-select_develop.md) |
 | 2026-10-21 | `48a653d` | develop (merge) | feature/chat-format → develop 병합 (--no-ff) | [261021_2246_48a653d_merge-chat-format_develop.md](commits/261021_2246_48a653d_merge-chat-format_develop.md) |
 | 2026-10-21 | `58d3c3c` | develop (merge) | feature/credits-commands → develop 병합 (--no-ff) | [261021_2246_58d3c3c_merge-credits-commands_develop.md](commits/261021_2246_58d3c3c_merge-credits-commands_develop.md) |
+| 2026-10-21 | `af0c44c` | feature/mypage-upgrade | 마이페이지와 설정 화면 개편 | [261021_2344_af0c44c_mypage-settings-redesign_feature-mypage-upgrade.md](commits/261021_2344_af0c44c_mypage-settings-redesign_feature-mypage-upgrade.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
