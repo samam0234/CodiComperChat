@@ -23,7 +23,7 @@
 | 인증 | **자체 이메일·비밀번호** (scrypt + HS256 JWT 7일, `AUTH_SECRET`). 웹은 httpOnly `session` 쿠키 | 기획서 §7.8 "v1은 이메일 또는 소셜 하나면 충분"의 이메일 쪽. `apps/api/src/auth` |
 | 이메일 인증·비밀번호 찾기 | 메일 링크 일회용 토큰(DB에는 해시만). 캐릭터 **발행은 인증한 계정만** | `auth/email-token.ts`, `mail/` |
 | 로그인 토큰 무효화 | 토큰에 계정의 세대(`sessionVersion`)를 싣고, 비밀번호 변경·재설정 때 올려 이전 토큰을 모두 끊는다 | `auth/session.ts` |
-| 메일 발송 | SMTP(`MAIL_SMTP_URL`) / 폴더(`MAIL_OUTBOX_DIR`, 시험용) / 개발 중 로그 | `mail/mail.service.ts`, 확인 `npm run mail:check --workspace api` |
+| 메일 발송 | SMTP(`MAIL_SMTP_URL`) / 폴더(`MAIL_OUTBOX_DIR`, 시험용) / 개발 중 로그. **개발 메일 서버는 Mailpit**(docker compose, SMTP 1025·웹 8025). 운영 메일 서비스는 미정 | `mail/mail.service.ts`, 확인 `npm run mail:check --workspace api` |
 | 회원 탈퇴 | 계정·데이터 삭제, 발행 캐릭터는 먼저 내림, 결제 기록은 법정 보관(계정 연결만 끊음) | `account/` |
 | LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). 그림 인식도 같은 모델 | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
@@ -74,6 +74,7 @@
 | FastAPI (`services/ai`) | 8000 | 8101 | 내부 전용. e2e는 가짜 LLM(`LLM_FAKE=1`) |
 | PostgreSQL | 5432 | 5432 (DB `codicomperchat_e2e`) | `npm run ci:local`은 `codicomperchat_ci`·`codicomperchat_ci_e2e` |
 | Ollama | 11434 | 쓰지 않음 | |
+| Mailpit (개발 메일) | 1025 SMTP · 8025 웹 | 쓰지 않음(메일은 폴더로) | `docker compose up -d mailpit`, 127.0.0.1에만 열림 |
 | Redis | — | — | 쓰지 않음 |
 
 e2e·CI 재현은 개발 서버·개발 DB와 겹치지 않아 같이 켜 둬도 된다.

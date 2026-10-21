@@ -42,6 +42,14 @@ cp services/ai/.env.example services/ai/.env
 | `DATABASE_URL` | 내 PostgreSQL 주소 (`postgresql://codicomperchat:<비밀번호>@localhost:5432/codicomperchat?schema=public`) |
 | `AUTH_SECRET` | 32자 이상 무작위 값: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"` — 없으면 api가 시작하지 않는다 |
 
+메일(가입 인증·비밀번호 재설정)을 실제로 주고받아 보려면 로컬 메일 서버를 띄운다 (Docker Desktop 필요):
+
+```bash
+docker compose up -d mailpit       # SMTP 127.0.0.1:1025, 받은 메일 http://127.0.0.1:8025
+```
+
+그리고 `apps/api/.env`에 `MAIL_SMTP_URL=smtp://127.0.0.1:1025`, `WEB_BASE_URL=http://localhost:3000`. 밖으로는 나가지 않고 Mailpit이 받아 둔다. 확인: `npm run mail:check --workspace api -- 아무주소@example.com`
+
 `.env`는 git에 올라가지 않는다. 값을 문서·대화·커밋에 붙이지 않는다.
 
 ## 3) DB 준비
@@ -77,7 +85,7 @@ npm run dev:web        # http://localhost:3000
 | `curl http://localhost:4000/health` | `{"status":"ok","service":"api",...,"ai":{"inFlight":0,...}}` |
 | `http://localhost:3000` | 홈(히어로·캐릭터 카드). 오른쪽 위 "시작하기" |
 | 가입 → 마이페이지에서 프로필 캐릭터 만들기 → 캐릭터 → 대화 시작하기 | 캐릭터가 답한다(첫 답은 모델을 올리느라 수십 초 걸릴 수 있다) |
-| 가입 인증 메일 | 메일 설정이 없으면 **api 터미널 로그**에 `[개발용 메일]`과 링크가 찍힌다 |
+| 가입 인증 메일 | Mailpit을 띄웠으면 `http://127.0.0.1:8025`에 도착(링크를 누르면 인증 화면). 메일 설정이 없으면 **api 터미널 로그**에 `[개발용 메일]`과 링크가 찍힌다 |
 | 결제 | 토스 키가 없으면 "시험 모드" 가짜 결제창 (돈이 오가지 않음) |
 
 ## 테스트

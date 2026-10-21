@@ -18,7 +18,7 @@
 | `RATE_LIMIT` | | 켜짐 | `off`면 요청 한도를 끈다(개발 중 막힐 때만) |
 | `RATE_LIMIT_SCALE` | | 1 | 한도에 곱하는 수 |
 | `RATE_LIMIT_STORE` | | `memory` | `db`면 PostgreSQL(`rate_limit_buckets`)에 함께 센다 — API 서버가 여러 대일 때 |
-| `MAIL_SMTP_URL` | 운영 필수 | — | 예: `smtps://user:password@smtp.example.com:465` (비밀번호 특수문자는 URL 인코딩). 없으면 개발 중 로그에 메일 내용, 운영에서는 보내지 않음(오류 로그) |
+| `MAIL_SMTP_URL` | 운영 필수 | — | 개발: `smtp://127.0.0.1:1025`(Mailpit, `localhost`는 IPv6로 풀려 거절됨). 운영 예: `smtps://user:password@smtp.example.com:465` (비밀번호 특수문자는 URL 인코딩). 없으면 개발 중 로그에 메일 내용, 운영에서는 보내지 않음(오류 로그) |
 | `MAIL_FROM` | | `코디컴퍼챗 <no-reply@codicomperchat.local>` | 보내는 사람 |
 | `WEB_BASE_URL` | 운영 필수 | `http://localhost:3000` | 메일 속 링크가 가리킬 웹 주소 |
 | `MAIL_OUTBOX_DIR` | | — | 보내지 않고 이 폴더에 JSON으로 남김(e2e가 씀) |
