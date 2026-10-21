@@ -20,13 +20,15 @@ export type StoredMessage = {
 // 이 대화에 고정된 내 프로필 (첫 메시지 때 정해진다)
 export type LockedPersona = { id: string; name: string; description: string };
 
-export type Conversation = { campaignId: string; sessionId: string; persona: LockedPersona | null };
+// chatModel: 이 대화의 답을 쓰는 모델 id (src/models/models.ts)
+export type Conversation = { campaignId: string; sessionId: string; persona: LockedPersona | null; chatModel: string };
 
 const CONVERSATION_SELECT = {
   id: true,
   personaId: true,
   personaName: true,
   personaDescription: true,
+  chatModel: true,
   sessions: { select: { id: true }, orderBy: { index: 'asc' as const }, take: 1 },
 };
 
@@ -35,6 +37,7 @@ type ConversationRow = {
   personaId: string | null;
   personaName: string | null;
   personaDescription: string | null;
+  chatModel: string;
   sessions: { id: string }[];
 };
 
@@ -43,6 +46,7 @@ function toConversation(row: ConversationRow | null): Conversation | null {
   return {
     campaignId: row.id,
     sessionId: row.sessions[0].id,
+    chatModel: row.chatModel,
     persona:
       row.personaId && row.personaName !== null
         ? { id: row.personaId, name: row.personaName, description: row.personaDescription ?? '' }
@@ -74,22 +78,29 @@ export class ConversationsService {
   }
 
   // 첫 메시지를 보낼 때 대화를 만들고, 캐릭터의 시작 장면을 첫 메시지로 남긴다.
-  // 프로필을 넘기면 이 대화의 프로필로 고정한다 (이미 고정돼 있으면 그대로 둔다)
+  // 프로필을 넘기면 이 대화의 프로필로 고정한다 (이미 고정돼 있으면 그대로 둔다).
+  // chatModel을 넘기면 이 대화의 모델로 정한다 (대화 중에 바꿀 수 있다)
   async findOrCreate(
     userId: string,
     character: { id: string; name: string; openingScene: string },
     persona?: LockedPersona,
+    chatModel?: string,
   ): Promise<Conversation> {
     const existing = await this.find(userId, character.id);
     if (existing) {
-      if (persona && !existing.persona) {
-        await this.prisma.campaign.update({
-          where: { id: existing.campaignId },
-          data: { personaId: persona.id, personaName: persona.name, personaDescription: persona.description },
-        });
-        return { ...existing, persona };
-      }
-      return existing;
+      const data = {
+        ...(persona && !existing.persona
+          ? { personaId: persona.id, personaName: persona.name, personaDescription: persona.description }
+          : {}),
+        ...(chatModel && chatModel !== existing.chatModel ? { chatModel } : {}),
+      };
+      if (Object.keys(data).length === 0) return existing;
+      await this.prisma.campaign.update({ where: { id: existing.campaignId }, data });
+      return {
+        ...existing,
+        persona: persona && !existing.persona ? persona : existing.persona,
+        chatModel: chatModel ?? existing.chatModel,
+      };
     }
 
     const campaign = await this.prisma.campaign.create({
@@ -97,6 +108,7 @@ export class ConversationsService {
         userId,
         characterId: character.id,
         title: character.name,
+        ...(chatModel ? { chatModel } : {}),
         ...(persona
           ? { personaId: persona.id, personaName: persona.name, personaDescription: persona.description }
           : {}),

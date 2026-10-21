@@ -202,5 +202,6 @@ def run(request: InferRequest) -> InferResponse:
         contents=_build_messages(request.context, request.user_turn),
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=TEMPERATURE,
+        model=request.model,
     )
     return InferResponse(reply=reply)

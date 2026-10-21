@@ -6,6 +6,7 @@ import { startNewConversation } from "@/app/actions/conversations";
 import CharacterAvatar from "@/components/character-avatar";
 import ChatInput from "@/components/chat-input";
 import ChoiceDialog from "@/components/choice-dialog";
+import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
 import StoryPanel from "./story-panel";
@@ -57,6 +58,14 @@ function SendIcon() {
   );
 }
 
+// 고르는 칸 옆에 붙는 짧은 안내: 오늘 쓴 횟수, 또는 지금 못 쓰는 이유
+function modelSuffix(m: ModelOption): string {
+  if (m.limit !== null) return ` · 오늘 ${m.used ?? 0}/${m.limit}`;
+  if (m.locked === "PRO_ONLY") return " · 프로 등급";
+  if (m.locked === "NOT_READY") return " · 준비 중";
+  return "";
+}
+
 export default function CharacterChat({
   characterId,
   characterName,
@@ -65,6 +74,8 @@ export default function CharacterChat({
   personas,
   lockedPersona: initialLocked,
   savedCount: initialSavedCount,
+  models: initialModels,
+  initialModel,
 }: {
   characterId: string;
   characterName: string;
@@ -76,6 +87,9 @@ export default function CharacterChat({
   // 이 대화에 고정된 프로필. 첫 메시지 뒤로는 새로하기 전까지 바꿀 수 없다
   lockedPersona: PersonaOption | null;
   savedCount: number;
+  // 고를 수 있는 모델 (못 불러왔으면 null → 모델 고르기를 숨기고 기본 모델로)
+  models: ModelOption[] | null;
+  initialModel: string;
 }) {
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -93,6 +107,9 @@ export default function CharacterChat({
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   // 새로하기로 대화가 바뀌면 엑스트라 설정을 새 대화 기준으로 다시 그린다
   const [conversationKey, setConversationKey] = useState(0);
+  // 이 대화의 답을 쓸 모델. 보낼 때마다 함께 보내고, 서버가 대화에 저장한다
+  const [model, setModel] = useState(initialModel);
+  const [modelOptions, setModelOptions] = useState(initialModels);
 
   // 고정된 프로필을 마이페이지에서 지웠어도 이 대화에서는 처음 고른 그대로 쓴다
   const persona =
@@ -112,6 +129,7 @@ export default function CharacterChat({
     setMessages(result.data.messages);
     setLocked(null);
     setPersonaId("");
+    setModel("basic");
     setConversationKey((k) => k + 1);
     setSavedCount(result.data.savedCount);
     setInput("");
@@ -207,13 +225,22 @@ export default function CharacterChat({
       const res = await fetch(`/api/characters/${characterId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, personaId: persona.id }),
+        body: JSON.stringify({ message: trimmed, personaId: persona.id, model }),
       });
       const data = await res.json();
 
       nextId.current += 1;
       if (res.ok) {
         setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
+        // 하루 횟수가 있는 모델이면 오늘 쓴 횟수를 새로 보여 준다
+        if (data.usage) {
+          const { used, limit } = data.usage as { used: number; limit: number };
+          setModelOptions((prev) =>
+            prev?.map((m) =>
+              m.id === data.model ? { ...m, used, limit, locked: used >= limit ? "DAILY_LIMIT" : m.locked } : m,
+            ) ?? null,
+          );
+        }
         // 첫 메시지가 저장되면 이 대화의 프로필로 고정된다 (서버도 같은 규칙으로 막는다)
         setLocked((current) => current ?? persona);
         setNotice(null);
@@ -461,6 +488,45 @@ export default function CharacterChat({
             </Link>
           )}
         </div>
+        {modelOptions && (
+          <div className={styles.modelBar}>
+            <label className={styles.personaLabel} htmlFor="model-select">
+              모델
+            </label>
+            <select
+              id="model-select"
+              className={styles.personaSelect}
+              value={model}
+              onChange={(event) => setModel(event.target.value)}
+              aria-describedby="model-note"
+              disabled={sending}
+            >
+              {(["무료", "Claude", "Grok"] as const).map((group) => (
+                <optgroup key={group} label={group === "무료" ? "무료 모델" : `프리미엄 · ${group}`}>
+                  {modelOptions
+                    .filter((m) => m.group === group)
+                    .map((m) => (
+                      <option key={m.id} value={m.id} disabled={m.locked !== null && m.id !== model}>
+                        {m.label}
+                        {modelSuffix(m)}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
+            </select>
+            <span id="model-note" className={styles.modelNote}>
+              {modelOptions.find((m) => m.id === model)?.note}
+              {modelOptions.some((m) => m.locked === "PRO_ONLY") && (
+                <>
+                  {" · "}
+                  <Link href="/pricing" className={styles.personaLink}>
+                    프리미엄은 프로 등급
+                  </Link>
+                </>
+              )}
+            </span>
+          </div>
+        )}
       </div>
       <StoryPanel key={`story-${conversationKey}`} characterId={characterId} characterName={characterName} messageCount={messages.length} />
       <ExtrasPanel key={conversationKey} characterId={characterId} characterName={characterName} />

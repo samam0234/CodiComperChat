@@ -38,6 +38,8 @@ export type ChatHistory = {
   started: boolean;
   // 이 대화에 고정된 내 프로필 (첫 메시지 뒤로는 새로하기 전까지 바꿀 수 없다)
   persona: { id: string; name: string } | null;
+  // 이 대화의 답을 쓰는 모델 id
+  model: string;
   savedCount: number;
   messages: HistoryMessage[];
 };

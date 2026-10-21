@@ -28,6 +28,8 @@ const child = spawn(process.execPath, ["dist-verify/main.js"], {
     RATE_LIMIT_SCALE: process.env.RATE_LIMIT_SCALE || '1000',
     // 서버 여러 대용 DB 저장소로 돌려 그 경로도 매번 지나가게 한다
     RATE_LIMIT_STORE: "db",
+    // 강화 무료 모델의 하루 한도(운영은 30)를 줄여 한도에 닿는 경로를 짧게 시험한다
+    MODEL_ENHANCED_DAILY_LIMIT: "2",
   },
 });
 child.on("exit", (code) => process.exit(code ?? 0));

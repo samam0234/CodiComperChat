@@ -20,6 +20,8 @@ type ChatBody = {
   message?: unknown;
   personaId?: unknown;
   avoid?: unknown;
+  // 이 답을 쓸 모델 id. 없으면 대화에 저장된 모델(처음이면 기본 무료)
+  model?: unknown;
 };
 
 // 대화는 내 프로필 캐릭터를 고른 상태에서만 할 수 있다 (프로필은 로그인 유저의 것이다)
@@ -57,6 +59,7 @@ export class CharacterChatController {
 
     return this.characterChatService.send(id, message, {
       personaId: requirePersonaId(body.personaId),
+      model: typeof body.model === 'string' && body.model !== '' ? body.model : undefined,
       authorization,
     });
   }
