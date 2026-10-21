@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadDraft, resetTest, runCritique, sendTestTurn } from "@/app/actions/studio";
 import ChatInput from "@/components/chat-input";
+import ChatText from "@/components/chat-text";
 import { VERDICT_LABELS, type Card, type TestState } from "@/lib/studio-card";
 import type { Persona } from "./studio-editor";
 import styles from "./studio-editor.module.css";
@@ -120,14 +121,16 @@ export default function TestPanel({
 
       <div ref={transcriptRef} className={styles.transcript} aria-live="polite">
         {card.greeting.firstMessage.trim() ? (
-          <p className={styles.bubbleCharacter}>{card.greeting.firstMessage}</p>
+          <div className={styles.bubbleCharacter}>
+            <ChatText text={card.greeting.firstMessage} userName="테스트 유저" />
+          </div>
         ) : (
           <p className={styles.hint}>첫인사 단계의 첫 메시지가 여기 먼저 보입니다.</p>
         )}
         {test.turns.map((t, i) => (
-          <p key={i} className={t.role === "user" ? styles.bubbleUser : styles.bubbleCharacter}>
-            {t.text}
-          </p>
+          <div key={i} className={t.role === "user" ? styles.bubbleUser : styles.bubbleCharacter}>
+            <ChatText text={t.text} userName="테스트 유저" />
+          </div>
         ))}
         {optimistic && <p className={styles.bubbleUser}>{optimistic}</p>}
         {pending === "chat" && <p className={styles.typing}>답을 쓰는 중…</p>}

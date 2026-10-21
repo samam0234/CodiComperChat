@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { startNewConversation } from "@/app/actions/conversations";
 import CharacterAvatar from "@/components/character-avatar";
 import ChatInput from "@/components/chat-input";
+import ChatText from "@/components/chat-text";
 import ChoiceDialog from "@/components/choice-dialog";
 import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
@@ -436,7 +437,7 @@ export default function CharacterChat({
               <div className={`${styles.message} ${styles[message.role]} ${message.error ? styles.error : ""}`}>
                 {message.role === "character" && <span className={styles.speaker}>{characterName}</span>}
                 {message.role === "user" && message.speaker && <span className={styles.userSpeaker}>{message.speaker}</span>}
-                {message.text}
+                {message.error ? message.text : <ChatText text={message.text} userName={persona?.name ?? "나"} />}
                 {message.unsaved && <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>}
               </div>
             </div>
