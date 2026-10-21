@@ -41,6 +41,31 @@ export class CharactersService {
     return rows.map(({ ownerId, ...rest }) => ({ ...rest, official: ownerId === null }));
   }
 
+  // 인기 목록: 공개 캐릭터를 많이 대화한 순으로. 개인을 드러내지 않게 숫자만 센다
+  //  - players: 이 캐릭터와 대화를 연 사람 수(지금 대화·저장한 대화 모두, 사람마다 한 번)
+  //  - messages7d: 최근 7일 동안 유저가 보낸 말 수
+  // 순서: 사람 수 → 최근 7일 말 수 → 먼저 발행된 순
+  async popular() {
+    const [characters, players, recent] = await Promise.all([
+      this.findPublished(),
+      this.prisma.$queryRaw<{ characterId: string; players: bigint }[]>`
+        SELECT "characterId", COUNT(DISTINCT "userId") AS players FROM "campaigns" GROUP BY "characterId"`,
+      this.prisma.$queryRaw<{ characterId: string; messages: bigint }[]>`
+        SELECT c."characterId", COUNT(*) AS messages
+        FROM "messages" m
+        JOIN "sessions" s ON s."id" = m."sessionId"
+        JOIN "campaigns" c ON c."id" = s."campaignId"
+        WHERE m."role" = 'USER' AND m."createdAt" > NOW() - INTERVAL '7 days'
+        GROUP BY c."characterId"`,
+    ]);
+    const playersOf = new Map(players.map((r) => [r.characterId, Number(r.players)]));
+    const recentOf = new Map(recent.map((r) => [r.characterId, Number(r.messages)]));
+    return characters
+      .map((c, order) => ({ ...c, order, stats: { players: playersOf.get(c.id) ?? 0, messages7d: recentOf.get(c.id) ?? 0 } }))
+      .sort((a, b) => b.stats.players - a.stats.players || b.stats.messages7d - a.stats.messages7d || a.order - b.order)
+      .map(({ order: _order, ...rest }, i) => ({ ...rest, rank: i + 1 }));
+  }
+
   // 초상 이미지 본문. 보이는 캐릭터만(공개·링크 공개는 누구나, 비공개는 만든 사람만, 내려간 것은 아무도)
   async portrait(id: string, viewerId: string | null) {
     await this.findOnePublished(id, viewerId);

@@ -32,6 +32,7 @@
 | `POST /me/personas` | 프로필 캐릭터 생성 `{ name(1~20자), description?(~300자) }` | **201** · 10개 초과 409 · 🔒 |
 | `PATCH /me/personas/:id` | 수정 | **200** · 남의 것/없음 404 · 🔒 |
 | `DELETE /me/personas/:id` | 삭제 | **204** · 남의 것/없음 404 · 🔒 |
+| `GET /characters/popular` | 인기 순위 | **200** `[GET /characters 항목…, rank, stats: { players, messages7d }]` · 공개만 · `players`는 그 캐릭터와 대화를 연 사람 수(지금·저장한 대화, 사람마다 한 번), `messages7d`는 최근 7일 유저가 보낸 말 수 · 순서: 사람 수 → 최근 7일 말 수 → 먼저 발행된 순 · 숫자만 내보내고 누가 대화했는지는 싣지 않는다 |
 | `GET /characters` | 홈·인기 캐릭터 목록 | **200** `[공개 필드…, visibility]` · 각 항목에 `official`(운영 캐릭터인가)·`portraitMime`(초상이 있으면 형식, 없으면 null)·`updatedAt`(초상 캐시 무효화용). **공개(PUBLIC)만**. 링크 공개·비공개는 나오지 않는다 |
 | `GET /characters/:id` | 캐릭터 상세 | **200** 공개 필드(비밀·해금 조건 제외) · 공개·링크 공개는 누구나, 비공개는 만든 사람만(토큰을 보내면 판단). 남의 비공개 캐릭터는 없는 것과 같은 404 · 대화·메모리·상태설정·엑스트라 API도 같은 규칙 · 응답에 `official`(운영 캐릭터인가)·`mine`(내가 만들었는가)이 붙는다(ownerId는 싣지 않음). **운영자가 내린 캐릭터는 목록·상세·대화·메모리·상태설정·엑스트라 모두 404**(만든 사람도) |
 | `GET /characters/:id/portrait` | 흉상 초상 이미지 | **200** 이미지 본문(`image/webp`·`jpeg`·`png`) · 공개·링크 공개는 누구나(`Cache-Control: public, max-age=300`), 비공개는 만든 사람만(`private, no-store`), 내려간 캐릭터·초상 없음은 404. `nosniff`와 `Content-Security-Policy: sandbox`를 붙여 그림 안의 스크립트가 실행되지 않게 한다 |
