@@ -14,7 +14,7 @@ type ModelRow = { id: string; tier: string; credits: number | null; locked: stri
 
 // e2e API 서버는 강화 무료 모델의 하루 한도를 2로 줄이고, 프리미엄 호출을 가짜 LLM으로 보낸다 (e2e/servers/api.mjs)
 const LIMIT = 2;
-const OPUS = { id: "claude-opus-5-5", credits: 50 };
+const OPUS = { id: "claude-opus-5-5", credits: 75 };
 
 async function send(user: Awaited<ReturnType<typeof signup>>, personaId: string, message: string, model?: string) {
   return api<Reply>(`/characters/${OFFICIAL_ID}/chat`, {
@@ -41,8 +41,8 @@ test.describe("모델 선택", () => {
     expect(byId.get("basic")).toMatchObject({ locked: null, credits: null });
     expect(byId.get("enhanced")).toMatchObject({ locked: null, used: 0, limit: LIMIT });
     expect(byId.get(OPUS.id)).toMatchObject({ credits: OPUS.credits, locked: "NO_CREDITS" });
-    expect(byId.get("claude-haiku-5-5")?.credits).toBe(5);
-    expect(byId.get("claude-fable-5-1")?.credits).toBe(80);
+    expect(byId.get("claude-haiku-5-5")?.credits).toBe(8);
+    expect(byId.get("claude-fable-5-1")?.credits).toBe(120);
 
     // 프로는 강화 무료에 한도가 없다
     expect((await models(pro)).models.find((m) => m.id === "enhanced")).toMatchObject({ locked: null, limit: null, used: null });

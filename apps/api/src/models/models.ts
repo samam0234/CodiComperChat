@@ -70,19 +70,19 @@ export const MODELS: readonly ChatModel[] = [
     note: 'gemma4:12b · 무료 등급은 하루 횟수 제한, 프로는 무제한',
     credits: null,
   },
-  // 값: 답 1번(입력 약 6천·출력 약 500토큰)의 API 원가를 2배 넘게 덮고, 같은 줄에서는 성능 순으로 오르게
-  premium('claude-haiku-5-5', 'Claude Haiku 5.5', 'Claude', '빠르고 가벼운 답', 5),
-  premium('claude-haiku-4-5', 'Claude Haiku 4.5', 'Claude', '빠르고 가벼운 답', 10),
-  premium('claude-sonnet-5', 'Claude Sonnet 5', 'Claude', '균형 잡힌 답', 20),
-  premium('claude-sonnet-5-5', 'Claude Sonnet 5.5', 'Claude', '균형 잡힌 답', 25),
-  premium('claude-opus-4-8', 'Claude Opus 4.8', 'Claude', '깊이 있는 답', 40),
-  premium('claude-opus-5', 'Claude Opus 5', 'Claude', '깊이 있는 답', 45),
-  premium('claude-opus-5-5', 'Claude Opus 5.5', 'Claude', '깊이 있는 답', 50),
-  premium('claude-fable-5-1', 'Claude Fable 5.1', 'Claude', '가장 풍부한 이야기', 80),
+  // 값: 답 1번(입력 약 6천·출력 약 500토큰)의 API 원가를 3배 넘게 덮고(처음 값의 1.5배, 소수는 올림), 같은 줄에서는 성능 순으로 오르게
+  premium('claude-haiku-5-5', 'Claude Haiku 5.5', 'Claude', '빠르고 가벼운 답', 8),
+  premium('claude-haiku-4-5', 'Claude Haiku 4.5', 'Claude', '빠르고 가벼운 답', 15),
+  premium('claude-sonnet-5', 'Claude Sonnet 5', 'Claude', '균형 잡힌 답', 30),
+  premium('claude-sonnet-5-5', 'Claude Sonnet 5.5', 'Claude', '균형 잡힌 답', 38),
+  premium('claude-opus-4-8', 'Claude Opus 4.8', 'Claude', '깊이 있는 답', 60),
+  premium('claude-opus-5', 'Claude Opus 5', 'Claude', '깊이 있는 답', 68),
+  premium('claude-opus-5-5', 'Claude Opus 5.5', 'Claude', '깊이 있는 답', 75),
+  premium('claude-fable-5-1', 'Claude Fable 5.1', 'Claude', '가장 풍부한 이야기', 120),
   // Grok 값은 공개 가격을 확인하지 못해 Sonnet급 원가로 잡은 임시값이다 (연동할 때 다시 잰다)
-  premium('grok-4-5', 'Grok 4.5', 'Grok', 'xAI', 20),
-  premium('grok-4-6', 'Grok 4.6', 'Grok', 'xAI', 25),
-  premium('grok-4-7', 'Grok 4.7', 'Grok', 'xAI', 30),
+  premium('grok-4-5', 'Grok 4.5', 'Grok', 'xAI', 30),
+  premium('grok-4-6', 'Grok 4.6', 'Grok', 'xAI', 38),
+  premium('grok-4-7', 'Grok 4.7', 'Grok', 'xAI', 45),
 ];
 
 export function findModel(id: string): ChatModel | undefined {
