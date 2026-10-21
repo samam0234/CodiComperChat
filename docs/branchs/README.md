@@ -187,5 +187,6 @@
 | 2026-10-21 | `380d6cd` | feature/credits-commands | 대화 명령어와 코레딧(출석·프리미엄 모델 값) 추가 | [261021_2204_380d6cd_credits-and-chat-commands_feature-credits-commands.md](commits/261021_2204_380d6cd_credits-and-chat-commands_feature-credits-commands.md) |
 | 2026-10-21 | `3f7ab32` | feature/credits-commands | 코레딧·모델 값·대화 명령어를 문서에 반영 | [261021_2204_3f7ab32_credits-commands-docs_feature-credits-commands.md](commits/261021_2204_3f7ab32_credits-commands-docs_feature-credits-commands.md) |
 | 2026-10-21 | `6da389c` | feature/credits-commands | 프리미엄 모델의 코레딧 값을 1.5배로 올리기 | [261021_2231_6da389c_credits-price-up_feature-credits-commands.md](commits/261021_2231_6da389c_credits-price-up_feature-credits-commands.md) |
+| 2026-10-21 | `d42b724` | feature/chat-format | 대화 글 꾸미기 표기(마크다운 비슷한 명령) 적용 | [261021_2241_d42b724_chat-text-format_feature-chat-format.md](commits/261021_2241_d42b724_chat-text-format_feature-chat-format.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
