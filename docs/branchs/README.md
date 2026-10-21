@@ -185,5 +185,6 @@
 | 2026-10-21 | `2e9770e` | develop (merge) | feature/admin-console → develop 병합 (--no-ff) | [261021_1927_2e9770e_merge-admin-console_develop.md](commits/261021_1927_2e9770e_merge-admin-console_develop.md) |
 | 2026-10-21 | `5c62c64` | feature/model-select | 대화마다 쓰는 모델을 고르는 기능 추가 | [261021_2122_5c62c64_chat-model-select_feature-model-select.md](commits/261021_2122_5c62c64_chat-model-select_feature-model-select.md) |
 | 2026-10-21 | `380d6cd` | feature/credits-commands | 대화 명령어와 코레딧(출석·프리미엄 모델 값) 추가 | [261021_2204_380d6cd_credits-and-chat-commands_feature-credits-commands.md](commits/261021_2204_380d6cd_credits-and-chat-commands_feature-credits-commands.md) |
+| 2026-10-21 | `3f7ab32` | feature/credits-commands | 코레딧·모델 값·대화 명령어를 문서에 반영 | [261021_2204_3f7ab32_credits-commands-docs_feature-credits-commands.md](commits/261021_2204_3f7ab32_credits-commands-docs_feature-credits-commands.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
