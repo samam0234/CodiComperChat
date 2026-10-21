@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { getTheme } from "@/lib/theme";
+import { getThemeState } from "@/lib/theme";
 import {
   DeleteAccountForm,
   LogoutButton,
@@ -13,7 +13,7 @@ import styles from "./page.module.css";
 const initialOf = (name: string) => Array.from(name.trim())[0] ?? "?";
 
 export default async function SettingsPage() {
-  const [user, theme] = await Promise.all([getCurrentUser(), getTheme()]);
+  const [user, theme] = await Promise.all([getCurrentUser(), getThemeState()]);
 
   // 왼쪽 목차: 로그인 여부에 따라 보이는 설정만
   const menu = [
@@ -57,8 +57,10 @@ export default async function SettingsPage() {
             <h2 id="display-title" className={styles.heading}>
               화면
             </h2>
-            <p className={styles.sectionLead}>사이트 전체의 밝기를 고릅니다. 이 기기에서 계속 유지됩니다.</p>
-            <ThemeForm current={theme} />
+            <p className={styles.sectionLead}>
+              기본은 한국 시각 오전 7시부터 밝게, 오후 10시부터 어둡게 바뀝니다. 시간과 상관없이 한쪽으로 두고 싶으면 영구 설정을 고르세요. 헤더의 해·달 버튼은 잠깐 바꿀 때 씁니다.
+            </p>
+            <ThemeForm current={theme.mode} />
           </section>
 
           {user ? (

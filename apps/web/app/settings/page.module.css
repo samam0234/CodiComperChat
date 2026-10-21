@@ -168,7 +168,7 @@
 }
 
 .swatch_light span:first-child,
-.swatch_system span:first-child {
+.swatch_auto span:first-child {
   background: #fbfaff;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .swatch_dark span:last-child,
-.swatch_system span:last-child {
+.swatch_auto span:last-child {
   background: #201a3a;
 }
 

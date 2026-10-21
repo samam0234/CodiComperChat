@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import BrandMark from "./brand-mark";
 import SiteDrawer, { type Viewer } from "./site-drawer";
+import ThemeToggle from "./theme-toggle";
+import type { Shade, ThemeMode, ThemeOverride } from "@/lib/theme-schedule";
 import styles from "./site-header.module.css";
 
 const HEADER_NAV = [
@@ -13,7 +15,13 @@ const HEADER_NAV = [
   { href: "/agents", label: "에이전트" },
 ];
 
-export default function SiteHeader({ viewer }: { viewer: Viewer }) {
+export default function SiteHeader({
+  viewer,
+  theme,
+}: {
+  viewer: Viewer;
+  theme: { mode: ThemeMode; override: ThemeOverride | null; shade: Shade };
+}) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -45,14 +53,19 @@ export default function SiteHeader({ viewer }: { viewer: Viewer }) {
                 <Link href="/studio" className={styles.create}>
                   <span aria-hidden="true">＋</span> 캐릭터 만들기
                 </Link>
+                {/* 캐릭터 만들기 옆의 밝기 버튼 */}
+                <ThemeToggle mode={theme.mode} override={theme.override} shade={theme.shade} />
                 <Link href="/me" className={styles.me} title={`${viewer.displayName} · 마이페이지`} aria-label="마이페이지">
                   {viewer.displayName.trim().slice(0, 1) || "나"}
                 </Link>
               </>
             ) : (
-              <Link href={`/login?next=${encodeURIComponent(pathname)}`} className={styles.login}>
-                시작하기
-              </Link>
+              <>
+                <ThemeToggle mode={theme.mode} override={theme.override} shade={theme.shade} />
+                <Link href={`/login?next=${encodeURIComponent(pathname)}`} className={styles.login}>
+                  시작하기
+                </Link>
+              </>
             )}
             <button
               type="button"

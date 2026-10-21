@@ -47,13 +47,13 @@ test.describe("마이페이지·설정", () => {
       await expect(menu.getByRole("link", { name: label })).toHaveAttribute("href", `#${id}`);
     }
 
-    // 카드를 눌러 어둡게 → 저장 → 새로고침해도 유지
-    await page.locator("label", { has: page.getByRole("radio", { name: /^어둡게/ }) }).click();
+    // 카드를 눌러 다크 모드 영구 → 저장 → 새로고침해도 유지
+    await page.locator("label", { has: page.getByRole("radio", { name: /^다크 모드 영구 설정/ }) }).click();
     await page.getByRole("region", { name: "화면" }).getByRole("button", { name: "저장" }).click();
     await expect(page.getByText("화면 테마를 저장했습니다.")).toBeVisible();
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.getByRole("radio", { name: /^어둡게/ })).toBeChecked();
+    await expect(page.getByRole("radio", { name: /^다크 모드 영구 설정/ })).toBeChecked();
 
     // 이메일 인증 상태와 정책 링크
     await expect(page.getByRole("region", { name: "계정" })).toContainText("이메일 인증");
