@@ -189,5 +189,8 @@
 | 2026-10-21 | `6da389c` | feature/credits-commands | 프리미엄 모델의 코레딧 값을 1.5배로 올리기 | [261021_2231_6da389c_credits-price-up_feature-credits-commands.md](commits/261021_2231_6da389c_credits-price-up_feature-credits-commands.md) |
 | 2026-10-21 | `d42b724` | feature/chat-format | 대화 글 꾸미기 표기(마크다운 비슷한 명령) 적용 | [261021_2241_d42b724_chat-text-format_feature-chat-format.md](commits/261021_2241_d42b724_chat-text-format_feature-chat-format.md) |
 | 2026-10-21 | `60ae398` | feature/chat-format | 대화 글 꾸미기 표기를 화면 구성 문서에 반영 | [261021_2241_60ae398_chat-text-format-docs_feature-chat-format.md](commits/261021_2241_60ae398_chat-text-format-docs_feature-chat-format.md) |
+| 2026-10-21 | `1ea027f` | develop (merge) | feature/model-select → develop 병합 (--no-ff) | [261021_2246_1ea027f_merge-model-select_develop.md](commits/261021_2246_1ea027f_merge-model-select_develop.md) |
+| 2026-10-21 | `48a653d` | develop (merge) | feature/chat-format → develop 병합 (--no-ff) | [261021_2246_48a653d_merge-chat-format_develop.md](commits/261021_2246_48a653d_merge-chat-format_develop.md) |
+| 2026-10-21 | `58d3c3c` | develop (merge) | feature/credits-commands → develop 병합 (--no-ff) | [261021_2246_58d3c3c_merge-credits-commands_develop.md](commits/261021_2246_58d3c3c_merge-credits-commands_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
