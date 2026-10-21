@@ -183,5 +183,6 @@
 | 2026-10-21 | `4f3dcce` | feature/admin-console | 운영 콘솔 분리를 문서에 반영 | [261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md](commits/261021_1927_4f3dcce_admin-console-docs_feature-admin-console.md) |
 | 2026-10-21 | `09ccc9a` | develop (merge) | feature/mail-dev-server → develop 병합 (--no-ff) | [261021_1927_09ccc9a_merge-mail-dev-server_develop.md](commits/261021_1927_09ccc9a_merge-mail-dev-server_develop.md) |
 | 2026-10-21 | `2e9770e` | develop (merge) | feature/admin-console → develop 병합 (--no-ff) | [261021_1927_2e9770e_merge-admin-console_develop.md](commits/261021_1927_2e9770e_merge-admin-console_develop.md) |
+| 2026-10-21 | `5c62c64` | feature/model-select | 대화마다 쓰는 모델을 고르는 기능 추가 | [261021_2122_5c62c64_chat-model-select_feature-model-select.md](commits/261021_2122_5c62c64_chat-model-select_feature-model-select.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
