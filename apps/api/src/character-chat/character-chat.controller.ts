@@ -32,6 +32,9 @@ function requirePersonaId(raw: unknown): string {
   return raw;
 }
 
+const modelOf = (body: ChatBody | undefined): string | undefined =>
+  typeof body?.model === 'string' && body.model !== '' ? body.model : undefined;
+
 @Controller('characters/:id/chat')
 export class CharacterChatController {
   constructor(private readonly characterChatService: CharacterChatService) {}
@@ -59,7 +62,7 @@ export class CharacterChatController {
 
     return this.characterChatService.send(id, message, {
       personaId: requirePersonaId(body.personaId),
-      model: typeof body.model === 'string' && body.model !== '' ? body.model : undefined,
+      model: modelOf(body),
       authorization,
     });
   }
@@ -83,6 +86,29 @@ export class CharacterChatController {
       personaId: requirePersonaId(body?.personaId),
       authorization,
     });
+  }
+
+  // 대화 명령어 /다시: 마지막 답을 새로 쓴다 { personaId, model? }
+  @Post('regenerate')
+  @HttpCode(200)
+  @RateLimit('chat')
+  regenerate(@Param('id') id: string, @Body() body: ChatBody, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.regenerate(id, { personaId: requirePersonaId(body?.personaId), model: modelOf(body), authorization });
+  }
+
+  // 대화 명령어 /계속: 내가 말하지 않고 캐릭터가 장면을 이어 간다 { personaId, model? }
+  @Post('continue')
+  @HttpCode(200)
+  @RateLimit('chat')
+  continueScene(@Param('id') id: string, @Body() body: ChatBody, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.continueScene(id, { personaId: requirePersonaId(body?.personaId), model: modelOf(body), authorization });
+  }
+
+  // 대화 명령어 /되돌리기: 마지막 내 말과 그 답을 지운다
+  @Post('undo')
+  @HttpCode(200)
+  undo(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.characterChatService.undo(id, authorization);
   }
 
   // 새로하기 { save }: 지금 대화를 저장하거나 지우고 시작 장면부터 다시 연다. 프로필 고정도 풀린다

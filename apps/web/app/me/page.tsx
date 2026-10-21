@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { CONSOLE_BASE_URL, requireUser, safeNextPath } from "@/lib/auth";
 import { getMyOrders, won } from "@/lib/billing";
+import { getCredits } from "@/lib/credits";
 import { formatDay } from "@/lib/format-time";
 import { PERSONA_LIMIT, getMyPersonas } from "@/lib/personas";
+import CreditsCard from "./credits-card";
 import Personas from "./personas";
 import VerifyEmailNotice from "./verify-email-notice";
 import styles from "./page.module.css";
 
 export default async function MyPage({ searchParams }: PageProps<"/me">) {
   const user = await requireUser("/me");
-  const [personas, billing] = await Promise.all([getMyPersonas(), getMyOrders()]);
+  const [personas, billing, credits] = await Promise.all([getMyPersonas(), getMyOrders(), getCredits()]);
   const joined = new Date(user.createdAt).toLocaleDateString("ko-KR");
   // 채팅에서 프로필을 만들러 온 경우 돌아갈 길을 준다 (사이트 안 경로만 허용)
   const back = safeNextPath((await searchParams).back);
@@ -52,6 +54,8 @@ export default async function MyPage({ searchParams }: PageProps<"/me">) {
       </dl>
 
       {!user.emailVerified && <VerifyEmailNotice />}
+
+      {credits && <CreditsCard summary={credits} />}
 
       {billing && billing.orders.length > 0 && (
         <section className={styles.orders} aria-label="결제 내역">
