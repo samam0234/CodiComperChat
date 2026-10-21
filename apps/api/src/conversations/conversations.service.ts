@@ -306,6 +306,51 @@ export class ConversationsService {
     ]);
   }
 
+  // 마지막 내 말과 그 뒤의 캐릭터 답들 (/다시·/되돌리기)
+  async lastExchange(sessionId: string) {
+    const user = await this.prisma.message.findFirst({
+      where: { sessionId, role: MessageRole.USER },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      select: { id: true, content: true, createdAt: true },
+    });
+    if (!user) return null;
+    const replies = await this.prisma.message.findMany({
+      where: { sessionId, role: MessageRole.CHARACTER, createdAt: { gt: user.createdAt } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: { id: true },
+    });
+    return { userText: user.content, userAt: user.createdAt, replyIds: replies.map((r) => r.id) };
+  }
+
+  // /다시: 이전 답들을 지우고 새 답 하나로 바꾼다
+  async replaceReplies(conversation: Conversation, replyIds: string[], reply: string): Promise<void> {
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.message.deleteMany({ where: { sessionId: conversation.sessionId, id: { in: replyIds } } }),
+      this.prisma.message.create({ data: { sessionId: conversation.sessionId, role: MessageRole.CHARACTER, content: reply, createdAt: now } }),
+      this.prisma.campaign.update({ where: { id: conversation.campaignId }, data: { updatedAt: now } }),
+    ]);
+  }
+
+  // /계속: 내 말 없이 캐릭터 답만 남긴다
+  async appendReply(conversation: Conversation, reply: string): Promise<void> {
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.message.create({ data: { sessionId: conversation.sessionId, role: MessageRole.CHARACTER, content: reply, createdAt: now } }),
+      this.prisma.campaign.update({ where: { id: conversation.campaignId }, data: { updatedAt: now } }),
+    ]);
+  }
+
+  // /되돌리기: 마지막 내 말부터 끝까지 지운다. 지운 메시지 수 (없으면 0)
+  async undoLast(conversation: Conversation): Promise<number> {
+    const last = await this.lastExchange(conversation.sessionId);
+    if (!last) return 0;
+    const { count } = await this.prisma.message.deleteMany({
+      where: { sessionId: conversation.sessionId, createdAt: { gte: last.userAt } },
+    });
+    return count;
+  }
+
   // 대화 목록: 캐릭터마다 한 줄. 지금 대화가 있으면 그것을, 없으면 가장 최근에 저장한 대화를 보여 준다
   async listForUser(userId: string) {
     const all = await this.prisma.campaign.findMany({

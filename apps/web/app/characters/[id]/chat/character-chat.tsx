@@ -61,10 +61,14 @@ function SendIcon() {
 // 고르는 칸 옆에 붙는 짧은 안내: 오늘 쓴 횟수, 또는 지금 못 쓰는 이유
 function modelSuffix(m: ModelOption): string {
   if (m.limit !== null) return ` · 오늘 ${m.used ?? 0}/${m.limit}`;
-  if (m.locked === "PRO_ONLY") return " · 프로 등급";
-  if (m.locked === "NOT_READY") return " · 준비 중";
-  return "";
+  const cost = m.credits !== null ? ` · ${m.credits} 코레딧` : "";
+  if (m.locked === "NOT_READY") return `${cost} · 준비 중`;
+  if (m.locked === "NO_CREDITS") return `${cost} · 코레딧 부족`;
+  return cost;
 }
+
+const COMMAND_HELP =
+  "명령어 — /다시: 마지막 답 다시 쓰기 · /계속: 내 말 없이 장면 이어 가기 · /되돌리기: 마지막 내 말과 답 지우기 · /상황 내용: 장면 지시 보내기. 말할 때 *행동*은 별표로, (장면 지시)는 괄호로 적을 수 있어요.";
 
 export default function CharacterChat({
   characterId,
@@ -75,6 +79,7 @@ export default function CharacterChat({
   lockedPersona: initialLocked,
   savedCount: initialSavedCount,
   models: initialModels,
+  balance: initialBalance,
   initialModel,
 }: {
   characterId: string;
@@ -89,6 +94,8 @@ export default function CharacterChat({
   savedCount: number;
   // 고를 수 있는 모델 (못 불러왔으면 null → 모델 고르기를 숨기고 기본 모델로)
   models: ModelOption[] | null;
+  // 내 코레딧 잔액 (프리미엄 모델에 쓴다)
+  balance: number | null;
   initialModel: string;
 }) {
   const nextId = useRef(1);
@@ -110,6 +117,7 @@ export default function CharacterChat({
   // 이 대화의 답을 쓸 모델. 보낼 때마다 함께 보내고, 서버가 대화에 저장한다
   const [model, setModel] = useState(initialModel);
   const [modelOptions, setModelOptions] = useState(initialModels);
+  const [balance, setBalance] = useState(initialBalance);
 
   // 고정된 프로필을 마이페이지에서 지웠어도 이 대화에서는 처음 고른 그대로 쓴다
   const persona =
@@ -201,8 +209,109 @@ export default function CharacterChat({
     inputRef.current?.focus();
   };
 
+  // 답과 함께 온 사용량: 하루 횟수(강화 무료) 또는 쓴 코레딧(프리미엄)을 화면에 반영한다
+  const applyUsage = (data: { model?: string; usage?: { used: number; limit: number } | null; credits?: { balance: number } | null }) => {
+    const { usage, credits } = data;
+    if (usage) {
+      setModelOptions((prev) =>
+        prev?.map((m) =>
+          m.id === data.model ? { ...m, used: usage.used, limit: usage.limit, locked: usage.used >= usage.limit ? "DAILY_LIMIT" : m.locked } : m,
+        ) ?? null,
+      );
+    }
+    if (credits) {
+      setBalance(credits.balance);
+      setModelOptions((prev) =>
+        prev?.map((m) =>
+          m.credits === null || m.locked === "NOT_READY" ? m : { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null },
+        ) ?? null,
+      );
+    }
+  };
+
+  // 명령어 /다시·/계속·/되돌리기: 서버가 처리하고 결과로 화면을 고친다
+  const command = async (action: "regenerate" | "continue" | "undo") => {
+    if (action !== "undo" && !persona) {
+      setNotice({ ok: false, text: "먼저 내 프로필을 골라 주세요." });
+      return;
+    }
+    setSuggestions({ status: "closed" });
+    setSending(true);
+    try {
+      const res = await fetch(`/api/characters/${characterId}/chat/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ personaId: persona?.id, model }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice({ ok: false, text: data.message ?? `명령을 처리하지 못했어요 (HTTP ${res.status})` });
+        return;
+      }
+      if (action === "undo") {
+        setMessages(data.messages);
+        setNotice({ ok: true, text: "마지막 내 말과 답을 되돌렸어요." });
+        return;
+      }
+      applyUsage(data);
+      nextId.current += 1;
+      const reply: DisplayMessage = { id: nextId.current, role: "character", text: data.reply };
+      setMessages((prev) => {
+        // 실패 안내 말풍선과 기록에 남지 않은 내 말은 걷어 낸다
+        const kept = prev.filter((m) => !m.error && !m.unsaved);
+        if (action === "continue") return [...kept, reply];
+        // 다시 쓰기: 마지막 내 말 뒤의 답들을 새 답 하나로
+        let lastUser = kept.length - 1;
+        while (lastUser >= 0 && kept[lastUser].role !== "user") lastUser -= 1;
+        return [...kept.slice(0, lastUser + 1), reply];
+      });
+      setNotice(null);
+    } catch {
+      setNotice({ ok: false, text: "API에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // 입력이 /로 시작하면 명령어. 다른 캐릭터 채팅 서비스에서 흔히 쓰는 것을 따랐다
+  const runCommand = (raw: string) => {
+    const body = raw.slice(1).trim();
+    const name = body.split(/\s+/)[0] ?? "";
+    const arg = body.slice(name.length).trim();
+    switch (name) {
+      case "도움말":
+      case "명령어":
+        setNotice({ ok: true, text: COMMAND_HELP });
+        return;
+      case "상황":
+      case "지문":
+        if (arg === "") {
+          setNotice({ ok: false, text: "/상황 뒤에 장면 지시를 적어 주세요. 예: /상황 갑자기 비가 쏟아진다" });
+          return;
+        }
+        void send(`(${arg})`);
+        return;
+      case "다시":
+        void command("regenerate");
+        return;
+      case "계속":
+        void command("continue");
+        return;
+      case "되돌리기":
+        void command("undo");
+        return;
+      default:
+        setNotice({ ok: false, text: `알 수 없는 명령어예요: /${name}. /도움말로 목록을 볼 수 있어요.` });
+    }
+  };
+
   const send = async (text: string) => {
     const trimmed = text.trim();
+    if (trimmed.startsWith("/") && !sending) {
+      setInput("");
+      runCommand(trimmed);
+      return;
+    }
     if (trimmed === "" || sending || !persona) {
       return;
     }
@@ -232,15 +341,7 @@ export default function CharacterChat({
       nextId.current += 1;
       if (res.ok) {
         setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
-        // 하루 횟수가 있는 모델이면 오늘 쓴 횟수를 새로 보여 준다
-        if (data.usage) {
-          const { used, limit } = data.usage as { used: number; limit: number };
-          setModelOptions((prev) =>
-            prev?.map((m) =>
-              m.id === data.model ? { ...m, used, limit, locked: used >= limit ? "DAILY_LIMIT" : m.locked } : m,
-            ) ?? null,
-          );
-        }
+        applyUsage(data);
         // 첫 메시지가 저장되면 이 대화의 프로필로 고정된다 (서버도 같은 규칙으로 막는다)
         setLocked((current) => current ?? persona);
         setNotice(null);
@@ -438,7 +539,7 @@ export default function CharacterChat({
             value={input}
             onChange={setInput}
             onSubmit={() => void send(input)}
-            placeholder={persona ? `${characterName}에게 말 걸기` : "먼저 프로필을 골라요"}
+            placeholder={persona ? `${characterName}에게 말 걸기 · /도움말` : "먼저 프로필을 골라요"}
             maxLength={2000}
             disabled={!canType}
           />
@@ -516,11 +617,11 @@ export default function CharacterChat({
             </select>
             <span id="model-note" className={styles.modelNote}>
               {modelOptions.find((m) => m.id === model)?.note}
-              {modelOptions.some((m) => m.locked === "PRO_ONLY") && (
+              {balance !== null && (
                 <>
                   {" · "}
-                  <Link href="/pricing" className={styles.personaLink}>
-                    프리미엄은 프로 등급
+                  <Link href="/me" className={styles.personaLink}>
+                    내 코레딧 {balance.toLocaleString("ko-KR")}
                   </Link>
                 </>
               )}

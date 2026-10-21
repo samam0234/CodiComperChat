@@ -60,6 +60,10 @@ model User {
 
   orders PaymentOrder[]
   modelUsage ModelUsage[]
+  /// 코레딧 잔액 (src/credits/credits.ts). 바뀔 때마다 credit_ledger에 한 줄 남긴다
+  credits     Int             @default(0)
+  creditLedger CreditLedger[]
+  attendances  Attendance[]
 
   @@map("users")
 }
@@ -426,4 +430,39 @@ model ModelUsage {
   @@id([userId, modelId, day])
   @@index([day])
   @@map("model_usage")
+}
+
+enum CreditReason {
+  ATTENDANCE
+  MODEL_USE
+  REFUND
+  ADMIN
+}
+
+/// 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액
+model CreditLedger {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta     Int
+  balance   Int
+  reason    CreditReason
+  /// 모델을 쓰거나 돌려받았을 때 그 모델 id
+  modelId   String?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@map("credit_ledger")
+}
+
+/// 출석 (하루 한 번). day는 한국 시각 기준 YYYY-MM-DD
+model Attendance {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String
+  credits   Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, day])
+  @@map("attendances")
 }

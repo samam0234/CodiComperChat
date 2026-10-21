@@ -30,6 +30,8 @@ const child = spawn(process.execPath, ["dist-verify/main.js"], {
     RATE_LIMIT_STORE: "db",
     // 강화 무료 모델의 하루 한도(운영은 30)를 줄여 한도에 닿는 경로를 짧게 시험한다
     MODEL_ENHANCED_DAILY_LIMIT: "2",
+    // 프리미엄(Claude·Grok) 호출을 가짜 LLM 쪽 FastAPI로 보내 코레딧 경로를 시험한다 (운영에서는 켜지 않는다)
+    MODEL_PREMIUM_FAKE: "1",
   },
 });
 child.on("exit", (code) => process.exit(code ?? 0));

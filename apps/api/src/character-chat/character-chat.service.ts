@@ -8,12 +8,13 @@ import { CharactersService } from '../characters/characters.service.js';
 import {
   ConversationsService,
   DISPLAY_MESSAGES,
+  type Conversation,
   type LockedPersona,
 } from '../conversations/conversations.service.js';
 import { ExtrasService } from '../extras/extras.service.js';
 import { MemoriesService } from '../memories/memories.service.js';
 import { DEFAULT_MODEL_ID, findModel } from '../models/models.js';
-import { ModelsService } from '../models/models.service.js';
+import { ModelsService, type Ticket } from '../models/models.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
@@ -22,6 +23,10 @@ import type { ChatTurn } from './character-chat.types.js';
 
 type PersonaOptions = { personaId: string; authorization?: string };
 type SendOptions = PersonaOptions & { model?: string };
+type Prepared = Awaited<ReturnType<CharacterChatService['prepare']>>;
+
+// /계속: 유저가 말하지 않았다는 장면 지시. 괄호 속 말은 유저의 장면 지시로 읽게 해 두었다 (services/ai inference.py)
+const CONTINUE_TURN = '(아무 말 없이 기다린다. 방금 장면에서 자연스럽게 이어서 계속해 줘)';
 
 @Injectable()
 export class CharacterChatService {
@@ -153,11 +158,10 @@ export class CharacterChatService {
     return this.memories.forContext(conversation.campaignId, query);
   }
 
-  async send(characterId: string, userTurn: string, options: SendOptions) {
-    const { character, userId, persona, conversation: existing, history, chatState, story } = await this.prepare(
-      characterId,
-      options,
-    );
+  // 캐릭터 답 한 번: 모델 고르기 → 횟수·코레딧 잡기 → 답 만들기 (못 만들면 잡은 것을 돌려준다).
+  // 보내기·다시 쓰기(/다시)·이어 가기(/계속)가 같이 쓴다. 저장은 부르는 쪽이 한다
+  private async compose(prep: Prepared, userTurn: string, requested: string | undefined) {
+    const { character, userId, persona, conversation: existing, history, chatState, story } = prep;
     const rag = this.personaRag.assemble(character.name, history, userTurn);
     const memories = await this.memoriesFor(existing, history, userTurn);
     const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
@@ -174,33 +178,70 @@ export class CharacterChatService {
       ungroundedTopics(userTurn, grounding),
       story,
     );
-    // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(프로 아님·한도 초과) 이유와 함께 거절한다
-    const model = options.model
-      ? await this.models.authorize(userId, options.model)
+    // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(한도 소진·코레딧 부족·준비 중) 이유와 함께 거절한다
+    const model = requested
+      ? await this.models.authorize(userId, requested)
       : await this.models.usableOrDefault(userId, existing?.chatModel ?? DEFAULT_MODEL_ID);
-    // 하루 한도가 있는 모델이면 답을 만들기 전에 1번을 잡고, 못 만들면 돌려준다
-    await this.models.reserve(userId, model);
-    let reply: string;
+    const ticket = await this.models.reserve(userId, model);
     try {
       const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime });
       // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
-      reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime);
+      const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime);
+      return { reply, ticket };
     } catch (error) {
-      await this.models.release(userId, model);
+      await this.models.release(userId, ticket);
       throw error;
     }
+  }
 
-    // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
-    const conversation = await this.conversations.findOrCreate(userId, character, persona, model.id);
-    await this.conversations.appendExchange(conversation, userTurn, persona.name, reply);
-    // 대화가 충분히 쌓였으면 답을 돌려준 뒤 뒤에서 기억을 정리한다 (답 속도에 영향 없음)
-    this.memories.memorizeInBackground(conversation, {
-      characterName: character.name,
-      userName: persona.name,
-    });
-    // 같은 박자로 이야기 상태(지난 이야기 요약·친밀도 자동 변화·복선)도 뒤에서 정리한다
+  // 답을 저장한 뒤: 대화가 충분히 쌓였으면 뒤에서 기억·이야기 상태(지난 이야기 요약·친밀도·복선)를 정리한다 (답 속도에 영향 없음)
+  private async finish(prep: Prepared, conversation: Conversation, reply: string, ticket: Ticket) {
+    const { character, persona, userId } = prep;
+    this.memories.memorizeInBackground(conversation, { characterName: character.name, userName: persona.name });
     this.story.digestInBackground(conversation, { character, persona });
-    return { reply, model: model.id, usage: await this.models.usage(userId, model) };
+    return { reply, model: ticket.model.id, ...(await this.models.usage(userId, ticket)) };
+  }
+
+  async send(characterId: string, userTurn: string, options: SendOptions) {
+    const prep = await this.prepare(characterId, options);
+    const { reply, ticket } = await this.compose(prep, userTurn, options.model);
+    // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
+    const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
+    await this.conversations.appendExchange(conversation, userTurn, prep.persona.name, reply);
+    return this.finish(prep, conversation, reply, ticket);
+  }
+
+  // /다시: 마지막 내 말에 대한 답을 새로 쓴다 (이전 답은 지운다)
+  async regenerate(characterId: string, options: SendOptions) {
+    const prep = await this.prepare(characterId, options);
+    const last = prep.conversation ? await this.conversations.lastExchange(prep.conversation.sessionId) : null;
+    if (!prep.conversation || !last) throw new ConflictException('다시 쓸 답이 없어요. 먼저 말을 걸어 주세요.');
+    // 맥락에서는 마지막 내 말과 그 뒤 답을 빼고, 내 말을 이번 말로 다시 넣는다
+    const history = prep.history.slice(0, Math.max(0, prep.history.length - 1 - last.replyIds.length));
+    const { reply, ticket } = await this.compose({ ...prep, history }, last.userText, options.model);
+    const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
+    await this.conversations.replaceReplies(conversation, last.replyIds, reply);
+    return this.finish(prep, conversation, reply, ticket);
+  }
+
+  // /계속: 내가 말하지 않고 캐릭터가 장면을 이어 간다
+  async continueScene(characterId: string, options: SendOptions) {
+    const prep = await this.prepare(characterId, options);
+    if (!prep.conversation) throw new ConflictException('먼저 말을 걸어 주세요. 이어 갈 장면이 없어요.');
+    const { reply, ticket } = await this.compose(prep, CONTINUE_TURN, options.model);
+    const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
+    await this.conversations.appendReply(conversation, reply);
+    return this.finish(prep, conversation, reply, ticket);
+  }
+
+  // /되돌리기: 마지막 내 말과 그 뒤의 답을 지운다. 이미 정리된 기억은 그대로 둔다
+  async undo(characterId: string, authorization?: string) {
+    const userId = await this.resolveUser(authorization);
+    await this.charactersService.findOnePublished(characterId, userId);
+    const conversation = await this.conversations.find(userId, characterId);
+    const removed = conversation ? await this.conversations.undoLast(conversation) : 0;
+    if (removed === 0) throw new ConflictException('되돌릴 대화가 없어요.');
+    return { removed, ...(await this.history(characterId, authorization)) };
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {

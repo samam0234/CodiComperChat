@@ -79,7 +79,8 @@ export default async function CharacterChatPage({
         initialMessages={initialMessages}
         lockedPersona={history?.persona ?? null}
         savedCount={history?.savedCount ?? 0}
-        models={models}
+        models={models?.models ?? null}
+        balance={models?.balance ?? null}
         initialModel={history?.model ?? "basic"}
         personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
       />
