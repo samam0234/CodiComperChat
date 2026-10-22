@@ -1,0 +1,109 @@
+# ─────────────────────────────────────────────────────────────
+# 줄바꿈·파일 종류 규칙
+# 저장소에는 LF로 보관하고, 작업 사본은 기기 설정을 따른다 (Windows는 core.autocrlf=true라 CRLF).
+# 뒤에 오는 규칙이 앞의 규칙을 덮어쓴다.
+# ─────────────────────────────────────────────────────────────
+
+# 기본: git이 내용을 보고 텍스트 여부를 판단
+* text=auto
+
+# ── 언어별 소스 (텍스트로 못 박는다) ──────────────────────────
+# TypeScript / JavaScript (apps/web, apps/api, console, e2e)
+*.ts   text
+*.tsx  text
+*.mts  text
+*.cts  text
+*.js   text
+*.jsx  text
+*.mjs  text
+*.cjs  text
+
+# Python (services/ai) — git 내장 diff 드라이버로 함수 단위 헤더를 보여 준다
+*.py   text diff=python
+*.pyi  text diff=python
+
+# 스타일·마크업
+*.css  text diff=css
+*.scss text diff=css
+*.html text diff=html
+*.svg  text
+
+# 문서 (docs/, README)
+*.md   text diff=markdown
+*.mdx  text diff=markdown
+*.mdc  text diff=markdown
+*.txt  text
+
+# 데이터·설정
+*.json  text
+*.jsonc text
+*.yml   text
+*.yaml  text
+*.toml  text
+*.sql   text
+*.prisma text
+*.env   text
+*.example text
+
+# ── 파일명으로 지정하는 설정 파일 ─────────────────────────────
+.gitattributes text
+.gitignore     text
+.gitkeep       text
+.prettierrc    text
+.editorconfig  text
+.env.example   text
+Dockerfile     text eol=lf
+docker-compose.yml text
+package.json      text
+package-lock.json text
+tsconfig*.json    text
+requirements*.txt text
+
+# ── 스크립트: 실행되는 곳의 줄바꿈 ────────────────────────────
+# 셸 스크립트는 Windows에서도 LF여야 실행된다
+*.sh   text eol=lf diff=bash
+# Windows 스크립트는 CRLF여야 실행된다
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# ── 바이너리: 줄바꿈 변환과 diff를 하지 않는다 ────────────────
+# 이미지
+*.ico  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.avif binary
+# 글꼴
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+# 문서·압축
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.tgz  binary
+*.tar  binary
+*.7z   binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+# 미디어·실행 산출물·DB
+*.mp3  binary
+*.mp4  binary
+*.wav  binary
+*.wasm binary
+*.pyc  binary
+*.pyo  binary
+*.sqlite binary
+*.db   binary
+
+# ── GitHub 언어 통계·diff 접기 ────────────────────────────────
+# 자동 생성 파일은 언어 통계에서 빼고 PR diff를 접는다
+package-lock.json linguist-generated=true
+docs/branchs/commits/** linguist-generated=true
+# 문서는 언어 통계에서 뺀다
+docs/** linguist-documentation=true
