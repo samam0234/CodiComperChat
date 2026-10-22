@@ -200,5 +200,7 @@
 | 2026-10-22 | `4711378` | develop (merge) | feature/console-readme → develop 병합 (--no-ff) | [261022_0024_4711378_merge-console-readme_develop.md](commits/261022_0024_4711378_merge-console-readme_develop.md) |
 | 2026-10-22 | `1360c20` | develop (merge) | feature/theme-schedule → develop 병합 (--no-ff) | [261022_0025_1360c20_merge-theme-schedule_develop.md](commits/261022_0025_1360c20_merge-theme-schedule_develop.md) |
 | 2026-10-22 | `97bd7e2` | develop (merge) | feature/popular-polish → develop 병합 (--no-ff) | [261022_0025_97bd7e2_merge-popular-polish_develop.md](commits/261022_0025_97bd7e2_merge-popular-polish_develop.md) |
+| 2026-10-22 | `a371c1c` | feature/gitattributes | .gitattributes 추가로 줄바꿈과 바이너리 처리 명시 | [261022_2335_a371c1c_gitattributes_feature-gitattributes.md](commits/261022_2335_a371c1c_gitattributes_feature-gitattributes.md) |
+| 2026-10-22 | `3336f51` | feature/gitattributes | .gitattributes에 언어별·파일명별 규칙 보강 | [261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md](commits/261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
