@@ -46,3 +46,16 @@
 
 - API: `GET/POST /characters/:id/chat/ops/messages` (`{ text }`)
 - AI: `POST /infer` (`channel: "message"`)
+
+## 커뮤니티 (`/characters/:id/chat/community`)
+
+**캐릭터 세계 속 가상 익명 게시판** (2026-10-23 사용자 결정: 실제 유저끼리의 게시판이 아니다). 그 세계의 주민(AI)들이 쓴 글을 불러오고, 나도 글을 쓴다. 다른 유저와 나누지 않고 이 대화를 하는 나에게만 보인다 — 그래서 신고·운영자 내리기는 없다.
+
+- **새 글 불러오기**(20 코레딧): 주민 글 3개, 글마다 다른 주민 댓글 0~2개. 이미 올라온 제목(최근 20개)과 겹치지 않게
+- **내 글 쓰기**(10 코레딧): 제목(~60자)·내용(~1000자), 글쓴이는 **익명**(기본) 또는 **실명**(이 대화의 내 주인공 이름). 주민 댓글 2~3개가 함께 달린다
+- 실명 언급: 캐릭터, 주인공, 이 대화에 적용한 지인(엑스트라, 최대 6명)은 주민 글에서 실명으로 나올 수 있다. 대화에 실제로 있었던 일만 사실로, 소문은 추측 말투로만, 설정에 없는 비밀·개인사는 단정하지 않는다
+- 주민 글은 캐릭터 목소리가 아니라 여러 주민을 연기하는 작가 프롬프트로 쓴다(세계 설명은 대답 추천과 같은 것)
+- `board_posts`(글쓴이 종류 USER/RESIDENT, 글쓴이 이름) · `board_comments`
+
+- API: `GET /characters/:id/chat/ops/board`, `POST .../board/refresh`, `POST .../board/posts` (`{ title, body, anonymous? }`)
+- AI: `POST /board-posts`, `POST /board-comments`

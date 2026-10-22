@@ -33,3 +33,19 @@ export type DirectMessage = { id: string; role: "user" | "character"; text: stri
 export type MessagesView = OpsBase & { messages: DirectMessage[] };
 
 export const getMessages = (characterId: string) => authedGet<MessagesView>(ops(characterId, "messages"));
+
+export type BoardAuthorKind = "USER" | "RESIDENT";
+export type BoardComment = { id: string; authorKind: BoardAuthorKind; authorName: string; body: string; createdAt: string };
+export type BoardPost = {
+  id: string;
+  authorKind: BoardAuthorKind;
+  authorName: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  comments: BoardComment[];
+};
+// cost: 새 글 불러오기, postCost: 내 글 쓰기. persona: 실명으로 쓸 때의 내 주인공 이름
+export type BoardView = OpsBase & { postCost: number; persona: string | null; posts: BoardPost[] };
+
+export const getBoard = (characterId: string) => authedGet<BoardView>(ops(characterId, "board"));
