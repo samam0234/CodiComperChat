@@ -25,6 +25,10 @@ BY_NAME: dict[str, object] = {
     "invented": False,
     "note": "",
     "notes": [],
+    # 오퍼레이션
+    "innerVoice": "사실은 조금 설레. 내색하지 않으려고 애쓰는 중이야.",
+    "feeling": "설렘",
+    "aboutUser": "오늘따라 믿음직해 보인다.",
 }
 
 

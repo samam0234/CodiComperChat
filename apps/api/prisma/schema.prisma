@@ -165,6 +165,8 @@ model Campaign {
   memorizedUntil     DateTime?
   /// 이 대화의 답을 쓰는 모델 (src/models/models.ts의 id). 새 대화는 기본 무료 모델
   chatModel          String          @default("basic")
+  /// 오퍼레이션(대화 플러그인) 기록. 대화를 지우면 함께 지워진다
+  mindReadings       MindReading[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -437,6 +439,8 @@ enum CreditReason {
   MODEL_USE
   REFUND
   ADMIN
+  /// 오퍼레이션(심리 탐구·일기·커뮤니티·코디포토넷)에 쓴 것. modelId 칸에 "op:이름"
+  OPERATION
 }
 
 /// 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액
@@ -465,4 +469,18 @@ model Attendance {
 
   @@id([userId, day])
   @@map("attendances")
+}
+
+/// 오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로)
+model MindReading {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  innerVoice String
+  feeling    String
+  aboutUser  String
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("mind_readings")
 }

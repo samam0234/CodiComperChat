@@ -57,6 +57,8 @@
 | `GET /characters/:id/chat/saved` | 이어하기 목록 | **200** `{ character, currentHasMessages, saved: [{ id, title, personaName, savedAt, updatedAt, messageCount, memoryCount, lastMessage }] }` · 🔒 |
 | `POST /characters/:id/chat/saved/:campaignId/resume` | 이어하기 `{ saveCurrent }` | **200** GET /chat 응답 · 저장한 대화를 지금 대화로 되살린다(내용·기억·상태설정·고정 프로필 그대로). 지금 대화는 `saveCurrent`에 따라 저장하거나 지운다. 없거나 남의 것 404 · 🔒 |
 | `DELETE /characters/:id/chat/saved/:campaignId` | 저장한 대화 지우기 | **204** · 🔒 |
+| `GET /characters/:id/chat/ops/mind` | 오퍼레이션 · 심리 탐구 목록 | **200** `{ character, started, cost(30), balance, readings: [{ id, innerVoice, feeling, aboutUser, createdAt }] }` · 🔒 · 자세히 [plan/OPERATIONS.md](plan/OPERATIONS.md) |
+| `POST /characters/:id/chat/ops/mind` | 심리 탐구: 지금 장면의 속마음 엿보기 | **200** `{ reading, balance }` · 진행 중인 대화가 없으면 **409**, 코레딧이 모자라면 **403** · 실패하면 코레딧을 돌려준다 · 🔒 |
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |

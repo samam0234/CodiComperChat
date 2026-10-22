@@ -9,5 +9,25 @@ export const KRW_PER_100_CREDITS = 350;
 
 export const attendanceReward = (plan: Plan): number => ATTENDANCE_CREDITS[plan];
 
+// 오퍼레이션(대화 플러그인) 값 (2026-10-23 사용자 결정: 모델이 글을 새로 쓰는 기능은 코레딧으로).
+// 로컬 기본 모델로 돌지만, 대기열을 아끼고 출석 코레딧의 쓸 곳을 만든다. 메시지는 대화와 같아 받지 않는다
+export const OPERATION_COSTS = {
+  mind: 30, // 심리 탐구 1번
+  diary: 20, // 일기 1편
+  boardRefresh: 20, // 커뮤니티 새 글 불러오기 (주민 글 3개)
+  boardPost: 10, // 커뮤니티에 내 글 쓰기 (주민 댓글 포함)
+  photonet: 50, // 코디포토넷 그림 1장 (엔진 준비 중)
+} as const;
+
+export type OperationName = keyof typeof OPERATION_COSTS;
+
+export const OPERATION_LABELS: Record<OperationName, string> = {
+  mind: "심리 탐구",
+  diary: "일기",
+  boardRefresh: "커뮤니티 새 글",
+  boardPost: "커뮤니티 글쓰기",
+  photonet: "코디포토넷",
+};
+
 // 코레딧을 원으로 (화면 안내용, 원 단위 반올림)
 export const creditsToKrw = (credits: number): number => Math.round((credits * KRW_PER_100_CREDITS) / 100);

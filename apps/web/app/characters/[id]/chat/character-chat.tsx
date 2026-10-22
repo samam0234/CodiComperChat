@@ -10,6 +10,7 @@ import ChoiceDialog from "@/components/choice-dialog";
 import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
+import OpsBar from "./ops-bar";
 import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
 
@@ -515,6 +516,8 @@ export default function CharacterChat({
             )}
           </div>
         )}
+
+        <OpsBar characterId={characterId} />
 
         <form
           className={styles.form}
