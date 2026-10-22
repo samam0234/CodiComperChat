@@ -214,3 +214,47 @@ test.describe("오퍼레이션 · 커뮤니티", () => {
     await expect(mine.getByRole("list", { name: /댓글/ })).toContainText("좋은 글이네요");
   });
 });
+
+test.describe("코디포토넷 (엔진 준비 중)", () => {
+  test("상태는 준비 중, 만들기는 503이고 코레딧이 그대로다. 입력 검사는 먼저 한다", async () => {
+    const { user } = await talking("포토넷");
+    const view = await api<{ ready: boolean; cost: number; styles: string[]; ratios: string[]; images: unknown[] }>(`${OPS}/photonet`, {
+      token: user.token,
+    });
+    expect(view.body).toMatchObject({ ready: false, cost: 50, images: [] });
+    expect(view.body.styles).toContain("애니메이션");
+
+    const made = await api<{ message: string }>(`${OPS}/photonet`, {
+      token: user.token,
+      json: { prompt: "비 오는 카페", style: "수채화", ratio: "세로" },
+    });
+    expect(made.status).toBe(503);
+    expect(made.body.message).toContain("준비 중");
+    expect(await balance(user)).toBe(1000);
+
+    expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "", style: "수채화", ratio: "세로" } })).status).toBe(400);
+    expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "x", style: "유화", ratio: "세로" } })).status).toBe(400);
+  });
+
+  test("화면: 입력창 위 왼쪽 버튼 → 창(준비 중, 만들기 잠김), 지금 장면으로 채우기, Esc로 닫기", async ({ browser }) => {
+    const { user } = await talking("포토넷화면");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+
+    await page.getByRole("button", { name: "코디포토넷" }).click();
+    const dialog = page.getByRole("dialog", { name: "코디포토넷" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("status")).toContainText("준비 중");
+    await expect(dialog).toContainText("50 코레딧");
+    await expect(dialog.getByRole("button", { name: "준비 중" })).toBeDisabled();
+
+    await dialog.getByRole("button", { name: "지금 장면으로 채우기" }).click();
+    await expect(dialog.getByLabel("장면 설명")).toHaveValue("네, 알겠어요. 오늘도 천천히 이야기해 봐요.");
+    await dialog.getByText("수채화").click();
+    await expect(dialog.getByRole("radio", { name: "수채화" })).toBeChecked();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+  });
+});

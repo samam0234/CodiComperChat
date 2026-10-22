@@ -49,3 +49,11 @@ export type BoardPost = {
 export type BoardView = OpsBase & { postCost: number; persona: string | null; posts: BoardPost[] };
 
 export const getBoard = (characterId: string) => authedGet<BoardView>(ops(characterId, "board"));
+
+// 코디포토넷: 엔진이 붙기 전에는 ready=false, 만든 그림은 없다
+export type PhotonetView = OpsBase & {
+  ready: boolean;
+  styles: string[];
+  ratios: string[];
+  images: { id: string; url: string; prompt: string; createdAt: string }[];
+};

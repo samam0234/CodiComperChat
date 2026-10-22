@@ -163,16 +163,14 @@
   color: var(--foreground);
 }
 
-/* 일기: 줄 노트 느낌 */
+/* 일기: 본문에만 줄 노트 (줄 간격 = 글줄 높이 32px) */
 .diary {
   display: grid;
   gap: 10px;
   padding: 20px 22px 22px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background:
-    repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in srgb, var(--accent) 12%, transparent) 31px 32px),
-    var(--surface);
+  background: var(--surface);
   box-shadow: var(--shadow-sm);
 }
 
@@ -185,4 +183,5 @@
 .diaryBody {
   font-size: 15px;
   line-height: 32px;
+  background: repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in srgb, var(--accent) 14%, transparent) 31px 32px);
 }
