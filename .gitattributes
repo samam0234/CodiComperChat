@@ -1,0 +1,24 @@
+# 줄바꿈 규칙
+# 저장소에는 LF로 보관하고, 작업 사본은 기기 설정을 따른다 (Windows는 core.autocrlf=true라 CRLF).
+* text=auto
+
+# 바이너리: 줄바꿈 변환과 diff를 하지 않는다
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+
+# 셸 스크립트는 Windows에서도 LF로 받아야 실행된다
+*.sh text eol=lf
