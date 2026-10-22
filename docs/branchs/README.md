@@ -207,5 +207,6 @@
 | 2026-10-23 | `316780e` | feature/ops-diary | 오퍼레이션 일기 | [261023_0106_316780e_ops-diary_feature-ops-diary.md](commits/261023_0106_316780e_ops-diary_feature-ops-diary.md) |
 | 2026-10-23 | `37fbe2e` | feature/ops-messages | 오퍼레이션 메시지 (캐릭터와 문자 주고받기) | [261023_0116_37fbe2e_ops-messages_feature-ops-messages.md](commits/261023_0116_37fbe2e_ops-messages_feature-ops-messages.md) |
 | 2026-10-23 | `d08bb78` | feature/ops-community | 오퍼레이션 커뮤니티 (캐릭터 세계 속 익명 게시판) | [261023_0122_d08bb78_ops-community_feature-ops-community.md](commits/261023_0122_d08bb78_ops-community_feature-ops-community.md) |
+| 2026-10-23 | `32bb115` | feature/photonet | 코디포토넷 창 (엔진 준비 중) | [261023_0129_32bb115_photonet-ui_feature-photonet.md](commits/261023_0129_32bb115_photonet-ui_feature-photonet.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
