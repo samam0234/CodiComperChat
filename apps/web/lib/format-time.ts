@@ -13,6 +13,12 @@ export function formatDay(iso: string): string {
   return `${t.month}월 ${t.day}일`;
 }
 
+// 오전 1:12 (문자 시각처럼 시각만)
+export function formatTime(iso: string): string {
+  const t = kst(iso);
+  return `${t.hour < 12 ? "오전" : "오후"} ${t.hour % 12 === 0 ? 12 : t.hour % 12}:${String(t.minute).padStart(2, "0")}`;
+}
+
 // 10월 15일 10:56
 export function formatDayTime(iso: string): string {
   const t = kst(iso);

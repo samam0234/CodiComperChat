@@ -5,6 +5,12 @@ from app.schemas.infer import InferRequest, InferResponse
 from app.services import llm
 
 MAX_OUTPUT_TOKENS = 1200
+
+# 오퍼레이션 · 메시지: 대화 장면이 아니라 휴대폰 메신저로 주고받는 문자
+MESSAGE_STYLE = """지금은 장면 속 대화가 아니라 휴대폰 메신저로 주고받는 문자다. 위의 "2~4문장" 대신 아래를 따른다.
+- 1~2문장으로 짧게, 실제 문자처럼 쓴다. 말투는 캐릭터 그대로.
+- 행동·표정 묘사(*별표*)나 장면 서술은 쓰지 않는다. 문자에 보낼 글만 쓴다.
+- 얼굴을 보고 있지 않으므로 지금 같은 장소에 있는 것처럼 말하지 않는다."""
 # 낮출수록 설정에서 덜 벗어난다. 캐릭터 연기의 생기를 잃지 않는 선에서 기본값(0.8)보다 살짝 낮춘다
 TEMPERATURE = 0.7
 
@@ -208,6 +214,8 @@ def _fill_user(text: str, name: str) -> str:
 def run(request: InferRequest) -> InferResponse:
     user_name = request.context.user_persona.name if request.context.user_persona else "유저"
     system = _fill_user(_build_system_prompt(request.context), user_name)
+    if request.channel == "message":
+        system += "\n\n" + MESSAGE_STYLE
     if request.retry_note:
         system += "\n\n다시 쓰기: " + request.retry_note
     reply = llm.generate(

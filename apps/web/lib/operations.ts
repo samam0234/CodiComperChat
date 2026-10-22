@@ -28,3 +28,8 @@ export type DiaryEntry = { id: string; title: string; mood: string; body: string
 export type DiaryView = OpsBase & { entries: DiaryEntry[] };
 
 export const getDiary = (characterId: string) => authedGet<DiaryView>(ops(characterId, "diary"));
+
+export type DirectMessage = { id: string; role: "user" | "character"; text: string; createdAt: string };
+export type MessagesView = OpsBase & { messages: DirectMessage[] };
+
+export const getMessages = (characterId: string) => authedGet<MessagesView>(ops(characterId, "messages"));

@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import Field
 
 from app.schemas.base import WireModel
@@ -12,6 +14,8 @@ class InferRequest(WireModel):
     # 이 답만 다른 Ollama 모델로 쓸 때 Nest가 넘기는 태그(예: gemma4:12b). 없으면 기본 모델.
     # 태그 모양만 받는다 — 모델 이름으로 다른 주소나 옵션을 끼워 넣지 못하게
     model: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$")
+    # chat: 롤플레이 대화(기본). message: 오퍼레이션 · 메시지 — 휴대폰 문자처럼 짧게
+    channel: Literal["chat", "message"] = "chat"
 
 
 class InferResponse(WireModel):
