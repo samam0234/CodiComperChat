@@ -1,0 +1,135 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: min(64vh, 580px);
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(500px 260px at 0% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),
+    var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.empty {
+  margin: auto 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  list-style: none;
+}
+
+.suggestion {
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.suggestion:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.suggestion:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.user {
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  background: var(--gradient);
+  color: #ffffff;
+}
+
+.agent {
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.system {
+  align-self: stretch;
+  max-width: none;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.typing {
+  align-self: flex-start;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0 12px 12px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--background);
+}
+
+.form:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.submit {
+  flex-shrink: 0;
+  height: 44px;
+  white-space: nowrap;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--glow);
+}
+
+.submit:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

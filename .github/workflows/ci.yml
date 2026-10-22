@@ -1,0 +1,145 @@
+# 자동 검사: develop·main에 올리거나 PR을 열면 돈다 (docs/plan/TESTING.md "CI")
+#  checks: 린트·타입 검사·API 단위 테스트(실제 PostgreSQL 포함)·AI 서비스 불러오기
+#  e2e:    웹 화면 자동 테스트 (가짜 LLM·가짜 결제·메일은 폴더로, 실제 모델·돈·메일 없이)
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: codicomperchat
+          POSTGRES_PASSWORD: codicomperchat
+          POSTGRES_DB: codicomperchat
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U codicomperchat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://codicomperchat:codicomperchat@localhost:5432/codicomperchat?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 패키지 설치
+        run: npm ci
+
+      - name: Prisma 클라이언트 생성·마이그레이션 적용
+        working-directory: apps/api
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: 린트 (oxlint)
+        run: npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e
+
+      - name: 타입 검사 (api)
+        run: npm run typecheck:api
+
+      - name: 타입 검사 (web)
+        working-directory: apps/web
+        run: |
+          npx next typegen
+          npx tsc --noEmit
+
+      - name: 타입 검사 (console)
+        working-directory: console
+        run: |
+          npx next typegen
+          npx tsc --noEmit
+
+      - name: API 단위 테스트
+        run: npm run test:api
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: services/ai/requirements.txt
+
+      - name: AI 서비스 불러오기 검사
+        working-directory: services/ai
+        run: |
+          pip install -r requirements.txt
+          python -m compileall -q app evals
+          python -c "import app.main"
+
+  e2e:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: codicomperchat
+          POSTGRES_PASSWORD: codicomperchat
+          POSTGRES_DB: codicomperchat
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U codicomperchat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # e2e는 이 DB를 만들고(없으면) 비운 뒤 쓴다 (e2e/prepare.mjs)
+      E2E_DATABASE_URL: postgresql://codicomperchat:codicomperchat@localhost:5432/codicomperchat_e2e?schema=public
+      DATABASE_URL: postgresql://codicomperchat:codicomperchat@localhost:5432/codicomperchat_e2e?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 패키지 설치
+        run: npm ci
+
+      - name: Prisma 클라이언트 생성
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: AI 서비스 가상환경 (e2e/servers/ai.mjs가 services/ai/.venv를 쓴다)
+        working-directory: services/ai
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r requirements.txt
+
+      # 러너에 설치된 Chrome을 쓴다 (playwright.config.ts의 channel: "chrome")
+      - name: 웹 화면 자동 테스트
+        run: npm run test:e2e
+
+      - name: 실패 화면·추적 올리기
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: e2e/.tmp/test-results
+          retention-days: 7

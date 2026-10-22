@@ -2,7 +2,17 @@
 node_modules/
 .next/
 dist/
+# apps/api 검증용 빌드 (npm run build:verify) — dev 서버의 dist와 분리
+dist-verify/
 build/
+*.tsbuildinfo
+
+# 웹 자동 테스트(e2e) 산출물
+.next-e2e/
+apps/web/tsconfig.e2e.json
+console/tsconfig.e2e.json
+console/next-env.d.ts
+e2e/.tmp/
 
 # Python
 __pycache__/
@@ -18,3 +28,9 @@ venv/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# 캐릭터 페르소나 지식 JSON (RAG 원천). 카드 원문과 손으로 쓴 설정이 들어 있어 저장소에 올리지 않는다.
+# 형식 예시(_example.json)만 올린다. 만드는 법: apps/api/data/personas/README.md
+apps/api/data/personas/*
+!apps/api/data/personas/README.md
+!apps/api/data/personas/_example.json

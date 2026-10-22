@@ -1,0 +1,72 @@
+.avatar {
+  flex-shrink: 0;
+  display: inline-block;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-2);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border), var(--shadow-sm);
+}
+
+.xs {
+  width: 30px;
+  height: 30px;
+}
+
+.sm {
+  width: 36px;
+  height: 36px;
+}
+
+.md {
+  width: 52px;
+  height: 52px;
+}
+
+.lg {
+  width: 96px;
+  height: 96px;
+}
+
+/* 상세 화면의 큰 초상은 둥근 사각형 */
+.xl {
+  width: 168px;
+  height: 168px;
+  border-radius: 30px;
+}
+
+.fallback {
+  display: inline-grid;
+  place-items: center;
+  font-weight: 800;
+  color: #fff;
+  background: var(--gradient);
+}
+
+.xs.fallback {
+  font-size: 13px;
+}
+
+.sm.fallback {
+  font-size: 15px;
+}
+
+.md.fallback {
+  font-size: 22px;
+}
+
+.lg.fallback {
+  font-size: 40px;
+}
+
+.xl.fallback {
+  font-size: 72px;
+}
+
+@media (max-width: 640px) {
+  .xl {
+    width: 132px;
+    height: 132px;
+    border-radius: 26px;
+  }
+}

@@ -1,0 +1,100 @@
+.section {
+  margin-top: 28px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.badge,
+.badgeAlert {
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.badgeAlert {
+  background: var(--danger);
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+a.tile:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+.alert {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+}
+
+.tileLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tileValue {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.alert .tileValue {
+  color: var(--danger);
+}
+
+.tileHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.error {
+  font-size: 14px;
+  color: var(--danger);
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tile {
+    padding: 12px 14px;
+  }
+
+  .tileValue {
+    font-size: 22px;
+  }
+}

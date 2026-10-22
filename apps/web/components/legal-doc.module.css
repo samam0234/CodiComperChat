@@ -1,0 +1,108 @@
+.doc {
+  max-width: 760px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.draft {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.draft mark {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.intro {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.toc {
+  margin-top: 20px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 14px;
+}
+
+.toc ol {
+  display: grid;
+  gap: 4px;
+  padding-left: 18px;
+}
+
+.toc a:hover {
+  text-decoration: underline;
+}
+
+.section {
+  margin-top: 28px;
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+.heading {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.body {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.body ul {
+  display: grid;
+  gap: 6px;
+  padding-left: 20px;
+}
+
+.body mark {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.body th,
+.body td {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.body th {
+  background: var(--surface);
+}

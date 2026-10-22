@@ -1,0 +1,174 @@
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.plan {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.pro {
+  border-color: var(--accent);
+  box-shadow: 0 10px 40px -18px var(--accent);
+}
+
+.planName {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.price {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.features {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  list-style: "✓  ";
+}
+
+.current {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.products {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+}
+
+.productName {
+  font-weight: 700;
+}
+
+.productPrice {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.buy {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.buyButton,
+.loginLink {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--glow);
+}
+
+.buyButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.notice,
+.testMode,
+.fine {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.fine {
+  margin-top: 20px;
+}
+
+.fine a {
+  color: var(--accent);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+@media (max-width: 720px) {
+  .plans {
+    grid-template-columns: 1fr;
+  }
+}
+
+.refund {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--background);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.refund a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--foreground);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.consent input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}

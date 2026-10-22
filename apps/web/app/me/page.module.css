@@ -1,0 +1,355 @@
+/* 마이페이지: 가운데 정렬한 한 단(최대 960px). 위에서부터 프로필 → 바로가기 → 코레딧·요금 → 결제 내역 → 내 프로필 캐릭터 */
+.page {
+  display: grid;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.back {
+  justify-self: start;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* 프로필 머리말 */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  padding: 28px 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(520px 220px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+    var(--surface);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--gradient);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 36px;
+  font-weight: 800;
+  box-shadow: var(--glow);
+}
+
+.heroText {
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.title {
+  margin-top: 2px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+
+.email {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.verified {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.unverified {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  list-style: none;
+}
+
+.badge,
+.badgePro {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.badgePro {
+  background: var(--gradient);
+  color: #fff;
+}
+
+.heroActions {
+  display: grid;
+  gap: 8px;
+  justify-items: stretch;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.primaryAction {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: var(--glow);
+}
+
+.secondaryAction {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.secondaryAction:hover {
+  border-color: var(--accent);
+}
+
+/* 바로가기 */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.shortcut {
+  display: grid;
+  gap: 2px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+
+.shortcut:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.shortcut strong {
+  font-size: 15px;
+}
+
+.shortcut span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* 코레딧 + 요금 등급 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.planCard,
+.orders {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.planName {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.planUntil {
+  margin-top: -6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.perks {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+  color: var(--muted);
+  list-style: "✓  ";
+}
+
+.cardLink {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.cardLink:hover {
+  border-color: var(--accent);
+}
+
+.inlineLink {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* 결제 내역 */
+.orders ul {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+.orders li {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.orders li + li {
+  border-top: 1px solid var(--border);
+}
+
+.orderDate {
+  color: var(--muted);
+}
+
+.orderAmount {
+  font-weight: 700;
+}
+
+/* 이메일 인증 안내 */
+.notice {
+  display: grid;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: #2b1d6b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.notice form {
+  justify-self: start;
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 22px 20px;
+  }
+
+  .heroActions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .shortcuts {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orders li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .orderDate {
+    grid-column: 1 / -1;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notice {
+    color: inherit;
+    background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  }
+}
+
+:root[data-theme="dark"] .notice {
+  color: inherit;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}

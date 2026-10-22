@@ -1,0 +1,34 @@
+# 로컬 개발용 보조 서비스. web/api/ai 컨테이너화와 redis 추가는
+# 계획서 line 372(§ compose로 web/api/ai/postgres/redis 통합)의 나머지 범위 — 별도 작업.
+#
+#   docker compose up -d mailpit    메일 서버만 (로컬 개발 DB는 설치형 PostgreSQL을 쓴다 — docs/guidance/docker-run.md)
+#   docker compose up -d postgres   설치형 PostgreSQL이 없을 때만 (5432가 겹친다)
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codicomperchat
+      POSTGRES_PASSWORD: codicomperchat
+      POSTGRES_DB: codicomperchat
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 개발용 메일 서버: 실제로 밖에 보내지 않고 받아 두었다가 웹 화면으로 보여 준다
+  #   SMTP  127.0.0.1:1025  → apps/api/.env  MAIL_SMTP_URL=smtp://127.0.0.1:1025 (localhost는 IPv6로 풀려 연결이 거절된다)
+  #   웹    http://127.0.0.1:8025  (받은 메일 보기)
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:1025:1025'
+      - '127.0.0.1:8025:8025'
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+volumes:
+  postgres_data:

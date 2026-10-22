@@ -1,0 +1,26 @@
+{
+  "name": "codicomperchat",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "console"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace web",
+    "build:web": "npm run build --workspace web",
+    "dev:console": "npm run dev --workspace console",
+    "build:console": "npm run build --workspace console",
+    "dev:api": "npm run start:dev --workspace api",
+    "build:api": "npm run build --workspace api",
+    "test:api": "npm run test --workspace api",
+    "test:api:e2e": "npm run test:e2e --workspace api",
+    "typecheck:api": "npm run typecheck --workspace api",
+    "bench": "node e2e/bench.mjs",
+    "test:e2e": "node e2e/prepare.mjs && playwright test -c e2e/playwright.config.ts",
+    "ci:local": "node scripts/ci-local.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}
