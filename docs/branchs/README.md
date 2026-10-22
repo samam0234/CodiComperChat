@@ -204,5 +204,6 @@
 | 2026-10-22 | `3336f51` | feature/gitattributes | .gitattributes에 언어별·파일명별 규칙 보강 | [261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md](commits/261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md) |
 | 2026-10-22 | `b15e179` | develop (merge) | feature/gitattributes → develop 병합 (--no-ff) | [261022_2338_b15e179_merge-gitattributes_develop.md](commits/261022_2338_b15e179_merge-gitattributes_develop.md) |
 |  | `` |  |  | [261022_2328_4920a3f_merge-develop-to-main_main.md](commits/261022_2328_4920a3f_merge-develop-to-main_main.md) |
+| 2026-10-22 | `402bb07` | develop (merge) | develop → develop 병합 (--no-ff) | [261022_2339_402bb07_merge-develop-to-main-2_main.md](commits/261022_2339_402bb07_merge-develop-to-main-2_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
