@@ -33,3 +33,16 @@
 
 - API: `GET/POST /characters/:id/chat/ops/diary`
 - AI: `POST /diary`
+
+## 메시지 (`/characters/:id/chat/messages`)
+
+특정 캐릭터와 메시지를 주고받는다. 장면 속 대화(롤플레이)와 **따로** 쌓이는 휴대폰 문자 창이다.
+
+- 기억·관계(상태설정)·이야기 상태는 대화와 함께 쓰고, 최근 기록만 문자 창의 것(최근 30개)을 맥락으로 쓴다
+- 캐릭터 답은 `POST /infer`에 `channel: "message"`를 붙여 "1~2문장, 문자처럼, 행동 묘사(*별표*) 없이, 같은 장소에 있는 것처럼 말하지 않기"로 쓴다
+- 코레딧을 받지 않는다(대화와 같다). 모델은 기본 무료 모델. 요청 한도는 대화와 같은 `chat`(1분 20번)
+- 답을 받은 뒤에만 내 문자와 답을 함께 남긴다(실패하면 내 문자도 남지 않아 입력칸으로 돌아온다). 한 번에 500자까지
+- `direct_messages`에 쌓인다. 대화 기록(`messages`)에는 섞이지 않는다
+
+- API: `GET/POST /characters/:id/chat/ops/messages` (`{ text }`)
+- AI: `POST /infer` (`channel: "message"`)

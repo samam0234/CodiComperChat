@@ -102,3 +102,46 @@ test.describe("오퍼레이션 · 일기", () => {
     await expect(list).toContainText("포근함");
   });
 });
+
+test.describe("오퍼레이션 · 메시지", () => {
+  test("문자는 대화와 따로 쌓이고 코레딧이 들지 않는다", async () => {
+    const { user } = await talking("문자중", false);
+    const res = await api<{ sent: { role: string; text: string }; reply: { role: string; text: string } }>(`${OPS}/messages`, {
+      token: user.token,
+      json: { text: "지금 뭐 해요?" },
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.sent).toMatchObject({ role: "user", text: "지금 뭐 해요?" });
+    expect(res.body.reply.role).toBe("character");
+    expect(await balance(user)).toBe(0);
+
+    const view = await api<{ messages: { role: string; text: string }[] }>(`${OPS}/messages`, { token: user.token });
+    expect(view.body.messages.map((m) => m.role)).toEqual(["user", "character"]);
+    // 대화(롤플레이) 기록에는 섞이지 않는다
+    const chatLog = await api<{ messages: { text: string }[] }>(CHAT, { token: user.token });
+    expect(chatLog.body.messages.some((m) => m.text === "지금 뭐 해요?")).toBe(false);
+
+    expect((await api(`${OPS}/messages`, { token: user.token, json: { text: "   " } })).status).toBe(400);
+    expect((await api(`${OPS}/messages`, { token: user.token, json: { text: "가".repeat(501) } })).status).toBe(400);
+    const fresh = await signup("문자전");
+    expect((await api(`${OPS}/messages`, { token: fresh.token, json: { text: "안녕" } })).status).toBe(409);
+  });
+
+  test("화면: 메뉴 → 메시지 → 문자 보내고 답장 받기", async ({ browser }) => {
+    const { user } = await talking("문자화면", false);
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "오퍼레이션" }).click();
+    await page.getByRole("menu", { name: "오퍼레이션" }).getByRole("menuitem", { name: /메시지/ }).click();
+    await expect(page).toHaveURL(`${CHAT}/messages`);
+
+    await page.getByLabel("보낼 문자").fill("오늘 날씨 좋네요");
+    await page.getByRole("button", { name: "보내기" }).click();
+    const log = page.getByRole("log", { name: /주고받은 문자/ });
+    await expect(log.getByText("오늘 날씨 좋네요")).toBeVisible();
+    await expect(log.getByText("네, 알겠어요. 오늘도 천천히 이야기해 봐요.")).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("log", { name: /주고받은 문자/ }).getByText("오늘 날씨 좋네요")).toBeVisible();
+  });
+});

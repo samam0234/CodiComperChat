@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { DiaryEntry, MindReading } from "@/lib/operations";
+import type { DiaryEntry, DirectMessage, MindReading } from "@/lib/operations";
 
 // 오퍼레이션(대화 플러그인) 만들기·쓰기. Nest로 넘기기만 한다 (토큰은 httpOnly 쿠키에서 서버가 붙인다)
 export type OpsResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -38,4 +38,8 @@ export async function readMind(characterId: string) {
 
 export async function writeDiary(characterId: string) {
   return call<{ entry: DiaryEntry; balance: number }>(characterId, "diary");
+}
+
+export async function sendDirectMessage(characterId: string, text: string) {
+  return call<{ sent: DirectMessage; reply: DirectMessage }>(characterId, "messages", { text });
 }

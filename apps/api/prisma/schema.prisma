@@ -168,6 +168,7 @@ model Campaign {
   /// 오퍼레이션(대화 플러그인) 기록. 대화를 지우면 함께 지워진다
   mindReadings       MindReading[]
   diaryEntries       DiaryEntry[]
+  directMessages     DirectMessage[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -498,4 +499,17 @@ model DiaryEntry {
 
   @@index([campaignId, createdAt])
   @@map("diary_entries")
+}
+
+/// 오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다
+model DirectMessage {
+  id         String      @id @default(cuid())
+  campaignId String
+  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  role       MessageRole
+  content    String
+  createdAt  DateTime    @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("direct_messages")
 }
