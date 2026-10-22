@@ -10,7 +10,7 @@ import json
 from fastapi import HTTPException
 
 from app.schemas.context import ContextSlice
-from app.schemas.operations import MindRequest, MindResponse
+from app.schemas.operations import DiaryRequest, DiaryResponse, MindRequest, MindResponse
 from app.services import inference, llm
 
 NO_INVENTION = "설정과 대화에 없는 비밀·과거·가족·사건은 새로 만들지 않는다. 대화에서 실제로 있었던 일과 지금 감정만 쓴다."
@@ -78,4 +78,33 @@ def mind(request: MindRequest) -> MindResponse:
         inner_voice=_text(data, "innerVoice", 800),
         feeling=_text(data, "feeling", 40),
         about_user=_text(data, "aboutUser", 300),
+    )
+
+
+def diary(request: DiaryRequest) -> DiaryResponse:
+    context = request.context
+    character = context.character.name
+    user = _user_name(context)
+    data = _character_json(
+        context,
+        f"이번에는 대답하지 않는다. 오늘 밤 {character}가 혼자 쓰는 일기를 쓴다. "
+        f"최근 대화에서 {user}와 실제로 있었던 일을 {character}의 입장에서 돌아보고, 그때 느낀 기분을 솔직하게 적는다. "
+        f"title: 일기 제목(20자 안팎). mood: 오늘 기분을 짧은 말 하나로. "
+        f"body: {character}의 1인칭 일기 본문 6~10문장, 말투는 {character} 그대로. 날짜는 쓰지 않는다. "
+        f"대화에 없던 사건을 지어내지 않는다. {NO_INVENTION}",
+        {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "mood": {"type": "string"},
+                "body": {"type": "string"},
+            },
+            "required": ["title", "mood", "body"],
+        },
+        max_tokens=1400,
+    )
+    return DiaryResponse(
+        title=_text(data, "title", 60),
+        mood=_text(data, "mood", 30),
+        body=_text(data, "body", 2000),
     )

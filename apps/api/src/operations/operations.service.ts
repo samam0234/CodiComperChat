@@ -15,6 +15,7 @@ const clip = (text: unknown, max: number) => (typeof text === 'string' ? text.tr
 const LIST_TAKE = 30;
 
 type MindResult = { innerVoice: string; feeling: string; aboutUser: string };
+type DiaryResult = { title: string; mood: string; body: string };
 
 @Injectable()
 export class OperationsService {
@@ -88,5 +89,36 @@ export class OperationsService {
       });
     });
     return { reading: result, balance };
+  }
+
+  // ── 일기: 캐릭터가 자기 입장에서 쓰는 하루 ──────────────────
+  async diaryView(characterId: string, authorization?: string) {
+    const v = await this.view(characterId, authorization);
+    const entries = v.conversation
+      ? await this.prisma.diaryEntry.findMany({
+          where: { campaignId: v.conversation.campaignId },
+          orderBy: { createdAt: 'desc' },
+          take: LIST_TAKE,
+          select: { id: true, title: true, mood: true, body: true, createdAt: true },
+        })
+      : [];
+    return { character: v.character, started: v.started, cost: OPERATION_COSTS.diary, balance: v.balance, entries };
+  }
+
+  async writeDiary(characterId: string, authorization?: string) {
+    const ctx = await this.chat.operationContext(characterId, authorization);
+    const { result, balance } = await this.charged(ctx.userId, 'diary', async () => {
+      const raw = await postToAi<DiaryResult>('/diary', { context: ctx.context });
+      return this.prisma.diaryEntry.create({
+        data: {
+          campaignId: ctx.conversation.campaignId,
+          title: clip(raw.title, 60),
+          mood: clip(raw.mood, 30),
+          body: clip(raw.body, 2000),
+        },
+        select: { id: true, title: true, mood: true, body: true, createdAt: true },
+      });
+    });
+    return { entry: result, balance };
   }
 }

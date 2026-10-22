@@ -71,3 +71,34 @@ test.describe("오퍼레이션 · 심리 탐구", () => {
     await expect(page.getByText("970", { exact: true })).toBeVisible();
   });
 });
+
+test.describe("오퍼레이션 · 일기", () => {
+  test("캐릭터가 쓴 일기: 20 코레딧, 최근 것부터 쌓인다", async () => {
+    const { user } = await talking("일기중");
+    const first = await api<{ entry: { title: string; mood: string; body: string }; balance: number }>(`${OPS}/diary`, {
+      token: user.token,
+      method: "POST",
+    });
+    expect(first.status).toBe(200);
+    expect(first.body.entry).toMatchObject({ title: "비 오는 날의 손님", mood: "포근함" });
+    expect(first.body.balance).toBe(980);
+    await api(`${OPS}/diary`, { token: user.token, method: "POST" });
+    const view = await api<{ entries: unknown[]; balance: number; cost: number }>(`${OPS}/diary`, { token: user.token });
+    expect(view.body).toMatchObject({ balance: 960, cost: 20 });
+    expect(view.body.entries).toHaveLength(2);
+  });
+
+  test("화면: 메뉴 → 일기 → 일기 쓰게 하기", async ({ browser }) => {
+    const { user } = await talking("일기화면");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "오퍼레이션" }).click();
+    await page.getByRole("menu", { name: "오퍼레이션" }).getByRole("menuitem", { name: /일기/ }).click();
+    await expect(page).toHaveURL(`${CHAT}/diary`);
+    await page.getByRole("button", { name: /일기 쓰게 하기/ }).click();
+    const list = page.getByRole("list", { name: "일기" });
+    await expect(list.getByRole("heading", { name: "비 오는 날의 손님" })).toBeVisible();
+    await expect(list).toContainText("포근함");
+  });
+});

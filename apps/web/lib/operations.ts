@@ -23,3 +23,8 @@ export type MindReading = { id: string; innerVoice: string; feeling: string; abo
 export type MindView = OpsBase & { readings: MindReading[] };
 
 export const getMind = (characterId: string) => authedGet<MindView>(ops(characterId, "mind"));
+
+export type DiaryEntry = { id: string; title: string; mood: string; body: string; createdAt: string };
+export type DiaryView = OpsBase & { entries: DiaryEntry[] };
+
+export const getDiary = (characterId: string) => authedGet<DiaryView>(ops(characterId, "diary"));

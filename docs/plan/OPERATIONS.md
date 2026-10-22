@@ -26,3 +26,10 @@
 
 - API: `GET/POST /characters/:id/chat/ops/mind`
 - AI: `POST /mind`
+
+## 일기 (`/characters/:id/chat/diary`)
+
+메모를 그 캐릭터 기준으로만 쓴다: 캐릭터가 자기 입장에서 최근 대화에서 실제로 겪은 일과 그때의 기분을 1인칭으로 적는 일기. **제목**, **오늘 기분**(짧은 말), **본문**(6~10문장, 캐릭터 말투 그대로). 날짜는 쓰지 않고(기록 시각을 따로 보여 준다), 대화에 없던 사건은 지어내지 않는다. `diary_entries`에 쌓이고 최근 것부터 보인다. 화면은 줄 노트 느낌의 카드.
+
+- API: `GET/POST /characters/:id/chat/ops/diary`
+- AI: `POST /diary`

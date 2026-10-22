@@ -15,3 +15,15 @@ class MindResponse(WireModel):
     feeling: str
     # 유저(주인공)에 대해 지금 드는 생각 한 문장
     about_user: str
+
+
+class DiaryRequest(WireModel):
+    context: ContextSlice
+
+
+class DiaryResponse(WireModel):
+    title: str
+    # 오늘 기분 (짧은 말)
+    mood: str
+    # 일기 본문 (캐릭터의 1인칭)
+    body: str
