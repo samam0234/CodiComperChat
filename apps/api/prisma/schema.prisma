@@ -169,6 +169,7 @@ model Campaign {
   mindReadings       MindReading[]
   diaryEntries       DiaryEntry[]
   directMessages     DirectMessage[]
+  boardPosts         BoardPost[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -512,4 +513,40 @@ model DirectMessage {
 
   @@index([campaignId, createdAt])
   @@map("direct_messages")
+}
+
+/// 커뮤니티 글쓴이: 나(유저) / 그 세계의 주민(AI)
+enum BoardAuthor {
+  USER
+  RESIDENT
+}
+
+/// 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다)
+model BoardPost {
+  id         String         @id @default(cuid())
+  campaignId String
+  campaign   Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  authorKind BoardAuthor
+  /// 화면에 보이는 글쓴이 (익명·주민 닉네임·내 주인공 실명)
+  authorName String
+  title      String
+  body       String
+  createdAt  DateTime       @default(now())
+  comments   BoardComment[]
+
+  @@index([campaignId, createdAt])
+  @@map("board_posts")
+}
+
+model BoardComment {
+  id         String      @id @default(cuid())
+  postId     String
+  post       BoardPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorKind BoardAuthor
+  authorName String
+  body       String
+  createdAt  DateTime    @default(now())
+
+  @@index([postId, createdAt])
+  @@map("board_comments")
 }

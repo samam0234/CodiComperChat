@@ -1,6 +1,15 @@
 from fastapi import APIRouter
 
-from app.schemas.operations import DiaryRequest, DiaryResponse, MindRequest, MindResponse
+from app.schemas.operations import (
+    BoardCommentsRequest,
+    BoardCommentsResponse,
+    BoardPostsRequest,
+    BoardPostsResponse,
+    DiaryRequest,
+    DiaryResponse,
+    MindRequest,
+    MindResponse,
+)
 from app.services import operations
 
 router = APIRouter(tags=["operations"])
@@ -16,3 +25,15 @@ def mind(request: MindRequest) -> MindResponse:
 @router.post("/diary", response_model=DiaryResponse)
 def diary(request: DiaryRequest) -> DiaryResponse:
     return operations.diary(request)
+
+
+# 커뮤니티: 캐릭터 세계 속 동네 게시판에 주민들이 올린 새 글 (댓글 포함)
+@router.post("/board-posts", response_model=BoardPostsResponse)
+def board_posts(request: BoardPostsRequest) -> BoardPostsResponse:
+    return operations.board_posts(request)
+
+
+# 커뮤니티: 내가 올린 글에 주민들이 단 댓글
+@router.post("/board-comments", response_model=BoardCommentsResponse)
+def board_comments(request: BoardCommentsRequest) -> BoardCommentsResponse:
+    return operations.board_comments(request)

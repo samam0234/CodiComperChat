@@ -145,3 +145,72 @@ test.describe("오퍼레이션 · 메시지", () => {
     await expect(page.getByRole("log", { name: /주고받은 문자/ }).getByText("오늘 날씨 좋네요")).toBeVisible();
   });
 });
+
+test.describe("오퍼레이션 · 커뮤니티", () => {
+  type Post = { authorKind: string; authorName: string; title: string; comments: { authorName: string }[] };
+
+  test("새 글 불러오기(20)·내 글 쓰기(10, 익명 기본·실명 선택), 글 검사", async () => {
+    const { user } = await talking("게시판중");
+    const refreshed = await api<{ posts: Post[]; balance: number }>(`${OPS}/board/refresh`, { token: user.token, method: "POST" });
+    expect(refreshed.status).toBe(200);
+    expect(refreshed.body.posts).toHaveLength(3);
+    expect(refreshed.body.posts[0]).toMatchObject({ authorKind: "RESIDENT", title: "카페 사장님 오늘도 친절하심" });
+    expect(refreshed.body.posts[0].comments).toHaveLength(1);
+    expect(refreshed.body.balance).toBe(980);
+
+    const anon = await api<{ post: Post; balance: number }>(`${OPS}/board/posts`, {
+      token: user.token,
+      json: { title: "오늘 카페 다녀옴", body: "사장님이 친절했어요" },
+    });
+    expect(anon.status).toBe(200);
+    expect(anon.body.post).toMatchObject({ authorKind: "USER", authorName: "익명" });
+    expect(anon.body.post.comments.length).toBeGreaterThanOrEqual(2);
+    expect(anon.body.balance).toBe(970);
+
+    const named = await api<{ post: Post }>(`${OPS}/board/posts`, {
+      token: user.token,
+      json: { title: "실명 글", body: "안녕하세요", anonymous: false },
+    });
+    expect(named.body.post.authorName).toBe("민준");
+
+    const view = await api<{ posts: Post[]; persona: string; cost: number; postCost: number }>(`${OPS}/board`, { token: user.token });
+    expect(view.body).toMatchObject({ persona: "민준", cost: 20, postCost: 10 });
+    expect(view.body.posts).toHaveLength(5);
+    expect(view.body.posts[0].title).toBe("실명 글");
+
+    expect((await api(`${OPS}/board/posts`, { token: user.token, json: { title: "", body: "x" } })).status).toBe(400);
+    expect((await api(`${OPS}/board/posts`, { token: user.token, json: { title: "가".repeat(61), body: "x" } })).status).toBe(400);
+  });
+
+  test("게시판은 대화마다 따로이고 다른 유저에게 보이지 않는다", async () => {
+    const a = await talking("게시판A");
+    const b = await talking("게시판B");
+    await api(`${OPS}/board/refresh`, { token: a.user.token, method: "POST" });
+    const other = await api<{ posts: unknown[] }>(`${OPS}/board`, { token: b.user.token });
+    expect(other.body.posts).toHaveLength(0);
+  });
+
+  test("화면: 메뉴 → 커뮤니티 → 새 글 불러오기 → 실명으로 글쓰기", async ({ browser }) => {
+    const { user } = await talking("게시판화면");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "오퍼레이션" }).click();
+    await page.getByRole("menu", { name: "오퍼레이션" }).getByRole("menuitem", { name: /커뮤니티/ }).click();
+    await expect(page).toHaveURL(`${CHAT}/community`);
+
+    await page.getByRole("button", { name: /새 글 불러오기/ }).click();
+    const list = page.getByRole("list", { name: "게시판 글" });
+    await expect(list.getByRole("heading", { name: "우산 잃어버리신 분" })).toBeVisible();
+
+    await page.getByRole("button", { name: "글쓰기" }).click();
+    const write = page.getByRole("form", { name: "게시판 글쓰기" });
+    await write.getByRole("radio", { name: /실명/ }).check();
+    await write.getByLabel("제목").fill("민준입니다");
+    await write.getByLabel("내용").fill("카페 단골이에요");
+    await write.getByRole("button", { name: /올리기/ }).click();
+    const mine = list.getByRole("listitem").filter({ hasText: "민준입니다" }).first();
+    await expect(mine).toContainText("나");
+    await expect(mine.getByRole("list", { name: /댓글/ })).toContainText("좋은 글이네요");
+  });
+});

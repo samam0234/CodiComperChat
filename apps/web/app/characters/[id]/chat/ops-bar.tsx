@@ -9,6 +9,7 @@ export const OPERATIONS = [
   { slug: "mind", label: "심리 탐구", hint: "상대의 머릿속 엿보기", icon: "◎" },
   { slug: "diary", label: "일기", hint: "캐릭터가 쓴 오늘 하루", icon: "✎" },
   { slug: "messages", label: "메시지", hint: "문자로 주고받기", icon: "✉" },
+  { slug: "community", label: "커뮤니티", hint: "이 세계의 익명 게시판", icon: "☰" },
 ] as const;
 
 // 입력창 바로 위 줄: 왼쪽에 (코디포토넷 등) 도구 버튼, 그 옆에 오퍼레이션 메뉴

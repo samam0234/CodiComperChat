@@ -1,0 +1,120 @@
+/* 커뮤니티: 동네 게시판 글 카드 */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.secondary {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.secondary:hover,
+.secondary[aria-expanded="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.write {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.write > button {
+  justify-self: start;
+}
+
+.as {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  border: 0;
+  font-size: 14px;
+}
+
+.as legend {
+  margin-right: 4px;
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.post {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.author,
+.me {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.meTag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 11px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.comments {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.comments strong {
+  margin-right: 4px;
+  font-weight: 800;
+}

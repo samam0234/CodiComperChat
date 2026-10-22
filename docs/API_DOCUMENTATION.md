@@ -63,6 +63,9 @@
 | `POST /characters/:id/chat/ops/diary` | 일기: 캐릭터가 새 일기 한 편을 쓴다 | **200** `{ entry, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
 | `GET /characters/:id/chat/ops/messages` | 오퍼레이션 · 메시지 기록 | **200** `{ character, started, cost(0), balance, messages: [{ id, role(user·character), text, createdAt }] }` (최근 100개) · 🔒 |
 | `POST /characters/:id/chat/ops/messages` | 메시지: 문자 보내기 `{ text(~500자) }` | **200** `{ sent, reply }` · 빈 글·500자 넘으면 400, 대화 없으면 **409**, 코레딧 없음, 요청 한도 `chat` · 🔒 |
+| `GET /characters/:id/chat/ops/board` | 오퍼레이션 · 커뮤니티 게시판 | **200** `{ character, started, cost(20, 새 글), postCost(10, 내 글), balance, persona(실명용 내 주인공 이름), posts: [{ id, authorKind(USER·RESIDENT), authorName, title, body, createdAt, comments: [...] }] }` · 나에게만 보인다 · 🔒 |
+| `POST /characters/:id/chat/ops/board/refresh` | 커뮤니티: 주민 새 글 3개 불러오기 | **200** `{ posts, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
+| `POST /characters/:id/chat/ops/board/posts` | 커뮤니티: 내 글 쓰기 `{ title(~60자), body(~1000자), anonymous?(기본 true) }` | **200** `{ post(주민 댓글 포함), balance }` · 빈 칸·길이 초과 400, 대화 없으면 409, 코레딧 부족 403 · 🔒 |
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |

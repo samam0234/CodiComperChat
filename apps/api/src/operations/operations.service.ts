@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreditReason, MessageRole } from '@prisma/client';
+import { BoardAuthor, CreditReason, MessageRole } from '@prisma/client';
 import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { CharacterChatService } from '../character-chat/character-chat.service.js';
@@ -20,6 +20,25 @@ export const DM_MAX_LENGTH = 500;
 
 type MindResult = { innerVoice: string; feeling: string; aboutUser: string };
 type DiaryResult = { title: string; mood: string; body: string };
+type BoardCommentResult = { author: string; body: string };
+type BoardPostsResult = { posts: { author: string; title: string; body: string; comments?: BoardCommentResult[] }[] };
+type BoardCommentsResult = { comments: BoardCommentResult[] };
+
+const POST_SELECT = {
+  id: true,
+  authorKind: true,
+  authorName: true,
+  title: true,
+  body: true,
+  createdAt: true,
+  comments: {
+    orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    select: { id: true, authorKind: true, authorName: true, body: true, createdAt: true },
+  },
+};
+// 커뮤니티 글 길이 한도
+export const POST_TITLE_MAX = 60;
+export const POST_BODY_MAX = 1000;
 
 @Injectable()
 export class OperationsService {
@@ -168,5 +187,122 @@ export class OperationsService {
     ]);
     const view = (m: typeof sent) => ({ id: m.id, role: m.role === MessageRole.USER ? 'user' : 'character', text: m.content, createdAt: m.createdAt });
     return { sent: view(sent), reply: view(received) };
+  }
+
+  // ── 커뮤니티: 캐릭터 세계 속 가상 익명 게시판 (이 대화를 하는 나에게만 보인다) ──
+  // 주인공·이 대화에 적용한 지인(엑스트라)은 실명으로 언급될 수 있다
+  private async acquaintances(campaignId: string) {
+    const rows = await this.prisma.campaignExtra.findMany({
+      where: { campaignId },
+      orderBy: { createdAt: 'asc' },
+      take: 6,
+      select: { extra: { select: { name: true, summary: true, relation: true } } },
+    });
+    return rows.map(({ extra }) => ({
+      name: extra.name.slice(0, 20),
+      about: [extra.relation, extra.summary].filter(Boolean).join(' · ').slice(0, 300),
+    }));
+  }
+
+  private posts(campaignId: string, take = LIST_TAKE) {
+    return this.prisma.boardPost.findMany({
+      where: { campaignId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+      select: POST_SELECT,
+    });
+  }
+
+  async boardView(characterId: string, authorization?: string) {
+    const v = await this.view(characterId, authorization);
+    const posts = v.conversation ? await this.posts(v.conversation.campaignId) : [];
+    return {
+      character: v.character,
+      started: v.started,
+      cost: OPERATION_COSTS.boardRefresh,
+      postCost: OPERATION_COSTS.boardPost,
+      balance: v.balance,
+      // 실명으로 글을 쓸 때 쓰는 내 주인공 이름
+      persona: v.conversation?.persona?.name ?? null,
+      posts,
+    };
+  }
+
+  // 새 글 불러오기: 주민들이 올린 글 3개 (댓글 포함)
+  async refreshBoard(characterId: string, authorization?: string) {
+    const ctx = await this.chat.operationContext(characterId, authorization);
+    const campaignId = ctx.conversation.campaignId;
+    const [acquaintances, recent] = await Promise.all([this.acquaintances(campaignId), this.posts(campaignId, 20)]);
+    const { result, balance } = await this.charged(ctx.userId, 'boardRefresh', async () => {
+      const raw = await postToAi<BoardPostsResult>('/board-posts', {
+        context: ctx.context,
+        acquaintances,
+        recentTitles: recent.map((p) => p.title),
+      });
+      const now = Date.now();
+      // 화면에서 위에서부터 첫 글이 보이게, 앞 글일수록 조금 늦은 시각으로
+      return this.prisma.$transaction(
+        raw.posts.slice(0, 3).map((p, i) =>
+          this.prisma.boardPost.create({
+            data: {
+              campaignId,
+              authorKind: BoardAuthor.RESIDENT,
+              authorName: clip(p.author, 20) || '익명',
+              title: clip(p.title, 60),
+              body: clip(p.body, 1000),
+              createdAt: new Date(now + (3 - i) * 10),
+              comments: {
+                create: (p.comments ?? []).slice(0, 2).map((c, j) => ({
+                  authorKind: BoardAuthor.RESIDENT,
+                  authorName: clip(c.author, 20) || '익명',
+                  body: clip(c.body, 300),
+                  createdAt: new Date(now + (3 - i) * 10 + j + 1),
+                })),
+              },
+            },
+            select: POST_SELECT,
+          }),
+        ),
+      );
+    });
+    return { posts: result, balance };
+  }
+
+  // 내 글 쓰기: 익명 또는 내 주인공 실명으로. 주민 댓글이 함께 달린다
+  async writePost(characterId: string, input: { title: string; body: string; anonymous: boolean }, authorization?: string) {
+    const ctx = await this.chat.operationContext(characterId, authorization);
+    const campaignId = ctx.conversation.campaignId;
+    const authorName = input.anonymous ? '익명' : ctx.persona.name.slice(0, 20);
+    const acquaintances = await this.acquaintances(campaignId);
+    const { result, balance } = await this.charged(ctx.userId, 'boardPost', async () => {
+      const raw = await postToAi<BoardCommentsResult>('/board-comments', {
+        context: ctx.context,
+        acquaintances,
+        postAuthor: authorName,
+        postTitle: input.title,
+        postBody: input.body,
+      });
+      const now = Date.now();
+      return this.prisma.boardPost.create({
+        data: {
+          campaignId,
+          authorKind: BoardAuthor.USER,
+          authorName,
+          title: input.title,
+          body: input.body,
+          createdAt: new Date(now),
+          comments: {
+            create: raw.comments.slice(0, 3).map((c, j) => ({
+              authorKind: BoardAuthor.RESIDENT,
+              authorName: clip(c.author, 20) || '익명',
+              body: clip(c.body, 300),
+              createdAt: new Date(now + j + 1),
+            })),
+          },
+        },
+        select: POST_SELECT,
+      });
+    });
+    return { post: result, balance };
   }
 }
