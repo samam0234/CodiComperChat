@@ -15,5 +15,7 @@ import { CharacterChatService } from './character-chat.service.js';
   imports: [CharactersModule, PersonasModule, PersonaRagModule, ConversationsModule, MemoriesModule, ChatStateModule, ExtrasModule, CampaignStateModule, ModelsModule],
   controllers: [CharacterChatController],
   providers: [CharacterChatService],
+  // 오퍼레이션 모듈이 대화 맥락 조립(operationContext)을 함께 쓴다
+  exports: [CharacterChatService],
 })
 export class CharacterChatModule {}

@@ -1,0 +1,164 @@
+/* 오퍼레이션(대화 플러그인) 화면들 공용: 심리 탐구 · 일기 · 메시지 · 커뮤니티 · 코디포토넷 */
+
+.page {
+  display: grid;
+  gap: 18px;
+  max-width: 720px;
+}
+
+.head {
+  display: grid;
+  gap: 6px;
+}
+
+.eyebrow {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.lead {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+/* 만들기 카드: 설명 + 값 + 버튼 */
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(420px 160px at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.actionText {
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.actionText small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.balance {
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: var(--glow);
+}
+
+.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cost {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+}
+
+.notice,
+.empty {
+  padding: 18px 20px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.notice a,
+.empty a {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.quote {
+  padding-left: 14px;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.aside {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.aside strong {
+  color: var(--foreground);
+}
