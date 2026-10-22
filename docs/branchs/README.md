@@ -208,5 +208,10 @@
 | 2026-10-23 | `37fbe2e` | feature/ops-messages | 오퍼레이션 메시지 (캐릭터와 문자 주고받기) | [261023_0116_37fbe2e_ops-messages_feature-ops-messages.md](commits/261023_0116_37fbe2e_ops-messages_feature-ops-messages.md) |
 | 2026-10-23 | `d08bb78` | feature/ops-community | 오퍼레이션 커뮤니티 (캐릭터 세계 속 익명 게시판) | [261023_0122_d08bb78_ops-community_feature-ops-community.md](commits/261023_0122_d08bb78_ops-community_feature-ops-community.md) |
 | 2026-10-23 | `32bb115` | feature/photonet | 코디포토넷 창 (엔진 준비 중) | [261023_0129_32bb115_photonet-ui_feature-photonet.md](commits/261023_0129_32bb115_photonet-ui_feature-photonet.md) |
+| 2026-10-23 | `615f3d3` | develop (merge) | feature/ops-mind → develop 병합 (--no-ff) | [261023_0139_615f3d3_merge-ops-mind_develop.md](commits/261023_0139_615f3d3_merge-ops-mind_develop.md) |
+| 2026-10-23 | `9cece9a` | develop (merge) | feature/ops-community → develop 병합 (--no-ff) | [261023_0139_9cece9a_merge-ops-community_develop.md](commits/261023_0139_9cece9a_merge-ops-community_develop.md) |
+| 2026-10-23 | `a2b46cb` | develop (merge) | feature/photonet → develop 병합 (--no-ff) | [261023_0139_a2b46cb_merge-photonet_develop.md](commits/261023_0139_a2b46cb_merge-photonet_develop.md) |
+| 2026-10-23 | `db4fa33` | develop (merge) | feature/ops-diary → develop 병합 (--no-ff) | [261023_0139_db4fa33_merge-ops-diary_develop.md](commits/261023_0139_db4fa33_merge-ops-diary_develop.md) |
+| 2026-10-23 | `e3b5426` | develop (merge) | feature/ops-messages → develop 병합 (--no-ff) | [261023_0139_e3b5426_merge-ops-messages_develop.md](commits/261023_0139_e3b5426_merge-ops-messages_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
