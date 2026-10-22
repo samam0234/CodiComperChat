@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { BoardAuthor, CreditReason, MessageRole } from '@prisma/client';
 import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
@@ -36,6 +36,11 @@ const POST_SELECT = {
     select: { id: true, authorKind: true, authorName: true, body: true, createdAt: true },
   },
 };
+// 코디포토넷: 그림 엔진이 붙었나 (지금은 없다), 고를 수 있는 화풍·비율, 장면 설명 길이
+export const PHOTONET_READY = false;
+export const PHOTONET_STYLES = ["애니메이션", "웹툰", "수채화", "실사풍"] as const;
+export const PHOTONET_RATIOS = ["정사각", "세로", "가로"] as const;
+export const PHOTONET_PROMPT_MAX = 300;
 // 커뮤니티 글 길이 한도
 export const POST_TITLE_MAX = 60;
 export const POST_BODY_MAX = 1000;
@@ -304,5 +309,31 @@ export class OperationsService {
       });
     });
     return { post: result, balance };
+  }
+
+  // ── 코디포토넷: 대화 장면을 그림으로 (2026-10-23 사용자 결정: 화면·흐름만, 엔진은 준비 중) ──
+  // 지금 로컬 모델(gemma4)은 그림을 읽기만 하고 만들지 못한다. 엔진을 붙일 때 PHOTONET_READY를 켜고
+  // services/ai에 생성 경로를 더한 뒤 createPhotonet에서 charged('photonet', …)로 부른다
+  async photonetView(characterId: string, authorization?: string) {
+    const v = await this.view(characterId, authorization);
+    return {
+      character: v.character,
+      started: v.started,
+      cost: OPERATION_COSTS.photonet,
+      balance: v.balance,
+      ready: PHOTONET_READY,
+      styles: PHOTONET_STYLES,
+      ratios: PHOTONET_RATIOS,
+      images: [] as { id: string; url: string; prompt: string; createdAt: Date }[],
+    };
+  }
+
+  async createPhotonet(characterId: string, authorization?: string) {
+    // 대화가 없으면 409, 엔진이 없으면 503 — 둘 다 코레딧을 빼기 전에 막는다
+    await this.chat.operationContext(characterId, authorization);
+    if (!PHOTONET_READY) {
+      throw new ServiceUnavailableException('코디포토넷은 아직 준비 중이에요. 그림을 만드는 엔진이 연결되면 열려요.');
+    }
+    throw new ServiceUnavailableException('코디포토넷 엔진이 연결되지 않았습니다.');
   }
 }

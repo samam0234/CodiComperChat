@@ -1,0 +1,196 @@
+/* 코디포토넷 창 */
+.dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.body {
+  display: grid;
+  gap: 14px;
+  padding: 20px 22px 22px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.title svg {
+  color: var(--accent);
+}
+
+.close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.close:hover {
+  background: var(--surface-2);
+  color: var(--foreground);
+}
+
+.lead {
+  margin-top: -6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.soon {
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 14px;
+  background: var(--gradient-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.soon strong {
+  margin-right: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 11px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.fill {
+  justify-self: start;
+  margin-top: -4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 0;
+}
+
+.chips legend {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cost {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cost strong {
+  color: var(--foreground);
+}
+
+.cost a {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.make {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: var(--glow);
+}
+
+.make:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.gallery {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.empty {
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .chip:has(input:checked) {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}

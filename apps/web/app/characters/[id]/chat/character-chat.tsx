@@ -11,6 +11,7 @@ import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
 import OpsBar from "./ops-bar";
+import Photonet from "./photonet";
 import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
 
@@ -126,6 +127,7 @@ export default function CharacterChat({
     locked && personaId === locked.id ? locked : personas.find((p) => p.id === personaId);
   const chatPath = `/characters/${characterId}/chat`;
   const hasUserMessages = messages.some((m) => m.role === "user" && !m.unsaved);
+  const lastCharacterLine = [...messages].reverse().find((m) => m.role === "character" && !m.error)?.text.replace(/s+/g, " ").trim() ?? "";
 
   const startNew = async (save: boolean) => {
     setResetting(true);
@@ -517,7 +519,10 @@ export default function CharacterChat({
           </div>
         )}
 
-        <OpsBar characterId={characterId} />
+        <OpsBar characterId={characterId}>
+          {/* 입력창 바로 위 왼쪽: 코디포토넷 (마지막 캐릭터 말을 "지금 장면"으로) */}
+          <Photonet characterId={characterId} sceneHint={lastCharacterLine} />
+        </OpsBar>
 
         <form
           className={styles.form}

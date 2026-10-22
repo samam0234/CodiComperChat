@@ -1,6 +1,14 @@
 import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Param, Post } from '@nestjs/common';
 import { RateLimit } from '../security/rate-limit.js';
-import { DM_MAX_LENGTH, OperationsService, POST_BODY_MAX, POST_TITLE_MAX } from './operations.service.js';
+import {
+  DM_MAX_LENGTH,
+  OperationsService,
+  PHOTONET_PROMPT_MAX,
+  PHOTONET_RATIOS,
+  PHOTONET_STYLES,
+  POST_BODY_MAX,
+  POST_TITLE_MAX,
+} from './operations.service.js';
 
 // 오퍼레이션: 이 캐릭터와의 지금 대화에 붙는 플러그인. 로그인한 사람만, 진행 중인 대화가 있어야 만들 수 있다
 @Controller('characters/:id/chat/ops')
@@ -82,5 +90,28 @@ export class OperationsController {
     if (text.length > POST_BODY_MAX) throw new BadRequestException(`내용은 ${POST_BODY_MAX}자 이하로 적어 주세요.`);
     // 기본은 익명. 실명(내 주인공 이름)으로 쓰려면 anonymous: false
     return this.ops.writePost(id, { title, body: text, anonymous: body?.anonymous !== false }, authorization);
+  }
+
+  // 코디포토넷: 엔진 준비 여부·값·고를 수 있는 화풍과 비율·만든 그림
+  @Get('photonet')
+  photonet(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.ops.photonetView(id, authorization);
+  }
+
+  // 코디포토넷: 그림 만들기 { prompt, style, ratio } — 엔진 준비 전에는 503 (코레딧을 빼지 않는다)
+  @Post('photonet')
+  @HttpCode(200)
+  @RateLimit('chat')
+  createPhotonet(
+    @Param('id') id: string,
+    @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown },
+    @Headers('authorization') authorization?: string,
+  ) {
+    const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : '';
+    if (prompt === '') throw new BadRequestException('어떤 장면을 그릴지 적어 주세요.');
+    if (prompt.length > PHOTONET_PROMPT_MAX) throw new BadRequestException(`장면 설명은 ${PHOTONET_PROMPT_MAX}자 이하로 적어 주세요.`);
+    if (!(PHOTONET_STYLES as readonly unknown[]).includes(body?.style)) throw new BadRequestException('알 수 없는 화풍입니다.');
+    if (!(PHOTONET_RATIOS as readonly unknown[]).includes(body?.ratio)) throw new BadRequestException('알 수 없는 비율입니다.');
+    return this.ops.createPhotonet(id, authorization);
   }
 }
