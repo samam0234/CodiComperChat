@@ -7,6 +7,7 @@ import styles from "./ops-bar.module.css";
 // 오퍼레이션: 대화에 붙는 플러그인. 각자 /characters/:id/chat/<slug> 화면을 가진다
 export const OPERATIONS = [
   { slug: "mind", label: "심리 탐구", hint: "상대의 머릿속 엿보기", icon: "◎" },
+  { slug: "diary", label: "일기", hint: "캐릭터가 쓴 오늘 하루", icon: "✎" },
 ] as const;
 
 // 입력창 바로 위 줄: 왼쪽에 (코디포토넷 등) 도구 버튼, 그 옆에 오퍼레이션 메뉴

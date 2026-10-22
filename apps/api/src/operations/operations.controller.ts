@@ -20,4 +20,18 @@ export class OperationsController {
   readMind(@Param('id') id: string, @Headers('authorization') authorization?: string) {
     return this.ops.readMind(id, authorization);
   }
+
+  // 일기: 캐릭터가 쓴 일기 목록 + 값·잔액
+  @Get('diary')
+  diary(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.ops.diaryView(id, authorization);
+  }
+
+  // 일기: 최근 대화를 돌아보는 새 일기 한 편 (코레딧)
+  @Post('diary')
+  @HttpCode(200)
+  @RateLimit('chat')
+  writeDiary(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.ops.writeDiary(id, authorization);
+  }
 }
