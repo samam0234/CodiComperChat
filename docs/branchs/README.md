@@ -204,5 +204,6 @@
 | 2026-10-22 | `3336f51` | feature/gitattributes | .gitattributes에 언어별·파일명별 규칙 보강 | [261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md](commits/261022_2337_3336f51_gitattributes-languages_feature-gitattributes.md) |
 | 2026-10-22 | `b15e179` | develop (merge) | feature/gitattributes → develop 병합 (--no-ff) | [261022_2338_b15e179_merge-gitattributes_develop.md](commits/261022_2338_b15e179_merge-gitattributes_develop.md) |
 | 2026-10-23 | `9300d6b` | feature/ops-mind | 오퍼레이션 메뉴와 심리 탐구 | [261023_0102_9300d6b_ops-frame-mind_feature-ops-mind.md](commits/261023_0102_9300d6b_ops-frame-mind_feature-ops-mind.md) |
+| 2026-10-23 | `316780e` | feature/ops-diary | 오퍼레이션 일기 | [261023_0106_316780e_ops-diary_feature-ops-diary.md](commits/261023_0106_316780e_ops-diary_feature-ops-diary.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
