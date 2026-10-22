@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| Subject | `merge: develop into develop (no-ff)` |
+| Subject | `merge: develop into main (no-ff)` |
 | Full SHA | `4920a3f0662f09ec55271b8c8a205f8fbf3d0fee` |
 | Short SHA | `4920a3f` |
 | Branch | `main` |
