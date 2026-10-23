@@ -3,7 +3,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px 0;
+  /* 아래 입력창과 살짝 떨어뜨린다 (2026-10-24 사용자 요청) */
+  padding: 8px 16px 10px;
 }
 
 .menuRoot {
