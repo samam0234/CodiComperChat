@@ -121,14 +121,16 @@ export class OperationsController {
   @RateLimit('photonet')
   createPhotonet(
     @Param('id') id: string,
-    @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown },
+    @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown; messageId?: unknown },
     @Headers('authorization') authorization?: string,
   ) {
     const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : '';
-    if (prompt === '') throw new BadRequestException('어떤 장면을 그릴지 적어 주세요.');
+    // 그릴 대사를 골랐으면 장면 설명은 없어도 된다
+    const messageId = typeof body?.messageId === 'string' && body.messageId !== '' ? body.messageId.slice(0, 40) : undefined;
+    if (prompt === '' && !messageId) throw new BadRequestException('어떤 장면을 그릴지 적거나, 그릴 대사를 골라 주세요.');
     if (prompt.length > PHOTONET_PROMPT_MAX) throw new BadRequestException(`장면 설명은 ${PHOTONET_PROMPT_MAX}자 이하로 적어 주세요.`);
     if (!(PHOTONET_STYLES as readonly unknown[]).includes(body?.style)) throw new BadRequestException('알 수 없는 화풍입니다.');
     if (!(PHOTONET_RATIOS as readonly unknown[]).includes(body?.ratio)) throw new BadRequestException('알 수 없는 비율입니다.');
-    return this.ops.createPhotonet(id, { prompt, style: body.style as string, ratio: body.ratio as string }, authorization);
+    return this.ops.createPhotonet(id, { prompt, style: body.style as string, ratio: body.ratio as string, messageId }, authorization);
   }
 }

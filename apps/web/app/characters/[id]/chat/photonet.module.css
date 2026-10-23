@@ -89,6 +89,11 @@
   resize: vertical;
 }
 
+.select {
+  height: 44px;
+  padding: 0 12px;
+}
+
 .fill {
   justify-self: start;
   margin-top: -4px;

@@ -65,11 +65,13 @@
 대화창에서 **입력창 바로 위 왼쪽 버튼**으로 여는, 대화 장면을 그림으로 만드는 기능. 2026-10-24부터 **로컬 Stable Diffusion WebUI**로 실제로 그린다(엔진 운영·모델·측정: [../guidance/photonet-engine.md](../guidance/photonet-engine.md)).
 
 - 창: 장면 설명(~300자, "지금 장면으로 채우기"는 마지막 캐릭터 말), 화풍(애니메이션·웹툰 → Animagine XL 4.0 / 수채화·실사풍 → SD 1.5), 비율(정사각·세로·가로), 값(50 코레딧)·내 코레딧, 그리는 중 표시, 만든 그림 갤러리(최근 12장, 누르면 크게). 브라우저 기본 `<dialog>`
-- 순서: 로컬 LLM이 장면·캐릭터 외모를 영어 태그로 → WebUI가 그림 → WebP → **그림 검수**(성적·미성년자·잔혹·혐오·자해면 돌려주지 않고 코레딧 환불, 422) → `photonet_images`에 저장
+- **그릴 장면**: 최근 대화(기본) 또는 최근 대사 20개 중 하나를 고르면 그 대사와 앞뒤를 그린다(이때 장면 설명은 비워도 된다)
+- 순서: 로컬 LLM이 등장인물 명단(캐릭터 카드·내 프로필·지인)·줄거리·대화로 장면 설계표를 쓰고, 코드가 인물 수·성인 태그를 붙여 프롬프트를 조립 → WebUI가 그림 → WebP → **그림 검수**(성적·미성년자·잔혹·혐오·자해면 돌려주지 않고 코레딧 환불, 422) → `photonet_images`에 저장
+- 만든 뒤 그림에 넣은 사람(예: "유지성(남) · 한서윤(여)")을 보여 준다
 - 그림은 그 대화를 하는 사람에게만 보인다(남이면 404, 캐시 금지). 웹은 `/api/characters/:id/photonet/:imageId`로 중계
 - 엔진이 꺼져 있으면 "준비 중", 만들기는 대화 확인(409)·입력 검사(400) 뒤 **503**이고 코레딧을 빼지 않는다
 - 요청 한도 `photonet`(10분에 6장). 한 장 약 45초, 화풍 계열을 바꾼 첫 장은 1분 넘게 걸릴 수 있어 그림 요청만 300초 기다린다
 - 입력창과 버튼 줄 사이를 살짝 띄웠다(2026-10-24 사용자 요청)
 
-- API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio }` → `{ image, balance }`), `GET .../photonet/:imageId` (그림 본문)
+- API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio, messageId? }` → `{ image, balance, cast }`), `GET .../photonet/:imageId` (그림 본문)
 - AI: `GET /photonet/status`, `POST /photonet`

@@ -28,7 +28,18 @@ function CameraIcon() {
 
 // 코디포토넷: 대화 장면을 그림으로 만드는 창 (입력창 바로 위 왼쪽 버튼).
 // 그림은 로컬 Stable Diffusion WebUI가 그린다. 엔진이 꺼져 있으면 "준비 중"으로 잠긴다
-export default function Photonet({ characterId, sceneHint }: { characterId: string; sceneHint: string }) {
+// moments: 고를 수 있는 최근 대사 (저장된 것만, 최근 것부터)
+export type PhotonetMoment = { id: string; label: string };
+
+export default function Photonet({
+  characterId,
+  sceneHint,
+  moments,
+}: {
+  characterId: string;
+  sceneHint: string;
+  moments: PhotonetMoment[];
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [open, setOpen] = useState(false);
@@ -36,6 +47,8 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("애니메이션");
   const [ratio, setRatio] = useState("정사각");
+  // 그릴 장면: ""면 최근 대화, 아니면 고른 대사의 id
+  const [momentId, setMomentId] = useState("");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [making, setMaking] = useState(false);
   const [, startTransition] = useTransition();
@@ -60,18 +73,19 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (prompt.trim() === "" || making) return;
+    if ((prompt.trim() === "" && momentId === "") || making) return;
     setMaking(true);
     setMessage(null);
     startTransition(async () => {
-      const result = await createPhotonet(characterId, { prompt: prompt.trim(), style, ratio });
+      const result = await createPhotonet(characterId, { prompt: prompt.trim(), style, ratio, messageId: momentId || undefined });
       setMaking(false);
       if (!result.ok) {
         setMessage({ ok: false, text: result.error });
         return;
       }
       setStatus((prev) => (prev ? { ...prev, balance: result.data.balance, images: [result.data.image, ...prev.images] } : prev));
-      setMessage({ ok: true, text: "그림을 만들었어요." });
+      const cast = result.data.cast.length > 0 ? ` 등장: ${result.data.cast.join(" · ")}` : "";
+      setMessage({ ok: true, text: `그림을 만들었어요.${cast}` });
     });
   };
 
@@ -122,7 +136,7 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
                 onChange={(event) => setPrompt(event.target.value)}
                 maxLength={PROMPT_MAX}
                 rows={3}
-                placeholder="예: 비 오는 오후, 창가 자리에서 따뜻한 차를 건네는 장면"
+                placeholder="예: 비 오는 오후, 창가 자리에서 따뜻한 차를 건네는 장면 (대사를 골랐으면 비워도 돼요)"
                 disabled={making}
               />
             </label>
@@ -131,6 +145,25 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
                 지금 장면으로 채우기
               </button>
             )}
+
+            <label className={form.field}>
+              <span className={form.label}>그릴 장면</span>
+              <select
+                className={`${form.input} ${styles.select}`}
+                value={momentId}
+                onChange={(event) => setMomentId(event.target.value)}
+                disabled={making}
+              >
+                <option value="">최근 대화 (지금 장면)</option>
+                {/* 창이 열렸을 때만 그린다 — 닫힌 창에 대사 글이 남으면 화면에 같은 글이 두 번 있는 셈이 된다 */}
+                {open && moments.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <span className={form.hint}>대사를 고르면 그 앞뒤 장면을 그려요. 등장인물·줄거리는 대화 기록과 캐릭터·내 프로필에서 읽어요.</span>
+            </label>
 
             <fieldset className={styles.chips} disabled={making}>
               <legend className={form.label}>화풍</legend>
@@ -170,7 +203,7 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
               <button
                 type="submit"
                 className={styles.make}
-                disabled={!ready || making || poor || !status?.started || prompt.trim() === ""}
+                disabled={!ready || making || poor || !status?.started || (prompt.trim() === "" && momentId === "")}
               >
                 {!status || ready ? (making ? "그리는 중…" : "만들기") : "준비 중"}
               </button>

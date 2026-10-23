@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { BoardAuthor, CreditReason, MessageRole } from '@prisma/client';
 import { getFromAi, postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
@@ -46,7 +46,7 @@ const ENGINE_STATUS_TIMEOUT_MS = 3000;
 // 그림 한 장: 화풍 계열(SDXL ↔ SD1.5)을 바꾸면 모델을 다시 읽느라 2~3분 걸릴 수 있다 (RAM 16GB에서 측정)
 const PHOTONET_TIMEOUT_MS = 300_000;
 const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, width: true, height: true, createdAt: true } as const;
-type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string };
+type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string; cast?: string[] };
 // 커뮤니티 글 길이 한도
 export const POST_TITLE_MAX = 60;
 export const POST_BODY_MAX = 1000;
@@ -353,20 +353,100 @@ export class OperationsService {
     };
   }
 
-  async createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string }, authorization?: string) {
+  // 그림에 나올 수 있는 사람: 대화 상대 캐릭터(프로필의 성별·나이·직업 + 공방 카드의 외형·겉보기 나이),
+  // 내 주인공(이 대화에 고정된 프로필), 이 대화에 적용한 지인(엑스트라). 성별이 없으면 AI가 소개·외형·대화에서 추론한다
+  private async photonetCast(
+    character: { id: string; name: string; oneLiner: string; profile: unknown },
+    persona: { name: string; description: string },
+    campaignId: string,
+  ) {
+    const [draft, extras] = await Promise.all([
+      this.prisma.characterDraft.findUnique({ where: { characterId: character.id }, select: { card: true } }),
+      this.prisma.campaignExtra.findMany({
+        where: { campaignId },
+        orderBy: { createdAt: 'asc' },
+        take: 6,
+        select: { extra: { select: { name: true, summary: true, relation: true, personality: true } } },
+      }),
+    ]);
+    const profile = (character.profile ?? {}) as Record<string, unknown>;
+    const card = (draft?.card ?? {}) as {
+      identity?: { occupation?: unknown; apparentAge?: unknown };
+      appearance?: { description?: unknown; keywords?: unknown };
+    };
+    const text = (v: unknown) => (typeof v === 'string' || typeof v === 'number' ? String(v).trim() : '');
+    const keywords = Array.isArray(card.appearance?.keywords) ? card.appearance.keywords.map(text).filter(Boolean).join(', ') : '';
+    return [
+      {
+        name: character.name.slice(0, 20),
+        role: 'character' as const,
+        gender: clip(text(profile.gender), 20),
+        age: clip(text(profile.age) || text(card.identity?.apparentAge), 20),
+        occupation: clip(text(profile.occupation) || text(card.identity?.occupation), 60),
+        appearance: clip([text(card.appearance?.description), keywords].filter(Boolean).join(' / '), 600),
+        about: clip(character.oneLiner, 400),
+      },
+      { name: persona.name.slice(0, 20), role: 'protagonist' as const, about: clip(persona.description, 400) },
+      ...extras.map(({ extra }) => ({
+        name: extra.name.slice(0, 20),
+        role: 'acquaintance' as const,
+        about: clip([extra.relation, extra.summary, extra.personality].filter(Boolean).join(' · '), 400),
+      })),
+    ];
+  }
+
+  // 유저가 고른 대사와 그 앞 3개·뒤 2개 (이 순간을 그린다). 이 대화의 대사가 아니면 400
+  private async photonetFocus(sessionId: string, messageId: string, characterName: string) {
+    const roles = { in: [MessageRole.USER, MessageRole.CHARACTER] };
+    const target = await this.prisma.message.findFirst({
+      where: { id: messageId, sessionId, role: roles },
+      select: { createdAt: true },
+    });
+    if (!target) throw new BadRequestException('고른 대사를 이 대화에서 찾을 수 없어요.');
+    const select = { role: true, content: true, speaker: true } as const;
+    const [before, at, after] = await Promise.all([
+      this.prisma.message.findMany({ where: { sessionId, role: roles, createdAt: { lt: target.createdAt } }, orderBy: { createdAt: 'desc' }, take: 3, select }),
+      this.prisma.message.findMany({ where: { id: messageId }, select }),
+      this.prisma.message.findMany({ where: { sessionId, role: roles, createdAt: { gt: target.createdAt } }, orderBy: { createdAt: 'asc' }, take: 2, select }),
+    ]);
+    const turn = (m: (typeof at)[number]) => ({
+      speaker: (m.role === MessageRole.USER ? (m.speaker ?? '나') : characterName).slice(0, 20),
+      text: clip(m.content, 2000),
+    });
+    return { turns: [...before.reverse(), ...at, ...after].map(turn), picked: at[0] ? turn(at[0]).text : '' };
+  }
+
+  async createPhotonet(
+    characterId: string,
+    input: { prompt: string; style: string; ratio: string; messageId?: string },
+    authorization?: string,
+  ) {
     // 대화가 없으면 409, 엔진이 꺼져 있으면 503 — 둘 다 코레딧을 빼기 전에 막는다
     const ctx = await this.chat.operationContext(characterId, authorization);
+    const [cast, focus] = await Promise.all([
+      this.photonetCast(ctx.character, ctx.persona, ctx.conversation.campaignId),
+      input.messageId
+        ? this.photonetFocus(ctx.conversation.sessionId, input.messageId, ctx.character.name)
+        : Promise.resolve({ turns: [], picked: '' }),
+    ]);
     if (!(await this.engineReady())) {
       throw new ServiceUnavailableException('그림 엔진(Stable Diffusion)이 꺼져 있어 지금은 만들 수 없어요. 코레딧은 빠지지 않았어요.');
     }
     // 만들기·검수에 실패하면(검수에 걸린 그림 포함) 코레딧을 돌려준다
+    let castShown: string[] = [];
     const { result, balance } = await this.charged(ctx.userId, 'photonet', async () => {
-      const raw = await postToAi<PhotonetResult>('/photonet', { context: ctx.context, ...input }, { timeoutMs: PHOTONET_TIMEOUT_MS });
+      const raw = await postToAi<PhotonetResult>(
+        '/photonet',
+        { context: ctx.context, prompt: input.prompt, style: input.style, ratio: input.ratio, cast, focus: focus.turns },
+        { timeoutMs: PHOTONET_TIMEOUT_MS },
+      );
+      castShown = (raw.cast ?? []).slice(0, 4).map((c) => clip(c, 30));
       return this.prisma.photonetImage.create({
         data: {
           campaignId: ctx.conversation.campaignId,
-          prompt: input.prompt,
-          promptUsed: clip(raw.promptUsed, 1000),
+          // 장면 설명 없이 대사만 골랐으면 그 대사를 남긴다 (갤러리에서 무엇을 그렸는지 알 수 있게)
+          prompt: input.prompt || clip(focus.picked, 300),
+          promptUsed: clip(raw.promptUsed, 1500),
           style: input.style,
           ratio: input.ratio,
           mime: raw.mime,
@@ -377,7 +457,7 @@ export class OperationsService {
         select: PHOTONET_SELECT,
       });
     });
-    return { image: result, balance };
+    return { image: result, balance, cast: castShown };
   }
 
   // 그림 본문: 그 대화를 하는 사람(내 대화)에게만. 남의 그림은 없는 것과 같은 404

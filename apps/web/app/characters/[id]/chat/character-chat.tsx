@@ -127,6 +127,15 @@ export default function CharacterChat({
     locked && personaId === locked.id ? locked : personas.find((p) => p.id === personaId);
   const chatPath = `/characters/${characterId}/chat`;
   const hasUserMessages = messages.some((m) => m.role === "user" && !m.unsaved);
+  // 코디포토넷에서 고를 수 있는 최근 대사: 서버에 저장된 것(문자열 id)만, 최근 것부터 20개
+  const photonetMoments = messages
+    .filter((m) => typeof m.id === "string" && m.id !== "opening" && !m.error && !m.unsaved)
+    .slice(-20)
+    .reverse()
+    .map((m) => ({
+      id: String(m.id),
+      label: `${m.role === "user" ? (m.speaker ?? "나") : characterName}: ${m.text.replace(/s+/g, " ").trim().slice(0, 40)}`,
+    }));
   const lastCharacterLine = [...messages].reverse().find((m) => m.role === "character" && !m.error)?.text.replace(/s+/g, " ").trim() ?? "";
 
   const startNew = async (save: boolean) => {
@@ -521,7 +530,7 @@ export default function CharacterChat({
 
         <OpsBar characterId={characterId}>
           {/* 입력창 바로 위 왼쪽: 코디포토넷 (마지막 캐릭터 말을 "지금 장면"으로) */}
-          <Photonet characterId={characterId} sceneHint={lastCharacterLine} />
+          <Photonet characterId={characterId} sceneHint={lastCharacterLine} moments={photonetMoments} />
         </OpsBar>
 
         <form

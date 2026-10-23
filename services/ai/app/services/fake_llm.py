@@ -48,8 +48,14 @@ BY_NAME: dict[str, object] = {
         },
     ],
     "comments": [{"author": "골목고양이", "body": "좋은 글이네요"}, {"author": "익명", "body": "공감해요"}],
-    # 코디포토넷: 장면 → 영어 태그
-    "tags": "1girl, cafe, rainy window, warm smile, holding tea cup",
+    # 코디포토넷: 장면 설계표
+    "people": [
+        {"name": "테스트 선생", "gender": "male", "look": "short black hair, glasses, cardigan", "expression": "gentle smile", "pose": "sitting"},
+        {"name": "민준", "gender": "male", "look": "brown hair, hoodie", "expression": "focused", "pose": "writing"},
+    ],
+    "setting": "study cafe, afternoon",
+    "action": "studying together, open workbook on table",
+    "lighting": "soft window light",
 }
 
 
