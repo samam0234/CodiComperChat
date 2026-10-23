@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetView } from "@/lib/operations";
+import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetImage, PhotonetView } from "@/lib/operations";
 
 // 오퍼레이션(대화 플러그인) 만들기·쓰기. Nest로 넘기기만 한다 (토큰은 httpOnly 쿠키에서 서버가 붙인다)
 export type OpsResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -61,7 +61,7 @@ export async function loadPhotonet(characterId: string): Promise<OpsResult<Photo
 }
 
 export async function createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string }) {
-  return call<{ image: { id: string; url: string }; balance: number }>(characterId, "photonet", input);
+  return call<{ image: PhotonetImage; balance: number }>(characterId, "photonet", input);
 }
 
 export async function refreshBoard(characterId: string) {

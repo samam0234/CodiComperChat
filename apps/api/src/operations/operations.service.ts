@@ -1,6 +1,6 @@
-import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { BoardAuthor, CreditReason, MessageRole } from '@prisma/client';
-import { postToAi } from '../ai/ai-client.js';
+import { getFromAi, postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { CharacterChatService } from '../character-chat/character-chat.service.js';
 import { CharactersService } from '../characters/characters.service.js';
@@ -36,11 +36,17 @@ const POST_SELECT = {
     select: { id: true, authorKind: true, authorName: true, body: true, createdAt: true },
   },
 };
-// 코디포토넷: 그림 엔진이 붙었나 (지금은 없다), 고를 수 있는 화풍·비율, 장면 설명 길이
-export const PHOTONET_READY = false;
+// 코디포토넷: 고를 수 있는 화풍·비율(services/ai image_engine.STYLES와 같게), 장면 설명 길이, 창에 보여 줄 최근 그림 수
 export const PHOTONET_STYLES = ["애니메이션", "웹툰", "수채화", "실사풍"] as const;
 export const PHOTONET_RATIOS = ["정사각", "세로", "가로"] as const;
 export const PHOTONET_PROMPT_MAX = 300;
+const PHOTONET_GALLERY = 12;
+// 엔진 상태는 짧게 묻는다 (꺼져 있으면 창이 늦게 뜨지 않게)
+const ENGINE_STATUS_TIMEOUT_MS = 3000;
+// 그림 한 장: 화풍 계열(SDXL ↔ SD1.5)을 바꾸면 모델을 다시 읽느라 2~3분 걸릴 수 있다 (RAM 16GB에서 측정)
+const PHOTONET_TIMEOUT_MS = 300_000;
+const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, width: true, height: true, createdAt: true } as const;
+type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string };
 // 커뮤니티 글 길이 한도
 export const POST_TITLE_MAX = 60;
 export const POST_BODY_MAX = 1000;
@@ -245,7 +251,8 @@ export class OperationsService {
         recentTitles: recent.map((p) => p.title),
       });
       const now = Date.now();
-      // 화면에서 위에서부터 첫 글이 보이게, 앞 글일수록 조금 늦은 시각으로
+      // 화면에서 위에서부터 첫 글이 보이게, 앞 글일수록 조금 늦은 시각으로.
+      // 지금보다 미래로 찍으면 바로 뒤에 쓴 내 글보다 위에 와 버리므로 지금부터 과거 쪽으로 찍는다
       return this.prisma.$transaction(
         raw.posts.slice(0, 3).map((p, i) =>
           this.prisma.boardPost.create({
@@ -255,13 +262,13 @@ export class OperationsService {
               authorName: clip(p.author, 20) || '익명',
               title: clip(p.title, 60),
               body: clip(p.body, 1000),
-              createdAt: new Date(now + (3 - i) * 10),
+              createdAt: new Date(now - i * 10),
               comments: {
                 create: (p.comments ?? []).slice(0, 2).map((c, j) => ({
                   authorKind: BoardAuthor.RESIDENT,
                   authorName: clip(c.author, 20) || '익명',
                   body: clip(c.body, 300),
-                  createdAt: new Date(now + (3 - i) * 10 + j + 1),
+                  createdAt: new Date(now - i * 10 + j + 1),
                 })),
               },
             },
@@ -311,29 +318,77 @@ export class OperationsService {
     return { post: result, balance };
   }
 
-  // ── 코디포토넷: 대화 장면을 그림으로 (2026-10-23 사용자 결정: 화면·흐름만, 엔진은 준비 중) ──
-  // 지금 로컬 모델(gemma4)은 그림을 읽기만 하고 만들지 못한다. 엔진을 붙일 때 PHOTONET_READY를 켜고
-  // services/ai에 생성 경로를 더한 뒤 createPhotonet에서 charged('photonet', …)로 부른다
+  // ── 코디포토넷: 대화 장면을 그림으로 (2026-10-24: 로컬 Stable Diffusion WebUI 연결) ──
+  // 엔진(WebUI)은 따로 켜고 끈다. 꺼져 있으면 "준비 중"으로 보이고, 만들기는 코레딧을 빼기 전에 503
+  private async engineReady(): Promise<boolean> {
+    try {
+      return (await getFromAi<{ ready: boolean }>('/photonet/status', ENGINE_STATUS_TIMEOUT_MS)).ready === true;
+    } catch {
+      return false;
+    }
+  }
+
   async photonetView(characterId: string, authorization?: string) {
     const v = await this.view(characterId, authorization);
+    const [ready, images] = await Promise.all([
+      this.engineReady(),
+      v.conversation
+        ? this.prisma.photonetImage.findMany({
+            where: { campaignId: v.conversation.campaignId },
+            orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+            take: PHOTONET_GALLERY,
+            select: PHOTONET_SELECT,
+          })
+        : Promise.resolve([]),
+    ]);
     return {
       character: v.character,
       started: v.started,
       cost: OPERATION_COSTS.photonet,
       balance: v.balance,
-      ready: PHOTONET_READY,
+      ready,
       styles: PHOTONET_STYLES,
       ratios: PHOTONET_RATIOS,
-      images: [] as { id: string; url: string; prompt: string; createdAt: Date }[],
+      images,
     };
   }
 
-  async createPhotonet(characterId: string, authorization?: string) {
-    // 대화가 없으면 409, 엔진이 없으면 503 — 둘 다 코레딧을 빼기 전에 막는다
-    await this.chat.operationContext(characterId, authorization);
-    if (!PHOTONET_READY) {
-      throw new ServiceUnavailableException('코디포토넷은 아직 준비 중이에요. 그림을 만드는 엔진이 연결되면 열려요.');
+  async createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string }, authorization?: string) {
+    // 대화가 없으면 409, 엔진이 꺼져 있으면 503 — 둘 다 코레딧을 빼기 전에 막는다
+    const ctx = await this.chat.operationContext(characterId, authorization);
+    if (!(await this.engineReady())) {
+      throw new ServiceUnavailableException('그림 엔진(Stable Diffusion)이 꺼져 있어 지금은 만들 수 없어요. 코레딧은 빠지지 않았어요.');
     }
-    throw new ServiceUnavailableException('코디포토넷 엔진이 연결되지 않았습니다.');
+    // 만들기·검수에 실패하면(검수에 걸린 그림 포함) 코레딧을 돌려준다
+    const { result, balance } = await this.charged(ctx.userId, 'photonet', async () => {
+      const raw = await postToAi<PhotonetResult>('/photonet', { context: ctx.context, ...input }, { timeoutMs: PHOTONET_TIMEOUT_MS });
+      return this.prisma.photonetImage.create({
+        data: {
+          campaignId: ctx.conversation.campaignId,
+          prompt: input.prompt,
+          promptUsed: clip(raw.promptUsed, 1000),
+          style: input.style,
+          ratio: input.ratio,
+          mime: raw.mime,
+          data: Buffer.from(raw.image, 'base64'),
+          width: raw.width,
+          height: raw.height,
+        },
+        select: PHOTONET_SELECT,
+      });
+    });
+    return { image: result, balance };
+  }
+
+  // 그림 본문: 그 대화를 하는 사람(내 대화)에게만. 남의 그림은 없는 것과 같은 404
+  async photonetImage(characterId: string, imageId: string, authorization?: string) {
+    const userId = await readSession(this.prisma, authorization);
+    if (!userId) throw new UnauthorizedException('로그인이 필요합니다.');
+    const image = await this.prisma.photonetImage.findFirst({
+      where: { id: imageId, campaign: { userId, characterId } },
+      select: { data: true, mime: true },
+    });
+    if (!image) throw new NotFoundException('그림이 없습니다.');
+    return { data: Buffer.from(image.data), mime: image.mime };
   }
 }

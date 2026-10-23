@@ -12,6 +12,7 @@ from app.routes import (
     infer,
     moderate,
     operations,
+    photonet,
     remember,
     suggest,
     summarize,
@@ -41,4 +42,5 @@ app.include_router(ground.router)
 app.include_router(draft.router)
 app.include_router(moderate.router)
 app.include_router(operations.router)
+app.include_router(photonet.router)
 app.include_router(train.router)

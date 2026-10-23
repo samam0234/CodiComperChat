@@ -194,3 +194,71 @@
 :root[data-theme="dark"] .chip:has(input:checked) {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.grid li {
+  display: grid;
+  gap: 4px;
+}
+
+.thumb {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  aspect-ratio: 1;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.thumb:hover img {
+  transform: scale(1.05);
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .progress {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}

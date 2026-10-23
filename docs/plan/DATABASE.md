@@ -30,6 +30,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 | `direct_messages` (DirectMessage) | | 오퍼레이션 · 메시지: 대화와 따로 주고받는 문자(USER/CHARACTER) | 대화와 함께 |
 | `board_posts` (BoardPost) | | 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 게시판 글(글쓴이 종류 USER/RESIDENT·이름·제목·내용). 나에게만 보인다 | 대화와 함께 |
 | `board_comments` (BoardComment) | | 커뮤니티 글의 댓글(주민) | 글과 함께 |
+| `photonet_images` (PhotonetImage) | | 코디포토넷 그림(WebP 바이트, 유저 장면 설명, 엔진에 보낸 영어 프롬프트, 화풍·비율·크기). 그림 검수를 통과한 것만. 그 대화를 하는 사람에게만 보인다 | 대화와 함께 |
 | `model_usage` (ModelUsage) | | 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. 키 = 계정 × 모델 × 날짜(한국 시각 YYYY-MM-DD). 답을 만들기 전에 한 문장 upsert로 1회를 잡고 실패하면 돌려준다(동시 요청도 한도를 못 넘는다) | 계정과 함께 |
 | `campaign_states` (CampaignState) | ● | 친밀도(값·근거·자동 여부·변화 기록), 호칭, 열린 복선·끝난 일, 해금된 비밀, 다음 회차 요약, 정리한 지점 | 대화와 함께 |
 | `sessions` (Session) | ● | 회차(지금은 대화당 하나) | 대화와 함께 |

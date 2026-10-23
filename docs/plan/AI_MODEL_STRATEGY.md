@@ -59,6 +59,10 @@ v1은 **외부 LLM(또는 호스티드 오픈모델) + 단단한 시스템 프�
 - 하루 한도는 `MODEL_ENHANCED_DAILY_LIMIT`로 바꿀 수 있다 ([../guidance/environment.md](../guidance/environment.md)). e2e는 `MODEL_PREMIUM_FAKE=1`로 프리미엄 호출을 가짜 LLM에 보내 코레딧 경로를 시험한다(운영에서는 켜지 않는다)
 - 처음(2026-10-21 오전)에는 프리미엄을 프로 전용으로 했다가, 같은 날 코레딧이 생기며 코레딧제로 바꿨다. 프로의 혜택은 강화 무료 무제한과 출석 5,000이다
 
+## 그림 모델 (코디포토넷, 2026-10-24 사용자 결정)
+
+로컬 Stable Diffusion WebUI(AUTOMATIC1111)를 API로 쓴다. 서비스에 쓰는 체크포인트는 둘뿐이다 — 애니메이션·웹툰은 **Animagine XL 4.0 Opt**(SDXL, CreativeML Open RAIL++-M), 수채화·실사풍은 **Stable Diffusion 1.5 기본 모델**(CreativeML OpenRAIL-M). 결과는 기존 그림 검수(gemma4)를 통과해야 돌려준다. 자세히 [../guidance/photonet-engine.md](../guidance/photonet-engine.md)
+
 ## FastAPI의 역할 (v1)
 
 "학습 공장"이 아니라 **연기·요약 엔진**이다 (최종 갱신 2026-10-16):
@@ -78,6 +82,7 @@ v1은 **외부 LLM(또는 호스티드 오픈모델) + 단단한 시스템 프�
 | `/diary` | 오퍼레이션 · 일기: 캐릭터 입장에서 최근 일을 돌아보는 1인칭 일기(제목·기분·본문) | 신규 |
 | `/infer` (`channel: "message"`) | 오퍼레이션 · 메시지: 같은 캐릭터 답을 휴대폰 문자처럼 짧게 | 신규 |
 | `/board-posts` · `/board-comments` | 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 동네 게시판의 주민 글·댓글 | 신규 |
+| `/photonet` · `/photonet/status` | 코디포토넷: 장면 → 영어 태그(LLM) → 로컬 Stable Diffusion WebUI → 그림 검수 | 신규 ([../guidance/photonet-engine.md](../guidance/photonet-engine.md)) |
 | `/train` | 403 | §13.2 (v1 차단) |
 
 판정·요약·검수는 `seed`를 고정하고 JSON 스키마로 출력 모양을 강제한다. 품질은 `services/ai/evals`로 실제 모델에서 잰다(말투·지시 무시·메타·강의·개인사·판정 안정성·이미지 검수) — [TESTING.md](TESTING.md).

@@ -4,12 +4,16 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPhotonet, loadPhotonet } from "@/app/actions/operations";
 import form from "@/components/form.module.css";
+import { formatDayTime } from "@/lib/format-time";
 import type { PhotonetView } from "@/lib/operations";
 import bar from "./ops-bar.module.css";
 import styles from "./photonet.module.css";
 
 const PROMPT_MAX = 300;
 const fmt = (n: number) => n.toLocaleString("ko-KR");
+// 그림 본문 중계 (lib/operations.photonetSrc와 같은 주소. 그쪽은 server-only라 여기서 다시 만든다)
+const srcOf = (characterId: string, imageId: string) =>
+  `/api/characters/${encodeURIComponent(characterId)}/photonet/${encodeURIComponent(imageId)}`;
 
 function CameraIcon() {
   return (
@@ -23,7 +27,7 @@ function CameraIcon() {
 }
 
 // 코디포토넷: 대화 장면을 그림으로 만드는 창 (입력창 바로 위 왼쪽 버튼).
-// 그림 엔진이 아직 없어 "준비 중"으로 잠가 두고, 장면 설명·화풍·비율·값까지 미리 보여 준다
+// 그림은 로컬 Stable Diffusion WebUI가 그린다. 엔진이 꺼져 있으면 "준비 중"으로 잠긴다
 export default function Photonet({ characterId, sceneHint }: { characterId: string; sceneHint: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -32,8 +36,9 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("애니메이션");
   const [ratio, setRatio] = useState("정사각");
-  const [message, setMessage] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [making, setMaking] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -42,24 +47,31 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  // 창을 열 때마다 엔진 상태와 잔액을 새로 읽는다 (엔진을 켜고 끄는 일이 있으므로)
   const onOpen = () => {
     setOpen(true);
     setMessage(null);
-    if (!status) {
-      startTransition(async () => {
-        const result = await loadPhotonet(characterId);
-        if (result.ok) setStatus(result.data);
-        else setMessage(result.error);
-      });
-    }
+    startTransition(async () => {
+      const result = await loadPhotonet(characterId);
+      if (result.ok) setStatus(result.data);
+      else setMessage({ ok: false, text: result.error });
+    });
   };
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (prompt.trim() === "") return;
+    if (prompt.trim() === "" || making) return;
+    setMaking(true);
+    setMessage(null);
     startTransition(async () => {
       const result = await createPhotonet(characterId, { prompt: prompt.trim(), style, ratio });
-      setMessage(result.ok ? "그림을 만들었어요." : result.error);
+      setMaking(false);
+      if (!result.ok) {
+        setMessage({ ok: false, text: result.error });
+        return;
+      }
+      setStatus((prev) => (prev ? { ...prev, balance: result.data.balance, images: [result.data.image, ...prev.images] } : prev));
+      setMessage({ ok: true, text: "그림을 만들었어요." });
     });
   };
 
@@ -77,10 +89,10 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
         aria-labelledby={titleId}
         onCancel={(event) => {
           event.preventDefault();
-          setOpen(false);
+          if (!making) setOpen(false);
         }}
         onClick={(event) => {
-          if (event.target === event.currentTarget) setOpen(false);
+          if (event.target === event.currentTarget && !making) setOpen(false);
         }}
       >
         <div className={styles.body}>
@@ -88,20 +100,18 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
             <h2 id={titleId} className={styles.title}>
               <CameraIcon /> 코디포토넷
             </h2>
-            <button type="button" className={styles.close} onClick={() => setOpen(false)} aria-label="코디포토넷 닫기">
+            <button type="button" className={styles.close} onClick={() => setOpen(false)} aria-label="코디포토넷 닫기" disabled={making}>
               ✕
             </button>
           </div>
-          <p className={styles.lead}>지금 대화 장면을 한 장의 그림으로 만들어요.</p>
+          <p className={styles.lead}>지금 대화 장면을 한 장의 그림으로 만들어요. 그린 그림은 나에게만 보여요.</p>
 
           {status && !ready && (
             <p className={styles.soon} role="status">
-              <strong>준비 중</strong> 그림을 만드는 엔진을 연결하는 중이에요. 지금은 만들 수 없고, 코레딧도 빠지지 않아요.
+              <strong>준비 중</strong> 그림 엔진(Stable Diffusion)이 꺼져 있어 지금은 만들 수 없어요. 코레딧은 빠지지 않아요.
             </p>
           )}
-          {status && !status.started && (
-            <p className={styles.soon}>먼저 이 캐릭터와 대화를 시작해 주세요.</p>
-          )}
+          {status && !status.started && <p className={styles.soon}>먼저 이 캐릭터와 대화를 시작해 주세요.</p>}
 
           <form className={styles.form} onSubmit={onSubmit}>
             <label className={form.field}>
@@ -113,15 +123,16 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
                 maxLength={PROMPT_MAX}
                 rows={3}
                 placeholder="예: 비 오는 오후, 창가 자리에서 따뜻한 차를 건네는 장면"
+                disabled={making}
               />
             </label>
             {sceneHint && (
-              <button type="button" className={styles.fill} onClick={() => setPrompt(sceneHint.slice(0, PROMPT_MAX))}>
+              <button type="button" className={styles.fill} onClick={() => setPrompt(sceneHint.slice(0, PROMPT_MAX))} disabled={making}>
                 지금 장면으로 채우기
               </button>
             )}
 
-            <fieldset className={styles.chips}>
+            <fieldset className={styles.chips} disabled={making}>
               <legend className={form.label}>화풍</legend>
               {(status?.styles ?? ["애니메이션", "웹툰", "수채화", "실사풍"]).map((s) => (
                 <label key={s} className={styles.chip}>
@@ -130,7 +141,7 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
                 </label>
               ))}
             </fieldset>
-            <fieldset className={styles.chips}>
+            <fieldset className={styles.chips} disabled={making}>
               <legend className={form.label}>비율</legend>
               {(status?.ratios ?? ["정사각", "세로", "가로"]).map((r) => (
                 <label key={r} className={styles.chip}>
@@ -159,21 +170,50 @@ export default function Photonet({ characterId, sceneHint }: { characterId: stri
               <button
                 type="submit"
                 className={styles.make}
-                disabled={!ready || pending || poor || !status?.started || prompt.trim() === ""}
+                disabled={!ready || making || poor || !status?.started || prompt.trim() === ""}
               >
-                {ready ? "만들기" : "준비 중"}
+                {!status || ready ? (making ? "그리는 중…" : "만들기") : "준비 중"}
               </button>
             </div>
           </form>
 
+          {making && (
+            <p className={styles.progress} role="status">
+              <span className={styles.spinner} aria-hidden="true" />
+              그리는 중이에요. 보통 30초 안팎이고, 애니메이션·웹툰과 수채화·실사풍 사이를 바꾼 첫 그림은 그림 모델을 다시 읽느라 2~3분 걸릴 수 있어요.
+            </p>
+          )}
           {message && (
-            <p className={form.error} role="alert">
-              {message}
+            <p className={message.ok ? form.success : form.error} role={message.ok ? "status" : "alert"}>
+              {message.text}
             </p>
           )}
 
           <section className={styles.gallery} aria-label="만든 그림">
-            {status && status.images.length > 0 ? null : <p className={styles.empty}>아직 만든 그림이 없어요.</p>}
+            {status && status.images.length > 0 ? (
+              <ul className={styles.grid}>
+                {status.images.map((image) => (
+                  <li key={image.id}>
+                    <a href={srcOf(characterId, image.id)} target="_blank" rel="noopener noreferrer" className={styles.thumb}>
+                      {/* 중계 라우트가 주는 그림이라 next/image 최적화를 거치지 않는다 */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={srcOf(characterId, image.id)}
+                        alt={`${image.style} · ${image.prompt}`}
+                        width={image.width}
+                        height={image.height}
+                        loading="lazy"
+                      />
+                    </a>
+                    <span className={styles.meta}>
+                      {image.style} · {formatDayTime(image.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.empty}>아직 만든 그림이 없어요.</p>
+            )}
           </section>
         </div>
       </dialog>

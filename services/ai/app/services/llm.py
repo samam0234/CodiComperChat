@@ -30,6 +30,9 @@ def generate(
     seed: int | None = None,
     # 이 호출만 쓸 모델 태그. 없으면 OLLAMA_MODEL(기본 gemma4:e4b)
     model: str | None = None,
+    # 답한 뒤 모델을 그래픽 메모리에 얼마나 두나 (Ollama keep_alive). 0이면 바로 내린다 —
+    # 코디포토넷이 곧바로 Stable Diffusion을 돌려야 할 때 메모리를 비워 준다. 없으면 Ollama 기본(5분)
+    keep_alive: int | None = None,
 ) -> str:
     # 웹 자동 테스트(e2e)용: 모델 없이 고정된 응답을 돌려준다. 실제 품질 확인용이 아니다
     if os.environ.get("LLM_FAKE") == "1":
@@ -56,6 +59,8 @@ def generate(
     }
     if response_json_schema is not None:
         payload["format"] = response_json_schema
+    if keep_alive is not None:
+        payload["keep_alive"] = keep_alive
 
     try:
         response = httpx.post(f"{base_url}/api/chat", json=payload, timeout=120.0)

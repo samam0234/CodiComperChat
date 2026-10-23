@@ -41,7 +41,11 @@
 |----|--------|------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | 로컬 Ollama |
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
-| `LLM_FAKE` | 꺼짐 | **시험용.** `1`이면 모델 없이 고정된 가짜 답. e2e가 자동으로 켠다 |
+| `LLM_FAKE` | 꺼짐 | **시험용.** `1`이면 모델 없이 고정된 가짜 답. e2e가 자동으로 켠다 (코디포토넷의 가짜 그림 엔진도 함께 켜진다) |
+| `SD_WEBUI_URL` | `http://127.0.0.1:7860` | 코디포토넷 그림 엔진(Stable Diffusion WebUI) 주소. [photonet-engine.md](photonet-engine.md) |
+| `SD_ANIME_MODEL` | `animagine-xl-4.0-opt.safetensors` | 애니메이션·웹툰 화풍 체크포인트 |
+| `SD_BASE_MODEL` | `v1-5-pruned-emaonly.safetensors` | 수채화·실사풍 화풍 체크포인트 |
+| `IMAGE_FAKE` | 꺼짐 | **시험용.** `1`이면 그림 엔진 없이 작은 그림을 만든다 |
 | `FAKE_LLM_DELAY_MS` | 0 | 시험용. 가짜 답 지연(부하 측정) |
 | `FAKE_LLM_SERIAL` | 꺼짐 | 시험용. `1`이면 한 번에 하나만 처리 |
 
