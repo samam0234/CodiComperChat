@@ -17,7 +17,7 @@
 | 일기 1편 | 20 |
 | 커뮤니티 새 글 불러오기 | 20 |
 | 커뮤니티 내 글 쓰기(주민 댓글 포함) | 10 |
-| 코디포토넷 그림 1장 | 50 (엔진 준비 중) |
+| 코디포토넷 그림 1장 | 50 (그림 엔진이 켜져 있을 때) |
 | 메시지 | 받지 않음(대화와 같다) |
 
 ## 심리 탐구 (`/characters/:id/chat/mind`)
@@ -62,10 +62,14 @@
 
 ## 코디포토넷 (대화 화면 안의 창)
 
-대화창에서 **입력창 바로 위 왼쪽 버튼**으로 여는, 대화 장면을 그림으로 만드는 기능. 2026-10-23 사용자 결정: **화면·흐름만 만들고 엔진은 "준비 중"** — 지금 로컬 모델(gemma4)은 그림을 읽기만 하고 만들지 못한다.
+대화창에서 **입력창 바로 위 왼쪽 버튼**으로 여는, 대화 장면을 그림으로 만드는 기능. 2026-10-24부터 **로컬 Stable Diffusion WebUI**로 실제로 그린다(엔진 운영·모델·측정: [../guidance/photonet-engine.md](../guidance/photonet-engine.md)).
 
-- 창: 장면 설명(~300자, "지금 장면으로 채우기"는 마지막 캐릭터 말로 채운다), 화풍(애니메이션·웹툰·수채화·실사풍), 비율(정사각·세로·가로), 값(50 코레딧)·내 코레딧, 만든 그림 자리. 브라우저 기본 `<dialog>`라 포커스가 창 안에 갇히고 Esc·바깥 클릭으로 닫힌다
-- 지금은 "준비 중" 표시, 만들기 버튼이 잠겨 있다. 서버도 입력을 검사(빈 설명·모르는 화풍/비율은 400)한 뒤 **503**을 돌려주고 **코레딧을 빼지 않는다**
-- 엔진을 붙일 때: `apps/api/src/operations/operations.service.ts`의 `PHOTONET_READY`를 켜고, services/ai에 생성 경로를 더한 뒤 `createPhotonet`에서 `charged('photonet', …)`로 부르고 그림을 저장한다(그림 테이블·보관 위치는 그때 정한다). 후보: 로컬 Stable Diffusion(ComfyUI 등, 그래픽 메모리 6~8GB 이상) 또는 외부 API(사용자 결정 필요)
+- 창: 장면 설명(~300자, "지금 장면으로 채우기"는 마지막 캐릭터 말), 화풍(애니메이션·웹툰 → Animagine XL 4.0 / 수채화·실사풍 → SD 1.5), 비율(정사각·세로·가로), 값(50 코레딧)·내 코레딧, 그리는 중 표시, 만든 그림 갤러리(최근 12장, 누르면 크게). 브라우저 기본 `<dialog>`
+- 순서: 로컬 LLM이 장면·캐릭터 외모를 영어 태그로 → WebUI가 그림 → WebP → **그림 검수**(성적·미성년자·잔혹·혐오·자해면 돌려주지 않고 코레딧 환불, 422) → `photonet_images`에 저장
+- 그림은 그 대화를 하는 사람에게만 보인다(남이면 404, 캐시 금지). 웹은 `/api/characters/:id/photonet/:imageId`로 중계
+- 엔진이 꺼져 있으면 "준비 중", 만들기는 대화 확인(409)·입력 검사(400) 뒤 **503**이고 코레딧을 빼지 않는다
+- 요청 한도 `photonet`(10분에 6장). 한 장 약 45초, 화풍 계열을 바꾼 첫 장은 1분 넘게 걸릴 수 있어 그림 요청만 300초 기다린다
+- 입력창과 버튼 줄 사이를 살짝 띄웠다(2026-10-24 사용자 요청)
 
-- API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio }` → 지금은 503)
+- API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio }` → `{ image, balance }`), `GET .../photonet/:imageId` (그림 본문)
+- AI: `GET /photonet/status`, `POST /photonet`

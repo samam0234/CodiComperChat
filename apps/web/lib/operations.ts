@@ -50,10 +50,9 @@ export type BoardView = OpsBase & { postCost: number; persona: string | null; po
 
 export const getBoard = (characterId: string) => authedGet<BoardView>(ops(characterId, "board"));
 
-// 코디포토넷: 엔진이 붙기 전에는 ready=false, 만든 그림은 없다
-export type PhotonetView = OpsBase & {
-  ready: boolean;
-  styles: string[];
-  ratios: string[];
-  images: { id: string; url: string; prompt: string; createdAt: string }[];
-};
+// 코디포토넷: ready는 그림 엔진(Stable Diffusion WebUI)이 켜져 있는지. 그림 본문은 /api/characters/:id/photonet/:imageId
+export type PhotonetImage = { id: string; prompt: string; style: string; ratio: string; width: number; height: number; createdAt: string };
+export type PhotonetView = OpsBase & { ready: boolean; styles: string[]; ratios: string[]; images: PhotonetImage[] };
+
+export const photonetSrc = (characterId: string, imageId: string) =>
+  `/api/characters/${encodeURIComponent(characterId)}/photonet/${encodeURIComponent(imageId)}`;

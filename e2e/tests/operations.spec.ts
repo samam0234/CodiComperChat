@@ -215,28 +215,55 @@ test.describe("오퍼레이션 · 커뮤니티", () => {
   });
 });
 
-test.describe("코디포토넷 (엔진 준비 중)", () => {
-  test("상태는 준비 중, 만들기는 503이고 코레딧이 그대로다. 입력 검사는 먼저 한다", async () => {
-    const { user } = await talking("포토넷");
-    const view = await api<{ ready: boolean; cost: number; styles: string[]; ratios: string[]; images: unknown[] }>(`${OPS}/photonet`, {
-      token: user.token,
-    });
-    expect(view.body).toMatchObject({ ready: false, cost: 50, images: [] });
-    expect(view.body.styles).toContain("애니메이션");
+test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
+  type Image = { id: string; prompt: string; style: string; ratio: string; width: number; height: number };
 
-    const made = await api<{ message: string }>(`${OPS}/photonet`, {
+  test("만들기: 50 코레딧, 화풍·비율에 맞는 크기, 그림은 그 대화를 하는 사람에게만", async () => {
+    const { user } = await talking("포토넷");
+    const view = await api<{ ready: boolean; cost: number; styles: string[]; images: Image[] }>(`${OPS}/photonet`, { token: user.token });
+    expect(view.body).toMatchObject({ ready: true, cost: 50, images: [] });
+    expect(view.body.styles).toEqual(["애니메이션", "웹툰", "수채화", "실사풍"]);
+
+    const made = await api<{ image: Image; balance: number }>(`${OPS}/photonet`, {
       token: user.token,
-      json: { prompt: "비 오는 카페", style: "수채화", ratio: "세로" },
+      json: { prompt: "비 오는 카페 창가", style: "수채화", ratio: "세로" },
     });
-    expect(made.status).toBe(503);
-    expect(made.body.message).toContain("준비 중");
-    expect(await balance(user)).toBe(1000);
+    expect(made.status).toBe(200);
+    // 수채화는 SD 1.5 계열이라 세로 512×768
+    expect(made.body.image).toMatchObject({ prompt: "비 오는 카페 창가", style: "수채화", ratio: "세로", width: 512, height: 768 });
+    expect(made.body.balance).toBe(950);
+
+    const anime = await api<{ image: Image }>(`${OPS}/photonet`, {
+      token: user.token,
+      json: { prompt: "웃는 얼굴", style: "애니메이션", ratio: "가로" },
+    });
+    // 애니메이션은 SDXL(Animagine XL) 계열이라 가로 1216×832
+    expect(anime.body.image).toMatchObject({ width: 1216, height: 832 });
+
+    const picture = await api<Buffer>(`${OPS}/photonet/${made.body.image.id}`, { token: user.token });
+    expect(picture.status).toBe(200);
+    expect(Buffer.isBuffer(picture.body) && picture.body.subarray(8, 12).toString()).toBe("WEBP");
+
+    const stranger = await signup("포토넷남");
+    expect((await api(`${OPS}/photonet/${made.body.image.id}`, { token: stranger.token })).status).toBe(404);
+
+    const ledger = await api<{ history: { reason: string; delta: number; modelId: string | null }[] }>("/me/credits", { token: user.token });
+    expect(ledger.body.history[0]).toMatchObject({ reason: "OPERATION", delta: -50, modelId: "op:photonet" });
 
     expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "", style: "수채화", ratio: "세로" } })).status).toBe(400);
     expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "x", style: "유화", ratio: "세로" } })).status).toBe(400);
+    const listed = await api<{ images: Image[] }>(`${OPS}/photonet`, { token: user.token });
+    expect(listed.body.images.map((i) => i.style)).toEqual(["애니메이션", "수채화"]);
   });
 
-  test("화면: 입력창 위 왼쪽 버튼 → 창(준비 중, 만들기 잠김), 지금 장면으로 채우기, Esc로 닫기", async ({ browser }) => {
+  test("코레딧이 모자라면 403이고 그림이 남지 않는다", async () => {
+    const { user } = await talking("포토넷가난", false);
+    const res = await api<{ message: string }>(`${OPS}/photonet`, { token: user.token, json: { prompt: "카페", style: "웹툰", ratio: "정사각" } });
+    expect(res.status).toBe(403);
+    expect((await api<{ images: unknown[] }>(`${OPS}/photonet`, { token: user.token })).body.images).toHaveLength(0);
+  });
+
+  test("화면: 입력창 위 왼쪽 버튼 → 지금 장면으로 채우기 → 만들기 → 갤러리에 그림, Esc로 닫기", async ({ browser }) => {
     const { user } = await talking("포토넷화면");
     const page = await signedInPage(await browser.newContext(), user);
     await page.goto(CHAT);
@@ -244,15 +271,22 @@ test.describe("코디포토넷 (엔진 준비 중)", () => {
 
     await page.getByRole("button", { name: "코디포토넷" }).click();
     const dialog = page.getByRole("dialog", { name: "코디포토넷" });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("status")).toContainText("준비 중");
     await expect(dialog).toContainText("50 코레딧");
-    await expect(dialog.getByRole("button", { name: "준비 중" })).toBeDisabled();
+    await expect(dialog.getByText("준비 중")).toHaveCount(0);
 
     await dialog.getByRole("button", { name: "지금 장면으로 채우기" }).click();
     await expect(dialog.getByLabel("장면 설명")).toHaveValue("네, 알겠어요. 오늘도 천천히 이야기해 봐요.");
     await dialog.getByText("수채화").click();
-    await expect(dialog.getByRole("radio", { name: "수채화" })).toBeChecked();
+    await dialog.getByRole("button", { name: "만들기" }).click();
+    await expect(dialog.getByText("그림을 만들었어요.")).toBeVisible();
+    const gallery = dialog.getByRole("region", { name: "만든 그림" });
+    await expect(gallery.getByRole("img")).toHaveCount(1);
+    await expect(gallery).toContainText("수채화");
+    // 중계 라우트로 실제 그림이 온다
+    const src = await gallery.getByRole("img").getAttribute("src");
+    const res = await page.request.get(src!);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/webp");
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

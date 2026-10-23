@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Param, Post, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { RateLimit } from '../security/rate-limit.js';
 import {
   DM_MAX_LENGTH,
@@ -98,10 +99,26 @@ export class OperationsController {
     return this.ops.photonetView(id, authorization);
   }
 
-  // 코디포토넷: 그림 만들기 { prompt, style, ratio } — 엔진 준비 전에는 503 (코레딧을 빼지 않는다)
+  // 코디포토넷: 만든 그림 본문 (그 대화를 하는 사람에게만, 캐시하지 않음)
+  @Get('photonet/:imageId')
+  async photonetImage(
+    @Param('id') id: string,
+    @Param('imageId') imageId: string,
+    @Res() res: Response,
+    @Headers('authorization') authorization?: string,
+  ) {
+    const image = await this.ops.photonetImage(id, imageId, authorization);
+    res.setHeader('Content-Type', image.mime);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    res.send(image.data);
+  }
+
+  // 코디포토넷: 그림 만들기 { prompt, style, ratio } — 엔진이 꺼져 있으면 503 (코레딧을 빼지 않는다)
   @Post('photonet')
   @HttpCode(200)
-  @RateLimit('chat')
+  @RateLimit('photonet')
   createPhotonet(
     @Param('id') id: string,
     @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown },
@@ -112,6 +129,6 @@ export class OperationsController {
     if (prompt.length > PHOTONET_PROMPT_MAX) throw new BadRequestException(`장면 설명은 ${PHOTONET_PROMPT_MAX}자 이하로 적어 주세요.`);
     if (!(PHOTONET_STYLES as readonly unknown[]).includes(body?.style)) throw new BadRequestException('알 수 없는 화풍입니다.');
     if (!(PHOTONET_RATIOS as readonly unknown[]).includes(body?.ratio)) throw new BadRequestException('알 수 없는 비율입니다.');
-    return this.ops.createPhotonet(id, authorization);
+    return this.ops.createPhotonet(id, { prompt, style: body.style as string, ratio: body.ratio as string }, authorization);
   }
 }

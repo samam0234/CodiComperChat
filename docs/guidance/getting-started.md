@@ -72,6 +72,7 @@ npm run user:role --workspace api -- 내이메일@example.com admin
 
 ```bash
 ollama serve                                                     # 이미 떠 있으면 생략
+scriptsstart-sd-webui.cmd                                       # (선택) 코디포토넷 그림 엔진 — docs/guidance/photonet-engine.md
 cd services/ai && ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 npm run dev:api        # http://localhost:4000
 npm run dev:web        # http://localhost:3000

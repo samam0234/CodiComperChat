@@ -170,6 +170,7 @@ model Campaign {
   diaryEntries       DiaryEntry[]
   directMessages     DirectMessage[]
   boardPosts         BoardPost[]
+  photonetImages     PhotonetImage[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -549,4 +550,25 @@ model BoardComment {
 
   @@index([postId, createdAt])
   @@map("board_comments")
+}
+
+/// 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다
+model PhotonetImage {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  /// 유저가 쓴 장면 설명
+  prompt     String
+  /// 엔진에 실제로 보낸 영어 프롬프트
+  promptUsed String
+  style      String
+  ratio      String
+  mime       String
+  data       Bytes
+  width      Int
+  height     Int
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("photonet_images")
 }
