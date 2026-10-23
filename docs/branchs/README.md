@@ -213,5 +213,6 @@
 | 2026-10-23 | `a2b46cb` | develop (merge) | feature/photonet → develop 병합 (--no-ff) | [261023_0139_a2b46cb_merge-photonet_develop.md](commits/261023_0139_a2b46cb_merge-photonet_develop.md) |
 | 2026-10-23 | `db4fa33` | develop (merge) | feature/ops-diary → develop 병합 (--no-ff) | [261023_0139_db4fa33_merge-ops-diary_develop.md](commits/261023_0139_db4fa33_merge-ops-diary_develop.md) |
 | 2026-10-23 | `e3b5426` | develop (merge) | feature/ops-messages → develop 병합 (--no-ff) | [261023_0139_e3b5426_merge-ops-messages_develop.md](commits/261023_0139_e3b5426_merge-ops-messages_develop.md) |
+| 2026-10-24 | `12c5ec2` | feature/photonet-sd | 코디포토넷·오퍼레이션 버튼과 입력창 사이 간격 넓히기 | [261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md](commits/261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
