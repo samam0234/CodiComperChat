@@ -214,5 +214,6 @@
 | 2026-10-23 | `db4fa33` | develop (merge) | feature/ops-diary → develop 병합 (--no-ff) | [261023_0139_db4fa33_merge-ops-diary_develop.md](commits/261023_0139_db4fa33_merge-ops-diary_develop.md) |
 | 2026-10-23 | `e3b5426` | develop (merge) | feature/ops-messages → develop 병합 (--no-ff) | [261023_0139_e3b5426_merge-ops-messages_develop.md](commits/261023_0139_e3b5426_merge-ops-messages_develop.md) |
 | 2026-10-24 | `12c5ec2` | feature/photonet-sd | 코디포토넷·오퍼레이션 버튼과 입력창 사이 간격 넓히기 | [261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md](commits/261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md) |
+| 2026-10-24 | `d177b89` | feature/photonet-sd | 로컬 Stable Diffusion으로 코디포토넷 그림 만들기 | [261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md](commits/261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
