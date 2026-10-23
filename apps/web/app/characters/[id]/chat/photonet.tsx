@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState, useTransition, type FormEvent } fro
 import { createPhotonet, loadPhotonet } from "@/app/actions/operations";
 import form from "@/components/form.module.css";
 import { formatDayTime } from "@/lib/format-time";
-import type { PhotonetView } from "@/lib/operations";
+import type { PhotonetRating, PhotonetView } from "@/lib/operations";
 import bar from "./ops-bar.module.css";
 import styles from "./photonet.module.css";
 
@@ -28,6 +28,7 @@ function CameraIcon() {
 
 // 코디포토넷: 대화 장면을 그림으로 만드는 창 (입력창 바로 위 왼쪽 버튼).
 // 그림은 로컬 Stable Diffusion WebUI가 그린다. 엔진이 꺼져 있으면 "준비 중"으로 잠긴다
+// 수위: 전체 이용가(기본 — 창을 열 때마다 이것으로 돌아간다)와 성인(성인 확인을 마친 계정만, 실사풍 제외)을 따로 그린다.
 // moments: 고를 수 있는 최근 대사 (저장된 것만, 최근 것부터)
 export type PhotonetMoment = { id: string; label: string };
 
@@ -49,6 +50,7 @@ export default function Photonet({
   const [ratio, setRatio] = useState("정사각");
   // 그릴 장면: ""면 최근 대화, 아니면 고른 대사의 id
   const [momentId, setMomentId] = useState("");
+  const [rating, setRating] = useState<PhotonetRating>("sfw");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [making, setMaking] = useState(false);
   const [, startTransition] = useTransition();
@@ -64,6 +66,7 @@ export default function Photonet({
   const onOpen = () => {
     setOpen(true);
     setMessage(null);
+    setRating("sfw");
     startTransition(async () => {
       const result = await loadPhotonet(characterId);
       if (result.ok) setStatus(result.data);
@@ -77,7 +80,7 @@ export default function Photonet({
     setMaking(true);
     setMessage(null);
     startTransition(async () => {
-      const result = await createPhotonet(characterId, { prompt: prompt.trim(), style, ratio, messageId: momentId || undefined });
+      const result = await createPhotonet(characterId, { prompt: prompt.trim(), style, ratio, rating, messageId: momentId || undefined });
       setMaking(false);
       if (!result.ok) {
         setMessage({ ok: false, text: result.error });
@@ -91,6 +94,18 @@ export default function Photonet({
 
   const ready = status?.ready ?? false;
   const poor = status ? status.balance < status.cost : false;
+  const adult = rating === "nsfw";
+  const nsfwAllowed = status?.nsfw.allowed ?? false;
+  const blockedStyles = adult ? (status?.nsfw.blockedStyles ?? ["실사풍"]) : [];
+  const images = (status?.images ?? []).filter((image) => image.rating === rating);
+
+  const chooseRating = (next: PhotonetRating) => {
+    if (next === "nsfw" && !nsfwAllowed) return;
+    setRating(next);
+    setMessage(null);
+    // 성인 모드에서 못 쓰는 화풍을 골라 두었으면 애니메이션으로 바꾼다
+    if (next === "nsfw" && (status?.nsfw.blockedStyles ?? ["실사풍"]).includes(style)) setStyle("애니메이션");
+  };
 
   return (
     <>
@@ -99,7 +114,7 @@ export default function Photonet({
       </button>
       <dialog
         ref={ref}
-        className={styles.dialog}
+        className={`${styles.dialog} ${adult ? styles.adult : ""}`}
         aria-labelledby={titleId}
         onCancel={(event) => {
           event.preventDefault();
@@ -119,6 +134,39 @@ export default function Photonet({
             </button>
           </div>
           <p className={styles.lead}>지금 대화 장면을 한 장의 그림으로 만들어요. 그린 그림은 나에게만 보여요.</p>
+
+          <div className={styles.rating} role="group" aria-label="수위">
+            <button
+              type="button"
+              className={styles.ratingButton}
+              aria-pressed={!adult}
+              onClick={() => chooseRating("sfw")}
+              disabled={making}
+            >
+              전체 이용가
+            </button>
+            <button
+              type="button"
+              className={`${styles.ratingButton} ${styles.ratingAdult}`}
+              aria-pressed={adult}
+              onClick={() => chooseRating("nsfw")}
+              disabled={making || !nsfwAllowed}
+              title={nsfwAllowed ? undefined : (status?.nsfw.message ?? undefined)}
+            >
+              <span className={styles.badge} aria-hidden="true">19</span> 성인
+            </button>
+          </div>
+          {status && !nsfwAllowed && (
+            <p className={styles.ratingNote}>
+              {status.nsfw.message} <Link href="/settings#upcoming-settings">설정에서 성인 확인</Link>
+            </p>
+          )}
+          {adult && (
+            <p className={styles.adultWarning} role="note">
+              <strong>성인 모드</strong> 성인끼리의 성적 장면·폭력 묘사가 그려질 수 있어요. 주변을 살펴 주세요.
+              미성년자로 보이는 인물, 강제적인 성적 묘사, 실존 인물은 그리지 않으며 그런 그림이 나오면 돌려주지 않아요(코레딧은 돌려드려요).
+            </p>
+          )}
 
           {status && !ready && (
             <p className={styles.soon} role="status">
@@ -169,10 +217,17 @@ export default function Photonet({
               <legend className={form.label}>화풍</legend>
               {(status?.styles ?? ["애니메이션", "웹툰", "수채화", "실사풍"]).map((s) => (
                 <label key={s} className={styles.chip}>
-                  <input type="radio" name="photonet-style" checked={style === s} onChange={() => setStyle(s)} />
+                  <input
+                    type="radio"
+                    name="photonet-style"
+                    checked={style === s}
+                    onChange={() => setStyle(s)}
+                    disabled={blockedStyles.includes(s)}
+                  />
                   {s}
                 </label>
               ))}
+              {adult && <span className={form.hint}>실사풍은 성인 모드에서 쓸 수 없어요.</span>}
             </fieldset>
             <fieldset className={styles.chips} disabled={making}>
               <legend className={form.label}>비율</legend>
@@ -222,10 +277,10 @@ export default function Photonet({
             </p>
           )}
 
-          <section className={styles.gallery} aria-label="만든 그림">
-            {status && status.images.length > 0 ? (
+          <section className={styles.gallery} aria-label={adult ? "만든 성인 그림" : "만든 그림"}>
+            {images.length > 0 ? (
               <ul className={styles.grid}>
-                {status.images.map((image) => (
+                {images.map((image) => (
                   <li key={image.id}>
                     <a href={srcOf(characterId, image.id)} target="_blank" rel="noopener noreferrer" className={styles.thumb}>
                       {/* 중계 라우트가 주는 그림이라 next/image 최적화를 거치지 않는다 */}
@@ -239,13 +294,18 @@ export default function Photonet({
                       />
                     </a>
                     <span className={styles.meta}>
+                      {image.rating === "nsfw" && (
+                        <span className={styles.badge} aria-label="성인">
+                          19
+                        </span>
+                      )}{" "}
                       {image.style} · {formatDayTime(image.createdAt)}
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className={styles.empty}>아직 만든 그림이 없어요.</p>
+              <p className={styles.empty}>{adult ? "아직 만든 성인 그림이 없어요." : "아직 만든 그림이 없어요."}</p>
             )}
           </section>
         </div>

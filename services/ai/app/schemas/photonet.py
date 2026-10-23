@@ -9,6 +9,8 @@ from app.schemas.context import ContextSlice
 
 PhotonetStyle = Literal["애니메이션", "웹툰", "수채화", "실사풍"]
 PhotonetRatio = Literal["정사각", "세로", "가로"]
+# sfw: 전체 이용가(기본) / nsfw: 성인 — Nest가 성인 확인을 마친 계정만 보낸다
+PhotonetRating = Literal["sfw", "nsfw"]
 
 
 class CastMember(WireModel):
@@ -38,6 +40,7 @@ class PhotonetRequest(WireModel):
     prompt: str = Field(default="", max_length=300)
     style: PhotonetStyle
     ratio: PhotonetRatio
+    rating: PhotonetRating = "sfw"
     cast: list[CastMember] = Field(default_factory=list, max_length=8)
     focus: list[FocusTurn] = Field(default_factory=list, max_length=8)
 

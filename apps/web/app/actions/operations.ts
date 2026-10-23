@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetImage, PhotonetView } from "@/lib/operations";
+import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetImage, PhotonetRating, PhotonetView } from "@/lib/operations";
 
 // 오퍼레이션(대화 플러그인) 만들기·쓰기. Nest로 넘기기만 한다 (토큰은 httpOnly 쿠키에서 서버가 붙인다)
 export type OpsResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -61,7 +61,10 @@ export async function loadPhotonet(characterId: string): Promise<OpsResult<Photo
 }
 
 // messageId: 그릴 대사를 골랐을 때 (그 앞뒤 장면을 그린다). cast: 그림에 넣은 사람 ("유지성(남)")
-export async function createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string; messageId?: string }) {
+export async function createPhotonet(
+  characterId: string,
+  input: { prompt: string; style: string; ratio: string; rating: PhotonetRating; messageId?: string },
+) {
   return call<{ image: PhotonetImage; balance: number; cast: string[] }>(characterId, "photonet", input);
 }
 

@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { BoardAuthor, CreditReason, MessageRole } from '@prisma/client';
 import { getFromAi, postToAi } from '../ai/ai-client.js';
+import { ADULT_BLOCK_MESSAGE, adultBlock, type AdultBlock } from '../account/adult.js';
 import { readSession } from '../auth/session.js';
 import { CharacterChatService } from '../character-chat/character-chat.service.js';
 import { CharactersService } from '../characters/characters.service.js';
@@ -40,12 +41,16 @@ const POST_SELECT = {
 export const PHOTONET_STYLES = ["애니메이션", "웹툰", "수채화", "실사풍"] as const;
 export const PHOTONET_RATIOS = ["정사각", "세로", "가로"] as const;
 export const PHOTONET_PROMPT_MAX = 300;
+// 수위: sfw(전체 이용가, 기본) · nsfw(성인 — 성인 확인을 마친 계정만, 실사풍은 쓸 수 없다)
+export const PHOTONET_RATINGS = ['sfw', 'nsfw'] as const;
+export type PhotonetRating = (typeof PHOTONET_RATINGS)[number];
+export const NSFW_BLOCKED_STYLES: readonly string[] = ['실사풍'];
 const PHOTONET_GALLERY = 12;
 // 엔진 상태는 짧게 묻는다 (꺼져 있으면 창이 늦게 뜨지 않게)
 const ENGINE_STATUS_TIMEOUT_MS = 3000;
 // 그림 한 장: 화풍 계열(SDXL ↔ SD1.5)을 바꾸면 모델을 다시 읽느라 2~3분 걸릴 수 있다 (RAM 16GB에서 측정)
 const PHOTONET_TIMEOUT_MS = 300_000;
-const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, width: true, height: true, createdAt: true } as const;
+const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, rating: true, width: true, height: true, createdAt: true } as const;
 type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string; cast?: string[] };
 // 커뮤니티 글 길이 한도
 export const POST_TITLE_MAX = 60;
@@ -328,13 +333,24 @@ export class OperationsService {
     }
   }
 
+  // 성인 콘텐츠를 볼 수 있나 (null이면 된다). 매번 DB에서 다시 본다 — 동의를 거두면 곧바로 닫힌다
+  private async adultBlockOf(userId: string): Promise<AdultBlock | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { birthDate: true, adultConsentAt: true, emailVerifiedAt: true },
+    });
+    return user ? adultBlock(user) : 'NO_BIRTHDATE';
+  }
+
   async photonetView(characterId: string, authorization?: string) {
     const v = await this.view(characterId, authorization);
+    const block = await this.adultBlockOf(v.userId);
     const [ready, images] = await Promise.all([
       this.engineReady(),
       v.conversation
         ? this.prisma.photonetImage.findMany({
-            where: { campaignId: v.conversation.campaignId },
+            // 성인 확인이 없으면 성인 그림은 목록에도 싣지 않는다
+            where: { campaignId: v.conversation.campaignId, ...(block ? { rating: 'sfw' } : {}) },
             orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
             take: PHOTONET_GALLERY,
             select: PHOTONET_SELECT,
@@ -349,6 +365,7 @@ export class OperationsService {
       ready,
       styles: PHOTONET_STYLES,
       ratios: PHOTONET_RATIOS,
+      nsfw: { allowed: block === null, reason: block, message: block ? ADULT_BLOCK_MESSAGE[block] : null, blockedStyles: NSFW_BLOCKED_STYLES },
       images,
     };
   }
@@ -418,11 +435,15 @@ export class OperationsService {
 
   async createPhotonet(
     characterId: string,
-    input: { prompt: string; style: string; ratio: string; messageId?: string },
+    input: { prompt: string; style: string; ratio: string; rating: PhotonetRating; messageId?: string },
     authorization?: string,
   ) {
     // 대화가 없으면 409, 엔진이 꺼져 있으면 503 — 둘 다 코레딧을 빼기 전에 막는다
     const ctx = await this.chat.operationContext(characterId, authorization);
+    if (input.rating === 'nsfw') {
+      const block = await this.adultBlockOf(ctx.userId);
+      if (block) throw new ForbiddenException(ADULT_BLOCK_MESSAGE[block]);
+    }
     const [cast, focus] = await Promise.all([
       this.photonetCast(ctx.character, ctx.persona, ctx.conversation.campaignId),
       input.messageId
@@ -437,7 +458,7 @@ export class OperationsService {
     const { result, balance } = await this.charged(ctx.userId, 'photonet', async () => {
       const raw = await postToAi<PhotonetResult>(
         '/photonet',
-        { context: ctx.context, prompt: input.prompt, style: input.style, ratio: input.ratio, cast, focus: focus.turns },
+        { context: ctx.context, prompt: input.prompt, style: input.style, ratio: input.ratio, rating: input.rating, cast, focus: focus.turns },
         { timeoutMs: PHOTONET_TIMEOUT_MS },
       );
       castShown = (raw.cast ?? []).slice(0, 4).map((c) => clip(c, 30));
@@ -449,6 +470,7 @@ export class OperationsService {
           promptUsed: clip(raw.promptUsed, 1500),
           style: input.style,
           ratio: input.ratio,
+          rating: input.rating,
           mime: raw.mime,
           data: Buffer.from(raw.image, 'base64'),
           width: raw.width,
@@ -460,12 +482,14 @@ export class OperationsService {
     return { image: result, balance, cast: castShown };
   }
 
-  // 그림 본문: 그 대화를 하는 사람(내 대화)에게만. 남의 그림은 없는 것과 같은 404
+  // 그림 본문: 그 대화를 하는 사람(내 대화)에게만. 남의 그림은 없는 것과 같은 404.
+  // 성인 그림은 지금 성인 확인이 살아 있을 때만 (동의를 거두면 내 그림이라도 안 보인다)
   async photonetImage(characterId: string, imageId: string, authorization?: string) {
     const userId = await readSession(this.prisma, authorization);
     if (!userId) throw new UnauthorizedException('로그인이 필요합니다.');
+    const block = await this.adultBlockOf(userId);
     const image = await this.prisma.photonetImage.findFirst({
-      where: { id: imageId, campaign: { userId, characterId } },
+      where: { id: imageId, campaign: { userId, characterId }, ...(block ? { rating: 'sfw' } : {}) },
       select: { data: true, mime: true },
     });
     if (!image) throw new NotFoundException('그림이 없습니다.');

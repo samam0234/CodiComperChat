@@ -19,11 +19,13 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }`. 인증 메일을 보낸다 | **201** `{ token, user }` (`user.emailVerified: false`) · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, emailVerified, adult, createdAt }` · `adult`는 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 생년월일 자체는 싣지 않는다 · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
 | `DELETE /auth/me` | 회원 탈퇴 `{ password, confirm: "탈퇴합니다" }` | **204** · 비밀번호 틀림 401, 확인 문구 다름 400 · 계정과 대화·기억·프로필·엑스트라·초안·신고를 지우고, 발행한 캐릭터는 먼저 내린다(주인 없는 캐릭터가 공식처럼 보이지 않게). 결제 기록은 계정 연결만 끊고 구매자 이메일과 함께 남긴다 · 🔒 |
 | `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
+| `POST /auth/me/adult` | 성인 확인 `{ birthDate: "YYYY-MM-DD", consent: true }` (임시 — 공개 전 본인인증으로 바꾼다) | **200** `{ adult: true }` · 동의 없음·날짜 형식 틀림 400 · 이메일 미인증·만 19세 미만 **403** · 생년월일은 처음 넣은 것으로 고정(다시 보내도 바뀌지 않는다) · 🔒 |
+| `DELETE /auth/me/adult` | 성인 콘텐츠 끄기 (동의만 거두고 생년월일은 남긴다) | **204** · 🔒 |
 | `POST /auth/verify-email` | 메일 링크의 토큰으로 이메일 인증 `{ token }` (24시간, 한 번만) | **200** `{ verified: true }` · 만료·재사용 400 |
 | `POST /auth/password/forgot` | 비밀번호 재설정 링크 메일 `{ email }` | **204** (가입 여부와 상관없이 같음) |
 | `POST /auth/password/reset` | 새 비밀번호 `{ token, newPassword }` (30분, 한 번만). 모든 기기의 로그인이 끊긴다 | **204** · 만료·재사용 400 |
@@ -66,9 +68,9 @@
 | `GET /characters/:id/chat/ops/board` | 오퍼레이션 · 커뮤니티 게시판 | **200** `{ character, started, cost(20, 새 글), postCost(10, 내 글), balance, persona(실명용 내 주인공 이름), posts: [{ id, authorKind(USER·RESIDENT), authorName, title, body, createdAt, comments: [...] }] }` · 나에게만 보인다 · 🔒 |
 | `POST /characters/:id/chat/ops/board/refresh` | 커뮤니티: 주민 새 글 3개 불러오기 | **200** `{ posts, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
 | `POST /characters/:id/chat/ops/board/posts` | 커뮤니티: 내 글 쓰기 `{ title(~60자), body(~1000자), anonymous?(기본 true) }` | **200** `{ post(주민 댓글 포함), balance }` · 빈 칸·길이 초과 400, 대화 없으면 409, 코레딧 부족 403 · 🔒 |
-| `GET /characters/:id/chat/ops/photonet` | 코디포토넷 상태 | **200** `{ character, started, cost(50), balance, ready(그림 엔진이 켜져 있고 모델이 다 있나), styles, ratios, images: [{ id, prompt, style, ratio, width, height, createdAt }] }`(최근 12장) · 엔진 상태는 3초 안에 못 받으면 ready=false · 🔒 |
-| `POST /characters/:id/chat/ops/photonet` | 코디포토넷: 그림 만들기 `{ prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로), messageId?(그릴 대사) }` | **200** `{ image, balance, cast(그림에 넣은 사람, 예: "유지성(남)") }` · 대사를 골랐으면 prompt는 비워도 된다(이 대화의 대사가 아니면 400) · 50 코레딧 · 그림 검수에 걸리면 **422**(코레딧 환불) · 엔진이 꺼져 있으면 **503**(코레딧을 빼지 않는다) · 빈 설명·모르는 화풍/비율 400 · 대화 없으면 409 · 요청 한도 `photonet`(10분 6장) · 최대 300초 · 🔒 |
-| `GET /characters/:id/chat/ops/photonet/:imageId` | 코디포토넷 그림 본문 | **200** `image/webp` · `private, no-store`, `nosniff`, CSP sandbox · 그 대화를 하는 사람만(남이면 404) · 🔒 |
+| `GET /characters/:id/chat/ops/photonet` | 코디포토넷 상태 | **200** `{ character, started, cost(50), balance, ready(그림 엔진이 켜져 있고 모델이 다 있나), styles, ratios, images: [{ id, prompt, style, ratio, rating, width, height, createdAt }], nsfw: { allowed, reason(EMAIL_UNVERIFIED·NO_BIRTHDATE·UNDERAGE·NO_CONSENT), message, blockedStyles(["실사풍"]) } }`(최근 12장 · 성인 확인이 없으면 `rating: nsfw` 그림은 싣지 않는다) · 엔진 상태는 3초 안에 못 받으면 ready=false · 🔒 |
+| `POST /characters/:id/chat/ops/photonet` | 코디포토넷: 그림 만들기 `{ prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로), rating?(sfw 기본·nsfw), messageId?(그릴 대사) }` | **200** `{ image, balance, cast(그림에 넣은 사람, 예: "유지성(남)") }` · 대사를 골랐으면 prompt는 비워도 된다(이 대화의 대사가 아니면 400) · 50 코레딧 · 그림 검수에 걸리면 **422**(코레딧 환불) · 엔진이 꺼져 있으면 **503**(코레딧을 빼지 않는다) · 빈 설명·모르는 화풍/비율/수위 400 · nsfw는 성인 확인이 없으면 **403**(코레딧을 빼지 않는다), 실사풍+nsfw 400 · 대화 없으면 409 · 요청 한도 `photonet`(10분 6장) · 최대 300초 · 🔒 |
+| `GET /characters/:id/chat/ops/photonet/:imageId` | 코디포토넷 그림 본문 | **200** `image/webp` · `private, no-store`, `nosniff`, CSP sandbox · 그 대화를 하는 사람만(남이면 404) · 성인 그림은 지금 성인 확인이 살아 있을 때만(아니면 404) · 🔒 |
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
@@ -97,6 +99,7 @@
 | `POST /auth/signup` | 1시간에 10번 | IP |
 | `POST /auth/me/password` | 15분에 5번 | 사용자 |
 | `POST /auth/me/verify-email` | 15분에 3번 | 사용자 |
+| `POST /auth/me/adult` | 15분에 5번 (`password` 규칙) | 사용자 |
 | `POST /auth/password/forgot` | 15분에 같은 이메일 3번, 한 IP에서 10번 | 이메일+IP, IP |
 | `POST /auth/verify-email`, `POST /auth/password/reset` | 15분에 20번 | IP |
 | `POST /characters/:id/chat` (대화 전송) | 1분에 20번 | 사용자 |

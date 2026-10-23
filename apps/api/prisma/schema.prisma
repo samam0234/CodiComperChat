@@ -42,6 +42,10 @@ model User {
   /// 이메일 인증을 마친 시각. 비어 있으면 미인증 (캐릭터 공개 발행은 인증 뒤에만)
 
   emailVerifiedAt DateTime?
+  /// 성인 확인 (코디포토넷 NSFW). 2026-10-24 임시 방식: 생년월일(만 19세 이상) + 성인 콘텐츠 동의 + 이메일 인증.
+  /// 실제 공개 전에는 본인인증(PASS 등)으로 바꿔야 한다 (docs/guidance/photonet-engine.md). 생년월일은 응답에 싣지 않는다
+  birthDate       DateTime? @db.Date
+  adultConsentAt  DateTime?
 
   /// 로그인 토큰 세대. 비밀번호를 바꾸거나 재설정하면 1 올려 이전에 발급한 토큰을 모두 무효로 만든다
 
@@ -563,6 +567,8 @@ model PhotonetImage {
   promptUsed String
   style      String
   ratio      String
+  /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+  rating     String   @default("sfw")
   mime       String
   data       Bytes
   width      Int

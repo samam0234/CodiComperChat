@@ -210,3 +210,27 @@ export async function deleteAccount(_prev: FormState, formData: FormData): Promi
   revalidatePath("/", "layout");
   redirect("/?bye=1");
 }
+
+// 성인 확인 (코디포토넷 성인 모드). 임시: 생년월일 + 동의 — 실제 공개 전에는 본인인증으로 바꾼다
+export async function confirmAdult(_prev: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login?next=/settings");
+  const birthDate = String(formData.get("birthDate") ?? "");
+  const result = await callApi("/auth/me/adult", {
+    method: "POST",
+    token,
+    body: { birthDate, consent: formData.get("consent") === "on" },
+  });
+  if (!result.ok) return { error: result.error, values: { birthDate } };
+  revalidatePath("/", "layout");
+  return { success: "성인 확인을 마쳤어요. 코디포토넷에서 성인 모드를 쓸 수 있어요." };
+}
+
+export async function revokeAdult(_prev: FormState): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login?next=/settings");
+  const result = await callApi("/auth/me/adult", { method: "DELETE", token });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/", "layout");
+  return { success: "성인 콘텐츠를 껐어요. 성인 모드로 만든 그림도 보이지 않아요." };
+}

@@ -21,6 +21,8 @@ export type CurrentUser = {
   plan: "FREE" | "PRO";
   // 이메일 인증을 마쳤는지 (캐릭터 발행은 인증 뒤에만)
   emailVerified: boolean;
+  // 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 코디포토넷 성인 모드. 생년월일 자체는 받지 않는다
+  adult: boolean;
   createdAt: string;
 };
 

@@ -5,7 +5,10 @@ import {
   DM_MAX_LENGTH,
   OperationsService,
   PHOTONET_PROMPT_MAX,
+  PHOTONET_RATINGS,
   PHOTONET_RATIOS,
+  NSFW_BLOCKED_STYLES,
+  type PhotonetRating,
   PHOTONET_STYLES,
   POST_BODY_MAX,
   POST_TITLE_MAX,
@@ -115,13 +118,14 @@ export class OperationsController {
     res.send(image.data);
   }
 
-  // 코디포토넷: 그림 만들기 { prompt, style, ratio } — 엔진이 꺼져 있으면 503 (코레딧을 빼지 않는다)
+  // 코디포토넷: 그림 만들기 { prompt, style, ratio, rating? } — 엔진이 꺼져 있으면 503 (코레딧을 빼지 않는다).
+  // rating은 없으면 sfw. nsfw는 성인 확인을 마친 계정만(403), 실사풍은 nsfw로 그릴 수 없다(400)
   @Post('photonet')
   @HttpCode(200)
   @RateLimit('photonet')
   createPhotonet(
     @Param('id') id: string,
-    @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown; messageId?: unknown },
+    @Body() body: { prompt?: unknown; style?: unknown; ratio?: unknown; rating?: unknown; messageId?: unknown },
     @Headers('authorization') authorization?: string,
   ) {
     const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : '';
@@ -131,6 +135,11 @@ export class OperationsController {
     if (prompt.length > PHOTONET_PROMPT_MAX) throw new BadRequestException(`장면 설명은 ${PHOTONET_PROMPT_MAX}자 이하로 적어 주세요.`);
     if (!(PHOTONET_STYLES as readonly unknown[]).includes(body?.style)) throw new BadRequestException('알 수 없는 화풍입니다.');
     if (!(PHOTONET_RATIOS as readonly unknown[]).includes(body?.ratio)) throw new BadRequestException('알 수 없는 비율입니다.');
-    return this.ops.createPhotonet(id, { prompt, style: body.style as string, ratio: body.ratio as string, messageId }, authorization);
+    const rating = (body?.rating ?? 'sfw') as PhotonetRating;
+    if (!(PHOTONET_RATINGS as readonly unknown[]).includes(rating)) throw new BadRequestException('알 수 없는 수위입니다.');
+    if (rating === 'nsfw' && NSFW_BLOCKED_STYLES.includes(body.style as string)) {
+      throw new BadRequestException('실사풍은 성인 모드로 그릴 수 없어요. 다른 화풍을 골라 주세요.');
+    }
+    return this.ops.createPhotonet(id, { prompt, style: body.style as string, ratio: body.ratio as string, rating, messageId }, authorization);
   }
 }

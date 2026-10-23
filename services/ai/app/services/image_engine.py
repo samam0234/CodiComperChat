@@ -36,6 +36,8 @@ class Family:
     cfg: float
     quality: str
     negative: str
+    # 수위 태그 (sfw는 하나, nsfw는 장면 설계표가 고른 단계 — 모델마다 쓰는 말이 다르다)
+    ratings: dict[str, str]
 
 
 SDXL_ANIME = Family(
@@ -43,11 +45,13 @@ SDXL_ANIME = Family(
     sizes={"정사각": (1024, 1024), "세로": (832, 1216), "가로": (1216, 832)},
     steps=28,
     cfg=5.0,
-    quality="safe, masterpiece, high score, great score, absurdres",
+    quality="masterpiece, high score, great score, absurdres",
     negative=(
         "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, "
         "worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry"
     ),
+    # Animagine XL 4.0의 수위 태그 (모델 카드: safe / sensitive / nsfw / explicit)
+    ratings={"safe": "safe", "sensitive": "sensitive", "nsfw": "nsfw", "explicit": "explicit"},
 )
 
 SD15 = Family(
@@ -56,10 +60,19 @@ SD15 = Family(
     cfg=7.0,
     quality="masterpiece, best quality, highly detailed",
     negative="lowres, bad anatomy, bad hands, text, error, worst quality, low quality, blurry, watermark, signature, deformed",
+    ratings={"safe": "", "sensitive": "", "nsfw": "nsfw", "explicit": "nsfw"},
 )
 
-# 어느 화풍이든 붙이는 안전 쪽 부정 프롬프트. 결과는 다시 그림 검수를 거친다
-SAFETY_NEGATIVE = "nsfw, nude, naked, nipples, sexual, explicit, underwear, lingerie, gore, blood, violence, child, loli, shota"
+# 전체 이용가(sfw)에 붙이는 안전 쪽 부정 프롬프트. 결과는 다시 그림 검수를 거친다
+SAFETY_NEGATIVE = (
+    "nsfw, nude, naked, nipples, sexual, explicit, underwear, lingerie, cleavage, swimsuit, bikini, revealing clothes, "
+    "gore, blood, injury, violence, weapon, horror, child, loli, shota"
+)
+# 성인(nsfw)에서도 언제나 붙이는 부정 프롬프트: 어린 모습·강제·의식 없는 상대·동물
+ADULT_NEGATIVE = (
+    "child, loli, shota, flat chest, petite, school uniform, rape, forced, non-consensual, unconscious, sleeping, restrained, "
+    "bestiality, animal"
+)
 
 
 @dataclass(frozen=True)
