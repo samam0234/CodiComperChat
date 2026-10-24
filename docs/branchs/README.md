@@ -224,5 +224,6 @@
 | 2026-10-24 | `2c02951` | develop (merge) | feature/photonet-scene → develop 병합 (--no-ff) | [261024_1953_2c02951_merge-photonet-scene_develop.md](commits/261024_1953_2c02951_merge-photonet-scene_develop.md) |
 | 2026-10-24 | `faaa708` | develop (merge) | feature/photonet-rating → develop 병합 (--no-ff) | [261024_1953_faaa708_merge-photonet-rating_develop.md](commits/261024_1953_faaa708_merge-photonet-rating_develop.md) |
 | 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
+| 2026-10-24 | `61e682c` | feature/adult-guard | 성인 그림에서 미성년자 설정·실사를 원천 차단, 거짓 정보 책임 고지 | [261024_2151_61e682c_adult-guard_feature-adult-guard.md](commits/261024_2151_61e682c_adult-guard_feature-adult-guard.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
