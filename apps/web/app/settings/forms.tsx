@@ -240,7 +240,8 @@ export function AdultForm({ adult, emailVerified }: { adult: boolean; emailVerif
       <label className={styles.consent}>
         <input type="checkbox" name="consent" required />
         <span>
-          나는 만 19세 이상이며, 성인끼리의 성적 장면과 폭력 묘사가 담긴 그림을 보는 데 동의합니다.
+          나는 만 19세 이상이며, 성인끼리의 성적 장면과 폭력 묘사가 담긴 그림을 보는 데 동의합니다. 입력한 생년월일은 사실이며, 거짓 정보로 생기는 법적
+          책임은 나에게 있음을 확인합니다(<Link href="/terms" className={styles.inlineLink}>이용약관</Link>).
         </span>
       </label>
       <Status state={confirmState} />

@@ -108,6 +108,44 @@ YOUNG = re.compile(
 
 NSFW_BLOCKED_STYLES = {"실사풍"}
 
+# 성인 모드에서 미성년자를 가리키는 설정. 등장인물 명단·장면 설명·고른 대사에서 찾는다 — 걸리면 그리지 않는다.
+# 넓게 잡는다(과거 이야기 "고등학생 때"도 걸린다): 성인 그림에서는 지나치게 막는 쪽이 낫다. "학생"·"대학생"만으로는 걸지 않는다
+MINOR_WORDS = re.compile(
+    r"(초등학생|중학생|고등학생|초등학교|중학교|고등학교|초딩|중딩|고딩|미성년|어린이|아동|유아|아기(?!자기)|청소년|소년|소녀|"
+    r"여고생|남고생|여중생|남중생|[초중고]\s?[1-6]학년|(?<![가-힣])[중고][1-3](?![0-9])|교복|"
+    r"\bteen\w*|\bhigh\s?school\w*|\bmiddle\s?school\w*|\bschool\s?(girl|boy)\w*|\bloli\w*|\bshota\w*|\bchild\w*|\bkids?\b|\bunderage|\bminor\b)",
+    re.I,
+)
+# "17살", "15세" (… 세기 제외), 영어 "17 years old"
+MINOR_AGE = re.compile(r"(?<![0-9])([0-9]{1,2})\s*(살|세(?!기)|years?\s*old|yo\b)", re.I)
+
+
+def _minor_in(text: str) -> str | None:
+    if not text:
+        return None
+    if m := MINOR_WORDS.search(text):
+        return m.group(0).strip()
+    for m in MINOR_AGE.finditer(text):
+        if int(m.group(1)) < 19:
+            return m.group(0).strip()
+    return None
+
+
+def minor_hint(request: PhotonetRequest) -> str | None:
+    """성인 모드에서 미성년자 관련 설정이 보이면 그 낱말을 돌려준다(없으면 None)."""
+    for member in request.cast:
+        # 나이 칸이 숫자만이면 그대로 본다 ("17")
+        digits = re.fullmatch(r"\s*([0-9]{1,2})\s*", member.age or "")
+        if digits and int(digits.group(1)) < 19:
+            return f"{member.name} {member.age}"
+        for text in (member.age, member.occupation, member.appearance, member.about):
+            if hit := _minor_in(text):
+                return hit
+    for text in (request.prompt, *(t.text for t in request.focus)):
+        if hit := _minor_in(text):
+            return hit
+    return None
+
 WEBP_QUALITY = 88
 MODERATION_SIZE = 768
 
@@ -213,7 +251,9 @@ def compose(plan: dict, style: image_engine.Style, rating: str = "sfw") -> tuple
     ]
     # 수위 태그: 전체 이용가는 언제나 safe, 성인은 설계표가 고른 단계 (모르는 값이면 safe)
     level = plan.get("rating") if rating == "nsfw" and plan.get("rating") in RATING_LEVELS else "safe"
-    tags = [style.family.ratings[level], *scene, style.tags, style.family.quality]
+    # 성인 그림은 실사로 흐르지 않게 그림체를 못 박는다
+    drawn = ["2d", "illustration"] if rating == "nsfw" else []
+    tags = [style.family.ratings[level], *scene, style.tags, *drawn, style.family.quality]
     segments.append(", ".join(t for t in tags if t))
     # BREAK(WebUI): 인물마다 따로 끊어 한 사람의 머리색·옷이 다른 사람에게 번지는 것을 줄인다
     prompt = " BREAK ".join(segments)
@@ -255,6 +295,12 @@ def create(request: PhotonetRequest) -> PhotonetResponse:
     # 실사풍 성인 그림은 만들지 않는다 (실존 인물처럼 보일 위험 — Nest도 먼저 막는다)
     if request.rating == "nsfw" and request.style in NSFW_BLOCKED_STYLES:
         raise HTTPException(status_code=400, detail="실사풍은 성인 모드로 그릴 수 없어요.")
+    # 성인 모드: 등장인물·장면에 미성년자 관련 설정이 하나라도 있으면 그리기 전에 거절한다 (2026-10-24 사용자 요청 "무조건")
+    if request.rating == "nsfw" and (hit := minor_hint(request)):
+        raise HTTPException(
+            status_code=400,
+            detail=f"미성년자이거나 미성년자로 볼 수 있는 설정('{hit}')이 있어 성인 모드로 그릴 수 없어요. 코레딧은 돌려드려요.",
+        )
     style = image_engine.STYLES[request.style]
     prompt, cast = compose(_plan(request), style, request.rating)
     png, width, height = image_engine.txt2img(
