@@ -61,6 +61,23 @@ BY_NAME: dict[str, object] = {
     "setting": "study cafe, afternoon",
     "action": "studying together, open workbook on table",
     "lighting": "soft window light",
+    # 웹툰 콘티 (가짜 엔진은 컷 수와 상관없이 6컷을 주고, 서비스가 필요한 만큼 자른다)
+    "panels": [
+        {
+            "people": [
+                {"name": "테스트 선생", "gender": "male", "look": "short black hair, glasses, cardigan", "expression": "gentle smile", "pose": "sitting"},
+                {"name": "민준", "gender": "male", "look": "brown hair, hoodie", "expression": "focused", "pose": "writing"},
+            ],
+            "shot": shot,
+            "setting": "study cafe, afternoon",
+            "action": "studying together",
+            "lighting": "soft window light",
+            "rating": "safe",
+            "caption": f"{i}번째 장면",
+            "lines": [{"speaker": "테스트 선생", "text": f"{i}번째 대사예요."}],
+        }
+        for i, shot in enumerate(["wide shot", "upper body", "close-up", "cowboy shot", "full body", "over the shoulder"], start=1)
+    ],
 }
 
 

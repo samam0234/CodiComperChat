@@ -18,6 +18,8 @@ e2e/.tmp/
 __pycache__/
 *.pyc
 .venv/
+# 서버 안 그림 엔진의 체크포인트(수 GB) — services/ai/README.md 참고
+services/ai/models/
 venv/
 
 # Env / secrets

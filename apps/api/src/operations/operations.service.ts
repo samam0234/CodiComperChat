@@ -49,7 +49,7 @@ const PHOTONET_GALLERY = 12;
 // 엔진 상태는 짧게 묻는다 (꺼져 있으면 창이 늦게 뜨지 않게)
 const ENGINE_STATUS_TIMEOUT_MS = 3000;
 // 그림 한 장: 화풍 계열(SDXL ↔ SD1.5)을 바꾸면 모델을 다시 읽느라 2~3분 걸릴 수 있다 (RAM 16GB에서 측정)
-const PHOTONET_TIMEOUT_MS = 300_000;
+export const PHOTONET_TIMEOUT_MS = 300_000;
 const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, rating: true, width: true, height: true, createdAt: true } as const;
 type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string; cast?: string[] };
 // 커뮤니티 글 길이 한도
@@ -325,7 +325,7 @@ export class OperationsService {
 
   // ── 코디포토넷: 대화 장면을 그림으로 (2026-10-24: 로컬 Stable Diffusion WebUI 연결) ──
   // 엔진(WebUI)은 따로 켜고 끈다. 꺼져 있으면 "준비 중"으로 보이고, 만들기는 코레딧을 빼기 전에 503
-  private async engineReady(): Promise<boolean> {
+  async engineReady(): Promise<boolean> {
     try {
       return (await getFromAi<{ ready: boolean }>('/photonet/status', ENGINE_STATUS_TIMEOUT_MS)).ready === true;
     } catch {
@@ -334,7 +334,7 @@ export class OperationsService {
   }
 
   // 성인 콘텐츠를 볼 수 있나 (null이면 된다). 매번 DB에서 다시 본다 — 동의를 거두면 곧바로 닫힌다
-  private async adultBlockOf(userId: string): Promise<AdultBlock | null> {
+  async adultBlockOf(userId: string): Promise<AdultBlock | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { birthDate: true, adultConsentAt: true, emailVerifiedAt: true },
@@ -372,7 +372,7 @@ export class OperationsService {
 
   // 그림에 나올 수 있는 사람: 대화 상대 캐릭터(프로필의 성별·나이·직업 + 공방 카드의 외형·겉보기 나이),
   // 내 주인공(이 대화에 고정된 프로필), 이 대화에 적용한 지인(엑스트라). 성별이 없으면 AI가 소개·외형·대화에서 추론한다
-  private async photonetCast(
+  async photonetCast(
     character: { id: string; name: string; oneLiner: string; profile: unknown },
     persona: { name: string; description: string },
     campaignId: string,
@@ -413,7 +413,7 @@ export class OperationsService {
   }
 
   // 유저가 고른 대사와 그 앞 3개·뒤 2개 (이 순간을 그린다). 이 대화의 대사가 아니면 400
-  private async photonetFocus(sessionId: string, messageId: string, characterName: string) {
+  async photonetFocus(sessionId: string, messageId: string, characterName: string) {
     const roles = { in: [MessageRole.USER, MessageRole.CHARACTER] };
     const target = await this.prisma.message.findFirst({
       where: { id: messageId, sessionId, role: roles },
