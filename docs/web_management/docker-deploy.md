@@ -12,5 +12,5 @@ docker compose ps
 
 ## 확인할 것 (목표)
 
-- web, api, ai, postgres, redis 모두 healthy
+- web, api, ai(GPU), postgres 모두 healthy (Redis는 쓰지 않는다). ai가 그림 엔진을 읽는지(`GET /photonet/status` ready), 콘솔은 바깥에 열리지 않았는지
 - 웹에서 `/infer`가 노출되지 않는지 (Nest만 접근 가능해야 함)

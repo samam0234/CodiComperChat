@@ -1,8 +1,8 @@
-# 코디포토넷 그림 엔진 (로컬 Stable Diffusion)
+# 그림 엔진 (코디포토넷·웹툰)
 
-코디포토넷(대화 장면을 그림으로)은 이 PC에 설치된 **Stable Diffusion WebUI(AUTOMATIC1111)** 를 API 전용으로 띄워 쓴다. 2026-10-24 사용자 결정: 기존 `D:\SD\stable-diffusion-webui`를 쓰고, 애니메이션 모델은 Animagine XL 4.0을 받고, 수채화·실사풍은 있던 SD 1.5 기본 모델을 쓴다.
+코디포토넷(대화 장면을 그림으로)과 웹툰은 같은 그림 엔진을 쓴다. 기본은 **services/ai 프로세스 안의 diffusers 엔진**(`IMAGE_ENGINE=local`)이고, 개발 PC에는 기존 **Stable Diffusion WebUI(AUTOMATIC1111)** 를 API로 쓰는 방식(`IMAGE_ENGINE=webui`)도 남겨 두었다. 2026-10-24 사용자 결정: 애니메이션·웹툰은 Animagine XL 4.0, 수채화·실사풍은 SD 1.5 기본 모델. 모델 라이선스·사용 제한은 [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md).
 
-엔진이 꺼져 있으면 코디포토넷 창은 "준비 중"으로 잠기고 서버는 코레딧을 빼지 않고 503을 돌려준다. 나머지 기능(대화·오퍼레이션)은 엔진과 상관없이 돈다.
+엔진이 없거나 꺼져 있으면 코디포토넷·웹툰은 "준비 중"으로 잠기고 서버는 코레딧을 빼지 않고 503을 돌려준다. 나머지 기능(대화·오퍼레이션)은 엔진과 상관없이 돈다.
 
 ## 엔진 고르기: 서버 안 엔진(기본) / WebUI
 
@@ -17,7 +17,7 @@
   - 실측(2026-10-24, RTX 4070 SUPER): 애니메이션 두 사람 가로 한 장이 처음 모델 읽기 포함 약 188초, 두 사람이 구별되게 잘 나옴. **따뜻한 상태의 속도와 수채화(SD 1.5) 경로는 아직 실측하지 않았다**
 - `IMAGE_ENGINE=webui`: 아래처럼 따로 띄운 WebUI의 API를 부른다(개발 PC용)
 
-## 켜기
+## 켜기 (`IMAGE_ENGINE=webui`일 때만 — 기본 엔진은 따로 켤 것이 없다)
 
 ```bat
 scripts\start-sd-webui.cmd

@@ -1,6 +1,6 @@
 # 환경변수
 
-각 앱이 읽는 환경변수 전체. 정본은 코드이고, 샘플은 `apps/api/.env.example`·`services/ai/.env.example`이다. 바뀌면 샘플 두 곳과 이 표를 함께 고친다. 최종 갱신 2026-10-16.
+각 앱이 읽는 환경변수 전체. 정본은 코드이고, 샘플은 `apps/api/.env.example`·`services/ai/.env.example`이다. 바뀌면 샘플 두 곳과 이 표를 함께 고친다. 최종 갱신 2026-10-24.
 
 `.env`는 git에 올라가지 않는다(`.gitignore`). 비밀 값(DB 비밀번호, `AUTH_SECRET`, 토스 시크릿 키, SMTP 비밀번호)은 문서·대화·커밋·로그에 남기지 않는다.
 
