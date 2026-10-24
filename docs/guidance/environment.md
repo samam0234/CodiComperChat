@@ -42,7 +42,10 @@
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | 로컬 Ollama |
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
 | `LLM_FAKE` | 꺼짐 | **시험용.** `1`이면 모델 없이 고정된 가짜 답. e2e가 자동으로 켠다 (코디포토넷의 가짜 그림 엔진도 함께 켜진다) |
-| `SD_WEBUI_URL` | `http://127.0.0.1:7860` | 코디포토넷 그림 엔진(Stable Diffusion WebUI) 주소. [photonet-engine.md](photonet-engine.md) |
+| `IMAGE_ENGINE` | `local` | 코디포토넷 그림 엔진. `local`: services/ai 안에서 diffusers로 직접 그린다(배포용, `requirements-image.txt` 필요) / `webui`: 따로 띄운 WebUI를 부른다. [photonet-engine.md](photonet-engine.md) |
+| `SD_MODEL_DIR` | `services/ai/models/` | `local` 엔진이 체크포인트 파일을 찾는 폴더(아래 두 파일 이름 그대로) |
+| `SD_OFFLOAD` | 꺼짐 | `local` 엔진에서 `1`이면 쓰는 부분만 그래픽 메모리에 올린다(그래픽 메모리가 8GB 이하일 때, 느려진다) |
+| `SD_WEBUI_URL` | `http://127.0.0.1:7860` | `webui` 엔진일 때 Stable Diffusion WebUI 주소 |
 | `SD_ANIME_MODEL` | `animagine-xl-4.0-opt.safetensors` | 애니메이션·웹툰 화풍 체크포인트 |
 | `SD_BASE_MODEL` | `v1-5-pruned-emaonly.safetensors` | 수채화·실사풍 화풍 체크포인트 |
 | `IMAGE_FAKE` | 꺼짐 | **시험용.** `1`이면 그림 엔진 없이 작은 그림을 만든다 |

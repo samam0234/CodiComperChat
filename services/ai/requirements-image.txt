@@ -1,0 +1,8 @@
+# 코디포토넷 서버 안 그림 엔진 (IMAGE_ENGINE=local). NVIDIA GPU 필요, 수 GB라 requirements.txt와 따로 둔다
+# 설치: .venv/Scripts/python.exe -m pip install -r requirements-image.txt
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.10.0+cu128
+diffusers==0.42.0
+transformers==5.20.2
+accelerate==1.15.0
+safetensors==0.8.0
