@@ -239,5 +239,6 @@
 | 2026-10-24 | `35d4aff` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_35d4aff_merge-enhanced-overage_develop.md](commits/261024_2302_35d4aff_merge-enhanced-overage_develop.md) |
 | 2026-10-25 | `24a52d4` | feature/docs-overall-update | LICENSE·SECURITY·THIRD_PARTY_NOTICES 추가 | [261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md](commits/261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md) |
 | 2026-10-25 | `566be03` | feature/docs-overall-update | 전체 문서를 현재 구현에 맞게 갱신 | [261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md](commits/261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md) |
+| 2026-10-25 | `828b56a` | develop (merge) | feature/docs-overall-update → develop 병합 (--no-ff) | [261025_0004_828b56a_merge-docs-overall-update_develop.md](commits/261025_0004_828b56a_merge-docs-overall-update_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
