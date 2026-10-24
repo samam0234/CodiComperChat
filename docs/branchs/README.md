@@ -237,5 +237,7 @@
 | 2026-10-24 | `ab2de34` | develop (merge) | feature/image-engine → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-image-engine_develop.md](commits/261024_2302_ab2de34_merge-image-engine_develop.md) |
 | 2026-10-24 | `dcb89a1` | develop (merge) | feature/chat-narration → develop 병합 (--no-ff) | [261024_2302_dcb89a1_merge-chat-narration_develop.md](commits/261024_2302_dcb89a1_merge-chat-narration_develop.md) |
 | 2026-10-24 | `35d4aff` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_35d4aff_merge-enhanced-overage_develop.md](commits/261024_2302_35d4aff_merge-enhanced-overage_develop.md) |
+| 2026-10-25 | `24a52d4` | feature/docs-overall-update | LICENSE·SECURITY·THIRD_PARTY_NOTICES 추가 | [261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md](commits/261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md) |
+| 2026-10-25 | `566be03` | feature/docs-overall-update | 전체 문서를 현재 구현에 맞게 갱신 | [261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md](commits/261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
