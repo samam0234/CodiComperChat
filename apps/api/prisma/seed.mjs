@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -71,7 +74,22 @@ async function main() {
     where: { name: '이세연', ownerId: null },
     data: { recommendedPersona: SEYEON.recommendedPersona },
   });
+
+  // 공식 캐릭터 초상 (2026-10-25, 그림 엔진 Animagine XL 4.0으로 만들어 고른 것 — 512px WebP, 150KB 이하).
+  // 초상이 비어 있을 때만 넣는다(운영자가 바꾼 초상을 덮지 않는다)
+  for (const [name, file] of [
+    ['유지성', 'yu-jiseong.webp'],
+    ['이세연', 'lee-seyeon.webp'],
+  ]) {
+    const data = readFileSync(join(ASSETS, file));
+    await prisma.character.updateMany({
+      where: { name, ownerId: null, portrait: null },
+      data: { portrait: new Uint8Array(data), portraitMime: 'image/webp' },
+    });
+  }
 }
+
+const ASSETS = join(dirname(fileURLToPath(import.meta.url)), 'assets', 'portraits');
 
 const SEYEON = {
   name: '이세연',
