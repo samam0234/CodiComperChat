@@ -51,8 +51,26 @@ export type BoardView = OpsBase & { postCost: number; persona: string | null; po
 export const getBoard = (characterId: string) => authedGet<BoardView>(ops(characterId, "board"));
 
 // 코디포토넷: ready는 그림 엔진(Stable Diffusion WebUI)이 켜져 있는지. 그림 본문은 /api/characters/:id/photonet/:imageId
-export type PhotonetImage = { id: string; prompt: string; style: string; ratio: string; width: number; height: number; createdAt: string };
-export type PhotonetView = OpsBase & { ready: boolean; styles: string[]; ratios: string[]; images: PhotonetImage[] };
+// rating: sfw(전체 이용가) · nsfw(성인). 성인 확인이 없으면 Nest가 nsfw 그림을 아예 싣지 않는다
+export type PhotonetRating = "sfw" | "nsfw";
+export type PhotonetImage = {
+  id: string;
+  prompt: string;
+  style: string;
+  ratio: string;
+  rating: PhotonetRating;
+  width: number;
+  height: number;
+  createdAt: string;
+};
+export type PhotonetView = OpsBase & {
+  ready: boolean;
+  styles: string[];
+  ratios: string[];
+  // 성인 모드를 쓸 수 있나. 안 되면 message가 이유 (설정에서 성인 확인), blockedStyles는 성인 모드에서 못 고르는 화풍
+  nsfw: { allowed: boolean; reason: string | null; message: string | null; blockedStyles: string[] };
+  images: PhotonetImage[];
+};
 
 export const photonetSrc = (characterId: string, imageId: string) =>
   `/api/characters/${encodeURIComponent(characterId)}/photonet/${encodeURIComponent(imageId)}`;

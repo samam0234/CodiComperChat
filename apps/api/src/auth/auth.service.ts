@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { adultBlock } from '../account/adult.js';
 import { MailService, webBaseUrl } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
@@ -33,15 +34,26 @@ const PUBLIC_USER = {
   emailVerifiedAt: true,
   sessionVersion: true,
   createdAt: true,
+  // 성인 확인(코디포토넷 NSFW). 생년월일 자체는 내보내지 않고 adult 하나로 알린다
+  birthDate: true,
+  adultConsentAt: true,
 } as const;
 
 type Raw = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
-export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion'> & { emailVerified: boolean };
+export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion' | 'birthDate' | 'adultConsentAt'> & {
+  emailVerified: boolean;
+  adult: boolean;
+};
 
-// PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대는 내보내지 않는다
+// PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대·생년월일은 내보내지 않는다
 function present(user: Raw): PublicUser {
-  const { planUntil: _until, emailVerifiedAt, sessionVersion: _version, ...rest } = user;
-  return { ...rest, plan: effectivePlan(user), emailVerified: emailVerifiedAt !== null };
+  const { planUntil: _until, emailVerifiedAt, sessionVersion: _version, birthDate, adultConsentAt, ...rest } = user;
+  return {
+    ...rest,
+    plan: effectivePlan(user),
+    emailVerified: emailVerifiedAt !== null,
+    adult: adultBlock({ birthDate, adultConsentAt, emailVerifiedAt }) === null,
+  };
 }
 
 // 없는 이메일로 로그인할 때도 해시 비교 시간을 들여, 응답 시간으로 가입 여부가 드러나지 않게 한다

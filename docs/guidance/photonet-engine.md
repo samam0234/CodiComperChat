@@ -39,7 +39,7 @@ WebUI 모델 폴더(`models\Stable-diffusion`)에 다른 체크포인트가 있�
 | 수채화 · 실사풍 | `v1-5-pruned-emaonly.safetensors` | SD 1.5 | CreativeML OpenRAIL-M | 512×512 · 512×768 · 768×512 |
 
 - 설정: 28스텝, Euler a. CFG는 Animagine 5(모델 카드 권장 4~7), SD 1.5는 7
-- Animagine은 모델 카드대로 품질 태그 `masterpiece, high score, great score, absurdres`와 등급 태그 `safe`를 붙인다
+- Animagine은 모델 카드대로 품질 태그 `masterpiece, high score, great score, absurdres`와 등급 태그를 붙인다 — 전체 이용가는 언제나 `safe`, 성인 모드는 설계표가 고른 `safe`·`sensitive`·`nsfw`·`explicit` (SD 1.5는 성인 모드의 nsfw·explicit에 `nsfw`)
 - 바꾸려면 `services/ai/.env`의 `SD_ANIME_MODEL`·`SD_BASE_MODEL` (그 모델이 WebUI 폴더에 없으면 엔진은 "준비 중"으로 보인다)
 
 ## 한 장이 만들어지는 길
@@ -50,12 +50,16 @@ WebUI 모델 폴더(`models\Stable-diffusion`)에 다른 체크포인트가 있�
    - 규칙: 말하는 사람·듣는 사람·이름이 나온 사람은 모두 넣는다 / 성별은 명단에서, 없으면 소개·외형·대화에서 추론 / **모두 20살 이상 성인** / 한 사람의 외모를 다른 사람에게 옮겨 쓰지 않는다
 2. 프롬프트는 **코드가 조립한다**: 인물 수 태그(`1girl, 1boy` …) → 인물마다 `(adult woman:1.2)`·`(adult man:1.2)` + 그 사람의 외모·표정·자세 → 행동·장소·빛 → 화풍·품질 태그. 인물 사이에 WebUI의 `BREAK`를 넣어 머리색·옷이 번지는 것을 줄인다. 어리게 하는 말(child, teen, petite …)은 지우고 부정 프롬프트에도 넣는다
    - 그림에 넣은 사람("유지성(남)")을 창에 보여 줘 빠진 사람이 있으면 바로 알 수 있다
-3. WebUI `txt2img` — 화풍에 맞는 체크포인트, 안전 부정 프롬프트(노출·성적·유혈·어린이 등) + 어린 모습 부정 프롬프트 + 화질 부정 프롬프트
+3. WebUI `txt2img` — 화풍에 맞는 체크포인트, 수위별 부정 프롬프트(전체 이용가: 노출·성적·수영복·유혈·폭력·무기·공포·어린이 / 성인: 어린이·어린 체형·교복·강제·의식 없는 상대·묶임·동물) + 어린 모습 부정 프롬프트 + 화질 부정 프롬프트
 4. WebP로 줄인다(Pillow, 품질 88)
-5. **그림 검수**: 공방 초상과 같은 검수(gemma4가 그림을 읽는다). 성적 노출·미성년자 성적 묘사·잔혹·혐오·자해가 보이면 돌려주지 않고(422) Nest가 코레딧을 돌려준다
+5. **그림 검수**(`photonet_moderation`, 공방 초상 검수와 따로): gemma4가 그림을 읽고 항목별로 답한다(sexual·suggestive·gore·violence·young·sexual_violence·real_person·hate·self_harm). 전체 이용가는 성적·노출 차림·유혈·폭력도, 성인은 어려 보이는 인물·강제적 성 묘사·실존 인물·혐오·자해와 **확실하지 않은 판정**을 막는다. 걸리면 돌려주지 않고(422) Nest가 코레딧을 돌려준다
 6. Nest가 `photonet_images`에 저장하고, 그 대화를 하는 사람에게만 보인다(웹 중계 `/api/characters/:id/photonet/:imageId`)
 
-안전 울타리는 세 겹이다: 태그에서 위험 단어 지우기 → 부정 프롬프트 → 그림 검수.
+안전 울타리는 네 겹이다: 수위별 설계 규칙 → 태그에서 수위에 맞지 않는 말 지우기 → 부정 프롬프트 → 그림 검수. 성인 모드에서 실사풍은 Nest와 services/ai 두 곳에서 막는다(실존 인물처럼 보일 위험).
+
+그림체 손질(2026-10-24 사용자 보고: 성인 그림이 늙고 이질적): 성인 모드의 `(mature … adult body:1.3)`가 얼굴을 늙고 사실적으로 만들었다 → 전체 이용가와 같은 `(adult woman:1.2)`로 낮췄다. 애니 계열은 `newest` 태그를 더하고 `anime screencap`을 빼고, 부정 프롬프트에 `realistic, photorealistic, 3d, old, aged, wrinkles, crowd`를 넣었다. `vibrant colors`는 색이 과포화돼 넣지 않는다.
+
+성인 모드 그림 검수: gemma의 확신도(confidence)는 어두운 장면에서 모든 항목을 "아니오"로 답하고도 5를 주는 일이 잦아 정상 그림을 거의 다 막았다(같은 장면 3번 중 3번) → 확신도 기준을 빼고 항목 판정(young·sexual_violence·real_person·hate·self_harm)과 응답을 읽지 못한 경우만 막는다. `young`은 "뚜렷하게 보이는 인물"만 보게 하고(배경의 작은 실루엣 오판), 검수 그림은 768px로 본다. 막힐 때는 서버 로그에 항목이 남는다(`photonet 검수에서 막음 … flags=`). 같은 장면 3번 모두 통과, 두 사람이 모두 나왔다.
 
 ## 걸리는 시간 (RTX 4070 SUPER 12GB, RAM 16GB에서 측정)
 
@@ -81,3 +85,4 @@ WebUI 모델 폴더(`models\Stable-diffusion`)에 다른 체크포인트가 있�
 
 - e2e·CI는 엔진 없이 돈다: `LLM_FAKE=1`(또는 `IMAGE_FAKE=1`)이면 services/ai가 작은 그림을 직접 만들어 흐름(코레딧·저장·본인만 보기)만 시험한다
 - 실제 엔진 확인은 WebUI를 켜고 대화 화면에서 코디포토넷으로 그려 본다
+- 엔진 없이 그리기만 따로 해 볼 때는 먼저 Ollama 모델을 내린다(`keep_alive: 0`). 검수로 올라온 gemma4가 남아 있으면 SDXL이 290초 안에 끝나지 않는다

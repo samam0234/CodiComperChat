@@ -401,3 +401,43 @@
     justify-items: start;
   }
 }
+
+/* 콘텐츠 수위 (성인 확인) */
+.subheading {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.consent input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.adultState {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.adultBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}

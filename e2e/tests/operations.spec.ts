@@ -317,3 +317,112 @@ test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
     await expect(dialog).toBeHidden();
   });
 });
+
+test.describe("코디포토넷 수위 (전체 이용가 · 성인)", () => {
+  type Image = { id: string; rating: string; style: string };
+  type View = { images: Image[]; nsfw: { allowed: boolean; reason: string | null; blockedStyles: string[] } };
+  const adult = (user: User, birthDate: string, consent = true) =>
+    api<{ message?: string; adult?: boolean }>("/auth/me/adult", { token: user.token, json: { birthDate, consent } });
+  const make = (user: User, json: Record<string, unknown>) =>
+    api<{ image: Image; message?: string }>(`${OPS}/photonet`, { token: user.token, json: { prompt: "카페", ratio: "정사각", ...json } });
+
+  test("성인 확인: 이메일 인증·만 19세·동의가 모두 있어야 하고, 생년월일은 한 번 넣으면 못 바꾼다", async () => {
+    const unverified = await signup("성인미인증", { verified: false });
+    expect((await adult(unverified, "1990-01-01")).status).toBe(403);
+
+    const minor = await signup("성인미성년");
+    const young = new Date().getFullYear() - 15;
+    const blocked = await adult(minor, `${young}-01-01`);
+    expect(blocked.status).toBe(403);
+    expect(blocked.body.message).toContain("만 19세");
+    // 날짜만 고쳐 다시 해도 처음 넣은 생년월일로 본다
+    expect((await adult(minor, "1990-01-01")).status).toBe(403);
+
+    const grown = await signup("성인확인");
+    expect((await adult(grown, "1990-01-01", false)).status).toBe(400);
+    expect((await adult(grown, "1990-02-30")).status).toBe(400);
+    expect((await adult(grown, "1990-01-01")).status).toBe(200);
+    const me = await api<Record<string, unknown>>("/auth/me", { token: grown.token });
+    expect(me.body.adult).toBe(true);
+    // 생년월일·동의 시각은 응답에 싣지 않는다
+    expect(me.body).not.toHaveProperty("birthDate");
+    expect(me.body).not.toHaveProperty("adultConsentAt");
+    expect((await api(`/auth/me/adult`, { token: grown.token, method: "DELETE" })).status).toBe(204);
+    expect((await api<Record<string, unknown>>("/auth/me", { token: grown.token })).body.adult).toBe(false);
+  });
+
+  test("성인 모드: 확인 전에는 403, 실사풍은 400, 동의를 거두면 성인 그림이 목록·본문 모두에서 사라진다", async () => {
+    const { user } = await talking("포토넷성인");
+    const before = await api<View>(`${OPS}/photonet`, { token: user.token });
+    expect(before.body.nsfw).toMatchObject({ allowed: false, reason: "NO_BIRTHDATE", blockedStyles: ["실사풍"] });
+    expect((await make(user, { style: "애니메이션", rating: "nsfw" })).status).toBe(403);
+    expect((await make(user, { style: "애니메이션", rating: "mature" })).status).toBe(400);
+    expect(await balance(user)).toBe(1000);
+
+    expect((await adult(user, "1995-06-15")).status).toBe(200);
+    expect((await api<View>(`${OPS}/photonet`, { token: user.token })).body.nsfw.allowed).toBe(true);
+    expect((await make(user, { style: "실사풍", rating: "nsfw" })).status).toBe(400);
+    const sfw = await make(user, { style: "웹툰" });
+    expect(sfw.status).toBe(200);
+    expect(sfw.body.image.rating).toBe("sfw");
+    const nsfw = await make(user, { style: "애니메이션", rating: "nsfw" });
+    expect(nsfw.status).toBe(200);
+    expect(nsfw.body.image.rating).toBe("nsfw");
+    expect((await api<View>(`${OPS}/photonet`, { token: user.token })).body.images.map((i) => i.rating)).toEqual(["nsfw", "sfw"]);
+    expect((await api(`${OPS}/photonet/${nsfw.body.image.id}`, { token: user.token })).status).toBe(200);
+
+    expect((await api(`/auth/me/adult`, { token: user.token, method: "DELETE" })).status).toBe(204);
+    const after = await api<View>(`${OPS}/photonet`, { token: user.token });
+    expect(after.body.nsfw.allowed).toBe(false);
+    expect(after.body.images.map((i) => i.rating)).toEqual(["sfw"]);
+    expect((await api(`${OPS}/photonet/${nsfw.body.image.id}`, { token: user.token })).status).toBe(404);
+    expect((await api(`${OPS}/photonet/${sfw.body.image.id}`, { token: user.token })).status).toBe(200);
+    expect((await make(user, { style: "애니메이션", rating: "nsfw" })).status).toBe(403);
+  });
+
+  test("화면: 성인 버튼 → 열림 상자에서 성인 확인 → 곧바로 성인 모드(실사풍 잠김) → 19 그림은 성인 모드에서만", async ({ browser }) => {
+    const { user } = await talking("포토넷성인화면");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "코디포토넷" }).click();
+    let dialog = page.getByRole("dialog", { name: "코디포토넷" });
+    await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
+    await dialog.getByText("실사풍").click();
+    // 확인 전에 성인 버튼을 누르면 설정 페이지로 가지 않고 열림 상자가 뜬다
+    await dialog.getByRole("button", { name: "성인", exact: true }).click();
+    const confirm = page.getByRole("dialog", { name: "성인 확인" });
+    await expect(confirm).toBeVisible();
+    // 취소하면 전체 이용가 그대로
+    await confirm.getByRole("button", { name: "취소" }).click();
+    await expect(confirm).toBeHidden();
+    await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
+    await dialog.getByRole("button", { name: "성인", exact: true }).click();
+    await confirm.getByLabel("생년월일").fill("1992-03-04");
+    await confirm.getByRole("button", { name: "성인 확인", exact: true }).click();
+    // 동의를 안 하면 보내지 않는다(필수 체크)
+    await expect(confirm).toBeVisible();
+    await confirm.getByLabel(/만 19세 이상이며/).check();
+    await confirm.getByRole("button", { name: "성인 확인", exact: true }).click();
+    await expect(confirm).toBeHidden();
+    // 확인이 끝나면 곧바로 성인 모드
+    await expect(dialog.getByRole("note")).toContainText("성인 모드");
+    // 실사풍을 골라 두었으면 애니메이션으로 바뀌고, 실사풍은 잠긴다
+    await expect(dialog.getByRole("radio", { name: "애니메이션" })).toBeChecked();
+    await expect(dialog.getByRole("radio", { name: "실사풍" })).toBeDisabled();
+    await dialog.getByLabel("장면 설명").fill("둘이 밤늦게 이야기하는 장면");
+    await dialog.getByRole("button", { name: "만들기" }).click();
+    await expect(dialog.getByText(/그림을 만들었어요/)).toBeVisible();
+    const adultGallery = dialog.getByRole("region", { name: "만든 성인 그림" });
+    await expect(adultGallery.getByRole("img")).toHaveCount(1);
+    await expect(adultGallery.getByLabel("성인")).toHaveCount(1);
+
+    // 전체 이용가로 돌아가면 성인 그림은 보이지 않는다
+    await dialog.getByRole("button", { name: "전체 이용가" }).click();
+    await expect(dialog.getByRole("region", { name: "만든 그림" }).getByRole("img")).toHaveCount(0);
+    // 창을 다시 열면 언제나 전체 이용가부터
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: "코디포토넷" }).click();
+    await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
+  });
+});
