@@ -16,6 +16,7 @@ type CharacterSummary = {
   openingScene: string;
   portraitMime?: string | null;
   updatedAt?: string;
+  recommendedPersona?: { name: string; description: string } | null;
 };
 
 async function getCharacter(id: string): Promise<CharacterSummary | null> {
@@ -86,6 +87,7 @@ export default async function CharacterChatPage({
         initialModel={history?.model ?? "basic"}
         personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
         hasQuest={quest?.exists === true}
+        recommendedPersona={character.recommendedPersona ?? null}
       />
     </section>
   );

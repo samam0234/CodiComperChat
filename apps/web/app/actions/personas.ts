@@ -54,3 +54,27 @@ export async function deletePersona(_prev: FormState, formData: FormData): Promi
   const id = encodeURIComponent(String(formData.get("id") ?? ""));
   return send(`/me/personas/${id}`, "DELETE");
 }
+
+// 캐릭터의 추천 프로필로 내 프로필을 만든다 (대화 화면에서 그대로 쓰거나 고쳐서). 만든 프로필의 id를 돌려준다
+export async function createRecommendedPersona(input: {
+  name: string;
+  description: string;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login");
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/me/personas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: input.name, description: input.description }),
+      cache: "no-store",
+    });
+  } catch {
+    return { ok: false, error: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." };
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) return { ok: false, error: data?.message ?? `요청이 실패했습니다 (HTTP ${res.status}).` };
+  revalidatePath("/me");
+  return { ok: true, id: String(data?.id ?? "") };
+}
