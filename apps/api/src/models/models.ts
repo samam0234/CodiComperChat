@@ -2,7 +2,8 @@ import type { Plan } from '../plan/plan.js';
 
 // 대화에서 고를 수 있는 모델 목록과 쓸 수 있는 조건 (2026-10-21 사용자 결정).
 //  - 기본 무료: gemma4:e4b — 누구나, 횟수 제한 없음 (services/ai의 기본 모델)
-//  - 강화 무료: gemma4:12b — 무료 등급은 하루 30번(한국 시각 자정 초기화), 프로 등급은 무제한
+//  - 강화 무료: gemma4:12b — 무료 등급은 하루 30번(한국 시각 자정 초기화), 프로 등급은 무제한.
+//    무료 등급이 30번을 다 쓰면 자정까지는 1번에 10 코레딧으로 계속 쓴다 (2026-10-24 사용자 결정 — 예전에는 잠겼다)
 //  - 프리미엄(Claude·Grok): 캐릭터 답 1번마다 코레딧을 쓴다 (값은 아래 표, 근거는 docs/plan/AI_MODEL_STRATEGY.md).
 //    외부 API 연동이 아직 없어 "준비 중"으로 잠가 둔다
 export type ModelTier = 'BASIC' | 'ENHANCED' | 'PREMIUM';
@@ -25,6 +26,8 @@ export type ChatModel = {
 export const DEFAULT_MODEL_ID = 'basic';
 
 export const ENHANCED_DAILY_LIMIT_DEFAULT = 30;
+// 하루 무료 횟수를 다 쓴 뒤 강화 무료 1번에 드는 코레딧
+export const ENHANCED_OVERAGE_CREDITS = 10;
 
 // 하루 한도는 환경변수로 줄일 수 있다 (e2e에서 한도에 닿는 경로를 짧게 시험하려고)
 export function enhancedDailyLimit(env: NodeJS.ProcessEnv = process.env): number {
@@ -113,13 +116,15 @@ export function lockOf(model: ChatModel, wallet: Wallet, env: NodeJS.ProcessEnv 
     return null;
   }
   const limit = dailyLimitOf(model, wallet.plan, env);
-  if (limit !== null && wallet.usedToday >= limit) return 'DAILY_LIMIT';
+  // 무료 횟수를 다 썼으면 코레딧으로 이어 쓴다 — 코레딧도 모자랄 때만 잠긴다
+  if (limit !== null && wallet.usedToday >= limit && wallet.balance < ENHANCED_OVERAGE_CREDITS) return 'NO_CREDITS';
   return null;
 }
 
 export const LOCK_MESSAGE: Record<ModelLock, string> = {
   NOT_READY: '이 모델은 아직 준비 중이에요.',
   DAILY_LIMIT: '오늘 쓸 수 있는 횟수를 모두 썼어요. 한국 시각 자정에 다시 채워집니다. 프로 등급은 무제한이에요.',
+  // (강화 무료는 이제 한도에서 잠기지 않고 코레딧으로 넘어간다. 화면 호환을 위해 코드는 남긴다)
   NO_CREDITS: '코레딧이 모자라요. 출석하면 코레딧을 받을 수 있어요.',
 };
 
