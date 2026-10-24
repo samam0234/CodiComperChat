@@ -18,6 +18,8 @@ test.describe("대화 글 꾸미기", () => {
 
     const mine = page.getByRole("log").locator("div", { hasText: "고개를 든다" }).last();
     await expect(mine.locator("em", { hasText: "고개를 든다" })).toBeVisible();
+    // *상황 설명*은 40% 회색(#999) 기울임
+    await expect(mine.locator("em", { hasText: "고개를 든다" })).toHaveCSS("color", "rgb(153, 153, 153)");
     await expect(mine.locator("strong", { hasText: /^안녕$/ })).toBeVisible();
     await expect(mine.locator("strong > em", { hasText: "정말" })).toBeVisible();
     await expect(mine.locator("del", { hasText: "아니" })).toBeVisible();
@@ -50,6 +52,8 @@ test.describe("대화 글 꾸미기", () => {
       "```",
       "@하루 안녕하세요",
       "@ 비가 내린다",
+      "",
+      "@: 창밖으로 첫눈이 내리기 시작했다",
     ].join("\n");
     await page.getByPlaceholder(/에게 말 걸기/).fill(text);
     await page.getByRole("button", { name: "보내기" }).click();
@@ -75,6 +79,9 @@ test.describe("대화 글 꾸미기", () => {
 
     await expect(log.getByText("하루", { exact: true })).toBeVisible();
     await expect(log.getByText("비가 내린다")).toBeVisible();
+    // @: 는 나레이션 — ":"라는 이름의 말한 사람으로 보이지 않는다
+    await expect(log.getByText("창밖으로 첫눈이 내리기 시작했다")).toBeVisible();
+    await expect(log.getByText(":", { exact: true })).toHaveCount(0);
   });
 
   test("글 속 HTML은 실행되지 않고 글자로 보인다", async ({ browser }) => {

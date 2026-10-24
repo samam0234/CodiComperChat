@@ -110,3 +110,9 @@
   font-style: italic;
   text-align: center;
 }
+
+/* *상황 설명*: 40% 회색(인쇄 기준 K40 = #999) 기울임. 내 말(보라 바탕)·캐릭터 말(밝은·어두운 바탕) 어디서나 같은 회색 */
+.action {
+  color: #999999;
+  font-style: italic;
+}
