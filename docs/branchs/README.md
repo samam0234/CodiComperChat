@@ -243,5 +243,6 @@
 | 2026-10-25 | `7bc98ff` | feature/official-iseyeon | 공식 캐릭터 이세연과 캐릭터별 추천 프로필 | [261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md](commits/261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md) |
 | 2026-10-25 | `9dbdbfc` | feature/official-iseyeon | 유지성·이세연 공식 초상 (그림 엔진으로 제작) | [261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md](commits/261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md) |
 | 2026-10-25 | `8411210` | feature/official-iseyeon | 외형 단계 AI로 초상 직접 만들기 (25 코레딧) | [261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md](commits/261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md) |
+| 2026-10-25 | `8603bf2` | develop (merge) | feature/official-iseyeon → develop 병합 (--no-ff) | [261025_0531_8603bf2_merge-official-iseyeon_develop.md](commits/261025_0531_8603bf2_merge-official-iseyeon_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
