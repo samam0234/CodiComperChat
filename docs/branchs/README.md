@@ -236,5 +236,6 @@
 | 2026-10-24 | `ab2de34` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-enhanced-overage_develop.md](commits/261024_2302_ab2de34_merge-enhanced-overage_develop.md) |
 | 2026-10-24 | `ab2de34` | develop (merge) | feature/image-engine → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-image-engine_develop.md](commits/261024_2302_ab2de34_merge-image-engine_develop.md) |
 | 2026-10-24 | `dcb89a1` | develop (merge) | feature/chat-narration → develop 병합 (--no-ff) | [261024_2302_dcb89a1_merge-chat-narration_develop.md](commits/261024_2302_dcb89a1_merge-chat-narration_develop.md) |
+| 2026-10-24 | `35d4aff` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_35d4aff_merge-enhanced-overage_develop.md](commits/261024_2302_35d4aff_merge-enhanced-overage_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
