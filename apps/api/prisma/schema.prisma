@@ -178,6 +178,7 @@ model Campaign {
   directMessages     DirectMessage[]
   boardPosts         BoardPost[]
   photonetImages     PhotonetImage[]
+  webtoons           Webtoon[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -452,7 +453,7 @@ enum CreditReason {
   MODEL_USE
   REFUND
   ADMIN
-  /// 오퍼레이션(심리 탐구·일기·커뮤니티·코디포토넷)에 쓴 것. modelId 칸에 "op:이름"
+  /// 오퍼레이션(심리 탐구·일기·커뮤니티·코디포토넷·웹툰)에 쓴 것. modelId 칸에 "op:이름"
   OPERATION
   /// 비밀 퀘스트 보상(공식 캐릭터만). modelId 칸에 "quest:캐릭터 id"
   QUEST
@@ -597,4 +598,43 @@ model PhotonetImage {
 
   @@index([campaignId, createdAt])
   @@map("photonet_images")
+}
+
+/// 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧)
+model Webtoon {
+  id         String         @id @default(cuid())
+  campaignId String
+  campaign   Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  title      String
+  /// 유저가 쓴 장면 설명(또는 고른 대사)
+  prompt     String
+  /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+  rating     String         @default("sfw")
+  createdAt  DateTime       @default(now())
+  panels     WebtoonPanel[]
+
+  @@index([campaignId, createdAt])
+  @@map("webtoons")
+}
+
+/// 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다)
+model WebtoonPanel {
+  id         String   @id @default(cuid())
+  webtoonId  String
+  webtoon    Webtoon  @relation(fields: [webtoonId], references: [id], onDelete: Cascade)
+  index      Int
+  /// 장면 설계표(사람·장소·행동·빛·구도) — 그릴 때 프롬프트로 조립한다
+  plan       Json
+  /// 해설(나레이션 상자)과 대사 [{ speaker, text }]
+  caption    String
+  lines      Json     @default("[]")
+  promptUsed String?
+  mime       String?
+  data       Bytes?
+  width      Int?
+  height     Int?
+  drawnAt    DateTime?
+
+  @@unique([webtoonId, index])
+  @@map("webtoon_panels")
 }

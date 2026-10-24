@@ -91,5 +91,19 @@ export type QuestView =
 
 export const getQuest = (characterId: string) => authedGet<QuestView>(`/characters/${encodeURIComponent(characterId)}/chat/quest`);
 
+// 웹툰: 콘티(컷마다 해설·대사)와 그린 컷. 그림 본문은 /api/characters/:id/webtoon/:webtoonId/:index 중계로
+export type WebtoonLine = { speaker: string; text: string };
+export type WebtoonPanel = { index: number; caption: string; lines: WebtoonLine[]; drawn: boolean; width: number | null; height: number | null };
+export type Webtoon = { id: string; title: string; prompt: string; rating: PhotonetRating; createdAt: string; panels: WebtoonPanel[] };
+export type WebtoonView = OpsBase & {
+  ready: boolean;
+  minPanels: number;
+  maxPanels: number;
+  nsfw: { allowed: boolean; reason: string | null; message: string | null };
+  webtoons: Webtoon[];
+};
+
+export const getWebtoons = (characterId: string) => authedGet<WebtoonView>(ops(characterId, "webtoon"));
+
 export const photonetSrc = (characterId: string, imageId: string) =>
   `/api/characters/${encodeURIComponent(characterId)}/photonet/${encodeURIComponent(imageId)}`;

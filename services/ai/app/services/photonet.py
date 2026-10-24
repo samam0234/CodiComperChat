@@ -168,7 +168,9 @@ def _cast_sheet(cast: list[CastMember]) -> str:
     return "\n\n".join(rows)
 
 
-def _plan(request: PhotonetRequest) -> dict:
+def story_parts(request) -> list[str]:
+    """설계 모델에게 줄 자료: 등장인물 명단·줄거리·기억·최근 대화·고른 대사·장면 설명. 웹툰 콘티도 같이 쓴다
+    (request는 context·cast·focus·prompt를 가진 요청이면 된다)."""
     context = request.context
     me = context.user_persona.name if context.user_persona else "유저"
     character = context.character.name
@@ -185,7 +187,11 @@ def _plan(request: PhotonetRequest) -> dict:
         parts.append(f"The chosen moment to draw (Korean) — draw THIS moment:\n<moment>\n{moment}\n</moment>")
     scene = request.prompt.strip() or ("the chosen moment above" if request.focus else "the latest moment of the conversation")
     parts.append(f"Requested scene (Korean):\n<scene>\n{scene}\n</scene>")
+    return parts
 
+
+def _plan(request: PhotonetRequest) -> dict:
+    parts = story_parts(request)
     raw = llm.generate(
         system=PLAN_SYSTEM[request.rating],
         contents=[llm.turn("user", "\n\n".join(parts))],
