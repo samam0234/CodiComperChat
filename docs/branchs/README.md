@@ -224,5 +224,6 @@
 | 2026-10-24 | `2c02951` | develop (merge) | feature/photonet-scene → develop 병합 (--no-ff) | [261024_1953_2c02951_merge-photonet-scene_develop.md](commits/261024_1953_2c02951_merge-photonet-scene_develop.md) |
 | 2026-10-24 | `faaa708` | develop (merge) | feature/photonet-rating → develop 병합 (--no-ff) | [261024_1953_faaa708_merge-photonet-rating_develop.md](commits/261024_1953_faaa708_merge-photonet-rating_develop.md) |
 | 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
+| 2026-10-24 | `5957eac` | feature/chat-narration | *상황 설명*은 40% 회색 기울임, @: 나레이션을 캐릭터 답과 함께 | [261024_2236_5957eac_chat-narration_feature-chat-narration.md](commits/261024_2236_5957eac_chat-narration_feature-chat-narration.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
