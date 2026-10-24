@@ -12,6 +12,7 @@ import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
 import OpsBar from "./ops-bar";
 import Photonet from "./photonet";
+import SecretQuest from "./secret-quest";
 import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
 
@@ -84,6 +85,7 @@ export default function CharacterChat({
   models: initialModels,
   balance: initialBalance,
   initialModel,
+  hasQuest,
 }: {
   characterId: string;
   characterName: string;
@@ -100,6 +102,8 @@ export default function CharacterChat({
   // 내 코레딧 잔액 (프리미엄 모델에 쓴다)
   balance: number | null;
   initialModel: string;
+  // 이 캐릭터에게 비밀 퀘스트가 있나 (있어야 버튼을 보인다)
+  hasQuest: boolean;
 }) {
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -531,6 +535,7 @@ export default function CharacterChat({
         <OpsBar characterId={characterId}>
           {/* 입력창 바로 위 왼쪽: 코디포토넷 (마지막 캐릭터 말을 "지금 장면"으로) */}
           <Photonet characterId={characterId} sceneHint={lastCharacterLine} moments={photonetMoments} />
+          {hasQuest && <SecretQuest characterId={characterId} messageCount={messages.length} />}
         </OpsBar>
 
         <form

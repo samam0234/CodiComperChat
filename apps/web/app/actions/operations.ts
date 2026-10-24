@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetImage, PhotonetRating, PhotonetView } from "@/lib/operations";
+import type { BoardPost, DiaryEntry, DirectMessage, MindReading, PhotonetImage, PhotonetRating, PhotonetView, QuestView } from "@/lib/operations";
 
 // 오퍼레이션(대화 플러그인) 만들기·쓰기. Nest로 넘기기만 한다 (토큰은 httpOnly 쿠키에서 서버가 붙인다)
 export type OpsResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -55,6 +55,22 @@ export async function loadPhotonet(characterId: string): Promise<OpsResult<Photo
     });
     const data = await res.json().catch(() => null);
     return res.ok ? { ok: true, data: data as PhotonetView } : { ok: false, error: data?.message ?? `HTTP ${res.status}` };
+  } catch {
+    return { ok: false, error: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." };
+  }
+}
+
+// 비밀 퀘스트 상태 (대화 화면 안의 창이라 서버 컴포넌트가 아니라 여기서)
+export async function loadQuest(characterId: string): Promise<OpsResult<QuestView>> {
+  const token = await getSessionToken();
+  if (!token) return { ok: false, error: "로그인이 필요합니다." };
+  try {
+    const res = await fetch(`${API_BASE_URL}/characters/${encodeURIComponent(characterId)}/chat/quest`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    const data = await res.json().catch(() => null);
+    return res.ok ? { ok: true, data: data as QuestView } : { ok: false, error: data?.message ?? `HTTP ${res.status}` };
   } catch {
     return { ok: false, error: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." };
   }

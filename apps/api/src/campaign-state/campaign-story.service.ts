@@ -8,6 +8,8 @@ import { type ChatState, DEFAULT_STATE, relationshipLabel } from '../chat-state/
 import type { CharactersService } from '../characters/characters.service.js';
 import type { Conversation } from '../conversations/conversations.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { QuestCheck } from '../quests/quest.js';
+import { QuestsService } from '../quests/quests.service.js';
 import {
   EMPTY_STORY,
   type DigestResult,
@@ -59,7 +61,10 @@ export class CampaignStoryService {
   // 같은 대화를 동시에 두 번 정리하지 않게 막는다 (한 프로세스 안에서)
   private readonly running = new Set<string>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly quests: QuestsService,
+  ) {}
 
   async get(campaignId: string | null): Promise<StoryState> {
     if (!campaignId) return EMPTY_STORY;
@@ -146,7 +151,13 @@ export class CampaignStoryService {
           // 이전 요약을 "지금까지의 이야기"로 넘겨 거기에 이번 대화를 합쳐 새 요약을 쓰게 한다
           context.storySoFar = story.brief || null;
           // 뒤에서 하는 정리라 사용자가 기다리는 답에 양보한다 (ai-queue)
-          const result = await postToAi<DigestResult>('/summarize', { context, sessionTurns: turns }, { priority: 'background' });
+          // 비밀 퀘스트: 열려 있고 아직 달성 전이면 "건넸나·해냈나"도 함께 판정시킨다 (친밀도는 이 정리 전의 값 기준)
+          const quest = await this.quests.checkInput(names.character.id, conversation.campaignId, row.relationshipValue);
+          const result = await postToAi<DigestResult & { questOffered?: boolean; questDone?: boolean }>(
+            '/summarize',
+            { context, sessionTurns: turns, ...(quest ? { quest } : {}) },
+            { priority: 'background' },
+          );
 
           // 응답을 기다리는 사이 유저가 친밀도를 직접 바꿨을 수 있어, 반영 직전에 다시 읽는다
           const fresh = await this.prisma.campaignState.findUnique({ where: { campaignId: conversation.campaignId }, select: STORY_SELECT });
@@ -171,6 +182,10 @@ export class CampaignStoryService {
               digestedUntil: until,
             },
           });
+          if (quest) {
+            const check: QuestCheck = { offered: result.questOffered === true, done: result.questDone === true };
+            await this.quests.apply(names.character.id, conversation.campaignId, row.relationshipValue, check);
+          }
         } else {
           await this.prisma.campaignState.update({ where: { campaignId: conversation.campaignId }, data: { digestedUntil: until } });
         }

@@ -68,6 +68,7 @@ model User {
   credits     Int             @default(0)
   creditLedger CreditLedger[]
   attendances  Attendance[]
+  questRewards QuestReward[]
 
   @@map("users")
 }
@@ -102,6 +103,8 @@ model Character {
   secret                String
   secretUnlockCondition String
   openingScene          String
+  /// 비밀 퀘스트(제목·건네는 부탁·달성 조건·보상 장면·열리는 친밀도). 공개 응답에는 싣지 않는다. 없으면 퀘스트 없는 캐릭터
+  quest                 Json?
   /// 신체·직업 등 카드 밖 부가 프로필. 캐릭터마다 있을 수도, 없을 수도 있다
   profile               Json?
   published             Boolean             @default(false)
@@ -203,6 +206,8 @@ model CampaignState {
   closedEvents        Json      @default("[]")
   /// 이 시각까지의 메시지는 이야기 상태(요약·친밀도·복선)에 반영했다
   digestedUntil       DateTime?
+  /// 비밀 퀘스트 진행 { status: offered|done, at } — 아직 건네지 않았으면 비어 있다
+  questState          Json?
   updatedAt           DateTime  @updatedAt
 
   @@map("campaign_states")
@@ -449,6 +454,21 @@ enum CreditReason {
   ADMIN
   /// 오퍼레이션(심리 탐구·일기·커뮤니티·코디포토넷)에 쓴 것. modelId 칸에 "op:이름"
   OPERATION
+  /// 비밀 퀘스트 보상(공식 캐릭터만). modelId 칸에 "quest:캐릭터 id"
+  QUEST
+}
+
+/// 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다
+model QuestReward {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId String
+  amount      Int
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, characterId])
+  @@map("quest_rewards")
 }
 
 /// 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액

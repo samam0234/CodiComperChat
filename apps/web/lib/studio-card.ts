@@ -22,7 +22,12 @@ export type Card = {
   boundary: { secret: string; unlockCondition: string; neverDo: string[]; breakers: string };
   greeting: { firstMessage: string; alternates: string[]; examples: { user: string; character: string }[] };
   lore: { world: string; person: string; taboo: string; extra: { title: string; text: string }[] };
+  // 비밀 퀘스트(선택): 친밀도가 unlockAt을 넘으면 캐릭터가 offer를 건네고, objective를 해내면 달성 (정본: apps/api/src/quests/quest.ts)
+  quest: Quest;
 };
+
+export type Quest = { title: string; offer: string; objective: string; reward: string; unlockAt: number };
+export const QUEST_TITLE_MAX = 30;
 
 export type StepKey = keyof Card;
 

@@ -27,3 +27,23 @@ class DraftFieldRequest(WireModel):
 class DraftFieldResponse(WireModel):
     text: str = ""
     items: list[str] = Field(default_factory=list)
+
+
+class DraftQuestRequest(WireModel):
+    """비밀 퀘스트를 카드 설정을 읽고 한 번에 AI로 만든다. 제안만 만들고 저장하지 않는다.
+
+    비밀·해금 조건은 Nest가 설정 줄에 넣지 않는다.
+    """
+
+    sheet: list[str] = Field(default_factory=list, max_length=40)
+    max_chars: int = Field(default=400, ge=50, le=1000)
+    title_max: int = Field(default=30, ge=5, le=60)
+
+
+class DraftQuestResponse(WireModel):
+    title: str = ""
+    offer: str = ""
+    objective: str = ""
+    reward: str = ""
+    # 이 부탁을 꺼낼 만한 친밀도 (10~90)
+    unlock_at: int = 40

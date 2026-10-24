@@ -119,6 +119,14 @@ export class StudioController {
     return this.drafter.draftField(userId, id, body?.field);
   }
 
+  // 비밀 퀘스트를 한 번에 AI로 제안 (카드 설정을 읽는다). 저장하지 않고, 유저가 보고 적용한다
+  @Post(':id/draft-quest')
+  @HttpCode(200)
+  @RateLimit('studioLlm')
+  draftQuest(@CurrentUserId() userId: string, @Param('id') id: string) {
+    return this.drafter.draftQuest(userId, id);
+  }
+
   // 성격·말투 단계의 말투 샘플 답 2개. 저장하지 않으며 3턴 테스트에 영향이 없다
   @Post(':id/samples')
   @HttpCode(200)

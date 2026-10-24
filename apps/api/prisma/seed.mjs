@@ -5,6 +5,19 @@ import { PrismaClient } from '@prisma/client';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+// 비밀 퀘스트 (2026-10-24 사용자 요청: 일단 유지성에게). 친밀도 40 이상에서 유지성이 부탁을 꺼내고, 달성하면 공식 캐릭터라 100 코레딧(계정당 한 번).
+// 정식 비밀(3년 전 포기한 일)을 직접 밝히지 않고, 그 전 단계로 마음을 여는 작은 부탁이다. 구조: src/quests/quest.ts
+const YU_QUEST = {
+  title: '접어 둔 문제집',
+  offer:
+    '과외가 끝나 갈 즈음, 서랍 깊이 넣어 둔 3년 전 문제집을 꺼내 놓으며 "이건 학생 공부랑은 상관없는 건데… 이 문제 하나만 같이 풀어 봐 주겠어요?"라고 어렵게 부탁한다. 왜 그걸 간직하고 있는지는 말하지 않는다.',
+  objective:
+    '유저가 유지성의 부탁에 응해 그 문제집의 문제를 같이 풀어 보겠다고 말하고(또는 실제로 풀이를 시도하고), 왜 간직했는지 다그치거나 그의 과거를 평가하는 말을 하지 않는다.',
+  reward:
+    '문제를 다 풀고 나서 유지성이 오래 만지작거리던 문제집을 덮으며 "3년 만에 끝까지 풀어 본 문제예요"라고 작게 웃고, 처음으로 학생 얘기가 아닌 자기 얘기를 한두 마디 꺼낸다. 호칭은 여전히 "학생"이다.',
+  unlockAt: 40,
+};
+
 // 출처: docs/plan/CHARACTERS.md "유지성" — 카드 원문을 그대로 옮긴다
 async function main() {
   await prisma.character.upsert({
@@ -41,8 +54,11 @@ async function main() {
         occupation: '대학생 (과외 아르바이트)',
       },
       published: true,
+      quest: YU_QUEST,
     },
   });
+  // 이미 있는 유지성(update: {}라 위 create가 닿지 않는다)에도 퀘스트를 맞춘다. 운영 캐릭터(ownerId 없음)만
+  await prisma.character.updateMany({ where: { name: '유지성', ownerId: null }, data: { quest: YU_QUEST } });
 }
 
 main()

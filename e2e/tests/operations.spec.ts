@@ -61,7 +61,8 @@ test.describe("오퍼레이션 · 심리 탐구", () => {
     await page.getByRole("button", { name: "오퍼레이션" }).click();
     const menu = page.getByRole("menu", { name: "오퍼레이션" });
     await menu.getByRole("menuitem", { name: /심리 탐구/ }).click();
-    await expect(page).toHaveURL(`${CHAT}/mind`);
+    // 개발 서버가 /mind를 처음 컴파일할 때 전체 시험 부하에서 15초를 넘길 수 있다
+    await expect(page).toHaveURL(`${CHAT}/mind`, { timeout: 60_000 });
     await expect(page.getByRole("heading", { level: 1 })).toContainText("머릿속");
 
     await page.getByRole("button", { name: /속마음 엿보기/ }).click();
