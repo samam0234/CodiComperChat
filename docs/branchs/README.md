@@ -219,5 +219,6 @@
 | 2026-10-24 | `44b5efb` | feature/photonet-scene | 등장인물·줄거리·고른 대사를 읽고 장면을 설계해 그리기 | [261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md](commits/261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md) |
 | 2026-10-24 | `d9151f6` | feature/photonet-rating | 전체 이용가·성인 모드를 따로 그리기 | [261024_0805_d9151f6_photonet-rating_feature-photonet-rating.md](commits/261024_0805_d9151f6_photonet-rating_feature-photonet-rating.md) |
 | 2026-10-24 | `55ac09b` | feature/photonet-rating | 성인 확인을 열림 상자로 바로 하기 | [261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md](commits/261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md) |
+| 2026-10-24 | `cf46488` | feature/photonet-rating | 성인 모드 그림체를 깔끔한 현대 애니로, 검수 오판 줄이기 | [261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md](commits/261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
