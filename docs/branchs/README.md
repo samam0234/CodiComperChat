@@ -216,5 +216,6 @@
 | 2026-10-24 | `12c5ec2` | feature/photonet-sd | 코디포토넷·오퍼레이션 버튼과 입력창 사이 간격 넓히기 | [261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md](commits/261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md) |
 | 2026-10-24 | `d177b89` | feature/photonet-sd | 로컬 Stable Diffusion으로 코디포토넷 그림 만들기 | [261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md](commits/261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md) |
 | 2026-10-24 | `5e28539` | develop (merge) | feature/photonet-sd → develop 병합 (--no-ff) | [261024_0438_5e28539_merge-photonet-sd_develop.md](commits/261024_0438_5e28539_merge-photonet-sd_develop.md) |
+| 2026-10-24 | `44b5efb` | feature/photonet-scene | 등장인물·줄거리·고른 대사를 읽고 장면을 설계해 그리기 | [261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md](commits/261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

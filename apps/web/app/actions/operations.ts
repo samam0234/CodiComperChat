@@ -60,8 +60,9 @@ export async function loadPhotonet(characterId: string): Promise<OpsResult<Photo
   }
 }
 
-export async function createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string }) {
-  return call<{ image: PhotonetImage; balance: number }>(characterId, "photonet", input);
+// messageId: 그릴 대사를 골랐을 때 (그 앞뒤 장면을 그린다). cast: 그림에 넣은 사람 ("유지성(남)")
+export async function createPhotonet(characterId: string, input: { prompt: string; style: string; ratio: string; messageId?: string }) {
+  return call<{ image: PhotonetImage; balance: number; cast: string[] }>(characterId, "photonet", input);
 }
 
 export async function refreshBoard(characterId: string) {

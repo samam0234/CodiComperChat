@@ -224,7 +224,7 @@ test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
     expect(view.body).toMatchObject({ ready: true, cost: 50, images: [] });
     expect(view.body.styles).toEqual(["애니메이션", "웹툰", "수채화", "실사풍"]);
 
-    const made = await api<{ image: Image; balance: number }>(`${OPS}/photonet`, {
+    const made = await api<{ image: Image; balance: number; cast: string[] }>(`${OPS}/photonet`, {
       token: user.token,
       json: { prompt: "비 오는 카페 창가", style: "수채화", ratio: "세로" },
     });
@@ -232,6 +232,8 @@ test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
     // 수채화는 SD 1.5 계열이라 세로 512×768
     expect(made.body.image).toMatchObject({ prompt: "비 오는 카페 창가", style: "수채화", ratio: "세로", width: 512, height: 768 });
     expect(made.body.balance).toBe(950);
+    // 그림에 넣은 사람을 함께 돌려준다 (가짜 설계표: 캐릭터와 주인공)
+    expect(made.body.cast).toEqual(["테스트 선생(남)", "민준(남)"]);
 
     const anime = await api<{ image: Image }>(`${OPS}/photonet`, {
       token: user.token,
@@ -251,9 +253,27 @@ test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
     expect(ledger.body.history[0]).toMatchObject({ reason: "OPERATION", delta: -50, modelId: "op:photonet" });
 
     expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "", style: "수채화", ratio: "세로" } })).status).toBe(400);
+    expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "", style: "수채화", ratio: "세로", messageId: "nope" } })).status).toBe(400);
     expect((await api(`${OPS}/photonet`, { token: user.token, json: { prompt: "x", style: "유화", ratio: "세로" } })).status).toBe(400);
     const listed = await api<{ images: Image[] }>(`${OPS}/photonet`, { token: user.token });
     expect(listed.body.images.map((i) => i.style)).toEqual(["애니메이션", "수채화"]);
+  });
+
+  test("대사를 골라 그리면 장면 설명 없이도 되고, 남의 대화 대사는 고를 수 없다", async () => {
+    const { user } = await talking("포토넷대사");
+    const history = await api<{ messages: { id: string; role: string; text: string }[] }>(CHAT, { token: user.token });
+    const line = history.body.messages.find((m) => m.role === "user")!;
+    const made = await api<{ image: Image; cast: string[] }>(`${OPS}/photonet`, {
+      token: user.token,
+      json: { prompt: "", style: "웹툰", ratio: "정사각", messageId: line.id },
+    });
+    expect(made.status).toBe(200);
+    // 장면 설명이 없으면 고른 대사를 남긴다
+    expect(made.body.image.prompt).toBe(line.text);
+    expect(made.body.image).toMatchObject({ width: 1024, height: 1024 });
+
+    const other = await talking("포토넷대사남");
+    expect((await api(`${OPS}/photonet`, { token: other.user.token, json: { prompt: "", style: "웹툰", ratio: "정사각", messageId: line.id } })).status).toBe(400);
   });
 
   test("코레딧이 모자라면 403이고 그림이 남지 않는다", async () => {
@@ -277,8 +297,13 @@ test.describe("코디포토넷 (그림 엔진: e2e는 가짜 엔진)", () => {
     await dialog.getByRole("button", { name: "지금 장면으로 채우기" }).click();
     await expect(dialog.getByLabel("장면 설명")).toHaveValue("네, 알겠어요. 오늘도 천천히 이야기해 봐요.");
     await dialog.getByText("수채화").click();
+    // 그릴 장면: 최근 대사 중 내 말을 고른다
+    const pick = dialog.getByLabel("그릴 장면");
+    // 기본(최근 대화) + 저장된 대사 3개(시작 장면·내 말·답)
+    await expect(pick.locator("option")).toHaveCount(4);
+    await pick.selectOption({ label: "민준: 안녕하세요 선생님" });
     await dialog.getByRole("button", { name: "만들기" }).click();
-    await expect(dialog.getByText("그림을 만들었어요.")).toBeVisible();
+    await expect(dialog.getByText("그림을 만들었어요. 등장: 테스트 선생(남) · 민준(남)")).toBeVisible();
     const gallery = dialog.getByRole("region", { name: "만든 그림" });
     await expect(gallery.getByRole("img")).toHaveCount(1);
     await expect(gallery).toContainText("수채화");

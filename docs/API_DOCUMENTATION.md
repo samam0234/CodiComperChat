@@ -67,7 +67,7 @@
 | `POST /characters/:id/chat/ops/board/refresh` | 커뮤니티: 주민 새 글 3개 불러오기 | **200** `{ posts, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
 | `POST /characters/:id/chat/ops/board/posts` | 커뮤니티: 내 글 쓰기 `{ title(~60자), body(~1000자), anonymous?(기본 true) }` | **200** `{ post(주민 댓글 포함), balance }` · 빈 칸·길이 초과 400, 대화 없으면 409, 코레딧 부족 403 · 🔒 |
 | `GET /characters/:id/chat/ops/photonet` | 코디포토넷 상태 | **200** `{ character, started, cost(50), balance, ready(그림 엔진이 켜져 있고 모델이 다 있나), styles, ratios, images: [{ id, prompt, style, ratio, width, height, createdAt }] }`(최근 12장) · 엔진 상태는 3초 안에 못 받으면 ready=false · 🔒 |
-| `POST /characters/:id/chat/ops/photonet` | 코디포토넷: 그림 만들기 `{ prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로) }` | **200** `{ image, balance }` · 50 코레딧 · 그림 검수에 걸리면 **422**(코레딧 환불) · 엔진이 꺼져 있으면 **503**(코레딧을 빼지 않는다) · 빈 설명·모르는 화풍/비율 400 · 대화 없으면 409 · 요청 한도 `photonet`(10분 6장) · 최대 300초 · 🔒 |
+| `POST /characters/:id/chat/ops/photonet` | 코디포토넷: 그림 만들기 `{ prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로), messageId?(그릴 대사) }` | **200** `{ image, balance, cast(그림에 넣은 사람, 예: "유지성(남)") }` · 대사를 골랐으면 prompt는 비워도 된다(이 대화의 대사가 아니면 400) · 50 코레딧 · 그림 검수에 걸리면 **422**(코레딧 환불) · 엔진이 꺼져 있으면 **503**(코레딧을 빼지 않는다) · 빈 설명·모르는 화풍/비율 400 · 대화 없으면 409 · 요청 한도 `photonet`(10분 6장) · 최대 300초 · 🔒 |
 | `GET /characters/:id/chat/ops/photonet/:imageId` | 코디포토넷 그림 본문 | **200** `image/webp` · `private, no-store`, `nosniff`, CSP sandbox · 그 대화를 하는 사람만(남이면 404) · 🔒 |
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
