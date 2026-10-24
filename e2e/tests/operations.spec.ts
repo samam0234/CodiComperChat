@@ -381,6 +381,20 @@ test.describe("코디포토넷 수위 (전체 이용가 · 성인)", () => {
     expect((await make(user, { style: "애니메이션", rating: "nsfw" })).status).toBe(403);
   });
 
+  test("성인 모드: 미성년자 관련 설정이 장면·등장인물에 있으면 그리기 전에 거절하고 코레딧은 돌려준다", async () => {
+    const { user } = await talking("포토넷미성년");
+    expect((await adult(user, "1990-01-01")).status).toBe(200);
+    const before = await balance(user);
+    const minor = await make(user, { style: "애니메이션", rating: "nsfw", prompt: "고등학생 둘이 교실에 남아 있는 장면" });
+    expect(minor.status).toBe(400);
+    expect(minor.body.message).toContain("미성년자");
+    expect(await balance(user)).toBe(before);
+    const age = await make(user, { style: "웹툰", rating: "nsfw", prompt: "17살 때의 둘" });
+    expect(age.status).toBe(400);
+    // 전체 이용가에서는 같은 장면도 그린다
+    expect((await make(user, { style: "웹툰", prompt: "고등학생 둘이 교실에 남아 있는 장면" })).status).toBe(200);
+  });
+
   test("화면: 성인 버튼 → 열림 상자에서 성인 확인 → 곧바로 성인 모드(실사풍 잠김) → 19 그림은 성인 모드에서만", async ({ browser }) => {
     const { user } = await talking("포토넷성인화면");
     const page = await signedInPage(await browser.newContext(), user);
@@ -399,7 +413,7 @@ test.describe("코디포토넷 수위 (전체 이용가 · 성인)", () => {
     await expect(confirm).toBeHidden();
     await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
     await dialog.getByRole("button", { name: "성인", exact: true }).click();
-    await confirm.getByLabel("생년월일").fill("1992-03-04");
+    await confirm.locator('input[name="birthDate"]').fill("1992-03-04");
     await confirm.getByRole("button", { name: "성인 확인", exact: true }).click();
     // 동의를 안 하면 보내지 않는다(필수 체크)
     await expect(confirm).toBeVisible();

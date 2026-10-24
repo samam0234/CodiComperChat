@@ -72,7 +72,7 @@ SAFETY_NEGATIVE = (
 # 성인(nsfw)에서도 언제나 붙이는 부정 프롬프트: 어린 모습·강제·의식 없는 상대·동물
 ADULT_NEGATIVE = (
     "child, loli, shota, flat chest, petite, school uniform, rape, forced, non-consensual, unconscious, sleeping, restrained, "
-    "bestiality, animal"
+    "bestiality, animal, photorealistic, realistic, photo, real life, hyperrealistic, 3d render, film grain"
 )
 
 
