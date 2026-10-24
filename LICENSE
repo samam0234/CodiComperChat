@@ -1,0 +1,53 @@
+CodiComperChat — Proprietary License / 독점 라이선스
+
+Copyright (c) 2026 CodiComperChat project. All rights reserved.
+Copyright (c) 2026 코디컴퍼챗 프로젝트. 모든 권리 보유.
+
+This repository and everything in it (source code, documentation, designs,
+character cards, prompts, database schemas, and other materials created for
+the CodiComperChat project) are PROPRIETARY. No license or permission is granted
+except as stated below or in a separate written agreement with the rights holder.
+
+이 저장소와 그 안의 모든 것(소스 코드, 문서, 디자인, 캐릭터 카드, 프롬프트,
+데이터베이스 스키마 등 코디컴퍼챗 프로젝트를 위해 만든 자료)은 비공개 독점 자산입니다.
+아래에 적은 경우나 권리자와 맺은 별도의 서면 계약이 없는 한 어떤 허락도 주어지지 않습니다.
+
+1. What you may do / 허용되는 것
+   - Rights holders and people they have authorized in writing may use, modify,
+     and run this software for developing and operating the CodiComperChat service.
+   - 권리자와, 권리자가 서면으로 허락한 사람은 코디컴퍼챗 서비스를 개발·운영하는 목적으로
+     이 소프트웨어를 사용·수정·실행할 수 있습니다.
+
+2. What you may not do without written permission / 서면 허락 없이는 안 되는 것
+   - Copy, publish, redistribute, sublicense, sell, or rent this repository or any part of it.
+   - Use it, or anything derived from it, to build or train a competing product or model.
+   - Remove or alter copyright, license, or notice files.
+   - 저장소나 그 일부를 복제·공개·재배포·재라이선스·판매·대여하는 것
+   - 이를 이용해 경쟁 제품이나 모델을 만들거나 학습시키는 것
+   - 저작권·라이선스·고지 문서를 지우거나 고치는 것
+
+3. Third-party components / 제3자 구성요소
+   This repository depends on open-source software and uses third-party AI models.
+   They are NOT covered by this license; each keeps its own license and terms.
+   See THIRD_PARTY_NOTICES.md. Model weights are not included in this repository.
+   이 저장소는 오픈소스 소프트웨어에 의존하고 제3자 AI 모델을 사용합니다. 이들은 이 라이선스의
+   대상이 아니며 각자의 라이선스와 약관을 따릅니다. THIRD_PARTY_NOTICES.md를 보세요.
+   모델 가중치 파일은 이 저장소에 들어 있지 않습니다.
+
+4. User-generated content / 이용자가 만든 콘텐츠
+   Characters, personas, conversations, and images created by users of the running
+   service belong to those users as described in the service's Terms of Use
+   (apps/web/app/terms). They are not part of this repository.
+   서비스 이용자가 만든 캐릭터·프로필·대화·그림의 권리는 서비스 이용약관(apps/web/app/terms)에
+   따라 만든 사람에게 있으며 이 저장소의 일부가 아닙니다.
+
+5. No warranty / 보증 없음
+   THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR
+   PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE RIGHTS HOLDER BE LIABLE
+   FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
+   이 소프트웨어는 어떤 보증도 없이 "있는 그대로" 제공됩니다.
+
+(Package metadata: apps/api/package.json declares "license": "UNLICENSED", which
+matches this file. Replace the rights-holder line above with the legal name of the
+owner before public launch. / 공개 출시 전에 위 권리자 줄을 실제 권리자의 법적 이름으로 바꿉니다.)
