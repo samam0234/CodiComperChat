@@ -361,3 +361,21 @@
 .adult {
   border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
 }
+
+/* 성인 확인 작은 열림 상자 */
+.small {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.consent input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}

@@ -380,7 +380,7 @@ test.describe("코디포토넷 수위 (전체 이용가 · 성인)", () => {
     expect((await make(user, { style: "애니메이션", rating: "nsfw" })).status).toBe(403);
   });
 
-  test("화면: 성인 확인 전에는 성인 버튼이 잠기고, 설정에서 확인 → 성인 모드(실사풍 잠김) → 19 그림은 성인 모드에서만", async ({ browser }) => {
+  test("화면: 성인 버튼 → 열림 상자에서 성인 확인 → 곧바로 성인 모드(실사풍 잠김) → 19 그림은 성인 모드에서만", async ({ browser }) => {
     const { user } = await talking("포토넷성인화면");
     const page = await signedInPage(await browser.newContext(), user);
     await page.goto(CHAT);
@@ -388,21 +388,24 @@ test.describe("코디포토넷 수위 (전체 이용가 · 성인)", () => {
     await page.getByRole("button", { name: "코디포토넷" }).click();
     let dialog = page.getByRole("dialog", { name: "코디포토넷" });
     await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
-    await expect(dialog.getByRole("button", { name: "성인", exact: true })).toBeDisabled();
-    await expect(dialog.getByRole("link", { name: "설정에서 성인 확인" })).toBeVisible();
-
-    await page.goto("/settings");
-    await page.getByLabel("생년월일").fill("1992-03-04");
-    await page.getByLabel(/만 19세 이상이며/).check();
-    await page.getByRole("button", { name: "성인 확인" }).click();
-    await expect(page.getByRole("button", { name: "성인 콘텐츠 끄기" })).toBeVisible();
-
-    await page.goto(CHAT);
-    await page.waitForLoadState("networkidle");
-    await page.getByRole("button", { name: "코디포토넷" }).click();
-    dialog = page.getByRole("dialog", { name: "코디포토넷" });
     await dialog.getByText("실사풍").click();
+    // 확인 전에 성인 버튼을 누르면 설정 페이지로 가지 않고 열림 상자가 뜬다
     await dialog.getByRole("button", { name: "성인", exact: true }).click();
+    const confirm = page.getByRole("dialog", { name: "성인 확인" });
+    await expect(confirm).toBeVisible();
+    // 취소하면 전체 이용가 그대로
+    await confirm.getByRole("button", { name: "취소" }).click();
+    await expect(confirm).toBeHidden();
+    await expect(dialog.getByRole("button", { name: "전체 이용가" })).toHaveAttribute("aria-pressed", "true");
+    await dialog.getByRole("button", { name: "성인", exact: true }).click();
+    await confirm.getByLabel("생년월일").fill("1992-03-04");
+    await confirm.getByRole("button", { name: "성인 확인", exact: true }).click();
+    // 동의를 안 하면 보내지 않는다(필수 체크)
+    await expect(confirm).toBeVisible();
+    await confirm.getByLabel(/만 19세 이상이며/).check();
+    await confirm.getByRole("button", { name: "성인 확인", exact: true }).click();
+    await expect(confirm).toBeHidden();
+    // 확인이 끝나면 곧바로 성인 모드
     await expect(dialog.getByRole("note")).toContainText("성인 모드");
     // 실사풍을 골라 두었으면 애니메이션으로 바뀌고, 실사풍은 잠긴다
     await expect(dialog.getByRole("radio", { name: "애니메이션" })).toBeChecked();

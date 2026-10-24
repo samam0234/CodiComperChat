@@ -6,6 +6,7 @@ import { createPhotonet, loadPhotonet } from "@/app/actions/operations";
 import form from "@/components/form.module.css";
 import { formatDayTime } from "@/lib/format-time";
 import type { PhotonetRating, PhotonetView } from "@/lib/operations";
+import AdultDialog from "./adult-dialog";
 import bar from "./ops-bar.module.css";
 import styles from "./photonet.module.css";
 
@@ -51,6 +52,8 @@ export default function Photonet({
   // 그릴 장면: ""면 최근 대화, 아니면 고른 대사의 id
   const [momentId, setMomentId] = useState("");
   const [rating, setRating] = useState<PhotonetRating>("sfw");
+  // 성인 확인 열림 상자 (잠긴 성인 버튼을 누르면 설정 페이지 대신 여기서 확인한다)
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [making, setMaking] = useState(false);
   const [, startTransition] = useTransition();
@@ -99,8 +102,23 @@ export default function Photonet({
   const blockedStyles = adult ? (status?.nsfw.blockedStyles ?? ["실사풍"]) : [];
   const images = (status?.images ?? []).filter((image) => image.rating === rating);
 
+  // 성인 확인을 마치면 상태를 다시 읽고 바로 성인 모드로 넘어간다
+  const onConfirmed = () => {
+    setConfirmOpen(false);
+    startTransition(async () => {
+      const result = await loadPhotonet(characterId);
+      if (!result.ok) return;
+      setStatus(result.data);
+      setRating("nsfw");
+      if (result.data.nsfw.blockedStyles.includes(style)) setStyle("애니메이션");
+    });
+  };
+
   const chooseRating = (next: PhotonetRating) => {
-    if (next === "nsfw" && !nsfwAllowed) return;
+    if (next === "nsfw" && !nsfwAllowed) {
+      setConfirmOpen(true);
+      return;
+    }
     setRating(next);
     setMessage(null);
     // 성인 모드에서 못 쓰는 화풍을 골라 두었으면 애니메이션으로 바꾼다
@@ -150,15 +168,14 @@ export default function Photonet({
               className={`${styles.ratingButton} ${styles.ratingAdult}`}
               aria-pressed={adult}
               onClick={() => chooseRating("nsfw")}
-              disabled={making || !nsfwAllowed}
-              title={nsfwAllowed ? undefined : (status?.nsfw.message ?? undefined)}
+              disabled={making || !status}
             >
               <span className={styles.badge} aria-hidden="true">19</span> 성인
             </button>
           </div>
           {status && !nsfwAllowed && (
             <p className={styles.ratingNote}>
-              {status.nsfw.message} <Link href="/settings#upcoming-settings">설정에서 성인 확인</Link>
+              성인 모드는 성인 확인 뒤에 쓸 수 있어요. <strong>성인</strong> 버튼을 눌러 확인해 주세요.
             </p>
           )}
           {adult && (
@@ -310,6 +327,13 @@ export default function Photonet({
           </section>
         </div>
       </dialog>
+      <AdultDialog
+        open={confirmOpen}
+        reason={status?.nsfw.reason ?? null}
+        message={status?.nsfw.message ?? null}
+        onClose={() => setConfirmOpen(false)}
+        onConfirmed={onConfirmed}
+      />
     </>
   );
 }
