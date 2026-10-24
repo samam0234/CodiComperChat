@@ -3,7 +3,9 @@ import { URLS } from "../env.mjs";
 import { signedInPage, signup } from "../helpers";
 
 // 한국 시각 → 브라우저 시계. 첫 화면은 서버(실제 시각)가 그리고, 화면이 뜨면 브라우저 시계로 다시 맞춘다
-const kst = (hhmmss: string) => new Date(`2026-10-22T${hhmmss}+09:00`);
+// 날짜는 오늘(한국 시각)로 — 서버는 브라우저가 보낸 전환 시각을 "지금부터 이틀 안"일 때만 믿어서, 고정 날짜는 며칠 지나면 깨진다
+const TODAY = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const kst = (hhmmss: string) => new Date(`${TODAY}T${hhmmss}+09:00`);
 const shade = (page: Page) => page.locator("html");
 const button = (page: Page) => page.getByRole("banner").getByRole("button", { name: /모드로 바꾸기/ });
 
