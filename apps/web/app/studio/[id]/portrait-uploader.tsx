@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { removePortrait, uploadPortrait } from "@/app/actions/studio";
 import type { DraftView, PortraitReview } from "@/lib/studio-card";
+import PortraitAi from "./portrait-ai";
 import styles from "./studio-editor.module.css";
 
 // 흉상 초상 (기획서 §6.2 "채팅 옆에 붙을 흉상 초상이 우선, 전신 일러스트 공장은 v1 범위 밖").
-// AI로 그려 주지는 않고, 올린 그림을 정사각형으로 잘라 줄여서 올린다. 서버도 형식·크기를 다시 검사한다.
+// 올린 그림을 정사각형으로 잘라 줄여서 올리거나(서버도 형식·크기를 다시 검사한다), "AI로 직접 만들기"(portrait-ai.tsx, 25 코레딧)로 그린다.
 const SIDE = 320;
 const TARGET_BYTES = 120_000;
 
@@ -142,13 +143,14 @@ export default function PortraitUploader({
           />
           <label htmlFor={`portrait-${draftId}`} className={busy ? styles.secondaryDisabled : styles.secondary} role="button" tabIndex={busy ? -1 : 0}
             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !busy && (e.preventDefault(), input.current?.click())}>
-            {busy ? "검수하는 중…" : hasPortrait ? "그림 바꾸기" : "그림 고르기"}
+            {busy ? "검수하는 중…" : hasPortrait ? "내 파일로 바꾸기" : "내 파일 선택"}
           </label>
           {hasPortrait && (
             <button type="button" className={styles.textButton} onClick={() => void remove()} disabled={busy}>
               지우기
             </button>
           )}
+          <PortraitAi draftId={draftId} busy={busy} onBusy={setBusy} onChange={onChange} />
         </div>
         {error && (
           <p className={styles.errorText} role="alert">

@@ -18,6 +18,7 @@ export const OPERATION_COSTS = {
   boardPost: 10, // 커뮤니티에 내 글 쓰기 (주민 댓글 포함)
   photonet: 50, // 코디포토넷 그림 1장 (엔진 준비 중)
   webtoon: 45, // 웹툰 한 컷 (콘티는 무료, 2026-10-24 사용자 결정)
+  portraitAi: 25, // 공방 초상 AI 만들기 한 장 (2026-10-25 사용자 결정)
 } as const;
 
 export type OperationName = keyof typeof OPERATION_COSTS;
@@ -29,6 +30,7 @@ export const OPERATION_LABELS: Record<OperationName, string> = {
   boardPost: "커뮤니티 글쓰기",
   photonet: "코디포토넷",
   webtoon: "웹툰 한 컷",
+  portraitAi: "AI 초상 만들기",
 };
 
 // 코레딧을 원으로 (화면 안내용, 원 단위 반올림)

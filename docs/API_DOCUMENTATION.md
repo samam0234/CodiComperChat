@@ -116,6 +116,7 @@
 | `POST /agent-chat/messages` | 1분에 15번 | IP |
 | 오퍼레이션 심리 탐구·일기 (`chat` 규칙) | 1분에 20번 | 사용자 |
 | 코디포토넷 그림 만들기 (`photonet`) | 10분에 6번 | 사용자 |
+| 공방 AI 초상 만들기 (`portraitAi`) | 10분에 6번 | 사용자 |
 | 웹툰 콘티 (`webtoonPlan`) · 웹툰 컷 그리기 (`webtoonPanel`) | 10분에 6번 · 14번 | 사용자 |
 
 - IP 기준은 웹 서버가 넘긴 `X-Forwarded-For`의 실제 이용자 IP로 센다. API는 **루프백·사설 주소에서 온 요청의 이 헤더만** 믿는다(`trust proxy`). 운영에서는 웹 앞단이 이 헤더를 덮어써야 이용자가 IP를 꾸며 한도를 피하지 못한다.
@@ -137,6 +138,7 @@
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
+| `POST /studio/characters/:id/portrait/generate` | AI로 초상 만들기 `{ style(애니메이션·웹툰·수채화·실사풍), options: { gender, age(20s~50s), hairColor, hairStyle, eyeColor, outfit, expression, background }, extra?(~100자), useCard?(기본 true) }` (**25 코레딧**) | **200** `{ draft, balance, cost }` · 그린 그림은 올린 그림과 같은 초상 자동 검수를 거쳐 저장(명백히 안 되면 400·환불, 애매하면 PENDING) · 모르는 값 400 · 코레딧 부족 403 · 엔진 꺼짐 503(안 뺌) · 요청 한도 `portraitAi`(10분 6장) · 🔒 |
 | `POST /studio/characters/:id/draft-quest` | 비밀 퀘스트를 카드 설정을 읽고 한 번에 AI로 제안 | **200** `{ title, offer, objective, reward, unlockAt(10~90) }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 설정이 너무 적으면 400, AI가 못 만들면 502 · 비밀·해금 조건은 AI에 보내지 않는다 · 요청 한도는 공방 LLM과 같다 · 🔒 |
 | `POST /studio/characters/:id/draft-field` | "이 칸만 AI로 초안" `{ field }` (예: `campaign.scene`, `personality.habits`) | **200** `{ field, kind: "text" \| "list", value: 문자열 \| 문자열[] }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 지원 칸: 비밀 퀘스트 4칸(`quest.title`·`quest.offer`·`quest.objective`·`quest.reward`), 한 줄 소개·태그, 외형 서술·키워드, 호칭 규칙·말투 습관·금지 말투·성격 요약, 캠페인 역할 6칸, 절대 하지 않는 것·관계가 깨지는 것, 첫 메시지·대체 인사, 로어 3칸. **비밀·해금 조건·이름·예시 대화·추가 로어는 400**(비밀은 AI에 보내지 않는다, §7.8). 결과는 칸의 글자 수·항목 수 상한에 맞춰 다듬는다 · 🔒 |
 | `PUT /studio/characters/:id/portrait` | 흉상 초상 올리기 — **본문은 이미지 원본**, `Content-Type: image/webp\|jpeg\|png` | **200** 초안 · 150KB 이하(넘으면 400, 300KB 넘으면 413), 파일 첫 바이트가 선언한 형식과 맞아야 한다(그림인 척하는 파일은 400), gif·svg 등은 400. 카드와 따로라 다시 테스트할 필요 없다. **자동 검수**(FastAPI `/moderate-image`)를 거친다: 문제 없으면 `portraitReview: APPROVED`(발행 중이면 캐릭터에 바로 적용), 애매하거나 검수를 못 하면 `PENDING`(운영자 승인 전까지 캐릭터에는 초상 없음, 이유는 `portraitReviewNote`), 성적 노출·잔혹한 유혈 등은 **400**(저장 안 함) · 🔒 |
@@ -161,6 +163,7 @@
 | `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 · **개인사 가드:** `context.ungroundedTopics`(Nest가 "유저가 개인사 주제를 물었는데 설정에 근거가 없다"고 판정한 주제)가 있으면 프롬프트 맨 끝에 단정 금지 지시를 붙인다. `retryNote`가 있으면 그 이유로 다시 쓴다 |
 | `POST /ground-check` | 답의 개인사 단정 검사 `{ reply, topics, facts }` | **200** `{ invented, note }` · 설정 자료(`facts`)에 없는 나이·취미·가족·반려동물 등을 구체적으로 말했거나 있다/없다 단정했으면 `invented: true`. 말을 돌리거나 되묻기·설정에 적힌 말은 false. Nest가 근거 없는 개인사를 물은 턴에서만 부르고, 단정이면 최대 2번 다시 쓰게 한다(그래도 단정하면 안전한 말로 대체). 검사가 실패하면 원래 답을 쓴다 |
 | `POST /moderate-image` | 초상 그림 검수 `{ image(base64), mime }` | **200** `{ verdict: "ok" \| "review" \| "block", flags, reason }` · 로컬 모델(gemma4, 그림 인식)이 항목별(성적 노출·미성년자·잔혹·혐오·자해·실존 인물 사진)로 판정하고 규칙이 결과를 정한다. 성적 노출·미성년자·잔혹 → block, 나머지 항목·확신 60 미만·판정 형식 깨짐 → review |
+| `POST /portrait` | 공방 초상 AI 만들기 `{ style, options, appearance, extra, maxBytes }` | **200** `{ image(정사각 WebP base64, 384px), mime, promptUsed }` · 고른 항목은 코드가 영어 태그로, 카드 외형·추가 설명만 LLM이 번역. 성인 태그·전체 이용가 부정 프롬프트, 그림 검수(전체 이용가) |
 | `POST /draft-quest` | 비밀 퀘스트 한 번에 제안 `{ sheet, maxChars, titleMax }` | **200** `{ title, offer, objective, reward, unlockAt }` · 설정 줄(비밀 제외)만 받는다 |
 | `POST /draft-field` | 카드 칸 하나의 초안 `{ sheet, label, guide, kind, maxChars, maxItems, current }` | **200** `{ text, items }` · 카드 구조를 모르고 지금까지 채워진 설정 줄(비밀 제외)과 이 칸이 무엇인지만 받는다. 유저 글은 설정 자료일 뿐 지시로 따르지 않는다 |
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |

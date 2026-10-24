@@ -12,6 +12,7 @@ import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
 import OpsBar from "./ops-bar";
 import Photonet from "./photonet";
+import RecommendedPersona, { type RecommendedPersonaInfo } from "./recommended-persona";
 import SecretQuest from "./secret-quest";
 import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
@@ -91,6 +92,7 @@ export default function CharacterChat({
   balance: initialBalance,
   initialModel,
   hasQuest,
+  recommendedPersona,
 }: {
   characterId: string;
   characterName: string;
@@ -109,6 +111,8 @@ export default function CharacterChat({
   initialModel: string;
   // 이 캐릭터에게 비밀 퀘스트가 있나 (있어야 버튼을 보인다)
   hasQuest: boolean;
+  // 이 캐릭터의 추천 프로필(선택). 그대로 쓰거나 고쳐서 내 프로필로 만든다
+  recommendedPersona: RecommendedPersonaInfo | null;
 }) {
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -410,8 +414,11 @@ export default function CharacterChat({
         <p className={styles.gateText}>
           {characterName}와 이야기할 때 내가 연기할 주인공입니다. 이름만 정해도 시작할 수 있어요.
         </p>
+        {recommendedPersona && (
+          <RecommendedPersona persona={recommendedPersona} characterName={characterName} existing={personas} onSelect={setPersonaId} />
+        )}
         <Link href={`/me?back=${encodeURIComponent(chatPath)}`} className={styles.gateButton}>
-          프로필 캐릭터 만들기
+          {recommendedPersona ? "직접 프로필 만들기" : "프로필 캐릭터 만들기"}
         </Link>
       </div>
     );
@@ -624,6 +631,10 @@ export default function CharacterChat({
             </Link>
           )}
         </div>
+        {/* 아직 프로필을 고르지 않았으면 이 캐릭터의 추천 프로필을 보여 준다 (고정된 뒤에는 숨김) */}
+        {recommendedPersona && !locked && !persona && (
+          <RecommendedPersona persona={recommendedPersona} characterName={characterName} existing={personas} onSelect={setPersonaId} />
+        )}
         {modelOptions && (
           <div className={styles.modelBar}>
             <label className={styles.personaLabel} htmlFor="model-select">

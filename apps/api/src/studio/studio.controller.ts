@@ -18,6 +18,7 @@ import { AuthGuard, CurrentUserId } from '../auth/auth.guard.js';
 import { RateLimit } from '../security/rate-limit.js';
 import { parsePortrait } from './portrait.js';
 import { StudioDraftService } from './studio-draft.service.js';
+import { StudioPortraitAiService, parsePortraitAi } from './studio-portrait-ai.service.js';
 import { StudioPublishService } from './studio-publish.service.js';
 import { StudioTestService } from './studio-test.service.js';
 import { StudioService } from './studio.service.js';
@@ -31,6 +32,7 @@ export class StudioController {
     private readonly test: StudioTestService,
     private readonly publisher: StudioPublishService,
     private readonly drafter: StudioDraftService,
+    private readonly portraitAi: StudioPortraitAiService,
   ) {}
 
   @Get()
@@ -93,6 +95,14 @@ export class StudioController {
     @Body() body: unknown,
   ) {
     return this.studio.setPortrait(userId, id, parsePortrait(contentType, body));
+  }
+
+  // AI로 초상 만들기 { style, options, extra?, useCard? } — 25 코레딧, 초상 자동 검수를 거쳐 저장. 못 그리거나 막히면 환불
+  @Post(':id/portrait/generate')
+  @HttpCode(200)
+  @RateLimit('portraitAi')
+  generatePortrait(@CurrentUserId() userId: string, @Param('id') id: string, @Body() body: unknown) {
+    return this.portraitAi.generate(userId, id, parsePortraitAi(body));
   }
 
   @Delete(':id/portrait')
