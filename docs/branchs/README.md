@@ -224,5 +224,6 @@
 | 2026-10-24 | `2c02951` | develop (merge) | feature/photonet-scene → develop 병합 (--no-ff) | [261024_1953_2c02951_merge-photonet-scene_develop.md](commits/261024_1953_2c02951_merge-photonet-scene_develop.md) |
 | 2026-10-24 | `faaa708` | develop (merge) | feature/photonet-rating → develop 병합 (--no-ff) | [261024_1953_faaa708_merge-photonet-rating_develop.md](commits/261024_1953_faaa708_merge-photonet-rating_develop.md) |
 | 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
+| 2026-10-24 | `f803989` | feature/image-engine | 서버 안 그림 엔진(diffusers) — WebUI 없이 services/ai에서 직접 그리기 | [261024_2215_f803989_image-engine-local_feature-image-engine.md](commits/261024_2215_f803989_image-engine-local_feature-image-engine.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
