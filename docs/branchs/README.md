@@ -221,5 +221,8 @@
 | 2026-10-24 | `55ac09b` | feature/photonet-rating | 성인 확인을 열림 상자로 바로 하기 | [261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md](commits/261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md) |
 | 2026-10-24 | `cf46488` | feature/photonet-rating | 성인 모드 그림체를 깔끔한 현대 애니로, 검수 오판 줄이기 | [261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md](commits/261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md) |
 | 2026-10-24 | `7a36099` | feature/secret-quest | 비밀 퀘스트 — 캐릭터가 건네는 숨은 미션, 직접 또는 AI로 제작 | [261024_1946_7a36099_secret-quest_feature-secret-quest.md](commits/261024_1946_7a36099_secret-quest_feature-secret-quest.md) |
+| 2026-10-24 | `2c02951` | develop (merge) | feature/photonet-scene → develop 병합 (--no-ff) | [261024_1953_2c02951_merge-photonet-scene_develop.md](commits/261024_1953_2c02951_merge-photonet-scene_develop.md) |
+| 2026-10-24 | `faaa708` | develop (merge) | feature/photonet-rating → develop 병합 (--no-ff) | [261024_1953_faaa708_merge-photonet-rating_develop.md](commits/261024_1953_faaa708_merge-photonet-rating_develop.md) |
+| 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
