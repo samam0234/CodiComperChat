@@ -1,7 +1,9 @@
-"""그림 엔진: 로컬 Stable Diffusion WebUI(AUTOMATIC1111)의 API를 부른다 (코디포토넷).
+"""그림 엔진 (코디포토넷). 두 가지 중 하나로 그린다 — `IMAGE_ENGINE`:
 
-WebUI는 `--api`로 따로 띄운다 (scripts/start-sd-webui.cmd). 서비스에 쓰는 체크포인트는 아래 표에 적은 것만이다 —
-WebUI 폴더에 다른 모델(성인용 등)이 있어도 요청마다 체크포인트를 못 박아 그것을 쓰지 않는다.
+- `local`(기본): services/ai 프로세스 안에서 diffusers로 직접 그린다 (image_local.py). 배포용 — WebUI가 필요 없다
+- `webui`: 따로 띄운 Stable Diffusion WebUI(AUTOMATIC1111)의 API를 부른다 (scripts/start-sd-webui.cmd, 개발 PC용)
+
+서비스에 쓰는 체크포인트는 아래 표에 적은 것만이다 — 모델 폴더에 다른 모델(성인용 등)이 있어도 화풍마다 체크포인트를 못 박아 그것을 쓰지 않는다.
 
 - 애니메이션·웹툰: Animagine XL 4.0 Opt (SDXL, CreativeML Open RAIL++-M)
 - 수채화·실사풍: Stable Diffusion 1.5 기본 모델 (CreativeML OpenRAIL-M)
@@ -14,6 +16,8 @@ from dataclasses import dataclass
 
 import httpx
 from fastapi import HTTPException
+
+from app.services import image_local
 
 DEFAULT_URL = "http://127.0.0.1:7860"
 
@@ -38,6 +42,8 @@ class Family:
     negative: str
     # 수위 태그 (sfw는 하나, nsfw는 장면 설계표가 고른 단계 — 모델마다 쓰는 말이 다르다)
     ratings: dict[str, str]
+    # SDXL 계열인가 (서버 안 엔진이 파이프라인 종류를 고른다)
+    xl: bool = False
 
 
 SDXL_ANIME = Family(
@@ -53,6 +59,7 @@ SDXL_ANIME = Family(
     ),
     # Animagine XL 4.0의 수위 태그 (모델 카드: safe / sensitive / nsfw / explicit)
     ratings={"safe": "safe", "sensitive": "sensitive", "nsfw": "nsfw", "explicit": "explicit"},
+    xl=True,
 )
 
 SD15 = Family(
@@ -97,10 +104,16 @@ def checkpoint(style: Style) -> str:
     return os.environ.get(style.checkpoint_env, style.checkpoint_default)
 
 
+def engine() -> str:
+    return "webui" if os.environ.get("IMAGE_ENGINE", "local").strip().lower() == "webui" else "local"
+
+
 def status() -> dict:
     """엔진이 켜져 있고 쓰려는 체크포인트가 모두 있나. 짧게 묻고, 안 되면 준비 중으로 본다."""
     if fake():
         return {"ready": True, "missing": []}
+    if engine() == "local":
+        return image_local.status({checkpoint(s) for s in STYLES.values()})
     try:
         res = httpx.get(f"{_url()}/sdapi/v1/sd-models", timeout=3.0)
         res.raise_for_status()
@@ -132,6 +145,18 @@ def txt2img(*, prompt: str, negative: str, style: Style, ratio: str) -> tuple[by
     width, height = style.family.sizes[ratio]
     if fake():
         return _fake_png(width, height), width, height
+    if engine() == "local":
+        png = image_local.txt2img(
+            prompt=prompt,
+            negative=negative,
+            checkpoint=checkpoint(style),
+            xl=style.family.xl,
+            width=width,
+            height=height,
+            steps=style.family.steps,
+            cfg=style.family.cfg,
+        )
+        return png, width, height
     payload = {
         "prompt": prompt,
         "negative_prompt": negative,

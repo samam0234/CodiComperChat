@@ -4,6 +4,19 @@
 
 엔진이 꺼져 있으면 코디포토넷 창은 "준비 중"으로 잠기고 서버는 코레딧을 빼지 않고 503을 돌려준다. 나머지 기능(대화·오퍼레이션)은 엔진과 상관없이 돈다.
 
+## 엔진 고르기: 서버 안 엔진(기본) / WebUI
+
+2026-10-24 사용자 요청: 배포 때 WebUI를 따로 띄우기 곤란하므로 services/ai 안에 서버용 엔진을 둔다.
+
+- `IMAGE_ENGINE=local`(기본): services/ai 프로세스가 diffusers로 체크포인트를 직접 읽어 그린다(`app/services/image_local.py`). WebUI가 필요 없다
+  - 설치: `services/ai`에서 `.venv/Scripts/python.exe -m pip install -r requirements-image.txt` (PyTorch 2.10 CUDA 12.8 · diffusers 0.42, 수 GB)
+  - 모델: `services/ai/models/`(또는 `SD_MODEL_DIR`)에 `animagine-xl-4.0-opt.safetensors`(애니메이션·웹툰), `v1-5-pruned-emaonly.safetensors`(수채화·실사풍). git 제외. 개발 PC는 `D:SD...Stable-diffusion`의 파일을 하드링크로 걸어 두었다(디스크를 더 쓰지 않는다)
+  - 처음 읽을 때 diffusers가 모델 구성 파일(수십 KB)을 Hugging Face에서 받아 캐시한다 — 배포 서버는 첫 실행 때 인터넷이 필요하다
+  - WebUI 문법을 그대로 받는다: `(태그:1.2)` 가중치, ` BREAK `(인물마다 75토큰 묶음을 따로 인코딩해 이어 붙임). 스케줄러는 Euler a, SD 1.5의 기본 안전 검사기는 끈다(검수는 photonet_moderation이 한다)
+  - 그래픽 메모리에는 체크포인트 하나만 둔다. 메모리가 모자라면 `SD_OFFLOAD=1`
+  - 실측(2026-10-24, RTX 4070 SUPER): 애니메이션 두 사람 가로 한 장이 처음 모델 읽기 포함 약 188초, 두 사람이 구별되게 잘 나옴. **따뜻한 상태의 속도와 수채화(SD 1.5) 경로는 아직 실측하지 않았다**
+- `IMAGE_ENGINE=webui`: 아래처럼 따로 띄운 WebUI의 API를 부른다(개발 PC용)
+
 ## 켜기
 
 ```bat

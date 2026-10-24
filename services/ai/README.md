@@ -20,6 +20,16 @@ cp .env.example .env
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
+### 코디포토넷 그림 엔진 (선택)
+
+그림은 이 프로세스 안에서 diffusers로 직접 그린다(`IMAGE_ENGINE=local`, 기본). NVIDIA GPU(그래픽 메모리 12GB 권장)가 필요하고, 수 GB라 따로 설치한다:
+
+```bash
+./.venv/Scripts/python.exe -m pip install -r requirements-image.txt
+```
+
+체크포인트 두 개를 `services/ai/models/`(git 제외)에 둔다 — 애니메이션·웹툰 `animagine-xl-4.0-opt.safetensors`, 수채화·실사풍 `v1-5-pruned-emaonly.safetensors`. 설치·모델이 없으면 코디포토넷은 "준비 중"으로 보이고 나머지 기능은 그대로 돈다. 자세히: [../../docs/guidance/photonet-engine.md](../../docs/guidance/photonet-engine.md)
+
 로컬 [Ollama](https://ollama.com)가 `ollama serve`로 떠 있어야 한다 (기본 `http://localhost:11434`). 연결이 안 되면 `POST /infer`는 503을 돌려준다. `.env`를 고친 뒤에는 서버를 재시작한다.
 
 - 대화형 API 문서: `http://localhost:8000/docs`
