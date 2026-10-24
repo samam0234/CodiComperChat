@@ -226,5 +226,15 @@
 | 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
 | 2026-10-24 | `61e682c` | feature/adult-guard | 성인 그림에서 미성년자 설정·실사를 원천 차단, 거짓 정보 책임 고지 | [261024_2151_61e682c_adult-guard_feature-adult-guard.md](commits/261024_2151_61e682c_adult-guard_feature-adult-guard.md) |
 | 2026-10-24 | `d8cea66` | feature/webtoon | 웹툰 — 대화를 여러 컷 웹툰으로 (콘티 무료, 한 컷 45 코레딧) | [261024_2257_d8cea66_webtoon_feature-webtoon.md](commits/261024_2257_d8cea66_webtoon_feature-webtoon.md) |
+|  | `` |  |  | [261024_2159_1a02dd1_quest-verify_feature-quest-verify.md](commits/261024_2159_1a02dd1_quest-verify_feature-quest-verify.md) |
+|  | `` |  |  | [261024_2215_f803989_image-engine-local_feature-image-engine.md](commits/261024_2215_f803989_image-engine-local_feature-image-engine.md) |
+|  | `` |  |  | [261024_2219_61c4d55_enhanced-overage_feature-enhanced-overage.md](commits/261024_2219_61c4d55_enhanced-overage_feature-enhanced-overage.md) |
+|  | `` |  |  | [261024_2236_5957eac_chat-narration_feature-chat-narration.md](commits/261024_2236_5957eac_chat-narration_feature-chat-narration.md) |
+| 2026-10-24 | `07692f9` | develop (merge) | feature/adult-guard → develop 병합 (--no-ff) | [261024_2301_07692f9_merge-adult-guard_develop.md](commits/261024_2301_07692f9_merge-adult-guard_develop.md) |
+| 2026-10-24 | `8cc738c` | develop (merge) | feature/webtoon → develop 병합 (--no-ff) | [261024_2301_8cc738c_merge-webtoon_develop.md](commits/261024_2301_8cc738c_merge-webtoon_develop.md) |
+| 2026-10-24 | `4d39b37` | develop (merge) | feature/quest-verify → develop 병합 (--no-ff) | [261024_2302_4d39b37_merge-quest-verify_develop.md](commits/261024_2302_4d39b37_merge-quest-verify_develop.md) |
+| 2026-10-24 | `ab2de34` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-enhanced-overage_develop.md](commits/261024_2302_ab2de34_merge-enhanced-overage_develop.md) |
+| 2026-10-24 | `ab2de34` | develop (merge) | feature/image-engine → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-image-engine_develop.md](commits/261024_2302_ab2de34_merge-image-engine_develop.md) |
+| 2026-10-24 | `dcb89a1` | develop (merge) | feature/chat-narration → develop 병합 (--no-ff) | [261024_2302_dcb89a1_merge-chat-narration_develop.md](commits/261024_2302_dcb89a1_merge-chat-narration_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
