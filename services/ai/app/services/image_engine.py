@@ -45,10 +45,11 @@ SDXL_ANIME = Family(
     sizes={"정사각": (1024, 1024), "세로": (832, 1216), "가로": (1216, 832)},
     steps=28,
     cfg=5.0,
-    quality="masterpiece, high score, great score, absurdres",
+    quality="newest, masterpiece, high score, great score, absurdres",
     negative=(
         "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, "
-        "worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry"
+        "worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, "
+        "realistic, photorealistic, 3d, old, aged, wrinkles, sketch, monochrome, crowd, background people"
     ),
     # Animagine XL 4.0의 수위 태그 (모델 카드: safe / sensitive / nsfw / explicit)
     ratings={"safe": "safe", "sensitive": "sensitive", "nsfw": "nsfw", "explicit": "explicit"},
@@ -85,7 +86,7 @@ class Style:
 
 
 STYLES: dict[str, Style] = {
-    "애니메이션": Style("SD_ANIME_MODEL", "animagine-xl-4.0-opt.safetensors", SDXL_ANIME, "anime coloring, anime screencap"),
+    "애니메이션": Style("SD_ANIME_MODEL", "animagine-xl-4.0-opt.safetensors", SDXL_ANIME, "anime coloring, detailed eyes"),
     "웹툰": Style("SD_ANIME_MODEL", "animagine-xl-4.0-opt.safetensors", SDXL_ANIME, "webtoon, manhwa, clean lineart, flat color"),
     "수채화": Style("SD_BASE_MODEL", "v1-5-pruned-emaonly.safetensors", SD15, "watercolor painting, traditional media, soft colors"),
     "실사풍": Style("SD_BASE_MODEL", "v1-5-pruned-emaonly.safetensors", SD15, "photorealistic, cinematic lighting, realistic"),

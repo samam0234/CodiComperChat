@@ -16,6 +16,7 @@
 import base64
 import io
 import json
+import logging
 import re
 
 from fastapi import HTTPException
@@ -23,6 +24,8 @@ from PIL import Image
 
 from app.schemas.photonet import CastMember, PhotonetRequest, PhotonetResponse, PhotonetStatus
 from app.services import image_engine, llm, photonet_moderation
+
+logger = logging.getLogger(__name__)
 
 PLAN_BASE = """You are a storyboard artist for a Korean character role-play chat. You decide what ONE illustration of the story should show, and describe it for an image model (Stable Diffusion) in English Danbooru-style tags.
 
@@ -106,7 +109,7 @@ YOUNG = re.compile(
 NSFW_BLOCKED_STYLES = {"실사풍"}
 
 WEBP_QUALITY = 88
-MODERATION_SIZE = 512
+MODERATION_SIZE = 768
 
 GENDER_KO = {"male": "남", "female": "여", "unknown": "?"}
 ROLE_KO = {"character": "대화 상대 캐릭터", "protagonist": "유저가 연기하는 주인공", "acquaintance": "주인공의 지인"}
@@ -193,9 +196,10 @@ def compose(plan: dict, style: image_engine.Style, rating: str = "sfw") -> tuple
     segments = [", ".join(parts)]
     for p, gender in zip(people, genders):
         # 인물마다 성인임을 못 박는다 (애니 모델은 아무 말 없으면 어리게 그리는 일이 잦다).
-        # 성인 그림은 더 세게: 성숙한 성인 체형까지
+        # 성인 모드도 같은 가중치: "mature … :1.3"으로 세게 줬더니 얼굴이 늙고 사실적으로 나와 그림체가 어색했다
+        # (2026-10-24 사용자 보고). 어려 보이는 것은 부정 프롬프트·태그 정리·그림 검수(young)가 막는다
         who = {"female": "adult woman", "male": "adult man", "unknown": "adult"}[gender]
-        who = f"(mature {who}, adult body:1.3)" if rating == "nsfw" else f"({who}:1.2)"
+        who = f"({who}:1.2)"
         detail = ", ".join(
             x
             for x in (_clean(p.get("look"), rating), _clean(p.get("expression"), rating, 80), _clean(p.get("pose"), rating, 80))
@@ -237,7 +241,10 @@ def _webp(png: bytes, max_side: int | None = None, quality: int = WEBP_QUALITY) 
 
 def _check(png: bytes, rating: str) -> None:
     small = base64.b64encode(_webp(png, MODERATION_SIZE, 80)).decode()
-    if photonet_moderation.check(rating, small):
+    refused = photonet_moderation.check(rating, small)
+    if refused:
+        # 어떤 항목이 막았는지 남긴다 (그림 내용은 남기지 않는다)
+        logger.warning("photonet 검수에서 막음 rating=%s flags=%s", rating, refused)
         raise HTTPException(
             status_code=422,
             detail="그림에 보여 줄 수 없는 내용이 섞여 나왔어요. 장면을 바꿔 다시 만들어 주세요. 코레딧은 돌려드려요.",
