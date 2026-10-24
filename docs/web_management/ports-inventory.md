@@ -11,6 +11,7 @@
 | PostgreSQL | 5432 | 5432 (DB `codicomperchat_e2e`) | **확정** (설치형 서비스, localhost 전용) |
 | Ollama | 11434 | 쓰지 않음(가짜 LLM) | 개발용 |
 | Mailpit (개발 메일) | 1025 SMTP · 8025 웹 | 쓰지 않음(메일은 폴더로) | 개발용, 127.0.0.1에만 |
+| Stable Diffusion WebUI | 7860 (127.0.0.1) | 쓰지 않음(가짜 그림 엔진) | 선택, `IMAGE_ENGINE=webui`일 때만. 기본 엔진(`local`)은 포트가 없다(services/ai 안) |
 | Redis | — | — | 쓰지 않음 |
 
 e2e 포트는 개발 서버와 겹치지 않게 따로 둬서 같이 켜 둬도 된다(`e2e/env.mjs`). `npm run ci:local`도 e2e 포트를 쓰므로 `npm run test:e2e`와 동시에 돌리지 않는다.

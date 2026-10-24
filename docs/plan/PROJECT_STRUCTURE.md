@@ -1,12 +1,13 @@
 # 프로젝트 구조
 
-정본: `CodiComperChat_project_plan.md` §7.3. 최종 갱신 2026-10-16 — 실제 폴더 기준.
+정본: `CodiComperChat_project_plan.md` §7.3. 최종 갱신 2026-10-24 — 실제 폴더 기준.
 
 ## 모노레포 최상위
 
 ```text
 repo/
-├── package.json            # npm workspaces 루트 (workspaces: ["apps/*"]), 공통 명령(dev·test·e2e·bench·ci:local)
+├── package.json            # npm workspaces 루트 (workspaces: ["apps/*", "console"]), 공통 명령(dev·test·e2e·bench·ci:local)
+├── LICENSE · SECURITY.md · THIRD_PARTY_NOTICES.md   # 저장소 라이선스(독점) · 보안 정책 · 제3자 고지
 ├── apps/
 │   ├── web/                # Next.js 16 (React 19, App Router, TSX)
 │   └── api/                # Nest.js 12 (TypeScript, ESM) + Prisma 7
@@ -14,9 +15,9 @@ repo/
 ├── services/
 │   └── ai/                 # FastAPI (Python 3.12) — 워크스페이스 밖, 자체 .venv
 ├── e2e/                    # 웹 화면 자동 테스트(Playwright) + 부하 측정(bench.mjs)
-├── scripts/ci-local.mjs    # CI 단계를 깨끗한 클론에서 재현
+├── scripts/                # ci-local.mjs(CI를 깨끗한 클론에서 재현) · start-sd-webui.cmd(개발용 WebUI 그림 엔진)
 ├── .github/workflows/ci.yml
-├── docker-compose.yml      # postgres만 (web·api·ai 컨테이너화는 배포 단계에서)
+├── docker-compose.yml      # postgres · mailpit (web·api·ai 컨테이너화는 배포 단계에서)
 └── docs/
 ```
 
@@ -30,15 +31,16 @@ apps/web/
 │   ├── layout.tsx · globals.css   # 셸(헤더·드로어·푸터) · 디자인 토큰(라이트·다크) — docs/plan/DESIGN.md
 │   ├── page.tsx            # 홈: 히어로 · 이어서 대화하기 · 캐릭터 카드
 │   ├── popular/ agents/    # 인기 · 사용 안내 챗봇
-│   ├── characters/[id]/    # 상세 · chat/(대화, saved 이어하기, memories 기억, settings 상태설정)
+│   ├── characters/[id]/    # 상세 · chat/(대화, saved 이어하기, memories 기억, settings 상태설정,
+│   │                       #   mind·diary·messages·community·webtoon 오퍼레이션, photonet·secret-quest·adult-dialog 열림 상자)
 │   ├── library/            # 대화 목록
-│   ├── studio/ · studio/[id]/   # 공방 목록 · 7단계 편집(AI 초안, 3턴 테스트, 초상, 발행)
+│   ├── studio/ · studio/[id]/   # 공방 목록 · 8단계 편집(7층 + 비밀 퀘스트, AI 초안·퀘스트 AI 제작, 3턴 테스트, 초상, 발행)
 │   ├── me/ settings/       # 마이페이지(프로필 캐릭터, 결제 내역, 이메일 인증) · 설정(테마, 계정, 비밀번호, 탈퇴)
 │   ├── login/ signup/ forgot-password/ reset-password/ verify-email/
 │   ├── pricing/ billing/{mock,success,fail}/   # 요금 안내 · 결제 흐름
 │   ├── terms/ privacy/ business/ support/      # 약관 등 (법률 검토 전 초안)
 │   ├── actions/            # 서버 액션 — Nest를 부르는 곳 (auth, studio, billing, admin-* …)
-│   └── api/                # 라우트 핸들러: 초상 그림 중계(characters·studio), CSP 보고 받기
+│   └── api/                # 라우트 핸들러: 그림 중계(초상·코디포토넷·웹툰 컷), CSP 보고 받기
 ├── components/             # 셸, 캐릭터 카드·아바타, 입력창, 대화 상자, 약관 틀, 로고
 └── lib/                    # 서버 전용 데이터 읽기(auth, conversations, billing …), 카드 타입, 시간 표시
 ```
@@ -76,7 +78,7 @@ apps/api/
     ├── main.ts             # 부트스트랩: 보안 헤더, trust proxy, 초상용 raw body
     ├── app.module.ts       # 모듈 조합 + 전역 요청 한도 가드
     ├── auth/               # 가입·로그인·내 정보·비밀번호·이메일 인증·비밀번호 찾기, AuthGuard·AdminGuard, 토큰 세대
-    ├── account/            # 회원 탈퇴
+    ├── account/            # 회원 탈퇴, 성인 확인(생년월일+동의, adult.ts)
     ├── mail/               # 메일 발송 (SMTP / 폴더 / 로그)
     ├── characters/         # 목록·상세·초상
     ├── character-chat/     # 캐릭터 대화·새로하기·이어하기·대답 추천 (컨텍스트 조립)
@@ -92,6 +94,10 @@ apps/api/
     ├── reports/            # 신고 + 운영자 신고함·내리기·복구
     ├── billing/            # 상품·주문·승인·환불·결제 내역 + 운영자 계정 등급·주문
     ├── plan/               # 요금 등급 계산
+    ├── credits/            # 코레딧(출석·차감·환불·보상·내역), 값표
+    ├── models/             # 대화 모델 목록·조건(강화 무료 하루 한도·초과 코레딧, 프리미엄)
+    ├── operations/         # 오퍼레이션(심리 탐구·일기·메시지·커뮤니티), 코디포토넷, 웹툰
+    ├── quests/             # 비밀 퀘스트(진행·판정 반영·보상)
     ├── ai/                 # FastAPI 호출(postToAi) + 호출 대기열
     ├── security/           # 요청 한도(메모리·DB 저장소)
     ├── agent-chat/         # 사용 안내 챗봇
@@ -108,11 +114,13 @@ apps/api/
 services/ai/
 ├── app/
 │   ├── main.py             # FastAPI, 라우터 등록, services/ai/.env 읽기
-│   ├── routes/             # health · infer · summarize · critique_test · remember · suggest · assist · ground · draft · moderate · train(403)
+│   ├── routes/             # health · infer · summarize · critique_test · remember · suggest · assist · ground · draft(+draft-quest) · moderate · operations · photonet · webtoon · train(403)
 │   ├── schemas/            # 요청/응답 계약 (WireModel = camelCase)
-│   └── services/           # llm(Ollama 호출) · inference · summarization · critique · remember · suggestion · assist · grounding · draft · image_moderation · fake_llm(시험용)
+│   └── services/           # llm(Ollama 호출) · inference · summarization · critique · remember · suggestion · assist · grounding · draft · image_moderation · operations · photonet · photonet_moderation · webtoon · image_engine · image_local(diffusers) · fake_llmration · fake_llm(시험용)
 ├── evals/                  # AI 품질 평가 (python -m evals.run) — 말투·지시 무시·메타·강의·개인사·판정 안정성·이미지 검수
-├── requirements.txt
+├── models/                 # 그림 모델 체크포인트 (git 제외, 수 GB)
+├── requirements.txt        # 기본 (가벼움)
+├── requirements-image.txt  # 그림 엔진: PyTorch CUDA · diffusers (선택)
 └── README.md
 ```
 
@@ -125,7 +133,7 @@ e2e/
 ├── env.mjs · prepare.mjs   # 전용 포트(3101/4101/8101)·DB·폴더, 준비(DB 생성·마이그레이션·비우기·검증 빌드)
 ├── servers/                # e2e용 web·api·ai 서버 실행 (가짜 LLM, 가짜 결제, 메일은 폴더로)
 ├── helpers.ts              # API 호출·가입·로그인 쿠키·SQL·메일함 읽기
-├── tests/*.spec.ts         # 인증·이메일·대화·공방·신고·검수·결제·탈퇴·보안·요금 등급
+├── tests/*.spec.ts         # 20개: 인증·이메일·대화·명령어·글 꾸미기·모델·공방·검수·신고·결제·콘솔·오퍼레이션·웹툰·퀘스트·테마·보안 등
 └── bench.mjs               # 부하 측정 (npm run bench)
 ```
 

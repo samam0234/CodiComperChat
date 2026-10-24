@@ -1,6 +1,6 @@
 # 하드코딩 구간 표시 규칙
 
-> 최종 갱신 2026-10-16. 코드가 생겼다. 아래 "지금 고정해 둔 값" 표가 실제로 손봐야 할 자리다. 코드에 마커를 붙이지는 않았고, 값마다 상수 이름과 위치로 찾는다.
+> 최종 갱신 2026-10-24. 코드가 생겼다. 아래 "지금 고정해 둔 값" 표가 실제로 손봐야 할 자리다. 코드에 마커를 붙이지는 않았고, 값마다 상수 이름과 위치로 찾는다.
 
 ## 표시 규약
 
@@ -36,6 +36,15 @@
 | 요청 한도 | 로그인 15분 10번 등 | `apps/api/src/security/rate-limit.ts` `RULES` | 운영 데이터 |
 | 공방 판정 기준 | 강의식 길이·존댓말 비율 등 | `services/ai/app/services/critique.py` | 평가(`evals`)로 확인하며 |
 | 프로필 캐릭터 수 | 10개 | `apps/api/src/personas/personas.service.ts` `PERSONA_LIMIT` | |
+| 코레딧 값 | 출석 1,000(프로 5,000) · 오퍼레이션 30/20/20/10 · 코디포토넷 50 · 웹툰 컷 45 · 비밀 퀘스트 보상 100 · 강화 무료 초과 1번 10 | `apps/api/src/credits/credits.ts`, `quests/quest.ts` `QUEST_REWARD_CREDITS`, `models/models.ts` `ENHANCED_OVERAGE_CREDITS` | 요금 정책·원가 |
+| 강화 무료 하루 무료 횟수 | 30 | `models/models.ts` `ENHANCED_DAILY_LIMIT_DEFAULT` (env `MODEL_ENHANCED_DAILY_LIMIT`) | |
+| 성인 나이 | 만 19세 (한국 시각) | `apps/api/src/account/adult.ts` `ADULT_AGE` | 본인인증 도입 시 |
+| 미성년자 낱말·나이 검사 | 넓게("고등학생 때"도 막음) | `services/ai/app/services/photonet.py` `MINOR_WORDS`·`MINOR_AGE` | 성인 장면이 지나치게 막히면 — 안전 쪽으로 기운 값이라 신중히 |
+| 그림 검수 기준 | 성인: 어려 보임·강제·실존 인물·실사·혐오·자해 / 전체 이용가: 성적·노출·유혈·폭력 추가. 확신도는 보지 않는다 | `services/ai/app/services/photonet_moderation.py` `REFUSE` | 검수 기록이 쌓이면 |
+| 퀘스트 판정 | 확신 85 이상 + 근거 인용 8자 이상이 실제 대사에 있어야 | `services/ai/app/services/summarization.py` `VERIFY_MIN_CONFIDENCE`·`EVIDENCE_MIN` | 판정이 너무 엄격/느슨할 때 |
+| 퀘스트 열리는 친밀도 기본 | 30(공방 슬라이더) · 유지성 40 | `quests/quest.ts` `EMPTY_QUEST`, `prisma/seed.mjs` | |
+| 웹툰 컷 수·한도 | 2~6컷, 콘티 10분 6번·컷 10분 14번 | `operations/webtoon.service.ts`, `security/rate-limit.ts` | GPU 처리량 |
+| 그림 크기·단계 | 애니 1216×832 28스텝 / SD1.5 768×512 | `services/ai/app/services/image_engine.py` (`SDXL_ANIME`·`SD15`) | 모델·화질 |
 
 ## 검색 팁
 

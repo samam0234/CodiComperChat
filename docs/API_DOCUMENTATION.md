@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-10-16): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-10-24): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -114,10 +114,13 @@
 | `PUT /studio/characters/:id/portrait` (업로드) | 1분에 10번 | 사용자 |
 | `POST /characters/:id/report` (신고) | 1시간에 10번 | 사용자 |
 | `POST /agent-chat/messages` | 1분에 15번 | IP |
+| 오퍼레이션 심리 탐구·일기 (`chat` 규칙) | 1분에 20번 | 사용자 |
+| 코디포토넷 그림 만들기 (`photonet`) | 10분에 6번 | 사용자 |
+| 웹툰 콘티 (`webtoonPlan`) · 웹툰 컷 그리기 (`webtoonPanel`) | 10분에 6번 · 14번 | 사용자 |
 
 - IP 기준은 웹 서버가 넘긴 `X-Forwarded-For`의 실제 이용자 IP로 센다. API는 **루프백·사설 주소에서 온 요청의 이 헤더만** 믿는다(`trust proxy`). 운영에서는 웹 앞단이 이 헤더를 덮어써야 이용자가 IP를 꾸며 한도를 피하지 못한다.
 - `RATE_LIMIT=off`로 끄거나 `RATE_LIMIT_SCALE=<배수>`로 한도를 늘릴 수 있다(웹 자동 테스트가 쓴다). 기본은 켜짐.
-- 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소(Redis 등)가 필요하다.
+- 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소가 필요하다 — `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`). Redis는 쓰지 않는다.
 
 **보안 헤더:** 모든 API 응답에 `X-Content-Type-Options: nosniff`·`X-Frame-Options: DENY`·`Referrer-Policy: no-referrer`가 붙고 `X-Powered-By`는 없다. 웹 응답에는 nosniff·`X-Frame-Options: DENY`·`frame-ancestors 'none'`·`Referrer-Policy: strict-origin-when-cross-origin`·`Permissions-Policy`(카메라·마이크·위치·결제 끔)가 붙는다. 화면 응답에는 **엄격한 CSP**(`apps/web/proxy.ts`)가 붙는다: 요청마다 새 nonce, `script-src 'nonce-…' 'strict-dynamic'`(인라인 스크립트는 nonce가 있어야만 실행, `unsafe-inline` 없음), `object-src 'none'`, `base-uri 'self'`, 외부는 토스페이먼츠 결제창만. 스타일만 인라인 허용. 개발 서버는 HMR 때문에 `unsafe-eval`·웹소켓을 더 연다. 막은 내용은 `report-uri /api/csp-report`로 브라우저가 바로 알려 주고, 웹 서버 로그에 `[CSP 위반] 지시어 막음: 주소 · 화면: 주소` 한 줄로 남는다(주소의 쿼리는 버림, 본문 16KB·1분 30줄 제한). 새 외부 자원을 붙였는데 CSP에 출처를 더하지 않았으면 여기서 보인다. **비밀번호:** 8자 이상 128자 이하이며, 흔한 값(`12345678`·`password` 등)·같은 글자 반복·이메일 아이디와 같은 값은 400.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
@@ -148,7 +151,7 @@
 | `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 초안 주인. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
 | `PATCH /studio/characters/:id/visibility` | 공개 범위 `{ visibility: "PUBLIC" \| "UNLISTED" \| "PRIVATE" }` | **200** 초안 · 공개 = 홈·인기 목록, 링크 공개 = 목록에 없고 주소(`/characters/:id`)를 아는 사람만, 비공개 = 만든 사람만. 새 초안 기본은 비공개. 카드 지문과 무관해 다시 테스트할 필요 없고, 발행 중이면 캐릭터에 바로 적용 · 잘못된 값 400 · 🔒 |
 
-> 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
+> 501을 쓰는 이유: 개발 초기에 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 
 ## FastAPI — Nest만 내부에서 호출 (웹은 알 필요 없음)
 
@@ -163,8 +166,13 @@
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
-| `POST /summarize` | 대화 조각 요약·상태 갱신 `{ context, sessionTurns }` (기획서 13.4장) | **200** `{ brief, relationDelta: [{ axis: "친밀도", delta(-8~+8), reason }], hooksOpen: [{ text }], hooksClosed: [{ id }], knowledgeGained: [], unlocks: [], nextPressure }` · `context.storySoFar`(이전 요약)에 이번 대화를 합쳐 새 요약을 쓴다. 근거는 유저의 행동과 두 사람 사이에 일어난 일, 확실하지 않으면 변화 0. 형식이 깨지면 상태를 바꾸지 않는다 |
+| `POST /summarize` | 대화 조각 요약·상태 갱신 `{ context, sessionTurns, quest?: { offer, objective, offered } }` (기획서 13.4장) | **200** `{ brief, relationDelta: [{ axis: "친밀도", delta(-8~+8), reason }], hooksOpen: [{ text }], hooksClosed: [{ id }], knowledgeGained: [], unlocks: [], nextPressure, questOffered, questDone }` · `quest`가 있을 때만 퀘스트 판정: 요약 모델의 후보를 전용 판정이 한 번 더 확인한다(온도 0, 근거 인용이 해당 화자의 실제 대사에 그대로 있고 확신 85 이상일 때만 true, 건네기 전에는 달성 불가) · `context.storySoFar`(이전 요약)에 이번 대화를 합쳐 새 요약을 쓴다. 근거는 유저의 행동과 두 사람 사이에 일어난 일, 확실하지 않으면 변화 0. 형식이 깨지면 상태를 바꾸지 않는다 |
 | `POST /critique-test` | 공방 3턴 테스트 판정 `{ character, turns, facts }` | **200** · 규칙 검사(메타 낱말, 420자 넘는 답·목록 3줄, 높임 어긋남)와 LLM 판정(말투 붕괴, 설명충, 메타, 설정에 없는 개인사 단정)을 합친다. 둘 중 하나라도 걸리면 걸린 것 |
+| `POST /mind` · `/diary` · `/board-posts` · `/board-comments` | 오퍼레이션: 속마음·일기·커뮤니티 글·댓글(컨텍스트 + 지시) | **200** 각각 `{ innerVoice, feeling, aboutUser }` · `{ title, mood, body }` · `{ posts }` · `{ comments }` · 구조화 출력(JSON 스키마) |
+| `GET /photonet/status` | 그림 엔진 준비 여부 | **200** `{ ready, missing }` — 엔진 설치·GPU·체크포인트 파일이 다 있으면 ready (가짜 엔진이면 항상 true) |
+| `POST /photonet` | 코디포토넷: 장면 → 그림 `{ context, prompt, style, ratio, rating(sfw·nsfw), cast, focus }` | **200** `{ image(WebP base64), mime, width, height, promptUsed, cast }` · LLM 장면 설계 → 프롬프트 조립 → 그림 엔진 → 그림 검수. 성인 모드에서 미성년자 관련 설정 400, 실사풍 400, 검수에 걸리면 422, 엔진이 없으면 503 |
+| `POST /webtoon/plan` | 웹툰 콘티 `{ context, prompt, rating, panels(2~6), cast, focus }` | **200** `{ title, panels: [{ plan, caption, lines: [{ speaker, text }] }] }` · 등장인물 외모를 먼저 정하고(영어 태그) 컷마다 구도·행동·해설·대사. 그림은 그리지 않는다 |
+| `POST /webtoon/panel` | 웹툰 한 컷 그리기 `{ plan, rating, ratio }` | **200** `{ image, mime, width, height, promptUsed }` · 코디포토넷과 같은 조립·엔진·검수 |
 | `POST /train` | 학습 시작 | **403 — v1 정책 차단** |
 | `GET /train/{job_id}` | 학습 진행률 | **403 — v1 정책 차단** |
 

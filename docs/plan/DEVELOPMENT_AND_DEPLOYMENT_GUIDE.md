@@ -1,14 +1,14 @@
 # 개발·배포 가이드 (목표 절차)
 
-> 상태(2026-10-16): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다(컨테이너화·배포는 아직). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
+> 상태(2026-10-24): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다(컨테이너화·배포는 아직). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
 
-## 사전 준비 체크리스트 (스캐폴딩 전에 정해야 하는 것)
+## 사전 준비 체크리스트 (스캐폴딩 때 정한 것 — 모두 정해짐)
 
-- [ ] 패키지 매니저 (npm / pnpm / yarn workspaces)
-- [ ] Node.js / Python 버전 고정
-- [ ] `.env.example` 항목: DB 접속 문자열, Redis URL, 호스티드 LLM API 키, 인증 벤더 키
-- [ ] `docker-compose.yml`: web / api / ai / postgres / redis 서비스 (계획서 §7.3)
-- [ ] Prisma 초기화 위치 (`apps/api`)
+- [x] 패키지 매니저: npm workspaces(`apps/*`, `console`)
+- [x] Node 24 / Python 3.12 (`services/ai/.venv`)
+- [x] `.env.example`: `apps/api`·`services/ai` 두 곳 — 전체 표 [../guidance/environment.md](../guidance/environment.md) (Redis URL은 없다, 쓰지 않는다)
+- [x] `docker-compose.yml`: postgres·mailpit(개발용). web·api·ai 컨테이너는 배포 단계
+- [x] Prisma 위치: `apps/api`
 
 ## 목표 로컬 기동 순서
 
@@ -17,8 +17,8 @@
 # 2) .env 준비
 cp .env.example .env
 
-# 3) DB/Redis만 먼저 컨테이너로
-docker compose up -d postgres redis
+# 3) DB(설치형이 없을 때만)·메일 서버를 컨테이너로 — Redis는 쓰지 않는다
+docker compose up -d postgres mailpit
 
 # 4) Prisma 마이그레이션 (apps/api)
 # npx prisma migrate dev

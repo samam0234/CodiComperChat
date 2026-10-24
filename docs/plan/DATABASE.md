@@ -1,6 +1,6 @@
 # 데이터베이스
 
-정본: `CodiComperChat_project_plan.md` §7.4, §7.5. 스키마 정본은 코드 `apps/api/prisma/schema.prisma`(각 칸의 의미는 거기 주석에 있다), 바뀐 이력은 `apps/api/prisma/migrations/`. 최종 갱신 2026-10-16.
+정본: `CodiComperChat_project_plan.md` §7.4, §7.5. 스키마 정본은 코드 `apps/api/prisma/schema.prisma`(각 칸의 의미는 거기 주석에 있다), 바뀐 이력은 `apps/api/prisma/migrations/`. 최종 갱신 2026-10-24.
 
 ## 데이터스토어 (계획서 §7.4 → 실제)
 
@@ -13,9 +13,9 @@
 
 ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추론에 필요한 슬라이스만 Nest가 조립해 넘긴다.
 
-## 테이블 (15개)
+## 테이블 (27개)
 
-계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 8개가 생겼다.
+계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 20개가 생겼다. 열거형 12개, 마이그레이션 31개(`apps/api/prisma/migrations/`).
 
 | 테이블 (모델) | 계획서 | 무엇 | 지워질 때 |
 |---|---|---|---|
@@ -46,10 +46,16 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 | `payment_orders` (PaymentOrder) | | 결제 주문(상품·금액·일수·결제사·상태 PENDING/PAID/FAILED/REFUNDED·결제 키·영수증·환불 사유·구매자 이메일) | **계정이 지워져도 남는다**(`userId`만 비움, 전자상거래법상 결제 기록 보관) |
 | `rate_limit_buckets` (RateLimitBucket) | | 요청 한도 카운터(키·횟수·창 끝 시각). `RATE_LIMIT_STORE=db`일 때만 쓴다 | 창이 끝나고 5분 뒤 주기적으로 삭제 |
 
+### 개인정보가 들어 있는 칸
+
+[SECURITY.md](../../SECURITY.md)의 "개인정보"와 맞춘다. 이메일(`users.email`, 결제 주문의 `buyerEmail`), 표시 이름, 비밀번호 해시, 성인 확인용 **생년월일**(`users.birthDate` — 날짜만, 한 번 넣으면 바꿀 수 없음)·동의 시각(`adultConsentAt`), 대화·기억·일기·메시지·그림. 결제 기록만 탈퇴 뒤에도 법정 보관. 보관 기간·파기 정책과 생년월일 보관 필요성은 법률 검토 항목이다.
+
 ### 비공개로 다루는 칸
 
 - `characters.secret`·`secretUnlockCondition`: 어떤 공개 응답에도 싣지 않고 AI에도 보내지 않는다(계획서 §13.3)
 - `users.passwordHash`, `email_tokens.tokenHash`: 응답에 싣지 않는다
+- `users.birthDate`·`adultConsentAt`: 응답에는 `adult`(성인 확인 여부)만 싣는다
+- `characters.quest`(비밀 퀘스트 정의): 공개 캐릭터 응답에 싣지 않는다. 달성 조건은 캐릭터(모델)에게도 알리지 않는다
 - 초상 본문(`portrait`)은 목록 응답에 싣지 않고 따로 받는다(`GET /characters/:id/portrait`)
 
 ### 파일로 두는 것 (DB 밖)
