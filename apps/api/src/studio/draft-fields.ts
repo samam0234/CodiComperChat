@@ -116,6 +116,26 @@ export const DRAFT_FIELDS: Record<string, Spec> = {
     guide: '캐릭터와 관련된 중요한 인물과 그 관계',
     kind: 'text', max: 500, maxItems: 1, read: (c) => c.lore.person,
   },
+  'quest.title': {
+    label: '퀘스트 이름',
+    guide: '비밀 퀘스트의 이름. 건네받은 뒤에야 유저에게 보이는 짧은 이름(예: 멈춰 둔 서랍). 정답을 알려 주지 않는다',
+    kind: 'text', max: 30, maxItems: 1, read: (c) => c.quest.title,
+  },
+  'quest.offer': {
+    label: '퀘스트 부탁',
+    guide: '캐릭터가 친해진 유저에게 속마음으로 건네는 부탁의 내용과 꺼내는 방식. 이 캐릭터의 성격과 약점에서 나오는, 이야기 속 부탁으로 쓴다(게임 미션처럼 쓰지 않는다)',
+    kind: 'text', max: 400, maxItems: 1, read: (c) => c.quest.offer,
+  },
+  'quest.objective': {
+    label: '퀘스트 달성 조건',
+    guide: '유저가 대화에서 구체적으로 무엇을 하거나 말하면 부탁을 해낸 것으로 볼지. 대화 기록만 보고 판정할 수 있게 눈에 보이는 행동·말로 쓴다. 캐릭터에게는 알려지지 않는다',
+    kind: 'text', max: 400, maxItems: 1, read: (c) => c.quest.objective,
+  },
+  'quest.reward': {
+    label: '퀘스트 보상 장면',
+    guide: '유저가 해냈을 때 캐릭터가 보이는 변화나 장면(마음의 변화, 처음 하는 말이나 행동). 코레딧 같은 게임 보상이 아니라 이야기 속 변화',
+    kind: 'text', max: 400, maxItems: 1, read: (c) => c.quest.reward,
+  },
   'lore.taboo': {
     label: '금기',
     guide: '이 세계·캐릭터에서 건드리면 안 되는 화제나 행동',
@@ -167,6 +187,10 @@ export function buildSheet(card: Card, exceptKey: string): string[] {
     ['lore.world', '세계 규칙', card.lore.world],
     ['lore.person', '중요 인물', card.lore.person],
     ['lore.taboo', '금기', card.lore.taboo],
+    ['quest.title', '퀘스트 이름', card.quest.title],
+    ['quest.offer', '퀘스트 부탁', card.quest.offer],
+    ['quest.objective', '퀘스트 달성 조건', card.quest.objective],
+    ['quest.reward', '퀘스트 보상 장면', card.quest.reward],
   ];
   return rows
     .filter(([key]) => key !== exceptKey)

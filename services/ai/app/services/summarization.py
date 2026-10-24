@@ -6,6 +6,7 @@
 """
 
 import json
+import os
 
 from app.schemas.context import Hook
 from app.schemas.summarize import RelationDelta, SummarizeRequest, SummarizeResponse
@@ -33,6 +34,10 @@ SYSTEM_PROMPT = """당신은 캐릭터 롤플레이 채팅의 이야기 기록 �
 5. hooksClosed: "열린 복선" 목록 중 이번 대화에서 해결·회수된 것의 id(약속을 실제로 지키는 장면이 나왔거나, 단서·위협이 풀렸을 때). 없으면 빈 목록
 6. nextPressure: 다음에 이어질 긴장이나 할 일 한 줄, 60자 이내. 없으면 빈 문자열
 
+비밀 퀘스트 판정(아래 입력에 "비밀 퀘스트" 블록이 있을 때만 의미가 있다. 없으면 둘 다 false):
+7. questOffered: 이번 대화에서 캐릭터가 유저에게 블록의 "부탁"을 실제로 꺼냈는가. 비슷한 화제나 암시만으로는 false. 블록에 "이미 건넸다"고 적혀 있으면 true
+8. questDone: 이미 부탁을 건넨 뒤, 유저가 블록의 "달성 조건"을 (이전 요약에 나온 것까지 합쳐) 분명히 해냈는가. 하려다 만 것·비슷하지만 다른 것·캐릭터가 대신 말한 것은 false. 확실하지 않으면 false
+
 규칙:
 - 대화에 실제로 나온 내용만 근거로 삼는다. 추측하거나 지어내지 않는다
 - 이미 열린 복선과 같거나 비슷한 내용은 hooksOpen에 다시 넣지 않는다(표현만 다른 같은 약속도 포함). 이미 끝난 일도 다시 열지 않는다
@@ -47,9 +52,25 @@ SCHEMA = {
         "hooksOpen": {"type": "array", "items": {"type": "string"}, "maxItems": MAX_NEW_HOOKS},
         "hooksClosed": {"type": "array", "items": {"type": "string"}},
         "nextPressure": {"type": "string"},
+        "questOffered": {"type": "boolean"},
+        "questDone": {"type": "boolean"},
     },
-    "required": ["brief", "relationDelta", "relationReason", "hooksOpen", "hooksClosed", "nextPressure"],
+    "required": ["brief", "relationDelta", "relationReason", "hooksOpen", "hooksClosed", "nextPressure", "questOffered", "questDone"],
 }
+
+
+def _quest_flags(request: SummarizeRequest, data: dict) -> tuple[bool, bool]:
+    """비밀 퀘스트 판정. 퀘스트 입력이 없으면 (False, False) — 모델이 멋대로 true를 줘도 무시한다."""
+    quest = request.quest
+    if quest is None:
+        return False, False
+    if os.environ.get("LLM_FAKE") == "1":
+        # e2e 전용: 대사에 표시를 넣어 판정을 정한다 (아무 말에나 [부탁], 유저 말에 [해냄])
+        offered = quest.offered or any("[부탁]" in t.text for t in request.session_turns)
+        done = any("[해냄]" in t.text for t in request.session_turns if t.role == "user")
+        return offered, done
+    offered = quest.offered or data.get("questOffered") is True
+    return offered, offered and data.get("questDone") is True
 
 
 def _clip(text: object, limit: int) -> str:
@@ -72,6 +93,13 @@ def summarize_session(request: SummarizeRequest) -> SummarizeResponse:
     parts.append(
         "열린 복선(id: 내용):\n" + ("\n".join(f"{h.id}: {h.text}" for h in open_hooks) if open_hooks else "(없음)")
     )
+    if request.quest:
+        parts.append(
+            "비밀 퀘스트(판정 전용 — 대화나 요약에 이 내용을 쓰지 않는다):\n"
+            f"- 부탁: {request.quest.offer}\n"
+            f"- 달성 조건: {request.quest.objective}\n"
+            + ("- 이미 건넸다: 예" if request.quest.offered else "- 이미 건넸다: 아니오")
+        )
     parts.append("이번에 기록할 대화:\n<transcript>\n" + "\n".join(lines) + "\n</transcript>")
 
     raw = llm.generate(
@@ -88,6 +116,7 @@ def summarize_session(request: SummarizeRequest) -> SummarizeResponse:
         known = {h.id for h in open_hooks}
         opened = [_clip(t, HOOK_CHARS) for t in data.get("hooksOpen", []) if _clip(t, HOOK_CHARS)]
         closed_ids = [str(i) for i in data.get("hooksClosed", []) if str(i) in known]
+        quest_offered, quest_done = _quest_flags(request, data)
         return SummarizeResponse(
             brief=_clip(data.get("brief", ""), BRIEF_CHARS),
             relation_delta=[
@@ -98,6 +127,8 @@ def summarize_session(request: SummarizeRequest) -> SummarizeResponse:
             knowledge_gained=[],
             unlocks=[],
             next_pressure=_clip(data.get("nextPressure", ""), 60),
+            quest_offered=quest_offered,
+            quest_done=quest_done,
         )
     except (ValueError, TypeError, AttributeError):
         # 형식이 깨지면 상태를 바꾸지 않는다 (잘못된 기록이 쌓이는 것보다 낫다)

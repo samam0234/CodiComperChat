@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
 import { PersonaKnowledgeStore } from '../persona-rag/persona-knowledge.store.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { isComplete } from '../quests/quest.js';
 import { readiness } from './card.js';
 import { toCharacterFields, toKnowledge } from './card-export.js';
 import { StudioService, parseVisibility } from './studio.service.js';
@@ -64,6 +65,8 @@ export class StudioPublishService {
       profile: fields.profile ?? Prisma.DbNull,
       secret: card.boundary.secret,
       secretUnlockCondition: card.boundary.unlockCondition,
+      // 비밀 퀘스트: 제목·부탁·달성 조건이 다 있을 때만 싣는다 (덜 쓴 퀘스트는 없는 것으로)
+      quest: isComplete(card.quest) ? { ...card.quest } : Prisma.DbNull,
       published: true,
       visibility: draft.visibility,
       ownerId: userId,

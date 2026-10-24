@@ -72,5 +72,24 @@ export type PhotonetView = OpsBase & {
   images: PhotonetImage[];
 };
 
+// 비밀 퀘스트: 퀘스트가 없으면 exists false. 건네기 전(locked)에는 제목·내용을 주지 않는다
+export type QuestView =
+  | { exists: false }
+  | { exists: true; started: boolean; credits: number; rewarded: boolean; status: "locked" }
+  | {
+      exists: true;
+      started: boolean;
+      credits: number;
+      rewarded: boolean;
+      status: "offered" | "done";
+      title: string;
+      offer: string;
+      objective: string;
+      // 달성한 뒤에만
+      reward: string | null;
+    };
+
+export const getQuest = (characterId: string) => authedGet<QuestView>(`/characters/${encodeURIComponent(characterId)}/chat/quest`);
+
 export const photonetSrc = (characterId: string, imageId: string) =>
   `/api/characters/${encodeURIComponent(characterId)}/photonet/${encodeURIComponent(imageId)}`;

@@ -1,12 +1,15 @@
 "use client";
 
-import { useContext, useId, type ReactNode } from "react";
+import { useContext, useId, useState, type ReactNode } from "react";
+import { draftQuest } from "@/app/actions/studio";
 import {
   AXES,
   HONORIFIC_OPTIONS,
   limitsFor,
+  QUEST_TITLE_MAX,
   ROLE_OPTIONS,
   type Card,
+  type Quest,
   type StepKey,
 } from "@/lib/studio-card";
 import { AiDraftButton, AiDraftPanel, DraftToolsContext, useAiDraft } from "./ai-draft";
@@ -410,6 +413,9 @@ function StepFormBody({
         </>
       );
     }
+    case "quest": {
+      return <QuestStep card={card} update={update} samples={samples} max={LIMITS.field} />;
+    }
     case "lore": {
       const c = card.lore;
       return (
@@ -433,4 +439,112 @@ function StepFormBody({
       );
     }
   }
+}
+
+// 비밀 퀘스트 단계: 직접 쓰거나, AI가 카드 설정을 읽고 한 번에 만든 제안을 적용한 뒤 고친다. 칸마다 "AI 초안"도 된다.
+// 캐릭터가 친해진 뒤 건네는 숨은 미션이다 — 달성 조건은 캐릭터에게 알려지지 않고, 이야기 정리 때 판정에만 쓰인다
+type QuestDraft =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; quest: Quest }
+  | { status: "error"; message: string };
+
+function QuestStep({ card, update, samples, max }: { card: Card; update: Update; samples: SampleProps; max: number }) {
+  const q = card.quest;
+  const [draft, setDraft] = useState<QuestDraft>({ status: "idle" });
+  const has = q.title !== "" || q.offer !== "" || q.objective !== "" || q.reward !== "";
+
+  const generate = async () => {
+    setDraft({ status: "loading" });
+    // 서버가 저장된 카드로 만들므로 먼저 저장을 끝낸다
+    if (!(await samples.ensureSaved())) {
+      setDraft({ status: "error", message: "카드를 저장하지 못해 퀘스트를 만들 수 없습니다. 위의 저장 오류를 먼저 고쳐 주세요." });
+      return;
+    }
+    const result = await draftQuest(samples.draftId);
+    setDraft(result.ok ? { status: "ready", quest: result.data } : { status: "error", message: result.error });
+  };
+
+  return (
+    <>
+      <p className={styles.stepNote}>
+        친밀도가 쌓이면 캐릭터가 먼저 건네는 숨은 부탁입니다. 건네기 전에는 유저에게 제목도 내용도 보이지 않아요. 직접 쓰거나 AI로 한 번에 만들 수 있고, 안 써도 발행됩니다.
+      </p>
+
+      <div className={styles.field}>
+        <div className={styles.aiActions}>
+          <button type="button" className={styles.secondary} onClick={() => void generate()} disabled={draft.status === "loading"}>
+            {draft.status === "loading" ? "만드는 중…" : "AI로 퀘스트 만들기"}
+          </button>
+          {has && (
+            <button
+              type="button"
+              className={styles.textButton}
+              onClick={() => update((d) => void (d.quest = { title: "", offer: "", objective: "", reward: "", unlockAt: 30 }))}
+            >
+              퀘스트 지우기
+            </button>
+          )}
+        </div>
+        <p className={styles.hint}>캐릭터 설정(이름·성격·목표 등)을 읽고 한 번에 제안해요. 비밀·해금 조건은 AI에 보내지 않습니다.</p>
+      </div>
+
+      {draft.status === "error" && (
+        <p className={styles.errorText} role="alert">
+          {draft.message}
+        </p>
+      )}
+      {draft.status === "ready" && (
+        <div className={styles.aiPanel} role="group" aria-label="AI 퀘스트 제안">
+          <p className={styles.aiTitle}>AI 퀘스트 제안</p>
+          <div className={styles.aiPreview}>
+            <p><strong>{draft.quest.title}</strong> (친밀도 {draft.quest.unlockAt} 이상)</p>
+            <p>부탁: {draft.quest.offer}</p>
+            <p>달성 조건: {draft.quest.objective}</p>
+            {draft.quest.reward && <p>보상 장면: {draft.quest.reward}</p>}
+          </div>
+          <p className={styles.hint}>{has ? "적용하면 지금 쓴 퀘스트가 이것으로 바뀝니다. " : ""}적용한 뒤 칸마다 고쳐 쓸 수 있어요.</p>
+          <div className={styles.aiActions}>
+            <button type="button" className={styles.textButton} onClick={() => setDraft({ status: "idle" })}>
+              닫기
+            </button>
+            <button type="button" className={styles.secondary} onClick={() => void generate()}>
+              다시 만들기
+            </button>
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={() => {
+                const next = draft.quest;
+                update((d) => void (d.quest = { ...next }));
+                setDraft({ status: "idle" });
+              }}
+            >
+              적용하기
+            </button>
+          </div>
+        </div>
+      )}
+
+      <Text label="퀘스트 이름" aiKey="quest.title" value={q.title} max={QUEST_TITLE_MAX} onChange={(v) => update((d) => void (d.quest.title = v))} placeholder="접어 둔 문제집" hint="건네받은 뒤에야 유저에게 보입니다." />
+      <Text label="퀘스트 부탁" aiKey="quest.offer" rows={3} value={q.offer} max={max} onChange={(v) => update((d) => void (d.quest.offer = v))} hint="캐릭터가 무엇을 어떻게 부탁하는지. 이 캐릭터의 약점이나 목표에서 나오는 이야기 속 부탁으로 쓰세요." />
+      <Text label="퀘스트 달성 조건" aiKey="quest.objective" rows={3} value={q.objective} max={max} onChange={(v) => update((d) => void (d.quest.objective = v))} hint="유저가 대화에서 무엇을 하면 해낸 것인지. 대화 기록만 보고 판정할 수 있게 구체적인 행동·말로 쓰세요. 캐릭터에게는 알려지지 않습니다." />
+      <Text label="퀘스트 보상 장면" aiKey="quest.reward" rows={3} value={q.reward} max={max} onChange={(v) => update((d) => void (d.quest.reward = v))} hint="해냈을 때 캐릭터가 보이는 변화나 장면(선택). 코레딧 보상은 공식 캐릭터에만 있어요." />
+      <label className={styles.axis}>
+        <span className={styles.axisName}>열리는 친밀도</span>
+        <span className={styles.axisEnd}>낮음</span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={5}
+          value={q.unlockAt}
+          aria-label="퀘스트가 열리는 친밀도"
+          onChange={(e) => update((d) => void (d.quest.unlockAt = Number(e.target.value)))}
+        />
+        <span className={styles.axisEnd}>높음</span>
+        <span className={styles.axisValue}>{q.unlockAt}</span>
+      </label>
+    </>
+  );
 }

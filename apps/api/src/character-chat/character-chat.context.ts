@@ -34,6 +34,8 @@ export function buildContextSlice(
   ungrounded: string[] = [],
   // 이 대화의 이야기 상태(열린 복선·끝난 일·지난 이야기). 대화 전이면 null
   story: { openHooks: { id: string; text: string }[]; closedEvents: string[]; brief: string } | null = null,
+  // 비밀 퀘스트 지시(src/quests/quest.ts questNote). 없으면 null
+  questNote: string | null = null,
 ): ContextSlicePayload {
   const nickname = chatState?.userNickname ?? null;
   const honorific = character.speechStyle.includes('존댓말')
@@ -102,7 +104,9 @@ export function buildContextSlice(
     activeLore: rag?.lore ?? [],
     recentTurns: history,
     retrievedMemories: memories,
-    directorNote,
+    directorNote: questNote ? `${directorNote}
+
+${questNote}` : directorNote,
     // 최근 대화에 다 들어가는 짧은 대화에서는 요약이 중복이라 싣지 않는다
     storySoFar: story?.brief && history.length >= CONTEXT_TURNS ? story.brief : null,
     userPersona: persona,

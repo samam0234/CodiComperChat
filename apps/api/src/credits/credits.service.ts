@@ -62,6 +62,23 @@ export class CreditsService {
     }
   }
 
+  // 비밀 퀘스트 보상: 계정×캐릭터당 한 번. 이미 받았으면 null (기본키가 동시 요청도 막는다). 지급과 기록은 한 트랜잭션
+  async grantQuestReward(userId: string, characterId: string, amount: number): Promise<number | null> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        await tx.questReward.create({ data: { userId, characterId, amount } });
+        const user = await tx.user.update({ where: { id: userId }, data: { credits: { increment: amount } }, select: { credits: true } });
+        await tx.creditLedger.create({
+          data: { userId, delta: amount, balance: user.credits, reason: CreditReason.QUEST, modelId: `quest:${characterId}` },
+        });
+        return user.credits;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return null;
+      throw error;
+    }
+  }
+
   // 모델을 쓰기 전에 코레딧을 먼저 뺀다. 모자라면 거절한다 — 잔액 확인과 차감을 한 문장으로 해 동시 요청도 음수가 되지 않는다.
   // reason: 프리미엄 모델 답이면 MODEL_USE, 오퍼레이션이면 OPERATION (modelId 칸에 "op:이름")
   async spend(

@@ -21,9 +21,10 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 |---|---|---|---|
 | `users` (User) | ● | 이메일·표시 이름·비밀번호 해시·역할(USER/ADMIN)·요금 등급(FREE/PRO, `planUntil`)·이메일 인증 시각·토큰 세대(`sessionVersion`)·성인 확인(`birthDate` 날짜, `adultConsentAt` 동의 시각 — 2026-10-24 코디포토넷 성인 모드, 생년월일은 응답에 싣지 않는다) | 탈퇴: 아래 Cascade가 함께 지워짐 |
 | `user_personas` (UserPersona) | | 대화할 때 내가 연기할 프로필 캐릭터(이름·소개), 계정당 10개 | 계정과 함께 |
-| `characters` (Character) | ● | 발행된 캐릭터(카드 핵심 필드·비밀·시작 장면·프로필·공개 범위·초상·운영자가 내린 시각·사유). `ownerId`가 비면 운영 공식 캐릭터 | 주인 탈퇴 시 `ownerId` 비움(그 전에 내림) |
+| `characters` (Character) | ● | 발행된 캐릭터(카드 핵심 필드·비밀·시작 장면·프로필·공개 범위·초상·운영자가 내린 시각·사유). `ownerId`가 비면 운영 공식 캐릭터. `quest`(JSON): 비밀 퀘스트 정의 — 공개 응답에 싣지 않는다 | 주인 탈퇴 시 `ownerId` 비움(그 전에 내림) |
 | `campaigns` (Campaign) | ● | 유저 × 캐릭터 대화 한 판. 지금 대화(ACTIVE) 하나 + 저장한 대화(CLOSED). 고정된 내 프로필 이름·소개를 그대로 복사해 둔다. `chatModel`은 이 대화의 답을 쓰는 모델 id(기본 `basic`) | 계정과 함께 |
 | `credit_ledger` (CreditLedger) | | 코레딧이 늘고 준 기록(변화량·그 뒤 잔액·이유 출석/모델 사용/돌려받음/운영자·모델 id). 잔액 자체는 `users.credits` | 계정과 함께 |
+| `quest_rewards` (QuestReward) | | 비밀 퀘스트 코레딧 보상을 받은 기록. 키 = 계정 × 캐릭터 — 새로하기로 다시 깨도 또 주지 않는다(공식 캐릭터만) | 계정과 함께 |
 | `attendances` (Attendance) | | 출석. 키 = 계정 × 날짜(한국 시각) — 같은 날 두 번 받지 못하게 기본키로 막는다 | 계정과 함께 |
 | `mind_readings` (MindReading) | | 오퍼레이션 · 심리 탐구 결과(속마음·감정·나에 대한 생각) | 대화와 함께 |
 | `diary_entries` (DiaryEntry) | | 오퍼레이션 · 일기(제목·기분·본문, 캐릭터 1인칭) | 대화와 함께 |
@@ -32,7 +33,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 | `board_comments` (BoardComment) | | 커뮤니티 글의 댓글(주민) | 글과 함께 |
 | `photonet_images` (PhotonetImage) | | 코디포토넷 그림(WebP 바이트, 유저 장면 설명, 엔진에 보낸 영어 프롬프트, 화풍·비율·크기, 수위 `rating`: sfw/nsfw). 그림 검수를 통과한 것만. nsfw는 지금 성인 확인이 살아 있을 때만 보인다. 그 대화를 하는 사람에게만 보인다 | 대화와 함께 |
 | `model_usage` (ModelUsage) | | 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. 키 = 계정 × 모델 × 날짜(한국 시각 YYYY-MM-DD). 답을 만들기 전에 한 문장 upsert로 1회를 잡고 실패하면 돌려준다(동시 요청도 한도를 못 넘는다) | 계정과 함께 |
-| `campaign_states` (CampaignState) | ● | 친밀도(값·근거·자동 여부·변화 기록), 호칭, 열린 복선·끝난 일, 해금된 비밀, 다음 회차 요약, 정리한 지점 | 대화와 함께 |
+| `campaign_states` (CampaignState) | ● | 친밀도(값·근거·자동 여부·변화 기록), 호칭, 열린 복선·끝난 일, 해금된 비밀, 다음 회차 요약, 정리한 지점, 비밀 퀘스트 진행(`questState`: offered/done) | 대화와 함께 |
 | `sessions` (Session) | ● | 회차(지금은 대화당 하나) | 대화와 함께 |
 | `messages` (Message) | ● | 유저·캐릭터 말(역할·내용·말한 이름) | 회차와 함께 |
 | `memory_chunks` (MemoryChunk) | ● | 대화에서 정리한 장기 기억 한 줄씩 | 대화와 함께 |

@@ -1,3 +1,4 @@
+import { EMPTY_QUEST } from '../quests/quest.js';
 import type { Card } from './card.js';
 
 // 테스트용으로 모든 단계를 채운 카드
@@ -14,5 +15,7 @@ export function fullCard(): Card {
     boundary: { secret: '가게를 곧 닫아야 한다', unlockCondition: '친밀도가 높고 유저가 먼저 가게 걱정을 할 때', neverDo: ['AI라고 말하기'], breakers: '가게를 무시할 때' },
     greeting: { firstMessage: '창밖에 비가 그칠 줄 모른다.\n"오늘도 오셨네요."', alternates: [], examples: [{ user: '뭐가 맛있어요?', character: '오늘은 산미 있는 원두예요.' }] },
     lore: { world: '', person: '', taboo: '', extra: [] },
+    // 퀘스트는 선택 단계라 기본은 비어 있다
+    quest: { ...EMPTY_QUEST },
   };
 }
