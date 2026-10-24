@@ -99,6 +99,19 @@ export async function uploadPortrait(id: string, formData: FormData): Promise<St
   return { ok: true, data: data as DraftView };
 }
 
+// AI로 초상 만들기 (25 코레딧). 만든 그림은 올린 그림과 같이 자동 검수를 거쳐 초상으로 저장된다
+export async function generatePortrait(
+  id: string,
+  input: { style: string; options: Record<string, string>; extra: string; useCard: boolean },
+) {
+  const result = await call<{ draft: DraftView; balance: number; cost: number }>(id, "/portrait/generate", "POST", input);
+  if (result.ok) {
+    revalidatePath("/", "layout");
+    revalidatePath("/me");
+  }
+  return result;
+}
+
 export async function removePortrait(id: string) {
   const result = await call<DraftView>(id, "/portrait", "DELETE");
   if (result.ok) revalidatePath("/", "layout");

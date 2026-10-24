@@ -13,6 +13,7 @@ from app.routes import (
     moderate,
     operations,
     photonet,
+    portrait,
     remember,
     suggest,
     summarize,
@@ -44,5 +45,6 @@ app.include_router(draft.router)
 app.include_router(moderate.router)
 app.include_router(operations.router)
 app.include_router(photonet.router)
+app.include_router(portrait.router)
 app.include_router(webtoon.router)
 app.include_router(train.router)

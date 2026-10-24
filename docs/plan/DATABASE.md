@@ -15,13 +15,15 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 
 ## 테이블 (27개)
 
+공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.
+
 계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 20개가 생겼다. 열거형 12개, 마이그레이션 31개(`apps/api/prisma/migrations/`).
 
 | 테이블 (모델) | 계획서 | 무엇 | 지워질 때 |
 |---|---|---|---|
 | `users` (User) | ● | 이메일·표시 이름·비밀번호 해시·역할(USER/ADMIN)·요금 등급(FREE/PRO, `planUntil`)·이메일 인증 시각·토큰 세대(`sessionVersion`)·성인 확인(`birthDate` 날짜, `adultConsentAt` 동의 시각 — 2026-10-24 코디포토넷 성인 모드, 생년월일은 응답에 싣지 않는다) | 탈퇴: 아래 Cascade가 함께 지워짐 |
 | `user_personas` (UserPersona) | | 대화할 때 내가 연기할 프로필 캐릭터(이름·소개), 계정당 10개 | 계정과 함께 |
-| `characters` (Character) | ● | 발행된 캐릭터(카드 핵심 필드·비밀·시작 장면·프로필·공개 범위·초상·운영자가 내린 시각·사유). `ownerId`가 비면 운영 공식 캐릭터. `quest`(JSON): 비밀 퀘스트 정의 — 공개 응답에 싣지 않는다 | 주인 탈퇴 시 `ownerId` 비움(그 전에 내림) |
+| `characters` (Character) | ● | 발행된 캐릭터(카드 핵심 필드·비밀·시작 장면·프로필·공개 범위·초상·운영자가 내린 시각·사유). `ownerId`가 비면 운영 공식 캐릭터. `quest`(JSON): 비밀 퀘스트 정의 — 공개 응답에 싣지 않는다. `recommendedPersona`(JSON, 선택): 이 캐릭터용 추천 프로필 `{ name, description }` — 공개 | 주인 탈퇴 시 `ownerId` 비움(그 전에 내림) |
 | `campaigns` (Campaign) | ● | 유저 × 캐릭터 대화 한 판. 지금 대화(ACTIVE) 하나 + 저장한 대화(CLOSED). 고정된 내 프로필 이름·소개를 그대로 복사해 둔다. `chatModel`은 이 대화의 답을 쓰는 모델 id(기본 `basic`) | 계정과 함께 |
 | `credit_ledger` (CreditLedger) | | 코레딧이 늘고 준 기록(변화량·그 뒤 잔액·이유 출석/모델 사용/돌려받음/운영자·모델 id). 잔액 자체는 `users.credits` | 계정과 함께 |
 | `quest_rewards` (QuestReward) | | 비밀 퀘스트 코레딧 보상을 받은 기록. 키 = 계정 × 캐릭터 — 새로하기로 다시 깨도 또 주지 않는다(공식 캐릭터만) | 계정과 함께 |
