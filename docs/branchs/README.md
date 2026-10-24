@@ -240,5 +240,6 @@
 | 2026-10-25 | `24a52d4` | feature/docs-overall-update | LICENSE·SECURITY·THIRD_PARTY_NOTICES 추가 | [261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md](commits/261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md) |
 | 2026-10-25 | `566be03` | feature/docs-overall-update | 전체 문서를 현재 구현에 맞게 갱신 | [261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md](commits/261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md) |
 | 2026-10-25 | `828b56a` | develop (merge) | feature/docs-overall-update → develop 병합 (--no-ff) | [261025_0004_828b56a_merge-docs-overall-update_develop.md](commits/261025_0004_828b56a_merge-docs-overall-update_develop.md) |
+| 2026-10-25 | `7bc98ff` | feature/official-iseyeon | 공식 캐릭터 이세연과 캐릭터별 추천 프로필 | [261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md](commits/261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
