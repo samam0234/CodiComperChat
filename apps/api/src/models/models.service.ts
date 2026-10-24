@@ -5,6 +5,7 @@ import {
   DEFAULT_MODEL_ID,
   LOCK_MESSAGE,
   MODELS,
+  ENHANCED_OVERAGE_CREDITS,
   dailyLimitOf,
   findModel,
   kstDay,
@@ -27,6 +28,8 @@ export type ModelOption = {
   // 하루 한도가 있을 때만 (강화 무료를 무료 등급이 쓸 때)
   limit: number | null;
   used: number | null;
+  // 한도를 다 쓴 뒤 1번에 드는 코레딧 (하루 한도가 있을 때만)
+  overage: number | null;
 };
 
 // 답을 만들기 전에 잡아 둔 것. 답을 못 만들면 그대로 돌려준다
@@ -67,6 +70,7 @@ export class ModelsService {
         locked: lockOf(m, w.of(m)),
         limit,
         used: limit === null ? null : w.of(m).usedToday,
+        overage: limit === null ? null : ENHANCED_OVERAGE_CREDITS,
       };
     });
     return { default: DEFAULT_MODEL_ID, balance: w.balance, models };
@@ -106,8 +110,10 @@ export class ModelsService {
       DO UPDATE SET "count" = "model_usage"."count" + 1
       WHERE "model_usage"."count" < ${limit}
       RETURNING "count"`;
-    if (rows.length === 0) throw new ForbiddenException(`${model.label}: ${LOCK_MESSAGE.DAILY_LIMIT}`);
-    return { model, kind: 'daily' };
+    if (rows.length > 0) return { model, kind: 'daily' };
+    // 오늘 무료 횟수를 다 썼다: 자정까지는 1번에 코레딧으로 (모자라면 spend가 403)
+    await this.credits.spend(userId, ENHANCED_OVERAGE_CREDITS, model.id, `${model.label} (오늘 무료 ${limit}번 이후)`);
+    return { model, kind: 'credits', amount: ENHANCED_OVERAGE_CREDITS };
   }
 
   // 답을 못 만들었으면 잡아 둔 것을 돌려준다
@@ -125,7 +131,10 @@ export class ModelsService {
   // 방금 쓴 뒤의 사용량
   async usage(userId: string, ticket: Ticket): Promise<UsageView> {
     if (ticket.kind === 'credits') {
-      return { usage: null, credits: { spent: ticket.amount, balance: await this.credits.balance(userId) } };
+      const credits = { spent: ticket.amount, balance: await this.credits.balance(userId) };
+      // 강화 무료를 무료 횟수 뒤에 코레딧으로 쓴 경우: 횟수도 함께 (화면이 "오늘 30/30"을 계속 보이게)
+      const limit = dailyLimitOf(ticket.model, await this.credits.planOf(userId));
+      return { usage: limit === null ? null : { used: limit, limit }, credits };
     }
     if (ticket.kind === 'free') return { usage: null, credits: null };
     const limit = dailyLimitOf(ticket.model, await this.credits.planOf(userId)) ?? 0;

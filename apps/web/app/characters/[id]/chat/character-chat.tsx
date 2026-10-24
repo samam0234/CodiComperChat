@@ -64,7 +64,12 @@ function SendIcon() {
 
 // 고르는 칸 옆에 붙는 짧은 안내: 오늘 쓴 횟수, 또는 지금 못 쓰는 이유
 function modelSuffix(m: ModelOption): string {
-  if (m.limit !== null) return ` · 오늘 ${m.used ?? 0}/${m.limit}`;
+  if (m.limit !== null) {
+    const used = m.used ?? 0;
+    // 무료 횟수를 다 쓰면 자정까지 1번에 코레딧 (모자라면 잠김)
+    if (used >= m.limit) return ` · 오늘 ${used}/${m.limit} · 이후 1번 ${m.overage ?? 10} 코레딧${m.locked === "NO_CREDITS" ? " · 코레딧 부족" : ""}`;
+    return ` · 오늘 ${used}/${m.limit}`;
+  }
   const cost = m.credits !== null ? ` · ${m.credits} 코레딧` : "";
   if (m.locked === "NOT_READY") return `${cost} · 준비 중`;
   if (m.locked === "NO_CREDITS") return `${cost} · 코레딧 부족`;
@@ -232,7 +237,7 @@ export default function CharacterChat({
     if (usage) {
       setModelOptions((prev) =>
         prev?.map((m) =>
-          m.id === data.model ? { ...m, used: usage.used, limit: usage.limit, locked: usage.used >= usage.limit ? "DAILY_LIMIT" : m.locked } : m,
+          m.id === data.model ? { ...m, used: usage.used, limit: usage.limit } : m,
         ) ?? null,
       );
     }
@@ -240,7 +245,14 @@ export default function CharacterChat({
       setBalance(credits.balance);
       setModelOptions((prev) =>
         prev?.map((m) =>
-          m.credits === null || m.locked === "NOT_READY" ? m : { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null },
+          m.locked === "NOT_READY"
+            ? m
+            : m.credits !== null
+              ? { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null }
+              : // 무료 횟수를 다 쓴 강화 무료: 코레딧이 모자라면 잠긴다
+                m.limit !== null && (m.used ?? 0) >= m.limit
+                ? { ...m, locked: credits.balance < (m.overage ?? 10) ? "NO_CREDITS" : null }
+                : m,
         ) ?? null,
       );
     }

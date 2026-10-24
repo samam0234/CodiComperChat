@@ -1,5 +1,5 @@
 import { creditsToKrw, attendanceReward } from '../credits/credits.js';
-import { DEFAULT_MODEL_ID, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstDay, lockOf } from './models.js';
+import { DEFAULT_MODEL_ID, ENHANCED_OVERAGE_CREDITS, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstDay, lockOf } from './models.js';
 
 const model = (id: string) => findModel(id)!;
 const free = (usedToday = 0, balance = 0) => ({ plan: 'FREE' as const, usedToday, balance });
@@ -33,10 +33,13 @@ describe('쓸 수 있는 조건', () => {
     expect(lockOf(model('basic'), free(9999))).toBeNull();
   });
 
-  it('강화 무료: 무료 등급은 하루 30번까지, 프로는 무제한', () => {
+  it('강화 무료: 무료 등급은 하루 30번 무료, 그 뒤 자정까지는 1번에 10 코레딧(모자라면 잠김), 프로는 무제한', () => {
     expect(dailyLimitOf(model('enhanced'), 'FREE', {})).toBe(30);
+    expect(ENHANCED_OVERAGE_CREDITS).toBe(10);
     expect(lockOf(model('enhanced'), free(29), {})).toBeNull();
-    expect(lockOf(model('enhanced'), free(30), {})).toBe('DAILY_LIMIT');
+    expect(lockOf(model('enhanced'), free(30, 9), {})).toBe('NO_CREDITS');
+    expect(lockOf(model('enhanced'), free(30, 10), {})).toBeNull();
+    expect(lockOf(model('enhanced'), free(31, 500), {})).toBeNull();
     expect(dailyLimitOf(model('enhanced'), 'PRO', {})).toBeNull();
     expect(lockOf(model('enhanced'), pro(9999), {})).toBeNull();
   });
