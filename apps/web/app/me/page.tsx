@@ -10,7 +10,7 @@ import VerifyEmailNotice from "./verify-email-notice";
 import styles from "./page.module.css";
 
 const PRO_PERKS = ["공방 긴 글 칸 3배", "강화 무료 모델(gemma4:12b) 무제한", "출석 코레딧 하루 5,000"];
-const FREE_PERKS = ["공방 긴 글 칸 기본 길이", "강화 무료 모델 하루 30번", "출석 코레딧 하루 1,000"];
+const FREE_PERKS = ["공방 긴 글 칸 기본 길이", "강화 무료 모델 하루 30번 무료 (그 뒤 1번 10 코레딧)", "출석 코레딧 하루 1,000"];
 
 // 이름의 첫 글자를 동그라미에 넣는다 (이모지처럼 두 칸 글자도 깨지지 않게 코드 포인트 기준)
 const initialOf = (name: string) => Array.from(name.trim())[0] ?? "?";

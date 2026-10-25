@@ -62,15 +62,39 @@ export class CreditsService {
     }
   }
 
-  // 모델을 쓰기 전에 코레딧을 먼저 뺀다. 모자라면 거절한다 — 잔액 확인과 차감을 한 문장으로 해 동시 요청도 음수가 되지 않는다
-  async spend(userId: string, amount: number, modelId: string, label: string): Promise<number> {
+  // 비밀 퀘스트 보상: 계정×캐릭터당 한 번. 이미 받았으면 null (기본키가 동시 요청도 막는다). 지급과 기록은 한 트랜잭션
+  async grantQuestReward(userId: string, characterId: string, amount: number): Promise<number | null> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        await tx.questReward.create({ data: { userId, characterId, amount } });
+        const user = await tx.user.update({ where: { id: userId }, data: { credits: { increment: amount } }, select: { credits: true } });
+        await tx.creditLedger.create({
+          data: { userId, delta: amount, balance: user.credits, reason: CreditReason.QUEST, modelId: `quest:${characterId}` },
+        });
+        return user.credits;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return null;
+      throw error;
+    }
+  }
+
+  // 모델을 쓰기 전에 코레딧을 먼저 뺀다. 모자라면 거절한다 — 잔액 확인과 차감을 한 문장으로 해 동시 요청도 음수가 되지 않는다.
+  // reason: 프리미엄 모델 답이면 MODEL_USE, 오퍼레이션이면 OPERATION (modelId 칸에 "op:이름")
+  async spend(
+    userId: string,
+    amount: number,
+    modelId: string,
+    label: string,
+    reason: CreditReason = CreditReason.MODEL_USE,
+  ): Promise<number> {
     const rows = await this.prisma.$queryRaw<{ credits: number }[]>`
       UPDATE "users" SET "credits" = "credits" - ${amount}
       WHERE "id" = ${userId} AND "credits" >= ${amount}
       RETURNING "credits"`;
     if (rows.length === 0) throw new ForbiddenException(`${label}: 코레딧이 모자라요. 출석하면 코레딧을 받을 수 있어요.`);
     const balance = rows[0].credits;
-    await this.prisma.creditLedger.create({ data: { userId, delta: -amount, balance, reason: CreditReason.MODEL_USE, modelId } });
+    await this.prisma.creditLedger.create({ data: { userId, delta: -amount, balance, reason, modelId } });
     return balance;
   }
 

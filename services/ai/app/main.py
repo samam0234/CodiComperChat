@@ -3,10 +3,29 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from app.routes import assist, critique_test, draft, ground, health, infer, moderate, remember, suggest, summarize, train
+from app.internal_auth import assert_production_safety, internal_auth
+
+from app.routes import (
+    assist,
+    critique_test,
+    draft,
+    ground,
+    health,
+    infer,
+    moderate,
+    operations,
+    photonet,
+    portrait,
+    remember,
+    suggest,
+    summarize,
+    train,
+    webtoon,
+)
 
 # 실행 위치·--env-file 유무와 상관없이 services/ai/.env를 읽는다. 이미 설정된 환경변수는 덮어쓰지 않는다
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+assert_production_safety()
 
 app = FastAPI(
     title="코디컴퍼챗 AI 서비스",
@@ -16,6 +35,8 @@ app = FastAPI(
     ),
     version="0.1.0",
 )
+
+app.middleware("http")(internal_auth)
 
 app.include_router(health.router)
 app.include_router(infer.router)
@@ -27,4 +48,8 @@ app.include_router(critique_test.router)
 app.include_router(ground.router)
 app.include_router(draft.router)
 app.include_router(moderate.router)
+app.include_router(operations.router)
+app.include_router(photonet.router)
+app.include_router(portrait.router)
+app.include_router(webtoon.router)
 app.include_router(train.router)

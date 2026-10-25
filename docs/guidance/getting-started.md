@@ -1,6 +1,6 @@
 # 시작하기
 
-새 PC에서 세 앱(web·api·ai)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-10-16.
+새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-10-24.
 
 ## 전제 조건
 
@@ -10,6 +10,7 @@
 | Python | **3.12** (`services/ai` 전용 venv) | `py -3.12 --version` |
 | PostgreSQL | 16, `localhost:5432` | [docker-run.md](docker-run.md) (설치형 또는 compose) |
 | Ollama | 설치 + `gemma4:e4b` 받기 | `ollama list` |
+| NVIDIA GPU (선택) | 코디포토넷·웹툰 그림용. 그래픽 메모리 12GB 권장(Ollama와 나눠 쓴다). 없으면 그림 기능만 "준비 중" | `nvidia-smi` |
 | Chrome | 웹 e2e를 돌릴 때만 (설치된 Chrome을 쓴다) | |
 
 ## 1) 설치
@@ -27,6 +28,17 @@ cd ../..
 # 모델
 ollama pull gemma4:e4b
 ```
+
+### (선택) 그림 엔진 — 코디포토넷·웹툰
+
+서버 안 엔진(기본, `IMAGE_ENGINE=local`)이 services/ai 프로세스 안에서 직접 그린다. 수 GB라 따로 설치한다:
+
+```bash
+cd services/ai
+./.venv/Scripts/python.exe -m pip install -r requirements-image.txt   # PyTorch(CUDA)·diffusers
+```
+
+체크포인트 두 파일을 `services/ai/models/`에 둔다(git 제외 — 파일 이름·출처·라이선스: [photonet-engine.md](photonet-engine.md), [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md)). 설치하지 않거나 파일이 없으면 코디포토넷·웹툰이 "준비 중"으로 잠기고 나머지는 그대로 돈다. 이미 Stable Diffusion WebUI가 있다면 `IMAGE_ENGINE=webui`로 그것을 부를 수도 있다.
 
 ## 2) 환경변수 (`.env` 두 개)
 
@@ -72,6 +84,7 @@ npm run user:role --workspace api -- 내이메일@example.com admin
 
 ```bash
 ollama serve                                                     # 이미 떠 있으면 생략
+# scripts\start-sd-webui.cmd                                   # (선택, IMAGE_ENGINE=webui일 때만) WebUI 그림 엔진 — photonet-engine.md
 cd services/ai && ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
 npm run dev:api        # http://localhost:4000
 npm run dev:web        # http://localhost:3000
@@ -87,14 +100,15 @@ npm run dev:console    # http://localhost:3001  운영 콘솔 (운영자만, 필
 | `http://localhost:3000` | 홈(히어로·캐릭터 카드). 오른쪽 위 "시작하기" |
 | 가입 → 마이페이지에서 프로필 캐릭터 만들기 → 캐릭터 → 대화 시작하기 | 캐릭터가 답한다(첫 답은 모델을 올리느라 수십 초 걸릴 수 있다) |
 | 가입 인증 메일 | Mailpit을 띄웠으면 `http://127.0.0.1:8025`에 도착(링크를 누르면 인증 화면). 메일 설정이 없으면 **api 터미널 로그**에 `[개발용 메일]`과 링크가 찍힌다 |
-| 결제 | 토스 키가 없으면 "시험 모드" 가짜 결제창 (돈이 오가지 않음) |
+| 결제 | 토스 키가 없으면 "시험 모드" 가짜 결제창 (돈이 오가지 않음). 결제는 현재 보류 |
+| 그림 | 대화 화면 입력창 위 "코디포토넷"·오퍼레이션 → 웹툰. 엔진이 준비되면 "준비 중" 표시가 사라진다 |
 
 ## 테스트
 
 ```bash
 npm run test:api       # API 단위·통합 (DATABASE_URL이 있으면 실제 DB 시험 포함)
 npm run typecheck:api
-npm run test:e2e       # 웹 화면 자동 테스트 — 전용 포트·DB·가짜 LLM이라 개발 서버를 켜 둔 채로 된다
+npm run test:e2e       # 웹 화면 자동 테스트 — 전용 포트·DB·가짜 LLM·가짜 그림 엔진이라 개발 서버를 켜 둔 채로 된다. 단, 그림 엔진(WebUI·GPU 모델)이 메모리를 많이 쓰면 느려지므로 e2e 동안은 꺼 둔다
 npm run ci:local       # CI 단계를 깨끗한 클론에서 재현
 ```
 

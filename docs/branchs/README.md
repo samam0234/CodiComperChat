@@ -205,5 +205,48 @@
 | 2026-10-22 | `b15e179` | develop (merge) | feature/gitattributes → develop 병합 (--no-ff) | [261022_2338_b15e179_merge-gitattributes_develop.md](commits/261022_2338_b15e179_merge-gitattributes_develop.md) |
 |  | `` |  |  | [261022_2328_4920a3f_merge-develop-to-main_main.md](commits/261022_2328_4920a3f_merge-develop-to-main_main.md) |
 | 2026-10-22 | `402bb07` | develop (merge) | develop → develop 병합 (--no-ff) | [261022_2339_402bb07_merge-develop-to-main-2_main.md](commits/261022_2339_402bb07_merge-develop-to-main-2_main.md) |
+| 2026-10-23 | `9300d6b` | feature/ops-mind | 오퍼레이션 메뉴와 심리 탐구 | [261023_0102_9300d6b_ops-frame-mind_feature-ops-mind.md](commits/261023_0102_9300d6b_ops-frame-mind_feature-ops-mind.md) |
+| 2026-10-23 | `316780e` | feature/ops-diary | 오퍼레이션 일기 | [261023_0106_316780e_ops-diary_feature-ops-diary.md](commits/261023_0106_316780e_ops-diary_feature-ops-diary.md) |
+| 2026-10-23 | `37fbe2e` | feature/ops-messages | 오퍼레이션 메시지 (캐릭터와 문자 주고받기) | [261023_0116_37fbe2e_ops-messages_feature-ops-messages.md](commits/261023_0116_37fbe2e_ops-messages_feature-ops-messages.md) |
+| 2026-10-23 | `d08bb78` | feature/ops-community | 오퍼레이션 커뮤니티 (캐릭터 세계 속 익명 게시판) | [261023_0122_d08bb78_ops-community_feature-ops-community.md](commits/261023_0122_d08bb78_ops-community_feature-ops-community.md) |
+| 2026-10-23 | `32bb115` | feature/photonet | 코디포토넷 창 (엔진 준비 중) | [261023_0129_32bb115_photonet-ui_feature-photonet.md](commits/261023_0129_32bb115_photonet-ui_feature-photonet.md) |
+| 2026-10-23 | `615f3d3` | develop (merge) | feature/ops-mind → develop 병합 (--no-ff) | [261023_0139_615f3d3_merge-ops-mind_develop.md](commits/261023_0139_615f3d3_merge-ops-mind_develop.md) |
+| 2026-10-23 | `9cece9a` | develop (merge) | feature/ops-community → develop 병합 (--no-ff) | [261023_0139_9cece9a_merge-ops-community_develop.md](commits/261023_0139_9cece9a_merge-ops-community_develop.md) |
+| 2026-10-23 | `a2b46cb` | develop (merge) | feature/photonet → develop 병합 (--no-ff) | [261023_0139_a2b46cb_merge-photonet_develop.md](commits/261023_0139_a2b46cb_merge-photonet_develop.md) |
+| 2026-10-23 | `db4fa33` | develop (merge) | feature/ops-diary → develop 병합 (--no-ff) | [261023_0139_db4fa33_merge-ops-diary_develop.md](commits/261023_0139_db4fa33_merge-ops-diary_develop.md) |
+| 2026-10-23 | `e3b5426` | develop (merge) | feature/ops-messages → develop 병합 (--no-ff) | [261023_0139_e3b5426_merge-ops-messages_develop.md](commits/261023_0139_e3b5426_merge-ops-messages_develop.md) |
+| 2026-10-24 | `12c5ec2` | feature/photonet-sd | 코디포토넷·오퍼레이션 버튼과 입력창 사이 간격 넓히기 | [261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md](commits/261024_0438_12c5ec2_ops-bar-spacing_feature-photonet-sd.md) |
+| 2026-10-24 | `d177b89` | feature/photonet-sd | 로컬 Stable Diffusion으로 코디포토넷 그림 만들기 | [261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md](commits/261024_0438_d177b89_photonet-stable-diffusion_feature-photonet-sd.md) |
+| 2026-10-24 | `5e28539` | develop (merge) | feature/photonet-sd → develop 병합 (--no-ff) | [261024_0438_5e28539_merge-photonet-sd_develop.md](commits/261024_0438_5e28539_merge-photonet-sd_develop.md) |
+| 2026-10-24 | `44b5efb` | feature/photonet-scene | 등장인물·줄거리·고른 대사를 읽고 장면을 설계해 그리기 | [261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md](commits/261024_0711_44b5efb_photonet-scene-understanding_feature-photonet-scene.md) |
+| 2026-10-24 | `d9151f6` | feature/photonet-rating | 전체 이용가·성인 모드를 따로 그리기 | [261024_0805_d9151f6_photonet-rating_feature-photonet-rating.md](commits/261024_0805_d9151f6_photonet-rating_feature-photonet-rating.md) |
+| 2026-10-24 | `55ac09b` | feature/photonet-rating | 성인 확인을 열림 상자로 바로 하기 | [261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md](commits/261024_1755_55ac09b_photonet-adult-dialog_feature-photonet-rating.md) |
+| 2026-10-24 | `cf46488` | feature/photonet-rating | 성인 모드 그림체를 깔끔한 현대 애니로, 검수 오판 줄이기 | [261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md](commits/261024_1834_cf46488_photonet-adult-style_feature-photonet-rating.md) |
+| 2026-10-24 | `7a36099` | feature/secret-quest | 비밀 퀘스트 — 캐릭터가 건네는 숨은 미션, 직접 또는 AI로 제작 | [261024_1946_7a36099_secret-quest_feature-secret-quest.md](commits/261024_1946_7a36099_secret-quest_feature-secret-quest.md) |
+| 2026-10-24 | `2c02951` | develop (merge) | feature/photonet-scene → develop 병합 (--no-ff) | [261024_1953_2c02951_merge-photonet-scene_develop.md](commits/261024_1953_2c02951_merge-photonet-scene_develop.md) |
+| 2026-10-24 | `faaa708` | develop (merge) | feature/photonet-rating → develop 병합 (--no-ff) | [261024_1953_faaa708_merge-photonet-rating_develop.md](commits/261024_1953_faaa708_merge-photonet-rating_develop.md) |
+| 2026-10-24 | `5341751` | develop (merge) | feature/secret-quest → develop 병합 (--no-ff) | [261024_1954_5341751_merge-secret-quest_develop.md](commits/261024_1954_5341751_merge-secret-quest_develop.md) |
+| 2026-10-24 | `61e682c` | feature/adult-guard | 성인 그림에서 미성년자 설정·실사를 원천 차단, 거짓 정보 책임 고지 | [261024_2151_61e682c_adult-guard_feature-adult-guard.md](commits/261024_2151_61e682c_adult-guard_feature-adult-guard.md) |
+| 2026-10-24 | `d8cea66` | feature/webtoon | 웹툰 — 대화를 여러 컷 웹툰으로 (콘티 무료, 한 컷 45 코레딧) | [261024_2257_d8cea66_webtoon_feature-webtoon.md](commits/261024_2257_d8cea66_webtoon_feature-webtoon.md) |
+|  | `` |  |  | [261024_2159_1a02dd1_quest-verify_feature-quest-verify.md](commits/261024_2159_1a02dd1_quest-verify_feature-quest-verify.md) |
+|  | `` |  |  | [261024_2215_f803989_image-engine-local_feature-image-engine.md](commits/261024_2215_f803989_image-engine-local_feature-image-engine.md) |
+|  | `` |  |  | [261024_2219_61c4d55_enhanced-overage_feature-enhanced-overage.md](commits/261024_2219_61c4d55_enhanced-overage_feature-enhanced-overage.md) |
+|  | `` |  |  | [261024_2236_5957eac_chat-narration_feature-chat-narration.md](commits/261024_2236_5957eac_chat-narration_feature-chat-narration.md) |
+| 2026-10-24 | `07692f9` | develop (merge) | feature/adult-guard → develop 병합 (--no-ff) | [261024_2301_07692f9_merge-adult-guard_develop.md](commits/261024_2301_07692f9_merge-adult-guard_develop.md) |
+| 2026-10-24 | `8cc738c` | develop (merge) | feature/webtoon → develop 병합 (--no-ff) | [261024_2301_8cc738c_merge-webtoon_develop.md](commits/261024_2301_8cc738c_merge-webtoon_develop.md) |
+| 2026-10-24 | `4d39b37` | develop (merge) | feature/quest-verify → develop 병합 (--no-ff) | [261024_2302_4d39b37_merge-quest-verify_develop.md](commits/261024_2302_4d39b37_merge-quest-verify_develop.md) |
+| 2026-10-24 | `ab2de34` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-enhanced-overage_develop.md](commits/261024_2302_ab2de34_merge-enhanced-overage_develop.md) |
+| 2026-10-24 | `ab2de34` | develop (merge) | feature/image-engine → develop 병합 (--no-ff) | [261024_2302_ab2de34_merge-image-engine_develop.md](commits/261024_2302_ab2de34_merge-image-engine_develop.md) |
+| 2026-10-24 | `dcb89a1` | develop (merge) | feature/chat-narration → develop 병합 (--no-ff) | [261024_2302_dcb89a1_merge-chat-narration_develop.md](commits/261024_2302_dcb89a1_merge-chat-narration_develop.md) |
+| 2026-10-24 | `35d4aff` | develop (merge) | feature/enhanced-overage → develop 병합 (--no-ff) | [261024_2302_35d4aff_merge-enhanced-overage_develop.md](commits/261024_2302_35d4aff_merge-enhanced-overage_develop.md) |
+| 2026-10-25 | `24a52d4` | feature/docs-overall-update | LICENSE·SECURITY·THIRD_PARTY_NOTICES 추가 | [261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md](commits/261025_0004_24a52d4_legal-docs_feature-docs-overall-update.md) |
+| 2026-10-25 | `566be03` | feature/docs-overall-update | 전체 문서를 현재 구현에 맞게 갱신 | [261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md](commits/261025_0004_566be03_docs-overall-update_feature-docs-overall-update.md) |
+| 2026-10-25 | `828b56a` | develop (merge) | feature/docs-overall-update → develop 병합 (--no-ff) | [261025_0004_828b56a_merge-docs-overall-update_develop.md](commits/261025_0004_828b56a_merge-docs-overall-update_develop.md) |
+| 2026-10-25 | `7bc98ff` | feature/official-iseyeon | 공식 캐릭터 이세연과 캐릭터별 추천 프로필 | [261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md](commits/261025_0418_7bc98ff_official-iseyeon_feature-official-iseyeon.md) |
+| 2026-10-25 | `9dbdbfc` | feature/official-iseyeon | 유지성·이세연 공식 초상 (그림 엔진으로 제작) | [261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md](commits/261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md) |
+| 2026-10-25 | `8411210` | feature/official-iseyeon | 외형 단계 AI로 초상 직접 만들기 (25 코레딧) | [261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md](commits/261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md) |
+| 2026-10-25 | `8603bf2` | develop (merge) | feature/official-iseyeon → develop 병합 (--no-ff) | [261025_0531_8603bf2_merge-official-iseyeon_develop.md](commits/261025_0531_8603bf2_merge-official-iseyeon_develop.md) |
+| 2026-10-25 | `bd6bbe0` | feature/launch-safety | 성인 그림 차단과 신고·HTTPS 강화 | [261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md](commits/261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md) |
+| 2026-10-25 | `fd64c48` | develop (merge) | feature/launch-safety → develop 병합 (--no-ff) | [261025_2126_fd64c48_merge-launch-safety_develop.md](commits/261025_2126_fd64c48_merge-launch-safety_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

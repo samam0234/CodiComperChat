@@ -10,6 +10,10 @@ import ChoiceDialog from "@/components/choice-dialog";
 import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
+import OpsBar from "./ops-bar";
+import Photonet from "./photonet";
+import RecommendedPersona, { type RecommendedPersonaInfo } from "./recommended-persona";
+import SecretQuest from "./secret-quest";
 import StoryPanel from "./story-panel";
 import styles from "./character-chat.module.css";
 
@@ -61,7 +65,12 @@ function SendIcon() {
 
 // 고르는 칸 옆에 붙는 짧은 안내: 오늘 쓴 횟수, 또는 지금 못 쓰는 이유
 function modelSuffix(m: ModelOption): string {
-  if (m.limit !== null) return ` · 오늘 ${m.used ?? 0}/${m.limit}`;
+  if (m.limit !== null) {
+    const used = m.used ?? 0;
+    // 무료 횟수를 다 쓰면 자정까지 1번에 코레딧 (모자라면 잠김)
+    if (used >= m.limit) return ` · 오늘 ${used}/${m.limit} · 이후 1번 ${m.overage ?? 10} 코레딧${m.locked === "NO_CREDITS" ? " · 코레딧 부족" : ""}`;
+    return ` · 오늘 ${used}/${m.limit}`;
+  }
   const cost = m.credits !== null ? ` · ${m.credits} 코레딧` : "";
   if (m.locked === "NOT_READY") return `${cost} · 준비 중`;
   if (m.locked === "NO_CREDITS") return `${cost} · 코레딧 부족`;
@@ -82,6 +91,8 @@ export default function CharacterChat({
   models: initialModels,
   balance: initialBalance,
   initialModel,
+  hasQuest,
+  recommendedPersona,
 }: {
   characterId: string;
   characterName: string;
@@ -98,6 +109,10 @@ export default function CharacterChat({
   // 내 코레딧 잔액 (프리미엄 모델에 쓴다)
   balance: number | null;
   initialModel: string;
+  // 이 캐릭터에게 비밀 퀘스트가 있나 (있어야 버튼을 보인다)
+  hasQuest: boolean;
+  // 이 캐릭터의 추천 프로필(선택). 그대로 쓰거나 고쳐서 내 프로필로 만든다
+  recommendedPersona: RecommendedPersonaInfo | null;
 }) {
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -125,6 +140,16 @@ export default function CharacterChat({
     locked && personaId === locked.id ? locked : personas.find((p) => p.id === personaId);
   const chatPath = `/characters/${characterId}/chat`;
   const hasUserMessages = messages.some((m) => m.role === "user" && !m.unsaved);
+  // 코디포토넷에서 고를 수 있는 최근 대사: 서버에 저장된 것(문자열 id)만, 최근 것부터 20개
+  const photonetMoments = messages
+    .filter((m) => typeof m.id === "string" && m.id !== "opening" && !m.error && !m.unsaved)
+    .slice(-20)
+    .reverse()
+    .map((m) => ({
+      id: String(m.id),
+      label: `${m.role === "user" ? (m.speaker ?? "나") : characterName}: ${m.text.replace(/s+/g, " ").trim().slice(0, 40)}`,
+    }));
+  const lastCharacterLine = [...messages].reverse().find((m) => m.role === "character" && !m.error)?.text.replace(/s+/g, " ").trim() ?? "";
 
   const startNew = async (save: boolean) => {
     setResetting(true);
@@ -216,7 +241,7 @@ export default function CharacterChat({
     if (usage) {
       setModelOptions((prev) =>
         prev?.map((m) =>
-          m.id === data.model ? { ...m, used: usage.used, limit: usage.limit, locked: usage.used >= usage.limit ? "DAILY_LIMIT" : m.locked } : m,
+          m.id === data.model ? { ...m, used: usage.used, limit: usage.limit } : m,
         ) ?? null,
       );
     }
@@ -224,7 +249,14 @@ export default function CharacterChat({
       setBalance(credits.balance);
       setModelOptions((prev) =>
         prev?.map((m) =>
-          m.credits === null || m.locked === "NOT_READY" ? m : { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null },
+          m.locked === "NOT_READY"
+            ? m
+            : m.credits !== null
+              ? { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null }
+              : // 무료 횟수를 다 쓴 강화 무료: 코레딧이 모자라면 잠긴다
+                m.limit !== null && (m.used ?? 0) >= m.limit
+                ? { ...m, locked: credits.balance < (m.overage ?? 10) ? "NO_CREDITS" : null }
+                : m,
         ) ?? null,
       );
     }
@@ -382,8 +414,11 @@ export default function CharacterChat({
         <p className={styles.gateText}>
           {characterName}와 이야기할 때 내가 연기할 주인공입니다. 이름만 정해도 시작할 수 있어요.
         </p>
+        {recommendedPersona && (
+          <RecommendedPersona persona={recommendedPersona} characterName={characterName} existing={personas} onSelect={setPersonaId} />
+        )}
         <Link href={`/me?back=${encodeURIComponent(chatPath)}`} className={styles.gateButton}>
-          프로필 캐릭터 만들기
+          {recommendedPersona ? "직접 프로필 만들기" : "프로필 캐릭터 만들기"}
         </Link>
       </div>
     );
@@ -516,6 +551,12 @@ export default function CharacterChat({
           </div>
         )}
 
+        <OpsBar characterId={characterId}>
+          {/* 입력창 바로 위 왼쪽: 코디포토넷 (마지막 캐릭터 말을 "지금 장면"으로) */}
+          <Photonet characterId={characterId} sceneHint={lastCharacterLine} moments={photonetMoments} />
+          {hasQuest && <SecretQuest characterId={characterId} messageCount={messages.length} />}
+        </OpsBar>
+
         <form
           className={styles.form}
           onSubmit={(event) => {
@@ -590,6 +631,10 @@ export default function CharacterChat({
             </Link>
           )}
         </div>
+        {/* 아직 프로필을 고르지 않았으면 이 캐릭터의 추천 프로필을 보여 준다 (고정된 뒤에는 숨김) */}
+        {recommendedPersona && !locked && !persona && (
+          <RecommendedPersona persona={recommendedPersona} characterName={characterName} existing={personas} onSelect={setPersonaId} />
+        )}
         {modelOptions && (
           <div className={styles.modelBar}>
             <label className={styles.personaLabel} htmlFor="model-select">

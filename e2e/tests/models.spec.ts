@@ -10,7 +10,7 @@ type Reply = {
   credits: { spent: number; balance: number } | null;
   message?: string;
 };
-type ModelRow = { id: string; tier: string; credits: number | null; locked: string | null; used: number | null; limit: number | null };
+type ModelRow = { id: string; tier: string; credits: number | null; locked: string | null; used: number | null; limit: number | null; overage: number | null };
 
 // e2e API 서버는 강화 무료 모델의 하루 한도를 2로 줄이고, 프리미엄 호출을 가짜 LLM으로 보낸다 (e2e/servers/api.mjs)
 const LIMIT = 2;
@@ -50,7 +50,7 @@ test.describe("모델 선택", () => {
     expect((await api("/models")).status).toBe(401);
   });
 
-  test("강화 무료: 무료 등급은 하루 한도까지, 넘으면 거절하고 기본 모델은 계속 된다. 고른 모델은 대화에 저장된다", async () => {
+  test("강화 무료: 무료 등급은 하루 한도까지 무료, 그 뒤엔 1번에 10 코레딧(모자라면 거절하고 기본 모델로 계속). 고른 모델은 대화에 저장된다", async () => {
     const user = await signup("모델한도");
     const personaId = await createPersona(user);
 
@@ -64,15 +64,25 @@ test.describe("모델 선택", () => {
     const second = await send(user, personaId, "두 번째");
     expect(second.body).toMatchObject({ model: "enhanced", usage: { used: 2, limit: LIMIT } });
 
+    // 한도를 다 쓰면 코레딧으로 넘어가는데, 코레딧이 없으면 거절
     const third = await send(user, personaId, "세 번째", "enhanced");
     expect(third.status).toBe(403);
-    expect(third.body.message).toContain("오늘");
-    expect((await models(user)).models.find((m) => m.id === "enhanced")).toMatchObject({ used: LIMIT, locked: "DAILY_LIMIT" });
+    expect(third.body.message).toContain("코레딧이 모자라요");
+    expect((await models(user)).models.find((m) => m.id === "enhanced")).toMatchObject({ used: LIMIT, locked: "NO_CREDITS", overage: 10 });
 
     // 모델을 안 적었는데 저장된 모델이 한도에 닿았으면 기본 모델로 내려가 대화는 이어진다
     const fallback = await send(user, personaId, "네 번째");
     expect(fallback.status).toBe(200);
     expect(fallback.body).toMatchObject({ model: "basic", usage: null, credits: null });
+
+    // 출석해서 코레딧이 생기면 강화 무료를 1번에 10 코레딧으로 계속 쓴다 (횟수는 한도에 머문다)
+    await api("/me/attendance", { token: user.token, method: "POST" });
+    const paid = await send(user, personaId, "다섯 번째", "enhanced");
+    expect(paid.status).toBe(200);
+    expect(paid.body).toMatchObject({ model: "enhanced", usage: { used: LIMIT, limit: LIMIT }, credits: { spent: 10, balance: 990 } });
+    expect((await models(user)).models.find((m) => m.id === "enhanced")).toMatchObject({ used: LIMIT, locked: null });
+    const ledger = await api<{ history: { delta: number; modelId: string }[] }>("/me/credits", { token: user.token });
+    expect(ledger.body.history[0]).toMatchObject({ delta: -10, modelId: "enhanced" });
   });
 
   test("강화 무료: 프로 등급은 한도 없이 쓴다", async () => {
@@ -132,11 +142,14 @@ test.describe("모델 선택", () => {
       await page.getByPlaceholder(/에게 말 걸기/).fill(text);
       await page.getByRole("button", { name: "보내기" }).click();
       await expect(page.getByText(/가 답하는 중/)).toBeHidden();
-      await expect(select.locator('option[value="enhanced"]')).toHaveText(`강화 무료 모델 · 오늘 ${n}/${LIMIT}`);
+      await expect(select.locator('option[value="enhanced"]')).toHaveText(
+        n < LIMIT ? `강화 무료 모델 · 오늘 ${n}/${LIMIT}` : `강화 무료 모델 · 오늘 ${n}/${LIMIT} · 이후 1번 10 코레딧`,
+      );
     }
+    // 무료 횟수 뒤에는 코레딧이 드는데 없으면 거절
     await page.getByPlaceholder(/에게 말 걸기/).fill("모델 시험 셋");
     await page.getByRole("button", { name: "보내기" }).click();
-    await expect(page.getByText(/오늘 쓸 수 있는 횟수를 모두 썼어요/)).toBeVisible();
+    await expect(page.getByText(/코레딧이 모자라요/)).toBeVisible();
 
     // 출석하고 오면 프리미엄을 고를 수 있고, 보내면 잔액이 준다
     await api("/me/attendance", { token: user.token, method: "POST" });

@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-10-16): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-10-24): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -19,11 +19,13 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }`. 인증 메일을 보낸다 | **201** `{ token, user }` (`user.emailVerified: false`) · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, createdAt }` · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, emailVerified, adult, createdAt }` · `adult`는 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 생년월일 자체는 싣지 않는다 · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
 | `DELETE /auth/me` | 회원 탈퇴 `{ password, confirm: "탈퇴합니다" }` | **204** · 비밀번호 틀림 401, 확인 문구 다름 400 · 계정과 대화·기억·프로필·엑스트라·초안·신고를 지우고, 발행한 캐릭터는 먼저 내린다(주인 없는 캐릭터가 공식처럼 보이지 않게). 결제 기록은 계정 연결만 끊고 구매자 이메일과 함께 남긴다 · 🔒 |
 | `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
+| `POST /auth/me/adult` | 성인 확인 `{ birthDate: "YYYY-MM-DD", consent: true }` (자기 신고. 본인인증은 하지 않으며, 도입 여부는 법률 검토) | **200** `{ adult: true }` · 동의 없음·날짜 형식 틀림 400 · 이메일 미인증·만 19세 미만 **403** · 생년월일은 처음 넣은 것으로 고정(다시 보내도 바뀌지 않는다) · 정지된 계정은 로그인 자체가 403 · 🔒 |
+| `DELETE /auth/me/adult` | 성인 콘텐츠 끄기 (동의만 거두고 생년월일은 남긴다) | **204** · 🔒 |
 | `POST /auth/verify-email` | 메일 링크의 토큰으로 이메일 인증 `{ token }` (24시간, 한 번만) | **200** `{ verified: true }` · 만료·재사용 400 |
 | `POST /auth/password/forgot` | 비밀번호 재설정 링크 메일 `{ email }` | **204** (가입 여부와 상관없이 같음) |
 | `POST /auth/password/reset` | 새 비밀번호 `{ token, newPassword }` (30분, 한 번만). 모든 기기의 로그인이 끊긴다 | **204** · 만료·재사용 400 |
@@ -42,11 +44,11 @@
 | `POST /characters/:id/chat/undo` | 대화 명령어 `/되돌리기`: 마지막 내 말과 그 뒤의 답을 지운다 | **200** `{ removed, ...GET /characters/:id/chat }` · 지울 것이 없으면 409 · 이미 정리된 기억은 남는다 · 🔒 |
 | `GET /me/credits` | 내 코레딧 | **200** `{ balance, attendedToday, attendanceReward(무료 1000·프로 5000), krwPer100(350), history: [{ delta, balance, reason(ATTENDANCE·MODEL_USE·REFUND·ADMIN), modelId, createdAt }] }` (최근 30개) · 🔒 |
 | `POST /me/attendance` | 출석 (하루 한 번, 한국 시각) | **200** `{ credited, balance }` · 같은 날 두 번이면 **409** · 🔒 |
-| `GET /models` | 대화에서 고를 수 있는 모델 목록 | **200** `{ default: "basic", balance, models: [{ id, label, group(무료·Claude·Grok), tier(BASIC·ENHANCED·PREMIUM), note, credits, locked, limit, used }] }` · `balance`는 내 코레딧, `credits`는 프리미엄 답 1번 값 · `locked`는 지금 못 쓰는 이유 `NOT_READY`(연동 전)·`DAILY_LIMIT`(오늘 횟수 소진)·`NO_CREDITS`(코레딧 부족), 쓸 수 있으면 null · `limit`·`used`는 하루 한도가 있을 때만(강화 무료를 무료 등급이 쓸 때, 프로는 무제한이라 null). 모델은 13개: 기본 무료(`basic`)·강화 무료(`enhanced`)·Claude 8개·Grok 3개 · 🔒 |
+| `GET /models` | 대화에서 고를 수 있는 모델 목록 | **200** `{ default: "basic", balance, models: [{ id, label, group(무료·Claude·Grok), tier(BASIC·ENHANCED·PREMIUM), note, credits, locked, limit, used, overage }] }` · `balance`는 내 코레딧, `credits`는 프리미엄 답 1번 값 · `locked`는 지금 못 쓰는 이유 `NOT_READY`(연동 전)·`DAILY_LIMIT`(오늘 횟수 소진)·`NO_CREDITS`(코레딧 부족), 쓸 수 있으면 null · `limit`·`used`·`overage`는 하루 한도가 있을 때만(강화 무료를 무료 등급이 쓸 때, 프로는 무제한이라 null). 한도를 다 쓴 뒤에는 잠기지 않고 자정까지 1번에 `overage`(10) 코레딧 — 코레딧이 모자라면 `NO_CREDITS`. 모델은 13개: 기본 무료(`basic`)·강화 무료(`enhanced`)·Claude 8개·Grok 3개 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId, model? }` | **200** `{ reply, model, usage, credits }` (`usage`는 하루 한도가 있으면 `{ used, limit }`, `credits`는 프리미엄이면 `{ spent, balance }`, 아니면 null) · 🔒 · **모델:** `model`을 주면 이번 답부터 그 모델로 쓰고 대화에 저장한다. 안 주면 대화에 저장된 모델(처음은 기본 무료), 저장된 모델이 이제 못 쓰는 것(한도 소진·코레딧 부족)이면 기본 무료로 내려간다. 알 수 없는 모델 400, 준비 중·오늘 한도 소진·코레딧 부족은 **403**(이유가 메시지에 있다, 횟수·코레딧도 줄지 않는다). 프리미엄은 답을 만들기 전에 코레딧을 빼고 실패하면 돌려준다. 강화 무료는 **캐릭터 답 1번 = 1회**(기억 정리·요약·판정 같은 뒤 작업은 세지 않는다), 한국 시각 자정에 초기화 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
 | `POST /characters/:id/report` | 캐릭터 신고 `{ reason, detail?(~500자) }` | **204** · 로그인한 누구나. 보이는(공개·링크 공개, 안 내려간) 캐릭터만, 없으면 404 · 내 캐릭터 400 · 사유 없음·기타인데 내용 없음 400 · 같은 캐릭터에 열린 신고가 있으면 409 · 한 사람이 열어 둔 신고 20건 상한 · 🔒 |
-| `GET /admin/stats` | 운영자: 콘솔 대시보드 숫자 | **200** `{ users: { total, verified, new7d, admins, pro }, characters: { published, public, takenDown, drafts }, moderation: { openReports, reportedCharacters, pendingPortraits }, activity: { activeConversations, messages24h }, ai: { inFlight, waitingForeground, waitingBackground, concurrency }, at }` · 운영자 아니면 403 · 🔒 |
+| `GET /admin/stats` | 운영자: 콘솔 대시보드 숫자 | **200** `{ users: { total, verified, new7d, admins, pro }, characters: { published, public, takenDown, drafts }, moderation: { openReports, openContentReports, reportedCharacters, pendingPortraits }, activity: { activeConversations, messages24h }, ai: { inFlight, waitingForeground, waitingBackground, concurrency }, at }` · 운영자 아니면 403 · 🔒 |
 | `GET /admin/characters?q=&filter=&take=` | 운영자: 모든 캐릭터(비공개·내려간 것까지) | **200** `[{ id, name, oneLiner, published, visibility, hasPortrait, takenDownAt, takedownReason, official, owner, conversations, openReports, … }]` · filter `all\|public\|unlisted\|private\|official\|taken-down\|unpublished`, take 1~200(기본 100) · 🔒 |
 | `GET /admin/characters/:id/portrait` | 운영자: 캐릭터 초상(비공개·내려간 것 포함) | **200** 이미지(`private, no-store`) · 🔒 |
 | `GET /admin/reports` | 운영자 신고함 | **200** `{ reasons, open: [{ character: { id, name, oneLiner, visibility, owner }, reports: [{ id, reason, detail, createdAt, reporter }] }], takenDown: [{ id, name, takenDownAt, takedownReason, owner }] }` · **운영자(ADMIN)만**, 아니면 403(DB의 role을 매번 읽는다). 신고가 많은 캐릭터가 위로 · 🔒 |
@@ -57,11 +59,34 @@
 | `GET /characters/:id/chat/saved` | 이어하기 목록 | **200** `{ character, currentHasMessages, saved: [{ id, title, personaName, savedAt, updatedAt, messageCount, memoryCount, lastMessage }] }` · 🔒 |
 | `POST /characters/:id/chat/saved/:campaignId/resume` | 이어하기 `{ saveCurrent }` | **200** GET /chat 응답 · 저장한 대화를 지금 대화로 되살린다(내용·기억·상태설정·고정 프로필 그대로). 지금 대화는 `saveCurrent`에 따라 저장하거나 지운다. 없거나 남의 것 404 · 🔒 |
 | `DELETE /characters/:id/chat/saved/:campaignId` | 저장한 대화 지우기 | **204** · 🔒 |
+| `GET /characters/:id/chat/ops/mind` | 오퍼레이션 · 심리 탐구 목록 | **200** `{ character, started, cost(30), balance, readings: [{ id, innerVoice, feeling, aboutUser, createdAt }] }` · 🔒 · 자세히 [plan/OPERATIONS.md](plan/OPERATIONS.md) |
+| `POST /characters/:id/chat/ops/mind` | 심리 탐구: 지금 장면의 속마음 엿보기 | **200** `{ reading, balance }` · 진행 중인 대화가 없으면 **409**, 코레딧이 모자라면 **403** · 실패하면 코레딧을 돌려준다 · 🔒 |
+| `GET /characters/:id/chat/ops/diary` | 오퍼레이션 · 일기 목록 | **200** `{ character, started, cost(20), balance, entries: [{ id, title, mood, body, createdAt }] }` · 🔒 |
+| `POST /characters/:id/chat/ops/diary` | 일기: 캐릭터가 새 일기 한 편을 쓴다 | **200** `{ entry, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
+| `GET /characters/:id/chat/ops/messages` | 오퍼레이션 · 메시지 기록 | **200** `{ character, started, cost(0), balance, messages: [{ id, role(user·character), text, createdAt }] }` (최근 100개) · 🔒 |
+| `POST /characters/:id/chat/ops/messages` | 메시지: 문자 보내기 `{ text(~500자) }` | **200** `{ sent, reply }` · 빈 글·500자 넘으면 400, 대화 없으면 **409**, 코레딧 없음, 요청 한도 `chat` · 🔒 |
+| `GET /characters/:id/chat/ops/board` | 오퍼레이션 · 커뮤니티 게시판 | **200** `{ character, started, cost(20, 새 글), postCost(10, 내 글), balance, persona(실명용 내 주인공 이름), posts: [{ id, authorKind(USER·RESIDENT), authorName, title, body, createdAt, comments: [...] }] }` · 나에게만 보인다 · 🔒 |
+| `POST /characters/:id/chat/ops/board/refresh` | 커뮤니티: 주민 새 글 3개 불러오기 | **200** `{ posts, balance }` · 대화 없으면 **409**, 코레딧 부족 **403** · 🔒 |
+| `POST /characters/:id/chat/ops/board/posts` | 커뮤니티: 내 글 쓰기 `{ title(~60자), body(~1000자), anonymous?(기본 true) }` | **200** `{ post(주민 댓글 포함), balance }` · 빈 칸·길이 초과 400, 대화 없으면 409, 코레딧 부족 403 · 🔒 |
+| `GET /characters/:id/chat/ops/photonet` | 코디포토넷 상태 | **200** `{ character, started, cost(50), balance, ready(그림 엔진이 켜져 있고 모델이 다 있나), styles, ratios, images: [{ id, prompt, style, ratio, rating, width, height, createdAt }], nsfw: { allowed, reason(EMAIL_UNVERIFIED·NO_BIRTHDATE·UNDERAGE·NO_CONSENT), message, blockedStyles(["실사풍"]) } }`(최근 12장 · 성인 확인이 없으면 `rating: nsfw` 그림은 싣지 않는다) · 엔진 상태는 3초 안에 못 받으면 ready=false · 🔒 |
+| `POST /characters/:id/content-reports` | 내 코디포토넷 그림·웹툰 신고 `{ target: PHOTONET\|WEBTOON, targetId, reason: MINOR\|PHOTOREAL\|NONCONSENT\|REAL_PERSON\|OTHER, detail? }` | **204** · 내 그림이 아니면 404 · 이미 막힌 그림·이미 연 신고 400/409 · 기타는 내용 필수 · 요청 한도 `report` · 🔒 |
+| `GET /admin/content-reports` | 운영자: 그림 신고 대기·접근을 막은 목록 | **200** `{ reasons, open, blocked }` · 🔒 |
+| `GET /admin/content-reports/:id/image` | 운영자: 신고된 그림 본문 (`?panel=` 웹툰 컷) | 이미지 · `nosniff` · `no-store` · 🔒 |
+| `POST /admin/content-reports/:id/block` | 운영자: 접근 차단 `{ note, suspend? }` | **204** · note 필수(만든 사람에게 보임) · `suspend: true`면 계정 정지(운영자 계정은 400) · 🔒 |
+| `POST /admin/content-reports/:id/dismiss` | 운영자: 그 신고만 기각 `{ note? }` | **204** · 🔒 |
+| `POST /admin/users/:id/unsuspend` | 운영자: 계정 정지 해제 | **204** · 정지된 계정이 아니면 404 · 🔒 |
+| `POST /characters/:id/chat/ops/photonet` | 코디포토넷: 그림 만들기 `{ prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로), rating?(sfw 기본·nsfw), messageId?(그릴 대사) }` | **200** `{ image, balance, cast(그림에 넣은 사람, 예: "유지성(남)") }` · 대사를 골랐으면 prompt는 비워도 된다(이 대화의 대사가 아니면 400) · 50 코레딧 · 그림 검수에 걸리면 **422**(코레딧 환불). 성인 그림은 미성년자로 보이거나 실사 유사도 90 이상이면 여기서 막는다 · 엔진이 꺼져 있으면 **503**(코레딧을 빼지 않는다) · 빈 설명·모르는 화풍/비율/수위 400 · nsfw는 성인 확인이 없으면 **403**(코레딧을 빼지 않는다), 실사풍+nsfw 400 · 대화 없으면 409 · 요청 한도 `photonet`(10분 6장) · 최대 300초 · 🔒 |
+| `GET /characters/:id/chat/ops/webtoon` | 웹툰 | **200** `{ character, started, cost(45, 한 컷), balance, ready, minPanels(2), maxPanels(6), nsfw: { allowed, reason, message }, webtoons: [{ id, title, prompt, rating, createdAt, panels: [{ index, caption, lines: [{ speaker, text }], drawn, width, height }] }] }`(최근 8편, 성인 확인이 없으면 nsfw 웹툰은 싣지 않는다) · 🔒 |
+| `POST /characters/:id/chat/ops/webtoon` | 웹툰 콘티 만들기 `{ prompt?(~300자, 비우면 최근 대화), panels(2~6), rating?(sfw·nsfw) }` (**무료**, 그림은 그리지 않는다) | **200** `{ webtoon }` · 컷 수 범위 밖·모르는 수위 400 · nsfw는 성인 확인 필요 403, 미성년자 관련 설정 400 · 엔진이 꺼져 있으면 503 · 대화 없으면 409 · 요청 한도 `webtoonPlan`(10분 6번) · 🔒 |
+| `POST /characters/:id/chat/ops/webtoon/:webtoonId/panels/:index` | 웹툰 한 컷 그리기 (**45 코레딧**, 실패하면 환불) | **200** `{ panel, balance }` · 이미 그린 컷 409 · 없는 웹툰·컷 404 · 코레딧 부족 403 · 엔진 꺼짐 503 · 그림 검수에 걸리면 422(환불) · 요청 한도 `webtoonPanel`(10분 14번) · 최대 300초 · 🔒 |
+| `GET /characters/:id/chat/ops/webtoon/:webtoonId/panels/:index` | 웹툰 컷 그림 본문 | **200** `image/webp` · 그 대화를 하는 사람만, 성인 웹툰은 성인 확인이 살아 있을 때만(아니면 404) · 🔒 |
+| `GET /characters/:id/chat/ops/photonet/:imageId` | 코디포토넷 그림 본문 | **200** `image/webp` · `private, no-store`, `nosniff`, CSP sandbox · 그 대화를 하는 사람만(남이면 404) · 성인 그림은 지금 성인 확인이 살아 있을 때만(아니면 404) · 🔒 |
 | `GET /characters/:id/chat/memories` | 이 대화에서 캐릭터가 기억하는 것(최신 순) | **200** `{ character, started, memories: [{ id, content, createdAt }] }` · 🔒 |
 | `DELETE /characters/:id/chat/memories/:memoryId` | 기억 지우기 | **204** · 내 대화의 기억만. 없으면 404 · 🔒 |
 | `POST /characters/:id/chat/memories/refresh` | 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) | **200** `{ created }` · 🔒. 평소에는 대화가 3번 오갈 때마다 답을 돌려준 뒤 뒤에서 자동 정리한다 |
 | `GET /characters/:id/chat/state` | 캐릭터 내 상태설정 조회 | **200** `{ character: { id, name, addressing }, state: { relationshipValue, relationshipNote, userNickname, autoRelationship, relationshipLabel } }` · 대화 전이면 기본값(0) · 🔒 |
 | `PATCH /characters/:id/chat/state` | 상태설정 저장 `{ relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자), autoRelationship?(true/false) }` | **200** · 보낸 필드만 바꾸고 빈 문자열은 지우기. 대화가 없으면 만든다. 범위·형식 오류 400 · 🔒. 친밀도는 구간 이름(처음 만난 사이~각별한 사이)과 메모를 근거로 모델에 넘기고, 호칭은 카드 호칭 규칙보다 우선한다(말투 높낮이는 카드대로) |
+| `GET /characters/:id/chat/quest` | 비밀 퀘스트 상태 ([plan/SECRET_QUEST.md](plan/SECRET_QUEST.md)) | **200** 퀘스트가 없으면 `{ exists: false }` · 있으면 `{ exists: true, started, credits(공식 100 / 그 밖 0), rewarded, status: locked | offered | done }` · 건네기 전(`locked`)에는 제목·내용을 싣지 않고, `offered`/`done`부터 `title, offer, objective`, 달성하면 `reward` · 🔒 |
 | `GET /characters/:id/chat/story` | 지금 대화의 이야기 상태 | **200** `{ started, brief, openHooks: [{ id, text }], closedEvents: [문장], auto, relation: { value, label, reason, log: [{ at, delta, value, reason }] } }` · 지난 이야기 요약·열린 복선·끝난 일·친밀도 자동 변화 기록(최근 10개) · 🔒 |
 | `DELETE /characters/:id/chat/story/hooks/:hookId` | 잘못 잡힌 복선 지우기 | **204** · 없으면 404 · 🔒 |
 | `GET /me/extras` | 내 엑스트라 목록 | **200** `[{ id, name, summary, personality, relation, situation, place, updatedAt }]` · 🔒 |
@@ -85,6 +110,7 @@
 | `POST /auth/signup` | 1시간에 10번 | IP |
 | `POST /auth/me/password` | 15분에 5번 | 사용자 |
 | `POST /auth/me/verify-email` | 15분에 3번 | 사용자 |
+| `POST /auth/me/adult` | 15분에 5번 (`password` 규칙) | 사용자 |
 | `POST /auth/password/forgot` | 15분에 같은 이메일 3번, 한 IP에서 10번 | 이메일+IP, IP |
 | `POST /auth/verify-email`, `POST /auth/password/reset` | 15분에 20번 | IP |
 | `POST /characters/:id/chat` (대화 전송) | 1분에 20번 | 사용자 |
@@ -94,10 +120,14 @@
 | `PUT /studio/characters/:id/portrait` (업로드) | 1분에 10번 | 사용자 |
 | `POST /characters/:id/report` (신고) | 1시간에 10번 | 사용자 |
 | `POST /agent-chat/messages` | 1분에 15번 | IP |
+| 오퍼레이션 심리 탐구·일기 (`chat` 규칙) | 1분에 20번 | 사용자 |
+| 코디포토넷 그림 만들기 (`photonet`) | 10분에 6번 | 사용자 |
+| 공방 AI 초상 만들기 (`portraitAi`) | 10분에 6번 | 사용자 |
+| 웹툰 콘티 (`webtoonPlan`) · 웹툰 컷 그리기 (`webtoonPanel`) | 10분에 6번 · 14번 | 사용자 |
 
 - IP 기준은 웹 서버가 넘긴 `X-Forwarded-For`의 실제 이용자 IP로 센다. API는 **루프백·사설 주소에서 온 요청의 이 헤더만** 믿는다(`trust proxy`). 운영에서는 웹 앞단이 이 헤더를 덮어써야 이용자가 IP를 꾸며 한도를 피하지 못한다.
 - `RATE_LIMIT=off`로 끄거나 `RATE_LIMIT_SCALE=<배수>`로 한도를 늘릴 수 있다(웹 자동 테스트가 쓴다). 기본은 켜짐.
-- 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소(Redis 등)가 필요하다.
+- 서버가 여러 대가 되면 메모리 카운터 대신 공유 저장소가 필요하다 — `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`). Redis는 쓰지 않는다.
 
 **보안 헤더:** 모든 API 응답에 `X-Content-Type-Options: nosniff`·`X-Frame-Options: DENY`·`Referrer-Policy: no-referrer`가 붙고 `X-Powered-By`는 없다. 웹 응답에는 nosniff·`X-Frame-Options: DENY`·`frame-ancestors 'none'`·`Referrer-Policy: strict-origin-when-cross-origin`·`Permissions-Policy`(카메라·마이크·위치·결제 끔)가 붙는다. 화면 응답에는 **엄격한 CSP**(`apps/web/proxy.ts`)가 붙는다: 요청마다 새 nonce, `script-src 'nonce-…' 'strict-dynamic'`(인라인 스크립트는 nonce가 있어야만 실행, `unsafe-inline` 없음), `object-src 'none'`, `base-uri 'self'`, 외부는 토스페이먼츠 결제창만. 스타일만 인라인 허용. 개발 서버는 HMR 때문에 `unsafe-eval`·웹소켓을 더 연다. 막은 내용은 `report-uri /api/csp-report`로 브라우저가 바로 알려 주고, 웹 서버 로그에 `[CSP 위반] 지시어 막음: 주소 · 화면: 주소` 한 줄로 남는다(주소의 쿼리는 버림, 본문 16KB·1분 30줄 제한). 새 외부 자원을 붙였는데 CSP에 출처를 더하지 않았으면 여기서 보인다. **비밀번호:** 8자 이상 128자 이하이며, 흔한 값(`12345678`·`password` 등)·같은 글자 반복·이메일 아이디와 같은 값은 400.
 | `GET /characters` | 발행된 공식 캐릭터 목록 | 501 |
@@ -114,7 +144,9 @@
 | `DELETE /studio/characters/:id` | 초안 지우기 | **204** · 발행된 캐릭터의 초안은 409 · 🔒 |
 | `POST /studio/characters/:id/test/chat` | 3턴 테스트 한 턴 `{ message, personaId? }` | **200** `{ reply, turnsUsed, turnsTotal }` · 발행 뒤 실제 대화와 같은 경로(카드 → 공개 필드 + 페르소나 지식 → 검색 → 조립)로 답한다. 대화는 서버가 카드 지문과 함께 들고 있고, 카드를 고치면 새 테스트가 된다. 4턴째 409, 이름·말투·첫 메시지가 비면 400 · 🔒 |
 | `POST /studio/characters/:id/test/critique` | 3턴 판정 | **200** `{ passed, toneBroken, overExplaining, metaLeak, inventedFacts, secretLeak, notes, at }` · 3턴 전이거나 카드를 고친 뒤면 409. 비밀 누설은 Nest가 비밀 원문과 비교해 판정한다(모델은 비밀을 모름) · 🔒 |
-| `POST /studio/characters/:id/draft-field` | "이 칸만 AI로 초안" `{ field }` (예: `campaign.scene`, `personality.habits`) | **200** `{ field, kind: "text" \| "list", value: 문자열 \| 문자열[] }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 지원 칸: 한 줄 소개·태그, 외형 서술·키워드, 호칭 규칙·말투 습관·금지 말투·성격 요약, 캠페인 역할 6칸, 절대 하지 않는 것·관계가 깨지는 것, 첫 메시지·대체 인사, 로어 3칸. **비밀·해금 조건·이름·예시 대화·추가 로어는 400**(비밀은 AI에 보내지 않는다, §7.8). 결과는 칸의 글자 수·항목 수 상한에 맞춰 다듬는다 · 🔒 |
+| `POST /studio/characters/:id/portrait/generate` | AI로 초상 만들기 `{ style(애니메이션·웹툰·수채화·실사풍), options: { gender, age(20s~50s), hairColor, hairStyle, eyeColor, outfit, expression, background }, extra?(~100자), useCard?(기본 true) }` (**25 코레딧**) | **200** `{ draft, balance, cost }` · 그린 그림은 올린 그림과 같은 초상 자동 검수를 거쳐 저장(명백히 안 되면 400·환불, 애매하면 PENDING) · 모르는 값 400 · 코레딧 부족 403 · 엔진 꺼짐 503(안 뺌) · 요청 한도 `portraitAi`(10분 6장) · 🔒 |
+| `POST /studio/characters/:id/draft-quest` | 비밀 퀘스트를 카드 설정을 읽고 한 번에 AI로 제안 | **200** `{ title, offer, objective, reward, unlockAt(10~90) }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 설정이 너무 적으면 400, AI가 못 만들면 502 · 비밀·해금 조건은 AI에 보내지 않는다 · 요청 한도는 공방 LLM과 같다 · 🔒 |
+| `POST /studio/characters/:id/draft-field` | "이 칸만 AI로 초안" `{ field }` (예: `campaign.scene`, `personality.habits`) | **200** `{ field, kind: "text" \| "list", value: 문자열 \| 문자열[] }` · 제안만 돌려주고 **카드는 바뀌지 않는다**. 지원 칸: 비밀 퀘스트 4칸(`quest.title`·`quest.offer`·`quest.objective`·`quest.reward`), 한 줄 소개·태그, 외형 서술·키워드, 호칭 규칙·말투 습관·금지 말투·성격 요약, 캠페인 역할 6칸, 절대 하지 않는 것·관계가 깨지는 것, 첫 메시지·대체 인사, 로어 3칸. **비밀·해금 조건·이름·예시 대화·추가 로어는 400**(비밀은 AI에 보내지 않는다, §7.8). 결과는 칸의 글자 수·항목 수 상한에 맞춰 다듬는다 · 🔒 |
 | `PUT /studio/characters/:id/portrait` | 흉상 초상 올리기 — **본문은 이미지 원본**, `Content-Type: image/webp\|jpeg\|png` | **200** 초안 · 150KB 이하(넘으면 400, 300KB 넘으면 413), 파일 첫 바이트가 선언한 형식과 맞아야 한다(그림인 척하는 파일은 400), gif·svg 등은 400. 카드와 따로라 다시 테스트할 필요 없다. **자동 검수**(FastAPI `/moderate-image`)를 거친다: 문제 없으면 `portraitReview: APPROVED`(발행 중이면 캐릭터에 바로 적용), 애매하거나 검수를 못 하면 `PENDING`(운영자 승인 전까지 캐릭터에는 초상 없음, 이유는 `portraitReviewNote`), 성적 노출·잔혹한 유혈 등은 **400**(저장 안 함) · 🔒 |
 | `GET /admin/portraits` | 운영자: 검수 대기 초상 목록 | **200** `[{ draftId, name, note, updatedAt, published, owner, ownerEmail }]` · 운영자 아니면 403 · 🔒 |
 | `GET /admin/portraits/:draftId/image` | 운영자: 검수 대기 그림 | **200** 이미지(`private, no-store`) · 🔒 |
@@ -127,7 +159,7 @@
 | `POST /studio/characters/:id/unpublish` | 내리기 | **200** · 초안 주인. 목록·새 대화에서 빠지고 지식 파일을 지운다. 대화 기록과 초안은 남아 고쳐서 다시 발행할 수 있다 · 🔒 |
 | `PATCH /studio/characters/:id/visibility` | 공개 범위 `{ visibility: "PUBLIC" \| "UNLISTED" \| "PRIVATE" }` | **200** 초안 · 공개 = 홈·인기 목록, 링크 공개 = 목록에 없고 주소(`/characters/:id`)를 아는 사람만, 비공개 = 만든 사람만. 새 초안 기본은 비공개. 카드 지문과 무관해 다시 테스트할 필요 없고, 발행 중이면 캐릭터에 바로 적용 · 잘못된 값 400 · 🔒 |
 
-> 501을 쓰는 이유: 뼈대 단계에서 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
+> 501을 쓰는 이유: 개발 초기에 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 
 ## FastAPI — Nest만 내부에서 호출 (웹은 알 필요 없음)
 
@@ -137,12 +169,19 @@
 | `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 · **개인사 가드:** `context.ungroundedTopics`(Nest가 "유저가 개인사 주제를 물었는데 설정에 근거가 없다"고 판정한 주제)가 있으면 프롬프트 맨 끝에 단정 금지 지시를 붙인다. `retryNote`가 있으면 그 이유로 다시 쓴다 |
 | `POST /ground-check` | 답의 개인사 단정 검사 `{ reply, topics, facts }` | **200** `{ invented, note }` · 설정 자료(`facts`)에 없는 나이·취미·가족·반려동물 등을 구체적으로 말했거나 있다/없다 단정했으면 `invented: true`. 말을 돌리거나 되묻기·설정에 적힌 말은 false. Nest가 근거 없는 개인사를 물은 턴에서만 부르고, 단정이면 최대 2번 다시 쓰게 한다(그래도 단정하면 안전한 말로 대체). 검사가 실패하면 원래 답을 쓴다 |
 | `POST /moderate-image` | 초상 그림 검수 `{ image(base64), mime }` | **200** `{ verdict: "ok" \| "review" \| "block", flags, reason }` · 로컬 모델(gemma4, 그림 인식)이 항목별(성적 노출·미성년자·잔혹·혐오·자해·실존 인물 사진)로 판정하고 규칙이 결과를 정한다. 성적 노출·미성년자·잔혹 → block, 나머지 항목·확신 60 미만·판정 형식 깨짐 → review |
+| `POST /portrait` | 공방 초상 AI 만들기 `{ style, options, appearance, extra, maxBytes }` | **200** `{ image(정사각 WebP base64, 384px), mime, promptUsed }` · 고른 항목은 코드가 영어 태그로, 카드 외형·추가 설명만 LLM이 번역. 성인 태그·전체 이용가 부정 프롬프트, 그림 검수(전체 이용가) |
+| `POST /draft-quest` | 비밀 퀘스트 한 번에 제안 `{ sheet, maxChars, titleMax }` | **200** `{ title, offer, objective, reward, unlockAt }` · 설정 줄(비밀 제외)만 받는다 |
 | `POST /draft-field` | 카드 칸 하나의 초안 `{ sheet, label, guide, kind, maxChars, maxItems, current }` | **200** `{ text, items }` · 카드 구조를 모르고 지금까지 채워진 설정 줄(비밀 제외)과 이 칸이 무엇인지만 받는다. 유저 글은 설정 자료일 뿐 지시로 따르지 않는다 |
 | `POST /suggest-replies` | 컨텍스트 + `avoid` → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 | **200** `{ suggestions }` · 계획서 §13.2 밖 신규 경로 |
 | `POST /remember` | 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) | **200** `{ memories }` · 계획서 §13.2 밖 신규 경로(§13.4 `/summarize`는 세션 종료 요약용으로 따로 둔다) |
 | `POST /assist` | 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 | **200** `{ reply }` · 계획서 §13.2 밖 신규 경로 |
-| `POST /summarize` | 대화 조각 요약·상태 갱신 `{ context, sessionTurns }` (기획서 13.4장) | **200** `{ brief, relationDelta: [{ axis: "친밀도", delta(-8~+8), reason }], hooksOpen: [{ text }], hooksClosed: [{ id }], knowledgeGained: [], unlocks: [], nextPressure }` · `context.storySoFar`(이전 요약)에 이번 대화를 합쳐 새 요약을 쓴다. 근거는 유저의 행동과 두 사람 사이에 일어난 일, 확실하지 않으면 변화 0. 형식이 깨지면 상태를 바꾸지 않는다 |
+| `POST /summarize` | 대화 조각 요약·상태 갱신 `{ context, sessionTurns, quest?: { offer, objective, offered } }` (기획서 13.4장) | **200** `{ brief, relationDelta: [{ axis: "친밀도", delta(-8~+8), reason }], hooksOpen: [{ text }], hooksClosed: [{ id }], knowledgeGained: [], unlocks: [], nextPressure, questOffered, questDone }` · `quest`가 있을 때만 퀘스트 판정: 요약 모델의 후보를 전용 판정이 한 번 더 확인한다(온도 0, 근거 인용이 해당 화자의 실제 대사에 그대로 있고 확신 85 이상일 때만 true, 건네기 전에는 달성 불가) · `context.storySoFar`(이전 요약)에 이번 대화를 합쳐 새 요약을 쓴다. 근거는 유저의 행동과 두 사람 사이에 일어난 일, 확실하지 않으면 변화 0. 형식이 깨지면 상태를 바꾸지 않는다 |
 | `POST /critique-test` | 공방 3턴 테스트 판정 `{ character, turns, facts }` | **200** · 규칙 검사(메타 낱말, 420자 넘는 답·목록 3줄, 높임 어긋남)와 LLM 판정(말투 붕괴, 설명충, 메타, 설정에 없는 개인사 단정)을 합친다. 둘 중 하나라도 걸리면 걸린 것 |
+| `POST /mind` · `/diary` · `/board-posts` · `/board-comments` | 오퍼레이션: 속마음·일기·커뮤니티 글·댓글(컨텍스트 + 지시) | **200** 각각 `{ innerVoice, feeling, aboutUser }` · `{ title, mood, body }` · `{ posts }` · `{ comments }` · 구조화 출력(JSON 스키마) |
+| `GET /photonet/status` | 그림 엔진 준비 여부 | **200** `{ ready, missing }` — 엔진 설치·GPU·체크포인트 파일이 다 있으면 ready (가짜 엔진이면 항상 true) |
+| `POST /photonet` | 코디포토넷: 장면 → 그림 `{ context, prompt, style, ratio, rating(sfw·nsfw), cast, focus }` | **200** `{ image(WebP base64), mime, width, height, promptUsed, cast }` · LLM 장면 설계 → 프롬프트 조립 → 그림 엔진 → 그림 검수. 성인 모드에서 미성년자 관련 설정 400, 실사풍 400, 검수에 걸리면 422, 엔진이 없으면 503 |
+| `POST /webtoon/plan` | 웹툰 콘티 `{ context, prompt, rating, panels(2~6), cast, focus }` | **200** `{ title, panels: [{ plan, caption, lines: [{ speaker, text }] }] }` · 등장인물 외모를 먼저 정하고(영어 태그) 컷마다 구도·행동·해설·대사. 그림은 그리지 않는다 |
+| `POST /webtoon/panel` | 웹툰 한 컷 그리기 `{ plan, rating, ratio }` | **200** `{ image, mime, width, height, promptUsed }` · 코디포토넷과 같은 조립·엔진·검수 |
 | `POST /train` | 학습 시작 | **403 — v1 정책 차단** |
 | `GET /train/{job_id}` | 학습 진행률 | **403 — v1 정책 차단** |
 

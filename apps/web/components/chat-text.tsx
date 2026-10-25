@@ -15,8 +15,12 @@ function inline(nodes: Inline[]): ReactNode {
           </code>
         );
       case "em":
-        // *상황 설명*: 기울임
-        return <em key={i}>{inline(n.children)}</em>;
+        // *상황 설명*: 회색 기울임 (2026-10-24 사용자 요청: 흰 기울임이 아니라 40% 회색)
+        return (
+          <em key={i} className={styles.action}>
+            {inline(n.children)}
+          </em>
+        );
       case "strong":
         return <strong key={i}>{inline(n.children)}</strong>;
       case "strongEm":

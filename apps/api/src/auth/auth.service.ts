@@ -3,9 +3,11 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { adultBlock } from '../account/adult.js';
 import { MailService, webBaseUrl } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
@@ -18,6 +20,7 @@ import type {
 import { consumeEmailToken, issueEmailToken } from './email-token.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { effectivePlan } from '../plan/plan.js';
+import { SUSPEND_MESSAGE } from '../content-reports/content-reports.service.js';
 import { signToken } from './token.js';
 
 // passwordHash는 어떤 응답에도 넣지 않는다
@@ -33,15 +36,26 @@ const PUBLIC_USER = {
   emailVerifiedAt: true,
   sessionVersion: true,
   createdAt: true,
+  // 성인 확인(코디포토넷 NSFW). 생년월일 자체는 내보내지 않고 adult 하나로 알린다
+  birthDate: true,
+  adultConsentAt: true,
 } as const;
 
 type Raw = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
-export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion'> & { emailVerified: boolean };
+export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion' | 'birthDate' | 'adultConsentAt'> & {
+  emailVerified: boolean;
+  adult: boolean;
+};
 
-// PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대는 내보내지 않는다
+// PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대·생년월일은 내보내지 않는다
 function present(user: Raw): PublicUser {
-  const { planUntil: _until, emailVerifiedAt, sessionVersion: _version, ...rest } = user;
-  return { ...rest, plan: effectivePlan(user), emailVerified: emailVerifiedAt !== null };
+  const { planUntil: _until, emailVerifiedAt, sessionVersion: _version, birthDate, adultConsentAt, ...rest } = user;
+  return {
+    ...rest,
+    plan: effectivePlan(user),
+    emailVerified: emailVerifiedAt !== null,
+    adult: adultBlock({ birthDate, adultConsentAt, emailVerifiedAt }) === null,
+  };
 }
 
 // 없는 이메일로 로그인할 때도 해시 비교 시간을 들여, 응답 시간으로 가입 여부가 드러나지 않게 한다
@@ -105,7 +119,7 @@ export class AuthService {
   async login(input: LoginInput): Promise<{ token: string; user: PublicUser }> {
     const found = await this.prisma.user.findUnique({
       where: { email: input.email },
-      select: { ...PUBLIC_USER, passwordHash: true },
+      select: { ...PUBLIC_USER, passwordHash: true, suspendedAt: true },
     });
 
     const ok = await verifyPassword(
@@ -116,7 +130,8 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
 
-    const { passwordHash: _omit, ...user } = found;
+    if (found.suspendedAt) throw new ForbiddenException(SUSPEND_MESSAGE);
+    const { passwordHash: _omit, suspendedAt: _suspended, ...user } = found;
     return { token: await signToken(user.id, user.sessionVersion), user: present(user) };
   }
 

@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import {
   changePassword,
+  confirmAdult,
   deleteAccount,
   logout,
+  revokeAdult,
   updateProfile,
   type FormState,
 } from "@/app/actions/auth";
@@ -185,6 +188,65 @@ export function LogoutButton() {
     <form action={logout}>
       <button type="submit" className={form.secondary}>
         로그아웃
+      </button>
+    </form>
+  );
+}
+
+// 성인 확인. 생년월일은 한 번 넣으면 바꿀 수 없다(서버가 막는다) — 실제 공개 전에는 본인인증으로 바꾼다
+export function AdultForm({ adult, emailVerified }: { adult: boolean; emailVerified: boolean }) {
+  const [confirmState, confirmAction, confirming] = useActionState(confirmAdult, undefined);
+  const [revokeState, revokeAction, revoking] = useActionState(revokeAdult, undefined);
+
+  if (adult) {
+    return (
+      <form action={revokeAction} className={form.form}>
+        <p className={styles.adultState}>
+          <span className={styles.adultBadge} aria-hidden="true">19</span>
+          성인 확인을 마쳤어요. 코디포토넷에서 성인 모드를 고를 수 있어요.
+        </p>
+        <Status state={revokeState} />
+        <button type="submit" className={form.secondary} disabled={revoking}>
+          성인 콘텐츠 끄기
+        </button>
+      </form>
+    );
+  }
+  if (!emailVerified) {
+    return (
+      <p className={styles.note}>
+        성인 확인은 이메일 인증을 마친 계정에서만 할 수 있어요.{" "}
+        <Link href="/me" className={styles.inlineLink}>
+          마이페이지에서 메일 받기
+        </Link>
+      </p>
+    );
+  }
+  return (
+    <form action={confirmAction} className={form.form}>
+      <Status state={revokeState} />
+      <label className={form.field}>
+        <span className={form.label}>생년월일</span>
+        <input
+          className={form.input}
+          name="birthDate"
+          type="date"
+          min="1900-01-01"
+          defaultValue={confirmState?.values?.birthDate}
+          required
+        />
+        <span className={form.hint}>만 19세 이상만 성인 모드를 쓸 수 있어요. 한 번 저장하면 바꿀 수 없어요.</span>
+      </label>
+      <label className={styles.consent}>
+        <input type="checkbox" name="consent" required />
+        <span>
+          나는 만 19세 이상이며, 성인끼리의 성적 장면과 폭력 묘사가 담긴 그림을 보는 데 동의합니다. 입력한 생년월일은 사실이며, 거짓 정보로 생기는 법적
+          책임은 나에게 있음을 확인합니다(<Link href="/terms" className={styles.inlineLink}>이용약관</Link>).
+        </span>
+      </label>
+      <Status state={confirmState} />
+      <button type="submit" className={form.secondary} disabled={confirming}>
+        성인 확인
       </button>
     </form>
   );

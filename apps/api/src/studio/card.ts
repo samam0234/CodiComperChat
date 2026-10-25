@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { BadRequestException } from '@nestjs/common';
+import { EMPTY_QUEST, QUEST_TITLE_MAX, type Quest } from '../quests/quest.js';
 
 // 공방 카드 = 기획서 §4.1의 7층. "프롬프트 메모장"이 아니라 구조화된 필드다.
 // 초안 저장은 언제든(빈칸 허용), 발행은 필수 단계가 차 있어야 한다 (§6.1)
@@ -55,6 +56,8 @@ export type Card = {
     taboo: string;
     extra: { title: string; text: string }[];
   };
+  // 비밀 퀘스트(선택). 직접 쓰거나 AI로 만든다 — 구조·판정은 src/quests/quest.ts
+  quest: Quest;
 };
 
 // 글자 수 상한(무료 기준). 길면 매 턴 컨텍스트를 잡아먹어 최근 대화가 밀려난다 (§6.3)
@@ -114,6 +117,7 @@ export const EMPTY_CARD: Card = {
   boundary: { secret: '', unlockCondition: '', neverDo: [], breakers: '' },
   greeting: { firstMessage: '', alternates: [], examples: [] },
   lore: { world: '', person: '', taboo: '', extra: [] },
+  quest: { ...EMPTY_QUEST },
 };
 
 type Obj = Record<string, unknown>;
@@ -164,6 +168,7 @@ export function normalizeCard(raw: unknown, opts: { multiplier?: number; existin
   const bo = obj(c.boundary);
   const gr = obj(c.greeting);
   const lo = obj(c.lore);
+  const qu = obj(c.quest);
 
   const examples = Array.isArray(gr.examples) ? gr.examples : [];
   if (examples.length > L.examples) throw new BadRequestException(`예시 대화는 ${L.examples}세트까지입니다.`);
@@ -235,7 +240,22 @@ export function normalizeCard(raw: unknown, opts: { multiplier?: number; existin
         })
         .filter((e) => e.title || e.text),
     },
+    quest: {
+      title: text(qu.title, QUEST_TITLE_MAX, '퀘스트 이름'),
+      offer: text(qu.offer, L.field, '퀘스트 부탁', ex?.quest?.offer),
+      objective: text(qu.objective, L.field, '퀘스트 달성 조건', ex?.quest?.objective),
+      reward: text(qu.reward, L.field, '퀘스트 보상 장면', ex?.quest?.reward),
+      unlockAt: questUnlock(qu.unlockAt),
+    },
   };
+}
+
+function questUnlock(v: unknown): number {
+  if (v === undefined || v === null) return EMPTY_QUEST.unlockAt;
+  if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || v > 100) {
+    throw new BadRequestException('퀘스트가 열리는 친밀도는 0~100 사이의 정수여야 합니다.');
+  }
+  return v;
 }
 
 // ---- 발행 준비 상태 (§6.1 "발행은 필수 단계(3, 4, 6)와 테스트 통과 후") ----
@@ -248,6 +268,7 @@ export const STEPS = [
   { key: 'boundary', label: '비밀·경계', required: false },
   { key: 'greeting', label: '첫인사', required: true },
   { key: 'lore', label: '로어북', required: false },
+  { key: 'quest', label: '비밀 퀘스트', required: false },
 ] as const;
 export type StepKey = (typeof STEPS)[number]['key'];
 
@@ -276,7 +297,15 @@ export function missingByStep(card: Card): Record<StepKey, string[]> {
     boundary: card.boundary.secret !== '' && card.boundary.unlockCondition === '' ? ['비밀의 해금 조건'] : [],
     greeting: miss([[card.greeting.firstMessage !== '', '첫 메시지']]),
     lore: [],
+    // 쓰기 시작했으면 제목·부탁·달성 조건이 쌍이어야 한다 (달성 조건 없는 퀘스트는 판정할 수 없다)
+    quest: questMissing(card.quest),
   };
+}
+
+function questMissing(q: Quest): string[] {
+  const touched = q.title !== '' || q.offer !== '' || q.objective !== '' || q.reward !== '';
+  if (!touched) return [];
+  return [[q.title, '퀘스트 이름'], [q.offer, '퀘스트 부탁'], [q.objective, '퀘스트 달성 조건']].filter(([v]) => v === '').map(([, name]) => name);
 }
 
 // 한국어는 대략 글자 2개에 토큰 1개꼴이다. 정확한 값이 아니라 "얼마나 무거운지" 감을 주는 용도 (§6.3)
@@ -329,7 +358,10 @@ function stepTouched(card: Card, key: StepKey): boolean {
   return JSON.stringify(v) !== JSON.stringify(EMPTY_CARD[key]);
 }
 
-// 카드 지문: 테스트 뒤 카드를 고치면 달라져서 다시 테스트해야 발행된다
+// 카드 지문: 테스트 뒤 카드를 고치면 달라져서 다시 테스트해야 발행된다.
+// 비밀 퀘스트는 3턴 테스트 대화에 쓰이지 않으므로 지문에서 뺀다 — 퀘스트만 고쳤다고 다시 테스트하게 하지 않고,
+// 퀘스트가 생기기 전에 테스트를 통과한 기존 카드의 지문도 그대로 유지된다
 export function cardHash(card: Card): string {
-  return createHash('sha256').update(JSON.stringify(card)).digest('hex').slice(0, 16);
+  const { quest: _quest, ...rest } = card;
+  return createHash('sha256').update(JSON.stringify(rest)).digest('hex').slice(0, 16);
 }

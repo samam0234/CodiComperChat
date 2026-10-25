@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSessionToken, requireUser } from "@/lib/auth";
 import { getChatHistory } from "@/lib/conversations";
 import { getModels } from "@/lib/models";
+import { getQuest } from "@/lib/operations";
 import { getMyPersonas } from "@/lib/personas";
 import CharacterAvatar from "@/components/character-avatar";
 import CharacterChat from "./character-chat";
@@ -15,6 +16,7 @@ type CharacterSummary = {
   openingScene: string;
   portraitMime?: string | null;
   updatedAt?: string;
+  recommendedPersona?: { name: string; description: string } | null;
 };
 
 async function getCharacter(id: string): Promise<CharacterSummary | null> {
@@ -44,11 +46,12 @@ export default async function CharacterChatPage({
   const { id } = await params;
   // 대화는 내 프로필 캐릭터로만 할 수 있고, 프로필은 로그인 유저의 것이다
   await requireUser(`/characters/${id}/chat`);
-  const [character, personas, history, models] = await Promise.all([
+  const [character, personas, history, models, quest] = await Promise.all([
     getCharacter(id),
     getMyPersonas(),
     getChatHistory(id),
     getModels(),
+    getQuest(id),
   ]);
 
   if (!character) {
@@ -83,6 +86,8 @@ export default async function CharacterChatPage({
         balance={models?.balance ?? null}
         initialModel={history?.model ?? "basic"}
         personas={personas.map(({ id: personaId, name }) => ({ id: personaId, name }))}
+        hasQuest={quest?.exists === true}
+        recommendedPersona={character.recommendedPersona ?? null}
       />
     </section>
   );

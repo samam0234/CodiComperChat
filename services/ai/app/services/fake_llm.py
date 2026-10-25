@@ -14,6 +14,11 @@ REPLY = "네, 알겠어요. 오늘도 천천히 이야기해 봐요."
 # 속성 이름별 고정값 (스키마가 요구하는 이름에 맞춘다)
 BY_NAME: dict[str, object] = {
     "text": "테스트 초안이에요. 설정에 맞게 고쳐 쓰세요.",
+    # 비밀 퀘스트 AI 초안 (제목은 아래 코디포토넷·커뮤니티와 같은 "title" 키를 쓴다)
+    "offer": "친해진 유저에게 오래 미뤄 둔 일을 같이 해 달라고 조심스럽게 부탁한다.",
+    "objective": "유저가 그 일을 함께 하겠다고 분명하게 말하고 첫 단계를 같이 해 본다.",
+    "reward": "캐릭터가 처음으로 속마음을 털어놓으며 고맙다고 말한다.",
+    "unlockAt": 40,
     "items": ["테스트 항목"],
     "memories": ["민준은 시험 때문에 힘들어한다"],
     "suggestions": ["오늘은 어떠셨어요?", "그건 조금 더 이야기해 줄래요?", "저는 괜찮아요, 고마워요."],
@@ -25,6 +30,54 @@ BY_NAME: dict[str, object] = {
     "invented": False,
     "note": "",
     "notes": [],
+    # 오퍼레이션
+    "innerVoice": "사실은 조금 설레. 내색하지 않으려고 애쓰는 중이야.",
+    "feeling": "설렘",
+    "aboutUser": "오늘따라 믿음직해 보인다.",
+    "title": "비 오는 날의 손님",
+    "mood": "포근함",
+    "body": "오늘은 비가 왔다. 민준이 찾아와서 한참 이야기를 나눴다. 괜히 마음이 놓이는 하루였다.",
+    "posts": [
+        {
+            "author": "골목고양이",
+            "title": "카페 사장님 오늘도 친절하심",
+            "body": "비 와서 들렀는데 따뜻한 차 주셨어요.",
+            "comments": [{"author": "익명", "body": "인정합니다"}],
+        },
+        {"author": "퇴근길직장인", "title": "요즘 동네 분위기 좋네요", "body": "다들 인사도 잘 하시고요.", "comments": []},
+        {
+            "author": "익명",
+            "title": "우산 잃어버리신 분",
+            "body": "정류장에 파란 우산 있어요.",
+            "comments": [{"author": "동네주민", "body": "제 거 같아요!"}],
+        },
+    ],
+    "comments": [{"author": "골목고양이", "body": "좋은 글이네요"}, {"author": "익명", "body": "공감해요"}],
+    # 코디포토넷: 장면 설계표
+    "people": [
+        {"name": "테스트 선생", "gender": "male", "look": "short black hair, glasses, cardigan", "expression": "gentle smile", "pose": "sitting"},
+        {"name": "민준", "gender": "male", "look": "brown hair, hoodie", "expression": "focused", "pose": "writing"},
+    ],
+    "setting": "study cafe, afternoon",
+    "action": "studying together, open workbook on table",
+    "lighting": "soft window light",
+    # 웹툰 콘티 (가짜 엔진은 컷 수와 상관없이 6컷을 주고, 서비스가 필요한 만큼 자른다)
+    "panels": [
+        {
+            "people": [
+                {"name": "테스트 선생", "gender": "male", "look": "short black hair, glasses, cardigan", "expression": "gentle smile", "pose": "sitting"},
+                {"name": "민준", "gender": "male", "look": "brown hair, hoodie", "expression": "focused", "pose": "writing"},
+            ],
+            "shot": shot,
+            "setting": "study cafe, afternoon",
+            "action": "studying together",
+            "lighting": "soft window light",
+            "rating": "safe",
+            "caption": f"{i}번째 장면",
+            "lines": [{"speaker": "테스트 선생", "text": f"{i}번째 대사예요."}],
+        }
+        for i, shot in enumerate(["wide shot", "upper body", "close-up", "cowboy shot", "full body", "over the shoulder"], start=1)
+    ],
 }
 
 

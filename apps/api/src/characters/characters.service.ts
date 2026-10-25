@@ -22,6 +22,8 @@ const PUBLIC_FIELDS = {
   visibility: true,
   // 초상 이미지 본문은 싣지 않는다(목록이 무거워진다). 있는지만 알려 주고 GET /characters/:id/portrait로 받는다
   portraitMime: true,
+  // 이 캐릭터와 대화할 때 추천하는 내 프로필(선택, 비밀이 아니다)
+  recommendedPersona: true,
   createdAt: true,
   updatedAt: true,
 } as const;

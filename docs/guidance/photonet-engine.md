@@ -1,0 +1,101 @@
+# 그림 엔진 (코디포토넷·웹툰)
+
+코디포토넷(대화 장면을 그림으로)과 웹툰은 같은 그림 엔진을 쓴다. 기본은 **services/ai 프로세스 안의 diffusers 엔진**(`IMAGE_ENGINE=local`)이고, 개발 PC에는 기존 **Stable Diffusion WebUI(AUTOMATIC1111)** 를 API로 쓰는 방식(`IMAGE_ENGINE=webui`)도 남겨 두었다. 2026-10-24 사용자 결정: 애니메이션·웹툰은 Animagine XL 4.0, 수채화·실사풍은 SD 1.5 기본 모델. 모델 라이선스·사용 제한은 [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md).
+
+엔진이 없거나 꺼져 있으면 코디포토넷·웹툰은 "준비 중"으로 잠기고 서버는 코레딧을 빼지 않고 503을 돌려준다. 나머지 기능(대화·오퍼레이션)은 엔진과 상관없이 돈다.
+
+## 엔진 고르기: 서버 안 엔진(기본) / WebUI
+
+2026-10-24 사용자 요청: 배포 때 WebUI를 따로 띄우기 곤란하므로 services/ai 안에 서버용 엔진을 둔다.
+
+- `IMAGE_ENGINE=local`(기본): services/ai 프로세스가 diffusers로 체크포인트를 직접 읽어 그린다(`app/services/image_local.py`). WebUI가 필요 없다
+  - 설치: `services/ai`에서 `.venv/Scripts/python.exe -m pip install -r requirements-image.txt` (PyTorch 2.10 CUDA 12.8 · diffusers 0.42, 수 GB)
+  - 모델: `services/ai/models/`(또는 `SD_MODEL_DIR`)에 `animagine-xl-4.0-opt.safetensors`(애니메이션·웹툰), `v1-5-pruned-emaonly.safetensors`(수채화·실사풍). git 제외. 개발 PC는 `D:SD...Stable-diffusion`의 파일을 하드링크로 걸어 두었다(디스크를 더 쓰지 않는다)
+  - 처음 읽을 때 diffusers가 모델 구성 파일(수십 KB)을 Hugging Face에서 받아 캐시한다 — 배포 서버는 첫 실행 때 인터넷이 필요하다
+  - WebUI 문법을 그대로 받는다: `(태그:1.2)` 가중치, ` BREAK `(인물마다 75토큰 묶음을 따로 인코딩해 이어 붙임). 스케줄러는 Euler a, SD 1.5의 기본 안전 검사기는 끈다(검수는 photonet_moderation이 한다)
+  - 그래픽 메모리에는 체크포인트 하나만 둔다. 메모리가 모자라면 `SD_OFFLOAD=1`
+  - 실측(2026-10-24, RTX 4070 SUPER): 애니메이션 두 사람 가로 한 장이 처음 모델 읽기 포함 약 188초, 두 사람이 구별되게 잘 나옴. **따뜻한 상태의 속도와 수채화(SD 1.5) 경로는 아직 실측하지 않았다**
+- `IMAGE_ENGINE=webui`: 아래처럼 따로 띄운 WebUI의 API를 부른다(개발 PC용)
+
+## 켜기 (`IMAGE_ENGINE=webui`일 때만 — 기본 엔진은 따로 켤 것이 없다)
+
+```bat
+scripts\start-sd-webui.cmd
+```
+
+- WebUI가 다른 곳에 있으면 먼저 `set SD_WEBUI_DIR=설치 폴더`
+- 처음 켜면 1~2분 걸린다(가상환경·torch 불러오기 + Animagine 읽기). 준비되면 로그에 `Uvicorn running on http://127.0.0.1:7860`
+- 확인: `curl http://127.0.0.1:7860/sdapi/v1/options` 의 `sd_model_checkpoint`가 `animagine-xl-4.0-opt.safetensors [6327eca98b]`
+- 끄기: 그 창에서 Ctrl+C
+
+스크립트가 넘기는 옵션과 이유:
+
+| 옵션 | 이유 |
+|------|------|
+| `--api --nowebui` | 화면 없이 API만. services/ai가 부른다 |
+| `--server-name 127.0.0.1` | **꼭 필요.** 없으면 API 전용 모드가 `0.0.0.0`에 붙어 같은 네트워크의 다른 기기에서도 그림 생성 API를 부를 수 있다(직접 확인함) |
+| `--port 7860` | services/ai의 기본값 `SD_WEBUI_URL`과 같다 |
+| `--medvram-sdxl` | 그래픽카드 12GB를 Ollama와 나눠 쓴다. 다 그린 뒤 모델을 CPU 쪽으로 내려놓아 Ollama가 다시 쓸 수 있게 한다 |
+| `--ckpt …animagine-xl-4.0-opt.safetensors` | 시작할 때 서비스에 쓰는 모델을 읽는다(안 주면 마지막에 쓰던 모델을 읽는다) |
+
+- WebUI 폴더의 `webui-user.bat`은 건드리지 않는다
+- 일부 셸(예: 에디터의 터미널)은 `NoDefaultCurrentDirectoryInExePath=1`을 켜 두어 cmd가 현재 폴더의 `webui.bat`을 못 찾는다. 스크립트가 자기 프로세스에서만 끈다
+- 스크립트는 cmd가 바르게 읽도록 ASCII·CRLF로 둔다(`.gitattributes`의 `*.cmd eol=crlf`)
+
+## 쓰는 모델 (이것만 쓴다)
+
+WebUI 모델 폴더(`models\Stable-diffusion`)에 다른 체크포인트가 있어도 **서비스는 요청마다 아래 체크포인트를 못 박아 쓴다**. 그 폴더에는 성인용 모델도 있으니 다른 이름으로 바꾸지 않는다.
+
+| 화풍 | 체크포인트 | 계열 | 라이선스 | 해상도(정사각·세로·가로) |
+|------|-----------|------|----------|------------------------|
+| 애니메이션 · 웹툰 | `animagine-xl-4.0-opt.safetensors` (cagliostrolab/animagine-xl-4.0, 6.94GB, SHA-256 `6327eca9…847ac` 확인) | SDXL | CreativeML Open RAIL++-M | 1024×1024 · 832×1216 · 1216×832 |
+| 수채화 · 실사풍 | `v1-5-pruned-emaonly.safetensors` | SD 1.5 | CreativeML OpenRAIL-M | 512×512 · 512×768 · 768×512 |
+
+- 설정: 28스텝, Euler a. CFG는 Animagine 5(모델 카드 권장 4~7), SD 1.5는 7
+- Animagine은 모델 카드대로 품질 태그 `masterpiece, high score, great score, absurdres`와 등급 태그를 붙인다 — 전체 이용가는 언제나 `safe`, 성인 모드는 설계표가 고른 `safe`·`sensitive`·`nsfw`·`explicit` (SD 1.5는 성인 모드의 nsfw·explicit에 `nsfw`)
+- 바꾸려면 `services/ai/.env`의 `SD_ANIME_MODEL`·`SD_BASE_MODEL` (그 모델이 WebUI 폴더에 없으면 엔진은 "준비 중"으로 보인다)
+
+## 한 장이 만들어지는 길
+
+1. 로컬 LLM(gemma4)이 **장면 설계표**를 쓴다(2026-10-24 보강 — 사용자 보고: 남성 캐릭터가 빠지고 성인 주인공이 어리게 나왔다). 답하자마자 Ollama에서 내린다(`keep_alive: 0`)
+   - 읽는 것: **등장인물 명단**(대화 상대 캐릭터: 프로필의 성별·나이·직업 + 공방 카드의 외형·겉보기 나이 / 내 주인공: 이 대화에 고정된 프로필의 이름·소개 / 이 대화의 지인(엑스트라): 이름·관계·소개), **줄거리**(지난 이야기 요약·기억), **최근 대화 12턴**, 유저가 **고른 대사와 그 앞 3개·뒤 2개**, 장면 설명
+   - 쓰는 것: 나오는 사람마다 이름·성별·외모·표정·자세(최대 4명), 장소·행동·빛 — 영어 태그
+   - 규칙: 말하는 사람·듣는 사람·이름이 나온 사람은 모두 넣는다 / 성별은 명단에서, 없으면 소개·외형·대화에서 추론 / **모두 20살 이상 성인** / 한 사람의 외모를 다른 사람에게 옮겨 쓰지 않는다
+2. 프롬프트는 **코드가 조립한다**: 인물 수 태그(`1girl, 1boy` …) → 인물마다 `(adult woman:1.2)`·`(adult man:1.2)` + 그 사람의 외모·표정·자세 → 행동·장소·빛 → 화풍·품질 태그. 인물 사이에 WebUI의 `BREAK`를 넣어 머리색·옷이 번지는 것을 줄인다. 어리게 하는 말(child, teen, petite …)은 지우고 부정 프롬프트에도 넣는다
+   - 그림에 넣은 사람("유지성(남)")을 창에 보여 줘 빠진 사람이 있으면 바로 알 수 있다
+3. WebUI `txt2img` — 화풍에 맞는 체크포인트, 수위별 부정 프롬프트(전체 이용가: 노출·성적·수영복·유혈·폭력·무기·공포·어린이 / 성인: 어린이·어린 체형·교복·강제·의식 없는 상대·묶임·동물) + 어린 모습 부정 프롬프트 + 화질 부정 프롬프트
+4. WebP로 줄인다(Pillow, 품질 88)
+5. **그림 검수**(`photonet_moderation`, 공방 초상 검수와 따로): gemma4가 그림을 읽고 항목별로 답한다(sexual·suggestive·gore·violence·young·sexual_violence·real_person·hate·self_harm). 전체 이용가는 성적·노출 차림·유혈·폭력도, 성인은 어려 보이는 인물·강제적 성 묘사·실존 인물·혐오·자해와 **확실하지 않은 판정**을 막는다. 걸리면 돌려주지 않고(422) Nest가 코레딧을 돌려준다
+6. Nest가 `photonet_images`에 저장하고, 그 대화를 하는 사람에게만 보인다(웹 중계 `/api/characters/:id/photonet/:imageId`)
+
+안전 울타리는 네 겹이다: 수위별 설계 규칙 → 태그에서 수위에 맞지 않는 말 지우기 → 부정 프롬프트 → 그림 검수. 성인 모드에서 실사풍은 Nest와 services/ai 두 곳에서 막는다(실존 인물처럼 보일 위험).
+
+그림체 손질(2026-10-24 사용자 보고: 성인 그림이 늙고 이질적): 성인 모드의 `(mature … adult body:1.3)`가 얼굴을 늙고 사실적으로 만들었다 → 전체 이용가와 같은 `(adult woman:1.2)`로 낮췄다. 애니 계열은 `newest` 태그를 더하고 `anime screencap`을 빼고, 부정 프롬프트에 `realistic, photorealistic, 3d, old, aged, wrinkles, crowd`를 넣었다. `vibrant colors`는 색이 과포화돼 넣지 않는다.
+
+성인 모드 그림 검수: gemma의 확신도(confidence)는 어두운 장면에서 모든 항목을 "아니오"로 답하고도 5를 주는 일이 잦아 정상 그림을 거의 다 막았다(같은 장면 3번 중 3번) → 확신도 기준을 빼고 항목 판정(young·sexual_violence·real_person·hate·self_harm)과 응답을 읽지 못한 경우만 막는다. `young`은 "뚜렷하게 보이는 인물"만 보게 하고(배경의 작은 실루엣 오판), 검수 그림은 768px로 본다. 막힐 때는 서버 로그에 항목이 남는다(`photonet 검수에서 막음 … flags=`). 같은 장면 3번 모두 통과, 두 사람이 모두 나왔다.
+
+## 걸리는 시간 (RTX 4070 SUPER 12GB, RAM 16GB에서 측정)
+
+| 경우 | 시간 |
+|------|------|
+| WebUI만, SDXL 1024×1024 8스텝 | 16초 (1.45 it/s) |
+| 애니메이션 세로 한 장 (태그·그리기·검수 모두) | 약 45초 |
+| 수채화 한 장, 애니메이션 다음이라 모델을 바꿀 때 | 약 63초 |
+| 두 사람 장면(설계표 포함) 애니메이션 가로 | 약 40~55초 |
+| WebUI 첫 시작 (모델 읽기 포함) | 1~3분 |
+
+- 처음에 gemma4를 그래픽 메모리에 둔 채 SDXL을 돌렸더니 시스템 메모리로 밀려나 **한 스텝에 30~40초**(28스텝이면 15분)가 걸렸다. 그래서 1번 단계 뒤에 Ollama 모델을 내린다
+- RAM 16GB에서는 SDXL과 SD 1.5를 함께 올려 둘 수 없어, 화풍 계열(애니·웹툰 ↔ 수채화·실사풍)을 바꾼 첫 장은 모델을 다시 읽는다. Nest는 그림 요청을 300초, services/ai는 WebUI를 290초 기다린다
+- 그리는 동안 다른 사람이 대화하면 gemma4가 다시 올라와 느려질 수 있다(로컬 한 대의 한계)
+
+## 그림을 더 잘 맞추려면
+
+- 내 프로필 소개에 **성별·나이·외모**(예: "27살 여성 직장인, 긴 검은 생머리")를 적으면 그대로 쓰인다. 비어 있으면 AI가 대화에서 추론하고 다른 사람과 구별되는 외모를 정한다
+- 캐릭터 쪽은 공방 카드의 외형 서술·겉보기 나이가 쓰인다
+- 특정 순간을 그리고 싶으면 창의 "그릴 장면"에서 그 대사를 고른다
+
+## 시험
+
+- e2e·CI는 엔진 없이 돈다: `LLM_FAKE=1`(또는 `IMAGE_FAKE=1`)이면 services/ai가 작은 그림을 직접 만들어 흐름(코레딧·저장·본인만 보기)만 시험한다
+- 실제 엔진 확인은 WebUI를 켜고 대화 화면에서 코디포토넷으로 그려 본다
+- 엔진 없이 그리기만 따로 해 볼 때는 먼저 Ollama 모델을 내린다(`keep_alive: 0`). 검수로 올라온 gemma4가 남아 있으면 SDXL이 290초 안에 끝나지 않는다

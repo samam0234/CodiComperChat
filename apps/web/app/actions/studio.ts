@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
-import type { Card, DraftView, Verdict, Visibility } from "@/lib/studio-card";
+import type { Card, DraftView, Quest, Verdict, Visibility } from "@/lib/studio-card";
 
 // 공방 화면(클라이언트)이 부르는 서버 액션. Nest로 넘기기만 하고 판단은 Nest가 한다 (FastAPI 직접 호출 없음).
 // 토큰은 httpOnly 쿠키에서 서버가 꺼내 붙인다.
@@ -69,6 +69,11 @@ export async function draftField(id: string, field: string) {
   return call<{ field: string; kind: "text" | "list"; value: string | string[] }>(id, "/draft-field", "POST", { field });
 }
 
+// 비밀 퀘스트를 카드 설정을 읽고 한 번에 AI로 제안받는다 (저장하지 않는다)
+export async function draftQuest(id: string) {
+  return call<Quest>(id, "/draft-quest", "POST");
+}
+
 // 흉상 초상. 브라우저가 줄여 보낸 이미지 파일을 Nest에 원본 그대로 넘긴다 (Nest가 형식·크기를 다시 검사한다)
 export async function uploadPortrait(id: string, formData: FormData): Promise<StudioResult<DraftView>> {
   const file = formData.get("file");
@@ -92,6 +97,19 @@ export async function uploadPortrait(id: string, formData: FormData): Promise<St
   // 발행 중이면 홈·상세의 초상도 바로 바뀐다
   revalidatePath("/", "layout");
   return { ok: true, data: data as DraftView };
+}
+
+// AI로 초상 만들기 (25 코레딧). 만든 그림은 올린 그림과 같이 자동 검수를 거쳐 초상으로 저장된다
+export async function generatePortrait(
+  id: string,
+  input: { style: string; options: Record<string, string>; extra: string; useCard: boolean },
+) {
+  const result = await call<{ draft: DraftView; balance: number; cost: number }>(id, "/portrait/generate", "POST", input);
+  if (result.ok) {
+    revalidatePath("/", "layout");
+    revalidatePath("/me");
+  }
+  return result;
 }
 
 export async function removePortrait(id: string) {

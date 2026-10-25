@@ -3,6 +3,7 @@ import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CampaignStoryService } from '../campaign-state/campaign-story.service.js';
+import { QuestsService } from '../quests/quests.service.js';
 import { ChatStateService } from '../chat-state/chat-state.service.js';
 import { CharactersService } from '../characters/characters.service.js';
 import {
@@ -39,6 +40,7 @@ export class CharacterChatService {
     private readonly chatState: ChatStateService,
     private readonly extras: ExtrasService,
     private readonly story: CampaignStoryService,
+    private readonly quests: QuestsService,
     private readonly models: ModelsService,
     private readonly prisma: PrismaService,
   ) {}
@@ -106,6 +108,27 @@ export class CharacterChatService {
     };
   }
 
+  // 오퍼레이션(심리 탐구·일기·메시지·커뮤니티)이 쓰는 대화 맥락.
+  // 진행 중인 대화가 있어야 한다 — 고정된 내 프로필·기억·상태설정·이야기 상태를 그대로 쓴다.
+  // history를 주면(메시지 창의 문자 기록 등) 그것을 최근 대화로 쓴다
+  async operationContext(characterId: string, authorization?: string, history?: ChatTurn[]) {
+    const userId = await this.resolveUser(authorization);
+    const character = await this.charactersService.findOnePublished(characterId, userId);
+    const conversation = await this.conversations.find(userId, characterId);
+    if (!conversation?.persona) {
+      throw new ConflictException('먼저 이 캐릭터와 대화를 시작해 주세요. 오퍼레이션은 진행 중인 대화를 바탕으로 해요.');
+    }
+    const turns = history ?? (await this.conversations.recentTurns(conversation.sessionId));
+    const [chatState, story, memories] = await Promise.all([
+      this.chatState.get(conversation.campaignId),
+      this.story.get(conversation.campaignId),
+      this.memoriesFor(conversation, turns),
+    ]);
+    const rag = this.personaRag.assemble(character.name, turns);
+    const context = buildContextSlice(character, turns, conversation.persona, rag, memories, chatState, [], [], story);
+    return { userId, character, conversation, persona: conversation.persona, context };
+  }
+
   // 새로하기: 지금 대화를 저장(save)하거나 지우고, 시작 장면부터 다시 연다
   async startNew(characterId: string, save: boolean, authorization?: string) {
     const userId = await this.resolveUser(authorization);
@@ -167,6 +190,8 @@ export class CharacterChatService {
     const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
 
     const grounding = groundingText(this.personaRag.knowledgeFor(character.name), character);
+    // 비밀 퀘스트: 친밀도가 문턱을 넘었으면 캐릭터에게 부탁을 꺼낼 때를 알려 준다 (달성 조건은 알리지 않는다)
+    const questNote = await this.quests.noteFor(character.id, existing?.campaignId ?? null, chatState?.relationshipValue ?? 0);
     const context = buildContextSlice(
       character,
       history,
@@ -177,6 +202,7 @@ export class CharacterChatService {
       extras,
       ungroundedTopics(userTurn, grounding),
       story,
+      questNote,
     );
     // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(한도 소진·코레딧 부족·준비 중) 이유와 함께 거절한다
     const model = requested

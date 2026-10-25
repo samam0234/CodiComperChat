@@ -48,6 +48,13 @@ export const RULES = {
   memory: { limit: 5, windowMs: MIN, by: 'user', label: '기억 정리를 너무 자주 요청하고 있어요.' },
   agent: { limit: 15, windowMs: MIN, by: 'ip', label: '안내 도우미에게 너무 자주 묻고 있어요.' },
   upload: { limit: 10, windowMs: MIN, by: 'user', label: '이미지를 너무 자주 올리고 있어요.' },
+  // 코디포토넷: 그림 한 장에 그래픽카드를 수십 초 쓴다
+  photonet: { limit: 6, windowMs: 10 * MIN, by: 'user', label: '그림을 너무 자주 만들고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
+  // 웹툰: 콘티(LLM)와 컷(그림)을 따로 센다. 컷은 한 편(최대 6컷)을 이어 그릴 수 있게 넉넉히
+  webtoonPlan: { limit: 6, windowMs: 10 * MIN, by: 'user', label: '웹툰을 너무 자주 만들고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
+  // 공방 AI 초상: 한 장에 그래픽카드를 수십 초 쓴다
+  portraitAi: { limit: 6, windowMs: 10 * MIN, by: 'user', label: '초상을 너무 자주 만들고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
+  webtoonPanel: { limit: 14, windowMs: 10 * MIN, by: 'user', label: '컷을 너무 자주 그리고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
   report: { limit: 10, windowMs: 60 * MIN, by: 'user', label: '신고를 너무 많이 보냈어요.' },
   billing: { limit: 20, windowMs: 10 * MIN, by: 'user', label: '결제 요청이 너무 많습니다. 잠시 뒤에 다시 시도해 주세요.' },
 } as const satisfies Record<string, Rule>;

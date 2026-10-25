@@ -42,6 +42,14 @@ model User {
   /// 이메일 인증을 마친 시각. 비어 있으면 미인증 (캐릭터 공개 발행은 인증 뒤에만)
 
   emailVerifiedAt DateTime?
+  /// 성인 확인 (코디포토넷 NSFW). 생년월일(만 19세 이상) + 성인 콘텐츠 동의 + 이메일 인증.
+  /// 2026-10-25 결정: 이 자기 신고 방식을 유지한다. 본인인증(PASS 등)은 법률 검토 항목으로 남기고 코드로 바꾸지 않는다.
+  /// 생년월일은 응답에 싣지 않는다
+  birthDate       DateTime? @db.Date
+  adultConsentAt  DateTime?
+  /// 운영 조치로 계정 이용을 막은 시각. 값이 있으면 로그인과 API를 거절한다 (운영자 계정은 정지하지 않는다)
+  suspendedAt     DateTime?
+  suspendReason   String?
 
   /// 로그인 토큰 세대. 비밀번호를 바꾸거나 재설정하면 1 올려 이전에 발급한 토큰을 모두 무효로 만든다
 
@@ -55,6 +63,7 @@ model User {
   characters Character[]
 
   reports CharacterReport[]
+  contentReports ContentReport[]
 
   emailTokens EmailToken[]
 
@@ -64,6 +73,7 @@ model User {
   credits     Int             @default(0)
   creditLedger CreditLedger[]
   attendances  Attendance[]
+  questRewards QuestReward[]
 
   @@map("users")
 }
@@ -98,6 +108,10 @@ model Character {
   secret                String
   secretUnlockCondition String
   openingScene          String
+  /// 비밀 퀘스트(제목·건네는 부탁·달성 조건·보상 장면·열리는 친밀도). 공개 응답에는 싣지 않는다. 없으면 퀘스트 없는 캐릭터
+  quest                 Json?
+  /// 이 캐릭터와 대화할 때 추천하는 내 프로필 { name, description } (선택). 유저가 그대로 쓰거나 고쳐서 내 프로필로 만든다
+  recommendedPersona    Json?
   /// 신체·직업 등 카드 밖 부가 프로필. 캐릭터마다 있을 수도, 없을 수도 있다
   profile               Json?
   published             Boolean             @default(false)
@@ -165,6 +179,13 @@ model Campaign {
   memorizedUntil     DateTime?
   /// 이 대화의 답을 쓰는 모델 (src/models/models.ts의 id). 새 대화는 기본 무료 모델
   chatModel          String          @default("basic")
+  /// 오퍼레이션(대화 플러그인) 기록. 대화를 지우면 함께 지워진다
+  mindReadings       MindReading[]
+  diaryEntries       DiaryEntry[]
+  directMessages     DirectMessage[]
+  boardPosts         BoardPost[]
+  photonetImages     PhotonetImage[]
+  webtoons           Webtoon[]
 
   // 유저×캐릭터의 지금 대화(ACTIVE 하나)와 저장한 대화(CLOSED 여럿)를 찾는 경로
   @@index([userId, characterId, status])
@@ -193,6 +214,8 @@ model CampaignState {
   closedEvents        Json      @default("[]")
   /// 이 시각까지의 메시지는 이야기 상태(요약·친밀도·복선)에 반영했다
   digestedUntil       DateTime?
+  /// 비밀 퀘스트 진행 { status: offered|done, at } — 아직 건네지 않았으면 비어 있다
+  questState          Json?
   updatedAt           DateTime  @updatedAt
 
   @@map("campaign_states")
@@ -320,6 +343,38 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum ContentTarget {
+  PHOTONET
+  WEBTOON
+}
+
+enum ContentReportStatus {
+  OPEN
+  BLOCKED
+  DISMISSED
+}
+
+/// 코디포토넷 그림·웹툰 신고. 만든 사람이 올리고, 운영자가 본 뒤 접근을 막거나 기각한다.
+/// 그림 행을 가리키지만 그림이 지워져도 신고는 남게 외래 키는 두지 않는다
+model ContentReport {
+  id         String              @id @default(cuid())
+  reporterId String
+  reporter   User                @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  target     ContentTarget
+  targetId   String
+  /// MINOR · PHOTOREAL · NONCONSENT · REAL_PERSON · OTHER
+  reason     String
+  detail     String
+  status     ContentReportStatus @default(OPEN)
+  resolution String?
+  resolvedAt DateTime?
+  createdAt  DateTime            @default(now())
+
+  @@index([status, createdAt])
+  @@index([target, targetId, status])
+  @@map("content_reports")
+}
+
 /// 공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED)
 model CharacterReport {
   id          String       @id @default(cuid())
@@ -437,6 +492,23 @@ enum CreditReason {
   MODEL_USE
   REFUND
   ADMIN
+  /// 오퍼레이션(심리 탐구·일기·커뮤니티·코디포토넷·웹툰)에 쓴 것. modelId 칸에 "op:이름"
+  OPERATION
+  /// 비밀 퀘스트 보상(공식 캐릭터만). modelId 칸에 "quest:캐릭터 id"
+  QUEST
+}
+
+/// 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다
+model QuestReward {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId String
+  amount      Int
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, characterId])
+  @@map("quest_rewards")
 }
 
 /// 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액
@@ -465,4 +537,149 @@ model Attendance {
 
   @@id([userId, day])
   @@map("attendances")
+}
+
+/// 오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로)
+model MindReading {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  innerVoice String
+  feeling    String
+  aboutUser  String
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("mind_readings")
+}
+
+/// 오퍼레이션 · 일기: 캐릭터가 자기 입장에서 쓰는 일기 (최근 대화에서 겪은 일과 기분)
+model DiaryEntry {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  title      String
+  mood       String
+  body       String
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("diary_entries")
+}
+
+/// 오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다
+model DirectMessage {
+  id         String      @id @default(cuid())
+  campaignId String
+  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  role       MessageRole
+  content    String
+  createdAt  DateTime    @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("direct_messages")
+}
+
+/// 커뮤니티 글쓴이: 나(유저) / 그 세계의 주민(AI)
+enum BoardAuthor {
+  USER
+  RESIDENT
+}
+
+/// 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다)
+model BoardPost {
+  id         String         @id @default(cuid())
+  campaignId String
+  campaign   Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  authorKind BoardAuthor
+  /// 화면에 보이는 글쓴이 (익명·주민 닉네임·내 주인공 실명)
+  authorName String
+  title      String
+  body       String
+  createdAt  DateTime       @default(now())
+  comments   BoardComment[]
+
+  @@index([campaignId, createdAt])
+  @@map("board_posts")
+}
+
+model BoardComment {
+  id         String      @id @default(cuid())
+  postId     String
+  post       BoardPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorKind BoardAuthor
+  authorName String
+  body       String
+  createdAt  DateTime    @default(now())
+
+  @@index([postId, createdAt])
+  @@map("board_comments")
+}
+
+/// 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다
+model PhotonetImage {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  /// 유저가 쓴 장면 설명
+  prompt     String
+  /// 엔진에 실제로 보낸 영어 프롬프트
+  promptUsed String
+  style      String
+  ratio      String
+  /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+  rating     String   @default("sfw")
+  /// 운영자가 접근을 막은 시각. 값이 있으면 만든 사람에게도 본문을 주지 않는다
+  blockedAt   DateTime?
+  blockReason String?
+  mime       String
+  data       Bytes
+  width      Int
+  height     Int
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, createdAt])
+  @@map("photonet_images")
+}
+
+/// 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧)
+model Webtoon {
+  id         String         @id @default(cuid())
+  campaignId String
+  campaign   Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  title      String
+  /// 유저가 쓴 장면 설명(또는 고른 대사)
+  prompt     String
+  /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+  rating     String         @default("sfw")
+  /// 운영자가 접근을 막은 시각. 값이 있으면 컷 본문을 주지 않고 더 그리지 못한다
+  blockedAt   DateTime?
+  blockReason String?
+  createdAt  DateTime       @default(now())
+  panels     WebtoonPanel[]
+
+  @@index([campaignId, createdAt])
+  @@map("webtoons")
+}
+
+/// 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다)
+model WebtoonPanel {
+  id         String   @id @default(cuid())
+  webtoonId  String
+  webtoon    Webtoon  @relation(fields: [webtoonId], references: [id], onDelete: Cascade)
+  index      Int
+  /// 장면 설계표(사람·장소·행동·빛·구도) — 그릴 때 프롬프트로 조립한다
+  plan       Json
+  /// 해설(나레이션 상자)과 대사 [{ speaker, text }]
+  caption    String
+  lines      Json     @default("[]")
+  promptUsed String?
+  mime       String?
+  data       Bytes?
+  width      Int?
+  height     Int?
+  drawnAt    DateTime?
+
+  @@unique([webtoonId, index])
+  @@map("webtoon_panels")
 }

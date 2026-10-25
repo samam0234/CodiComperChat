@@ -82,3 +82,34 @@ describe('cardHash', () => {
     expect(cardHash(a)).not.toBe(cardHash(b));
   });
 });
+
+describe('비밀 퀘스트 (카드)', () => {
+  it('퀘스트 칸을 읽고, 친밀도 문턱은 0~100 정수만 받는다', () => {
+    const c = normalizeCard({ quest: { title: ' 접어 둔 문제집 ', offer: '부탁', objective: '조건', reward: '', unlockAt: 55 } });
+    expect(c.quest).toEqual({ title: '접어 둔 문제집', offer: '부탁', objective: '조건', reward: '', unlockAt: 55 });
+    expect(() => normalizeCard({ quest: { unlockAt: 101 } })).toThrow(BadRequestException);
+    expect(() => normalizeCard({ quest: { unlockAt: 4.5 } })).toThrow(BadRequestException);
+    expect(() => normalizeCard({ quest: { title: 'x'.repeat(31) } })).toThrow(BadRequestException);
+    // 퀘스트가 없는 예전 카드는 빈 퀘스트로 읽힌다
+    expect(normalizeCard({ identity: { name: '지우' } }).quest).toEqual(EMPTY_CARD.quest);
+  });
+
+  it('쓰기 시작했으면 이름·부탁·달성 조건이 쌍이어야 하고, 안 쓰면 아무 말도 없다', () => {
+    const card = fullCard();
+    expect(readiness(card).steps.find((s) => s.key === 'quest')?.missing).toEqual([]);
+    card.quest.title = '이름만';
+    expect(readiness(card).steps.find((s) => s.key === 'quest')?.missing).toEqual(['퀘스트 부탁', '퀘스트 달성 조건']);
+    // 선택 단계라 발행 준비(complete)에는 영향이 없다
+    expect(readiness(card).complete).toBe(false);
+    card.quest.offer = '부탁';
+    card.quest.objective = '조건';
+    expect(readiness(card).complete).toBe(true);
+  });
+
+  it('퀘스트를 고쳐도 카드 지문(3턴 테스트 유효 여부)은 바뀌지 않는다', () => {
+    const a = fullCard();
+    const b = fullCard();
+    b.quest = { title: '새 퀘스트', offer: '부탁', objective: '조건', reward: '', unlockAt: 70 };
+    expect(cardHash(a)).toBe(cardHash(b));
+  });
+});

@@ -1,0 +1,390 @@
+/* 코디포토넷 창 */
+.dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.body {
+  display: grid;
+  gap: 14px;
+  padding: 20px 22px 22px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.title svg {
+  color: var(--accent);
+}
+
+.close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.close:hover {
+  background: var(--surface-2);
+  color: var(--foreground);
+}
+
+.lead {
+  margin-top: -6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.soon {
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 14px;
+  background: var(--gradient-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.soon strong {
+  margin-right: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 11px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.select {
+  height: 44px;
+  padding: 0 12px;
+}
+
+.fill {
+  justify-self: start;
+  margin-top: -4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 0;
+}
+
+.chips legend {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cost {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cost strong {
+  color: var(--foreground);
+}
+
+.cost a {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.make {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: var(--glow);
+}
+
+.make:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.gallery {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.empty {
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .chip:has(input:checked) {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.grid li {
+  display: grid;
+  gap: 4px;
+}
+
+.thumb {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  aspect-ratio: 1;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.thumb:hover img {
+  transform: scale(1.05);
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.blocked {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+:root[data-theme="dark"] .progress {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.chip:has(input:disabled) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 수위: 전체 이용가 / 성인 */
+.rating {
+  display: inline-flex;
+  justify-self: start;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.ratingButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ratingButton[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.ratingAdult[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+.ratingButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ratingButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ratingNote {
+  margin-top: -6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ratingNote a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.adultWarning {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 8%, var(--background));
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.adultWarning strong {
+  margin-right: 6px;
+  color: var(--danger);
+}
+
+/* 성인 모드일 때 창 테두리로도 알린다 */
+.adult {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+}
+
+/* 성인 확인 작은 열림 상자 */
+.small {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.consent input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}

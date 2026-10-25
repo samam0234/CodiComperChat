@@ -18,6 +18,8 @@ export type ModelOption = {
   // 하루 한도가 있는 모델만
   limit: number | null;
   used: number | null;
+  // 하루 한도를 다 쓴 뒤 1번에 드는 코레딧 (강화 무료를 무료 등급이 쓸 때)
+  overage: number | null;
 };
 
 // 모델 목록과 내 코레딧 잔액. 못 불러오면 null → 화면은 모델 고르기를 숨기고 기본 모델로 대화한다

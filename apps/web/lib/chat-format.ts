@@ -3,7 +3,7 @@
 //
 // 인라인: `코드` · ***굵은 기울임*** · **굵게** · *기울임(상황 설명)* · ~취소선~ · {{user}}(내 이름으로)
 // 블록:   # 제목(1~3개) · --- / *** 구분선 · > 선 있는 인용 · >붙여쓰기 = 위아래 여백 · * 목록
-//         ``` 상자 ``` · ```InfoBox 제목 ... ``` 접고 펴는 정보창 · @이름 말한 사람 표시 · @ 서술(내레이터)
+//         ``` 상자 ``` · ```InfoBox 제목 ... ``` 접고 펴는 정보창 · @이름 말한 사람 표시 · @: (또는 @ 뒤 빈칸) 나레이션
 
 export type Inline =
   | { type: "text"; text: string }
@@ -62,8 +62,9 @@ const HEADING = /^(#{1,3})\s+(.+)$/;
 const QUOTE = /^>\s+(.*)$/;
 const SPACED = /^>(\S.*)$/;
 const LIST = /^\*\s+(.*)$/;
-const SPEECH = /^@(\S+)(?:\s+(.*))?$/;
-const NARRATION = /^@(?:\s+(.*))?$/;
+// @: 는 나레이션이다 — 이름이 ":"인 사람으로 읽지 않게 말한 사람 표기에서 뺀다
+const SPEECH = /^@(?![:：])(\S+)(?:\s+(.*))?$/;
+const NARRATION = /^@(?:[:：]\s*|\s+|$)(.*)$/;
 
 // 빈 줄이 아닌 일반 줄을 문단으로 묶는다
 type Pending = { kind: "paragraph" | "spaced" | "quote" | "speech"; who?: string | null; lines: Inline[][] } | { kind: "list"; items: Inline[][] };

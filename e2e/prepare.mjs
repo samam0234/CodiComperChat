@@ -36,6 +36,20 @@ run("npx", ["prisma", "migrate", "deploy"], join(ROOT, "apps", "api"), { DATABAS
     `insert into characters (id, name, "oneLiner", role, addressing, "personalityAxes", "speechStyle", knows, unknown, goal, "conflictSeed", secret, "secretUnlockCondition", "openingScene", published, "updatedAt")
      values ('e2e-official', '테스트 선생', '시험용 공식 캐릭터', 'guide', '유저를 학생이라 부른다', '다정하고 차분함', '존댓말 기본', '유저의 진도', '유저의 사정', '진도 맞추기', '시험 일정', '비밀', '조건', '조용한 스터디카페. 선생이 문제집을 펴 두고 기다린다.', true, now())`,
   );
+  // 비밀 퀘스트 시험용 공식 캐릭터 (친밀도 40 이상에서 부탁을 건넨다)
+  await client.query(
+    `insert into characters (id, name, "oneLiner", role, addressing, "personalityAxes", "speechStyle", knows, unknown, goal, "conflictSeed", secret, "secretUnlockCondition", "openingScene", published, quest, "updatedAt")
+     values ('e2e-quest', '퀘스트 선생', '비밀 퀘스트 시험용 공식 캐릭터', 'guide', '유저를 학생이라 부른다', '다정하고 차분함', '존댓말 기본', '유저의 진도', '유저의 사정', '진도 맞추기', '시험 일정', '비밀', '조건', '조용한 스터디카페. 선생이 문제집을 펴 두고 기다린다.', true, $1::jsonb, now())`,
+    [JSON.stringify({ title: '접어 둔 문제집', offer: '오래 접어 둔 문제집을 같이 풀어 봐 달라고 어렵게 부탁한다', objective: '유저가 그 문제집을 같이 풀어 보겠다고 말한다', reward: '선생이 처음으로 자기 얘기를 한다', unlockAt: 40 })],
+  );
+  // 추천 프로필이 있는 공식 캐릭터 (대화 화면에서 그대로 쓰거나 고쳐서 내 프로필로)
+  await client.query(
+    `insert into characters (id, name, "oneLiner", role, addressing, "personalityAxes", "speechStyle", knows, unknown, goal, "conflictSeed", secret, "secretUnlockCondition", "openingScene", published, "recommendedPersona", "updatedAt")
+     values ('e2e-rec', '추천 비서', '추천 프로필 시험용 공식 캐릭터', 'companion', '유저를 회장님이라 부른다', '차갑지만 다정함', '존댓말 기본', '회장의 일정', '회장의 속마음', '회장을 지키기', '이사회 견제', '비밀', '조건', '@: 회장실. 비서가 서류를 들고 들어온다.
+
+"회장님, 보고서입니다."', true, $1::jsonb, now())`,
+    [JSON.stringify({ name: '서도현', description: '대기업의 회장. 30대 후반.' })],
+  );
   await client.end();
 }
 
