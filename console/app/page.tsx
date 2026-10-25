@@ -7,7 +7,7 @@ import styles from "./dashboard.module.css";
 type Stats = {
   users: { total: number; verified: number; new7d: number; admins: number; pro: number };
   characters: { published: number; public: number; takenDown: number; drafts: number };
-  moderation: { openReports: number; reportedCharacters: number; pendingPortraits: number };
+  moderation: { openReports: number; openContentReports: number; reportedCharacters: number; pendingPortraits: number };
   activity: { activeConversations: number; messages24h: number };
   ai: { inFlight: number; waitingForeground: number; waitingBackground: number; concurrency: number };
   at: string;
@@ -45,7 +45,7 @@ export default async function Dashboard() {
   }
 
   const { users, characters, moderation, activity, ai } = stats;
-  const todo = moderation.openReports + moderation.pendingPortraits;
+  const todo = moderation.openReports + moderation.openContentReports + moderation.pendingPortraits;
 
   return (
     <>
@@ -57,6 +57,7 @@ export default async function Dashboard() {
         </h2>
         <div className={styles.grid}>
           <Tile label="열린 신고" value={moderation.openReports} hint={`캐릭터 ${moderation.reportedCharacters}개`} href="/reports" alert={moderation.openReports > 0} />
+          <Tile label="그림 신고" value={moderation.openContentReports} href="/content" alert={moderation.openContentReports > 0} />
           <Tile label="초상 검수 대기" value={moderation.pendingPortraits} href="/portraits" alert={moderation.pendingPortraits > 0} />
           <Tile label="내려간 캐릭터" value={characters.takenDown} href="/characters?filter=taken-down" />
         </div>

@@ -6,6 +6,7 @@ import { createPhotonet, loadPhotonet } from "@/app/actions/operations";
 import form from "@/components/form.module.css";
 import { formatDayTime } from "@/lib/format-time";
 import type { PhotonetRating, PhotonetView } from "@/lib/operations";
+import ContentReport from "@/components/content-report";
 import AdultDialog from "./adult-dialog";
 import bar from "./ops-bar.module.css";
 import styles from "./photonet.module.css";
@@ -299,17 +300,21 @@ export default function Photonet({
               <ul className={styles.grid}>
                 {images.map((image) => (
                   <li key={image.id}>
-                    <a href={srcOf(characterId, image.id)} target="_blank" rel="noopener noreferrer" className={styles.thumb}>
-                      {/* 중계 라우트가 주는 그림이라 next/image 최적화를 거치지 않는다 */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={srcOf(characterId, image.id)}
-                        alt={`${image.style} · ${image.prompt}`}
-                        width={image.width}
-                        height={image.height}
-                        loading="lazy"
-                      />
-                    </a>
+                    {image.blocked ? (
+                      <p className={styles.blocked}>운영 조치로 볼 수 없는 그림입니다. {image.blockReason}</p>
+                    ) : (
+                      <a href={srcOf(characterId, image.id)} target="_blank" rel="noopener noreferrer" className={styles.thumb}>
+                        {/* 중계 라우트가 주는 그림이라 next/image 최적화를 거치지 않는다 */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={srcOf(characterId, image.id)}
+                          alt={`${image.style} · ${image.prompt}`}
+                          width={image.width}
+                          height={image.height}
+                          loading="lazy"
+                        />
+                      </a>
+                    )}
                     <span className={styles.meta}>
                       {image.rating === "nsfw" && (
                         <span className={styles.badge} aria-label="성인">
@@ -317,6 +322,14 @@ export default function Photonet({
                         </span>
                       )}{" "}
                       {image.style} · {formatDayTime(image.createdAt)}
+                      {!image.blocked && (
+                        <ContentReport
+                          characterId={characterId}
+                          target="PHOTONET"
+                          targetId={image.id}
+                          returnTo={`/characters/${characterId}/chat`}
+                        />
+                      )}
                     </span>
                   </li>
                 ))}

@@ -39,6 +39,8 @@ const WEBTOON_SELECT = {
   prompt: true,
   rating: true,
   createdAt: true,
+  blockedAt: true,
+  blockReason: true,
   panels: { select: PANEL_SELECT, orderBy: { index: 'asc' as const } },
 } as const;
 
@@ -52,6 +54,8 @@ function present(w: WebtoonRow) {
     prompt: w.prompt,
     rating: w.rating,
     createdAt: w.createdAt,
+    blocked: w.blockedAt !== null,
+    blockReason: w.blockedAt ? w.blockReason : null,
     panels: w.panels.map((p) => ({
       index: p.index,
       caption: p.caption,
@@ -150,8 +154,12 @@ export class WebtoonService {
 
   // 내 대화의 웹툰 (남의 것은 없는 것과 같은 404). 성인 웹툰은 지금 성인 확인이 살아 있을 때만
   private async own(webtoonId: string, campaignId: string, userId: string) {
-    const webtoon = await this.prisma.webtoon.findFirst({ where: { id: webtoonId, campaignId }, select: { id: true, rating: true } });
+    const webtoon = await this.prisma.webtoon.findFirst({
+      where: { id: webtoonId, campaignId },
+      select: { id: true, rating: true, blockedAt: true },
+    });
     if (!webtoon) throw new NotFoundException('웹툰이 없습니다.');
+    if (webtoon.blockedAt) throw new ForbiddenException('운영 조치로 이 웹툰은 더 보거나 그릴 수 없어요.');
     if (webtoon.rating === 'nsfw') {
       const block = await this.ops.adultBlockOf(userId);
       if (block) throw new ForbiddenException(ADULT_BLOCK_MESSAGE[block]);
@@ -211,7 +219,7 @@ export class WebtoonService {
     const panel = await this.prisma.webtoonPanel.findFirst({
       where: {
         index,
-        webtoon: { id: webtoonId, campaign: { userId, characterId }, ...(block ? { rating: 'sfw' } : {}) },
+        webtoon: { id: webtoonId, campaign: { userId, characterId }, blockedAt: null, ...(block ? { rating: 'sfw' } : {}) },
       },
       select: { data: true, mime: true },
     });

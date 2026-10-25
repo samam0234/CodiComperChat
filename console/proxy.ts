@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { applyTransport, enforceConsoleNetwork, enforceHttps } from "@/lib/https";
 
 // 엄격한 CSP: 요청마다 새 nonce. 콘솔은 외부 자원을 전혀 쓰지 않는다
 export function contentSecurityPolicy(nonce: string, dev: boolean): string {
@@ -20,6 +21,10 @@ export function contentSecurityPolicy(nonce: string, dev: boolean): string {
 
 // 로그인 화면 말고는 전부 운영자 전용. 쿠키가 없으면 바로 로그인으로 (진짜 확인은 각 페이지의 requireAdmin → Nest)
 export function proxy(request: NextRequest) {
+  const closed = enforceConsoleNetwork(request);
+  if (closed) return closed;
+  const https = enforceHttps(request);
+  if (https) return https;
   const { pathname, search } = request.nextUrl;
   const nonce = btoa(crypto.randomUUID());
   const policy = contentSecurityPolicy(nonce, process.env.NODE_ENV !== "production");
@@ -36,13 +41,14 @@ export function proxy(request: NextRequest) {
     response = NextResponse.next({ request: { headers } });
   }
   response.headers.set("Content-Security-Policy", policy);
+  applyTransport(response, request);
   return response;
 }
 
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|api/|favicon.ico).*)",
+      source: "/((?!_next/static|_next/image|favicon.ico).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
