@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { applyTransport, enforceHttps } from "@/lib/https";
 
 const MEMBER_ONLY = ["/library", "/studio", "/me", "/billing"];
 // 캐릭터 채팅은 내 프로필 캐릭터가 있어야 하므로 로그인 전용이다. 캐릭터 상세는 누구나 본다
@@ -34,6 +35,8 @@ export function contentSecurityPolicy(nonce: string, dev: boolean): string {
 
 // 쿠키 유무만 보는 빠른 1차 거름망이다. 토큰이 진짜인지는 각 페이지의 requireUser()가 Nest에 확인한다
 export function proxy(request: NextRequest) {
+  const https = enforceHttps(request);
+  if (https) return https;
   const { pathname, search } = request.nextUrl;
   const nonce = btoa(crypto.randomUUID());
   const policy = contentSecurityPolicy(nonce, process.env.NODE_ENV !== "production");
@@ -55,14 +58,16 @@ export function proxy(request: NextRequest) {
     response = NextResponse.next({ request: { headers } });
   }
   response.headers.set("Content-Security-Policy", policy);
+  applyTransport(response, request);
   return response;
 }
 
 export const config = {
-  // 화면 요청에만 (정적 파일·이미지 최적화·초상 중계 같은 API 라우트는 뺀다). 미리 가져오기(prefetch)도 뺀다
+  // 화면과 /api (그림 중계 포함). 정적 파일만 뺀다. 미리 가져오기(prefetch)도 뺀다.
+  // /api까지 보는 이유: 공개 호스트의 http 그림 주소를 https로 보내기 위해서다
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|api/|favicon.ico).*)",
+      source: "/((?!_next/static|_next/image|favicon.ico).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
