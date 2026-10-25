@@ -46,10 +46,12 @@ DB 주소는 `apps/api/.env`의 `DATABASE_URL`에서 데이터베이스 이름�
 | `webtoon.spec.ts` | 웹툰(콘티 무료·컷당 45·이중 그리기 방지·남의 컷 404·성인 가드·화면) |
 | `quest.spec.ts` | 비밀 퀘스트(진행·문턱·중복 보상 방지·공방 직접/AI 제작·유저 캐릭터 보상 없음·화면) |
 | `popular.spec.ts` | 인기 순위 |
+| `persona-recommend.spec.ts` | 추천 프로필(그대로 시작·나레이션 시작 장면·고쳐서 쓰기·같은 이름 재사용·API 응답) |
+| `portrait-ai.spec.ts` | 공방 AI 초상 만들기(25 코레딧·값 검증·검수 저장·화면) |
 | `mypage.spec.ts` · `theme.spec.ts` | 마이페이지·설정, 테마(한국 시각 자동 전환·영구 설정) |
 | `security.spec.ts` | 보안 헤더·엄격한 CSP(nonce)·CSP 위반 보고·약한 비밀번호 거절·약관 본문 |
 
-공식 캐릭터는 `prepare.mjs`가 둘 심는다: `e2e-official`(퀘스트 없음), `e2e-quest`(비밀 퀘스트 있음, 친밀도 40). 가짜 LLM이라 퀘스트 판정은 대사의 표시로 정한다(`[부탁]`=건넴, `[해냄]`=달성).
+공식 캐릭터는 `prepare.mjs`가 셋 심는다: `e2e-official`(퀘스트 없음), `e2e-quest`(비밀 퀘스트 있음, 친밀도 40), `e2e-rec`(추천 프로필 있음). 가짜 LLM이라 퀘스트 판정은 대사의 표시로 정한다(`[부탁]`=건넴, `[해냄]`=달성).
 
 ## 쓰는 요령
 

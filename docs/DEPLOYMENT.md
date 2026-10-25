@@ -36,7 +36,7 @@ repo/
 | FastAPI를 바깥에 열지 않고 서비스 토큰으로 막기 | 지금은 내부망 전제라 인증이 없다(계획서 §7.8) | `services/ai` |
 | **그림 엔진(`IMAGE_ENGINE=local`, 기본)** | services/ai 프로세스가 GPU에서 diffusers로 직접 그린다. 필요한 것: NVIDIA GPU(그래픽 메모리 12GB 권장, 8GB 이하는 `SD_OFFLOAD=1`), `pip install -r requirements-image.txt`(PyTorch CUDA, 수 GB), 체크포인트 두 파일을 `SD_MODEL_DIR`(기본 `services/ai/models/`)에 — 저장소에 없다. 첫 실행 때 모델 구성 파일(수십 KB)을 Hugging Face에서 받으므로 인터넷이 필요하다(이후엔 캐시). GPU가 없는 서버면 코디포토넷·웹툰은 "준비 중"으로 잠기고 나머지는 돈다. LLM(Ollama)과 그래픽 메모리를 나눠 쓰므로 서버가 따로면 둘 다 감당할 GPU가 필요하다 | [guidance/photonet-engine.md](guidance/photonet-engine.md) |
 | 모델 파일·라이선스 | 모델 가중치는 저장소 밖에서 안전하게 받아 배포 서버에 둔다. 라이선스 원문을 보관하고 사용 제한을 이용약관에 반영한다 | [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) |
-| DB 마이그레이션 | 배포 때 `prisma migrate deploy`(`apps/api`). 지금까지 31개, 모두 열·표 추가라 기존 데이터에 영향 없음. 공식 캐릭터는 `prisma db seed`(이미 있어도 비밀 퀘스트를 맞춘다) | [plan/DATABASE.md](plan/DATABASE.md) |
+| DB 마이그레이션 | 배포 때 `prisma migrate deploy`(`apps/api`). 지금까지 32개, 모두 열·표 추가라 기존 데이터에 영향 없음. 공식 캐릭터는 `prisma db seed`(이미 있어도 비밀 퀘스트를 맞춘다) | [plan/DATABASE.md](plan/DATABASE.md) |
 | `apps/api/data/personas/*.json` 옮기기 | git에 없다(발행하면 공방이 만든다). 서버를 새로 만들면 다시 발행하거나 파일을 옮긴다 | [`apps/api/data/personas/README.md`](../apps/api/data/personas/README.md) |
 | https | CSP `upgrade-insecure-requests`, 쿠키 `secure` | |
 | 운영 콘솔(`console/`)을 바깥에 열지 않기 | 운영자 로그인만 있으면 신고 처리·내리기·등급 변경을 할 수 있다. 사내망·VPN·IP 허용 목록 뒤에 두고, 이용자 사이트와 다른 도메인으로 | `CONSOLE_BASE_URL`(웹), `API_BASE_URL`·`WEB_BASE_URL`(콘솔) |

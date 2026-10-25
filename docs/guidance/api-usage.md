@@ -38,6 +38,41 @@ curl -s $API/characters/<캐릭터id>/chat/memories -H "Authorization: Bearer $T
 
 # 서버·AI 대기열 상태
 curl -s $API/health
+
+# ── 코레딧·모델 ──
+curl -s -X POST $API/me/attendance -H "Authorization: Bearer $TOKEN"      # 출석 (하루 한 번)
+curl -s $API/me/credits -H "Authorization: Bearer $TOKEN"                 # 잔액·내역
+curl -s $API/models -H "Authorization: Bearer $TOKEN"                     # 고를 수 있는 모델·오늘 횟수·초과 코레딧(overage)
+
+# ── 추천 프로필 (캐릭터 응답에 recommendedPersona) ──
+curl -s $API/characters/<캐릭터id>      # { …, recommendedPersona: { name, description } | null }
+
+# ── 비밀 퀘스트 상태 (건네기 전에는 제목·내용 없음) ──
+curl -s $API/characters/<캐릭터id>/chat/quest -H "Authorization: Bearer $TOKEN"
+
+# ── 성인 확인 (이메일 인증된 계정, 만 19세 이상) ──
+curl -s -X POST $API/auth/me/adult -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"birthDate":"1990-01-01","consent":true}'
+curl -s -X DELETE $API/auth/me/adult -H "Authorization: Bearer $TOKEN"    # 성인 콘텐츠 끄기
+
+# ── 오퍼레이션 (진행 중인 대화가 있어야 함, 코레딧이 든다) ──
+curl -s -X POST $API/characters/<캐릭터id>/chat/ops/mind  -H "Authorization: Bearer $TOKEN"   # 심리 탐구 30
+curl -s -X POST $API/characters/<캐릭터id>/chat/ops/diary -H "Authorization: Bearer $TOKEN"   # 일기 20
+
+# ── 코디포토넷 (그림 엔진이 준비돼 있어야 함, 50 코레딧) ──
+curl -s $API/characters/<캐릭터id>/chat/ops/photonet -H "Authorization: Bearer $TOKEN"        # ready·잔액·최근 그림·성인 가능 여부
+curl -s -X POST $API/characters/<캐릭터id>/chat/ops/photonet -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"prompt":"비 오는 날 카페 창가","style":"애니메이션","ratio":"가로","rating":"sfw"}'
+
+# ── 웹툰 (콘티 무료 → 컷마다 45 코레딧) ──
+WT=$(curl -s -X POST $API/characters/<캐릭터id>/chat/ops/webtoon -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"prompt":"","panels":3}' | node -pe 'JSON.parse(require("fs").readFileSync(0)).webtoon.id')
+curl -s -X POST $API/characters/<캐릭터id>/chat/ops/webtoon/$WT/panels/0 -H "Authorization: Bearer $TOKEN"   # 첫 컷 그리기
+
+# ── 공방: AI로 초상 만들기 (25 코레딧) / 퀘스트 한 번에 제안 ──
+curl -s -X POST $API/studio/characters/<초안id>/portrait/generate -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"style":"애니메이션","options":{"gender":"female","age":"30s","hairColor":"black","hairStyle":"ponytail","eyeColor":"purple","outfit":"suit","expression":"cold","background":"city"}}'
+curl -s -X POST $API/studio/characters/<초안id>/draft-quest -H "Authorization: Bearer $TOKEN"
 ```
 
 ## 기대 결과
