@@ -47,7 +47,7 @@
 | @prisma/client, @prisma/adapter-pg 7.10.0, prisma 7.10.1 | 7.10 | Apache-2.0 |
 | pg | 8.23.0 | MIT |
 | jose | 6.2.12 | MIT |
-| nodemailer | 7.0.13 | MIT-0 |
+| nodemailer | 10.3.1 | MIT-0 |
 | rxjs | 7.8.2 | Apache-2.0 |
 | dotenv | 17.4.2 | BSD-2-Clause |
 | typescript (개발) | 5.9.3 | Apache-2.0 |
@@ -55,7 +55,7 @@
 | oxlint (개발) | 1.83.0 | MIT |
 | @playwright/test (개발) | 1.64.1 | Apache-2.0 |
 
-외부 CDN 글꼴·CSS 프레임워크는 쓰지 않는다(시스템 글꼴 스택, CSS Modules). 결제 SDK는 토스페이먼츠 스크립트(`js.tosspayments.com`)를 요금 화면에서만 받는다 — 토스페이먼츠 약관을 따른다(결제는 현재 보류).
+외부 CDN 글꼴·CSS 프레임워크는 쓰지 않는다(시스템 글꼴 스택, CSS Modules). 결제 SDK는 토스페이먼츠 스크립트(`js.tosspayments.com`)를 요금 화면에서만 받는다 — 토스페이먼츠 약관을 따른다(실제 결제는 현재 보류).
 
 ## 4. AI 서비스 (Python)
 

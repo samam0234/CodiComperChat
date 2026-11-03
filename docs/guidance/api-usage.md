@@ -1,6 +1,6 @@
 # API 사용 (curl로 직접 부르기)
 
-개발 중 Nest를 직접 불러 확인하는 법. 전체 목록·응답은 [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md). 최종 갱신 2026-10-24.
+개발 중 Nest를 직접 불러 확인하는 법. 전체 목록·응답은 [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md). 최종 갱신 2026-11-04.
 
 ## 전제
 
@@ -39,6 +39,9 @@ curl -s $API/characters/<캐릭터id>/chat/memories -H "Authorization: Bearer $T
 # 서버·AI 대기열 상태
 curl -s $API/health
 
+# ── 눌러서 프로로 (정식 서비스 전 임시) ──
+curl -s -X POST $API/billing/pro-click -H "Authorization: Bearer $TOKEN"
+
 # ── 코레딧·모델 ──
 curl -s -X POST $API/me/attendance -H "Authorization: Bearer $TOKEN"      # 출석 (하루 한 번)
 curl -s $API/me/credits -H "Authorization: Bearer $TOKEN"                 # 잔액·내역
@@ -69,7 +72,7 @@ WT=$(curl -s -X POST $API/characters/<캐릭터id>/chat/ops/webtoon -H "Authoriz
   -d '{"prompt":"","panels":3}' | node -pe 'JSON.parse(require("fs").readFileSync(0)).webtoon.id')
 curl -s -X POST $API/characters/<캐릭터id>/chat/ops/webtoon/$WT/panels/0 -H "Authorization: Bearer $TOKEN"   # 첫 컷 그리기
 
-# ── 공방: AI로 초상 만들기 (25 코레딧) / 퀘스트 한 번에 제안 ──
+# ── 공방: AI로 초상 후보 만들기 (25 코레딧, 저장은 PUT …/portrait) / 퀘스트 한 번에 제안 ──
 curl -s -X POST $API/studio/characters/<초안id>/portrait/generate -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   -d '{"style":"애니메이션","options":{"gender":"female","age":"30s","hairColor":"black","hairStyle":"ponytail","eyeColor":"purple","outfit":"suit","expression":"cold","background":"city"}}'
 curl -s -X POST $API/studio/characters/<초안id>/draft-quest -H "Authorization: Bearer $TOKEN"
