@@ -226,6 +226,8 @@ def run(request: InferRequest) -> InferResponse:
     system = _fill_user(_build_system_prompt(request.context), user_name)
     if request.channel == "message":
         system += "\n\n" + MESSAGE_STYLE
+    if request.context.scene_note:
+        system += "\n\n이번 답에서 꼭 할 일: " + _fill_user(request.context.scene_note, user_name)
     if request.retry_note:
         system += "\n\n다시 쓰기: " + request.retry_note
     if request.provider != "ollama":

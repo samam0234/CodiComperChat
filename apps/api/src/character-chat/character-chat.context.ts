@@ -1,3 +1,4 @@
+import { isRewardNote } from '../quests/quest.js';
 import type { CharactersService } from '../characters/characters.service.js';
 import { CONTEXT_TURNS } from '../conversations/conversations.service.js';
 import { type ChatState, relationshipLabel } from '../chat-state/chat-state.service.js';
@@ -104,9 +105,11 @@ export function buildContextSlice(
     activeLore: rag?.lore ?? [],
     recentTurns: history,
     retrievedMemories: memories,
-    directorNote: questNote ? `${directorNote}
+    // 보상 장면은 놓치면 안 되어 프롬프트 맨 끝으로 보낸다 (evals.quest_reward)
+    directorNote: questNote && !isRewardNote(questNote) ? `${directorNote}
 
 ${questNote}` : directorNote,
+    sceneNote: questNote && isRewardNote(questNote) ? questNote : null,
     // 최근 대화에 다 들어가는 짧은 대화에서는 요약이 중복이라 싣지 않는다
     storySoFar: story?.brief && history.length >= CONTEXT_TURNS ? story.brief : null,
     userPersona: persona,

@@ -19,11 +19,14 @@ from app.schemas.critique import CritiqueTestRequest
 from app.schemas.ground import GroundCheckRequest
 from app.schemas.infer import InferRequest
 from app.schemas.moderate import ModerateImageRequest, ModerateImageResponse
-from app.services import critique, grounding, image_moderation, inference
+from app.schemas.webtoon import WebtoonPlanRequest
+from app.services import critique, grounding, image_moderation, inference, webtoon
 from evals import fixture, images
 
 # 이 비율 이상이어야 통과 (소형 모델 기준의 현실적인 값. 모델을 바꾸면 다시 잡는다)
 THRESHOLDS = {
+    "narration": 0.8,
+    "webtoon_plan": 0.75,
     "tone": 0.9,
     "override": 0.8,
     "meta": 0.95,
@@ -265,6 +268,59 @@ def run_moderation_stability(repeat: int) -> list[tuple[str, bool]]:
     return results
 
 
+NARRATION_SCENES = [
+    "오늘은 이만 닫죠. 같이 바닷가로 드라이브 가요. (한 시간 뒤, 바닷가에 도착했다)",
+    "(다음 날 아침이 되었다) 어제는 잘 들어가셨어요?",
+    "(갑자기 카페 정전이 나서 불이 꺼졌다) 어, 뭐죠?",
+    "(비가 그치고 해가 지기 시작한다) 창밖 좀 보세요.",
+]
+NARRATION_PLAIN = ["오늘 원두는 뭐예요?", "라떼 한 잔 주세요."]
+
+
+def run_narration(repeat: int) -> list[tuple[str, bool]]:
+    """장면이 바뀌면 첫 줄에 @: 나레이션을 쓰고, 평범한 대화에는 쓰지 않는다."""
+    results = []
+    for question in NARRATION_SCENES:
+        for _ in range(repeat):
+            results.append((f"장면 전환: {question}", reply(question).lstrip().startswith("@:")))
+    for question in NARRATION_PLAIN:
+        for _ in range(repeat):
+            results.append((f"평범한 대화: {question}", "@:" not in reply(question)))
+    return results
+
+
+def run_webtoon_plan(repeat: int) -> list[tuple[str, bool]]:
+    """콘티: 컷 수가 맞고, 그림 태그는 영어이며, 같은 인물의 외모가 모든 컷에서 같다."""
+    results = []
+    for panels in (4, 6):
+        for _ in range(repeat):
+            label = f"콘티 {panels}컷"
+            request = WebtoonPlanRequest(
+                context=fixture.context(),
+                prompt="비 오는 날 카페에서 처음으로 이름을 물어보는 장면",
+                panels=panels,
+                cast=[
+                    {"name": "한지우", "role": "character", "gender": "여성", "age": "30", "appearance": "짧은 머리, 앞치마"},
+                    {"name": "민준", "role": "protagonist", "gender": "남성", "age": "30"},
+                ],
+            )
+            try:
+                plan = webtoon.plan(request)
+            except Exception as exc:  # 콘티 실패도 품질 실패로 센다
+                print(f"  콘티 실패: {exc}")
+                results.append((label, False))
+                continue
+            scenes = [p.plan for p in plan.panels]
+            korean = re.compile("[가-힣]")
+            english = all(not korean.search(f"{s.get('action', '')} {s.get('setting', '')}") for s in scenes)
+            same = True
+            for name in ("한지우", "민준"):
+                looks = {str(p.get("hair")) + str(p.get("outfit")) for s in scenes for p in s["people"] if p.get("name") == name}
+                same = same and len(looks) <= 1
+            results.append((label, len(plan.panels) == panels and english and same))
+    return results
+
+
 SUITES = {
     "tone": run_tone,
     "override": run_override,
@@ -275,6 +331,8 @@ SUITES = {
     "moderation_rules": run_moderation_rules,
     "moderation_benign": run_moderation_benign,
     "moderation_stability": run_moderation_stability,
+    "narration": run_narration,
+    "webtoon_plan": run_webtoon_plan,
 }
 
 

@@ -1,4 +1,4 @@
-import { EMPTY_QUEST, isComplete, nextQuestState, parseQuest, parseQuestState, questNote, stage, unlocked, type Quest } from './quest.js';
+import { EMPTY_QUEST, isComplete, isRewardNote, nextQuestState, parseQuest, parseQuestState, questNote, stage, unlocked, type Quest } from './quest.js';
 
 const quest: Quest = { title: '멈춰 둔 서랍', offer: '옛 노트를 같이 봐 달라고 부탁한다', objective: '유저가 노트의 문제를 함께 풀어 준다', reward: '처음으로 자기 얘기를 이어서 한다', unlockAt: 40 };
 const now = new Date('2026-10-24T03:00:00Z');
@@ -64,5 +64,14 @@ describe('비밀 퀘스트', () => {
   it('이미 달성했으면 다시 보상하지 않는다', () => {
     const done = { status: 'done' as const, at: 'a' };
     expect(nextQuestState(quest, done, 90, { offered: true, done: true }, now)).toEqual({ state: done, completedNow: false });
+  });
+});
+
+describe('보상 장면 지시', () => {
+  it('달성 직후 지시만 보상 장면으로 구분한다', () => {
+    const q = { title: '문제집', offer: '부탁', objective: '조건', reward: '보상 장면', unlockAt: 10 };
+    expect(isRewardNote(questNote(q, 50, { status: 'done', at: '' }) ?? '')).toBe(true);
+    expect(isRewardNote(questNote(q, 50, null) ?? '')).toBe(false);
+    expect(isRewardNote(questNote(q, 50, { status: 'offered', at: '' }) ?? '')).toBe(false);
   });
 });

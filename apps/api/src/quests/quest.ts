@@ -62,12 +62,15 @@ export const unlocked = (q: Quest, value: number) => value >= q.unlockAt;
 
 // 캐릭터에게 주는 지시 (directorNote 끝에 붙는다). 달성 조건(objective)은 절대 넣지 않는다 — 캐릭터가 유저를 그쪽으로 몰고 가면 판정이 무의미해진다.
 // 아무 말도 붙이지 않을 때는 null
+const REWARD_HEAD = '[이야기 속 부탁이 이루어졌다]';
+export const isRewardNote = (note: string) => note.startsWith(REWARD_HEAD);
+
 export function questNote(q: Quest, value: number, state: QuestState): string | null {
   if (state?.status === 'done') {
     // 달성한 직후 첫 답에서만 보상 장면을 보여 준다 (그 뒤에는 이미 일어난 일로 자연스럽게)
     if (state.staged || q.reward === '') return null;
     return [
-      '[이야기 속 부탁이 이루어졌다] 유저가 네 부탁에 제대로 응했다. 이번 답에서 이 변화를 네 말투 그대로 보여 준다:',
+      `${REWARD_HEAD} 유저가 네 부탁에 제대로 응했다. 이번 답은 아래 장면을 그대로 펼치는 답이다. 지금 일어난 일에 맞는 장면을 고르고, 적힌 행동과 대사를 빠뜨리지 않고 모두 넣는다. 호칭이 바뀌라고 적혀 있으면 이번 답에서는 호칭 규칙보다 이 장면이 먼저다:`,
       q.reward,
       '- 게임·퀘스트·보상 같은 말은 쓰지 않는다. 이야기 속 마음의 변화로만 드러낸다',
     ].join('\n');
