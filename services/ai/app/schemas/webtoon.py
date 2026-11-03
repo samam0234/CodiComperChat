@@ -44,6 +44,8 @@ class WebtoonPanelRequest(WireModel):
     plan: dict
     rating: PhotonetRating = "sfw"
     ratio: Literal["정사각", "세로", "가로"] = "가로"
+    # 한 편의 컷은 같은 시드로 그려 얼굴이 덜 달라지게 한다. 없으면 매번 무작위
+    seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
 
 
 class WebtoonPanelResponse(WireModel):

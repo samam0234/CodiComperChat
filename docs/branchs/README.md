@@ -285,5 +285,6 @@
 | 2026-11-04 | `bbf2f4a` | feature/content-report-e2e | 그림 신고와 운영자 처리를 브라우저로 시험 | [261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md](commits/261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md) |
 | 2026-11-04 | `d209e02` | feature/premium-spend-cap | 프리미엄 월 지출 상한과 운영자의 생년월일 정정을 추가 | [261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md](commits/261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md) |
 | 2026-11-04 | `f8dbec2` | feature/studio-portrait-preview | 공방 AI 초상 후보 고르기와 추천 프로필 칸을 추가 | [261104_0505_f8dbec2_studio-portrait-preview_feature-studio-portrait-preview.md](commits/261104_0505_f8dbec2_studio-portrait-preview_feature-studio-portrait-preview.md) |
+| 2026-11-04 | `259718a` | feature/ai-quality | 품질 평가를 늘리고 보상 장면과 그림 메모리 처리를 고침 | [261104_0602_259718a_ai-quality_feature-ai-quality.md](commits/261104_0602_259718a_ai-quality_feature-ai-quality.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
