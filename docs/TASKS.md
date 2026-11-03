@@ -25,7 +25,7 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 ### T01. 전체 e2e 다시 돌리기
 
 - **선행:** U01(개발 서버 끄기). 아래 명령으로 먼저 확인한다. 3000·4000·8000 중 하나라도 켜져 있으면 **멈추고 사용자에게 알린다.** 직접 끄지 않는다.
-- **왜:** 지난 실행은 개발 서버가 켜져 있고 남은 RAM이 약 0.4GB일 때 108/112였다. 경과: [find_debug/2026-11-03.md](find_debug/2026-11-03.md).
+- **왜:** 개발 서버를 켠 실행은 108/112, 끈 실행(2026-11-03)은 111/112였다. 끝난 기준(112)은 아직이다. 경과: [find_debug/2026-11-03.md](find_debug/2026-11-03.md).
 - **할 일:**
 
   ```powershell
@@ -44,8 +44,8 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 
 ### T02. `chat.spec.ts:31` 원인 찾기
 
-- **선행:** T01에서 이 시험이 또 실패했을 때만.
-- **왜:** 전체 실행 3번 모두 실패했고, 따로 돌리면 1번 실패 후 3번 통과했다. 원인은 확정하지 못했다.
+- **선행:** T01에서 이 시험이 또 실패했을 때만. 2026-11-03에 서버를 끈 전체 실행에서는 통과했다. 다시 실패하기 전에는 열지 않는다.
+- **왜:** 개발 서버를 켠 전체 실행 3번은 실패했고, 서버를 끈 전체 실행에서는 7.3초에 통과했다. 코드 결함이 아니라 메모리 부족으로 본다. 경과: [find_debug/2026-11-03.md](find_debug/2026-11-03.md).
 - **보는 곳:** `e2e/tests/chat.spec.ts`의 `say` 도우미, `apps/web/app/api/characters/[id]/chat/route.ts:11`(`await request.json()`), `apps/web/app/characters/[id]/chat/character-chat.tsx`.
 - **단서:** 웹 로그의 `Unexpected end of JSON input`이 시험이 끝난 뒤에 찍혔다. 요청이 처리되기 전에 시험이 끝났다는 가설이며, 증명되지 않았다. 코드 문제일 가능성을 먼저 배제한다. e2e 웹 서버는 `next dev`라 첫 컴파일이 느리다.
 - **끝난 기준:** 원인을 재현 명령과 함께 [find_debug/2026-11-03.md](find_debug/2026-11-03.md)에 적고, 코드 결함이면 고친 뒤 `npm run test:e2e -- tests/chat.spec.ts --repeat-each=3`와 전체 e2e가 통과한다.
