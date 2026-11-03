@@ -4,7 +4,7 @@
 
 > 제품 기획 원본은 [CodiComperChat_project_plan.md](CodiComperChat_project_plan.md)다. 이 README를 포함한 모든 문서는 원본에서 파생된 것이며, 원본은 사용자 승인 없이 수정하지 않는다.
 
-**상태(2026-10-24): 개발 단계, 배포 전.** 네 앱(웹·콘솔·API·AI)이 연결되어 실제로 동작한다. 공개 서비스가 되기 전에 끝내야 할 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)의 모델 라이선스 확인이다.
+**상태(2026-11-03): 개발 단계, 배포 전.** 네 앱(웹·콘솔·API·AI)이 연결되어 실제로 동작하고, 운영 구성(`deploy/`)도 만들어 시험했다. 호스팅 업체를 고르고 서버를 만드는 일이 남았다([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)의 모델 라이선스 확인이다.
 
 **처음이라면: [docs/AGENT_HANDOVER.md](docs/AGENT_HANDOVER.md)(인수인계·해야 할 일) · [docs/FEATURES.md](docs/FEATURES.md)(전체 기능 목록).**
 
@@ -21,13 +21,14 @@
 | 계정 | 이메일 가입·로그인, 이메일 인증, 비밀번호 찾기, 회원 탈퇴, 요금 등급(무료/프로), 코레딧·출석 |
 | 대화 | 캐릭터와 이어지는 대화(기억·지난 이야기·친밀도·복선·엑스트라), 새로하기·이어하기·저장, 대답 추천, 모델 고르기, 대화 명령어와 글 꾸미기(`*행동*` 회색 기울임, `@:` 나레이션 등) |
 | 캐릭터 공방 | 8단계 카드(7층 + 비밀 퀘스트), 칸별 AI 초안, 3턴 테스트, 초상 **내 파일 선택 / AI로 직접 만들기(25 코레딧)** + 자동 검수, 공개·링크 공개·비공개 발행 |
-| 공식 캐릭터 | 유지성(과외 선생님)·이세연(회장 비서) — 공식 초상, 비밀 퀘스트(유지성), 캐릭터별 **추천 프로필** |
+| 공식 캐릭터 | 유지성(과외 선생님)·이세연(회장 비서) — 공식 초상, 비밀 퀘스트(둘 다), 캐릭터별 **추천 프로필** |
 | 오퍼레이션 | 심리 탐구 · 일기 · 메시지 · 커뮤니티 · **웹툰**(콘티 무료, 한 컷 45 코레딧) |
 | 코디포토넷 | 대화 장면을 그림으로. 로컬 Stable Diffusion, 전체 이용가 / **성인 모드**(성인 확인·가드·검수) |
 | 비밀 퀘스트 | 친밀도가 쌓이면 캐릭터가 건네는 숨은 부탁, 엄격 판정, 공방에서 직접 쓰거나 AI로 제작 |
-| 운영 | 별도 운영 콘솔(신고·초상 검수·캐릭터·계정 등급), 요청 한도, CSP, 신고 |
+| 운영 | 별도 운영 콘솔(신고·초상 검수·그림 신고·캐릭터·계정 등급·정지), 요청 한도, CSP, 신고 |
+| 배포 구성 | GPU 서버 한 대용 Docker 구성, TLS(Caddy), 자동 재시작, DB 백업 ([docs/web_management/docker-deploy.md](docs/web_management/docker-deploy.md)) |
 
-보류: 결제(토스페이먼츠 연동은 있으나 열지 않음). 아직 없음: 스트리밍 응답, 성인 콘텐츠 운영 체계, 본인인증.
+보류: 결제(토스페이먼츠 연동은 있으나 열지 않음). 프리미엄 모델(Claude·Grok)은 목록과 가격만 있고 "준비 중"이다. 아직 없음: 스트리밍 응답, 본인인증.
 
 ---
 
@@ -42,11 +43,12 @@ CodiComperChat/
 ├── services/
 │   └── ai/           FastAPI 추론·그림 엔진          :8000 (내부망 전용)
 ├── e2e/              Playwright 화면 자동 테스트
-├── scripts/          그림 엔진(WebUI) 실행·로컬 CI
+├── deploy/           운영 구성 (Docker, Caddy, GPU 서버 한 대)
+├── scripts/          로컬 CI·커밋 기록·DB 백업·비밀값 생성·WebUI 실행
 ├── docs/             문서 허브 (기획·아키텍처·Git 기록·가이드)
 ├── .agents/          AI 에이전트 공통 규칙 정본
 ├── .claude/ .cursor/ .codex/ .grok/ .antigravity/   도구별 어댑터
-├── docker-compose.yml   (선택) PostgreSQL·Mailpit
+├── docker-compose.yml   개발용 (선택) PostgreSQL·Mailpit
 ├── LICENSE  SECURITY.md  THIRD_PARTY_NOTICES.md
 └── CodiComperChat_project_plan.md   기획 원본
 ```

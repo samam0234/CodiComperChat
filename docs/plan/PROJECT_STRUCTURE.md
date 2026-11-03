@@ -15,7 +15,8 @@ repo/
 ├── services/
 │   └── ai/                 # FastAPI (Python 3.12) — 워크스페이스 밖, 자체 .venv
 ├── e2e/                    # 웹 화면 자동 테스트(Playwright) + 부하 측정(bench.mjs)
-├── scripts/                # ci-local.mjs(CI를 깨끗한 클론에서 재현) · start-sd-webui.cmd(개발용 WebUI 그림 엔진)
+├── deploy/                 # 운영 구성: docker-compose.prod.yml · node·ai Dockerfile · Caddyfile · .env.example
+├── scripts/                # ci-local.mjs · record-commit.mjs(커밋 기록) · db-backup.sh · generate-prod-secrets.mjs · start-sd-webui.cmd(개발용 WebUI 그림 엔진)
 ├── .github/workflows/ci.yml
 ├── docker-compose.yml      # postgres · mailpit (web·api·ai 컨테이너화는 배포 단계에서)
 └── docs/

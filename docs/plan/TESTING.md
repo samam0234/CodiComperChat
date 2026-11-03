@@ -1,13 +1,13 @@
 # 테스트 전략
 
-> 상태(2026-10-24): **`apps/api` vitest 185개(파일 26개), 웹 화면 Playwright e2e 110개(파일 22개), AI 품질 평가(`services/ai/evals`, 9묶음)가 실재.** `services/ai`의 pytest 단위 테스트는 아직 없다. 실제 모델·실제 그림 엔진이 필요한 확인은 자동화돼 있지 않다(아래 "자동화되지 않은 확인").
+> 상태(2026-11-03): **`apps/api` vitest 198개(파일 28개), 웹 화면 Playwright e2e 110개(파일 22개), AI 품질 평가(`services/ai/evals`, 9묶음 + 이세연 퀘스트 판정), `services/ai` unittest 9개, 기록 작성기 시험 6개가 실재.** 실제 모델·실제 그림 엔진이 필요한 확인은 자동화돼 있지 않다(아래 "자동화되지 않은 확인").
 
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
 |----|------|------|------|
-| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 단위 185개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
-| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 105건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
+| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 198개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
+| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 110건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
 | `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 9묶음 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성(`tone` 포함 9묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
 | `services/ai` (FastAPI) | pytest | 미도입 (앱은 있으나 테스트 설정 없음) | 라우트/컨텍스트 조립/요약 파싱 |
 

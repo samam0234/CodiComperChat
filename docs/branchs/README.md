@@ -256,5 +256,6 @@
 | 2026-11-03 | `d819584` | feature/deploy-gpu | GPU 서버 한 대용 24시간 운영 구성을 넣다 | [261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md](commits/261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md) |
 | 2026-11-03 | `91337b5` | feature/portrait-fix | AI 초상이 얼굴을 보여 주고 화풍이 살도록 고치다 | [261103_1340_91337b5_portrait-face_feature-portrait-fix.md](commits/261103_1340_91337b5_portrait-face_feature-portrait-fix.md) |
 | 2026-11-03 | `d1e6f8c` | feature/license-public | 공개 저장소의 clone과 복제를 제한하다 | [261103_1340_d1e6f8c_license-public_feature-license-public.md](commits/261103_1340_d1e6f8c_license-public_feature-license-public.md) |
+| 2026-11-03 | `b954c55` | feature/docs-launch-prep | 배포 구성과 사용자 결정, 점검 결과를 전체 문서에 반영하다 | [261103_1423_b954c55_docs-launch-prep_feature-docs-launch-prep.md](commits/261103_1423_b954c55_docs-launch-prep_feature-docs-launch-prep.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

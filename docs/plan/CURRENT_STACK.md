@@ -12,7 +12,7 @@
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
-| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 27개·마이그레이션 32개 · [DATABASE.md](DATABASE.md) |
+| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 28개·마이그레이션 33개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
@@ -26,6 +26,8 @@
 | 메일 발송 | SMTP(`MAIL_SMTP_URL`) / 폴더(`MAIL_OUTBOX_DIR`, 시험용) / 개발 중 로그. **개발 메일 서버는 Mailpit**(docker compose, SMTP 1025·웹 8025). 운영 메일 서비스는 미정 | `mail/mail.service.ts`, 확인 `npm run mail:check --workspace api` |
 | 회원 탈퇴 | 계정·데이터 삭제, 발행 캐릭터는 먼저 내림, 결제 기록은 법정 보관(계정 연결만 끊음) | `account/` |
 | LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). 그림 인식(검수)도 같은 모델. 모델 사용 정책 확인 필요(성인 모드) — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) |
+| 배포 (2026-11-03) | **NVIDIA GPU 서버 한 대에서 24시간.** `deploy/docker-compose.prod.yml`: Caddy(TLS)·web·console·api·postgres·ai·ollama, 바깥 포트 80·443뿐, `restart: always`, 백업 `scripts/db-backup.sh`. 업체는 미정 | [../web_management/docker-deploy.md](../web_management/docker-deploy.md) |
+| 저장소 공개 (2026-11-03) | GitHub 공개는 배포용. 라이선스로 clone·복제·실행·호스팅을 금지한다. 공개 저장소를 기술적으로 막을 수는 없다 | [../../LICENSE](../../LICENSE) |
 | 그림 엔진 (2026-10-24) | **services/ai 안에서 diffusers로 직접 그린다**(`IMAGE_ENGINE=local`, 기본, 선택 설치 `requirements-image.txt`: PyTorch 2.10 CUDA 12.8 · diffusers 0.42). 애니메이션·웹툰 = Animagine XL 4.0, 수채화·실사풍 = SD 1.5, 체크포인트는 `services/ai/models/`(git 제외). 개발 PC 대안으로 기존 Stable Diffusion WebUI(`IMAGE_ENGINE=webui`). GPU 없으면 그림 기능만 "준비 중" | `services/ai/app/services/image_local.py`, `image_engine.py`, [../guidance/photonet-engine.md](../guidance/photonet-engine.md) |
 | 코레딧·모델 (2026-10-21~25) | 출석 1,000(프로 5,000), 100 코레딧 = 350원. 강화 무료 `gemma4:12b` = 무료 하루 30번 → 그 뒤 자정까지 1번 10 코레딧, 프로 무제한. 프리미엄(Claude·Grok)은 코레딧(연동 전이라 "준비 중") | `credits/`, `models/`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
 | 오퍼레이션 (2026-10-23~24) | 심리 탐구 30 · 일기 20 · 메시지(무료) · 커뮤니티 20/10 · 코디포토넷 50 · **웹툰 한 컷 45(콘티 무료)** | `operations/`, [OPERATIONS.md](OPERATIONS.md) |
@@ -45,7 +47,7 @@
 | 페르소나 지식 RAG | 캐릭터별 비공개 JSON(`apps/api/data/personas`, git 제외) → 글자 2-gram BM25로 관련 조각만 | `persona-rag/`, [../Architecture/data-flow.md](../Architecture/data-flow.md) |
 | 보안 헤더·CSP | 요청마다 nonce를 쓰는 엄격한 CSP(`apps/web/proxy.ts`), 위반은 `/api/csp-report`로 받아 로그 | [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md) "보안 헤더" |
 | 화면 디자인 | "밤하늘 아래 이어지는 이야기" — 보라·분홍 그라데이션, 라이트·다크 두 벌 | [DESIGN.md](DESIGN.md) |
-| 테스트 | API vitest 185개(단위·통합, 실제 PostgreSQL·SMTP 포함), 웹 Playwright e2e 110개(가짜 LLM·가짜 결제·가짜 그림 엔진), AI 품질 평가(`services/ai/evals`, 실제 모델) | [TESTING.md](TESTING.md) |
+| 테스트 | API vitest 198개(단위·통합, 실제 PostgreSQL·SMTP 포함), 웹 Playwright e2e 110개(가짜 LLM·가짜 결제·가짜 그림 엔진), AI 품질 평가(`services/ai/evals`, 실제 모델) | [TESTING.md](TESTING.md) |
 | CI | GitHub Actions(`.github/workflows/ci.yml`), 내 PC에서 같은 단계 재현 `npm run ci:local` | [TESTING.md](TESTING.md) "CI" |
 
 ## 아직 열린 항목 (계획서 §15 "아직 열린 것")
@@ -55,9 +57,10 @@
 - 호스티드 LLM 벤더 — 제품 차원의 벤더는 미정(개발은 로컬 Ollama). 정해지면 [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md)와 함께 갱신
 - 과금 수치 — 구조는 만들었고 **금액 확정만 남음**(위 "가격")
 - 영문 표기 `CodiComperChat` 유지 여부
-- 배포 대상(플랫폼·리전, **GPU 서버**), 운영 메일 서비스, 토스 상점 계약(결제 보류), 약관 법률 검토
-- **성인 모드 공개 여부** — 모델 사용 정책(Gemma 사용 금지 정책 등) 확인, 성인 확인 방식(본인인증 도입 여부)의 법률 검토, 성인 콘텐츠 운영 체계(신고·검토·접근 차단)
-- 저장소 라이선스의 권리자 법적 이름 확정(`LICENSE`)
+- 호스팅 업체(조건은 정함: GPU 서버 한 대, 24시간), 도메인, 운영 메일 서비스, 토스 상점 계약(결제 보류), 약관 법률 검토
+- 성인 모드: 방식은 그대로 둔다(2026-11-03 사용자 결정). Gemma 사용 정책과의 관계, 자기 신고의 법률 검토는 공개 전에 남아 있다
+- 프리미엄 모델: 목록은 지금 것으로 확정(2026-11-03). 실제로 열지(호출 어댑터·API 키)는 사용자에게 확인이 필요하다
+- 저장소 공개 범위와 라이선스의 권리자 법적 이름(`LICENSE`)
 
 ## 스캐폴딩 단계에서 확정된 것 (2026-09-15)
 

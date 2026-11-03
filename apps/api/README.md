@@ -9,7 +9,7 @@ cp apps/api/.env.example apps/api/.env      # DATABASE_URL, AUTH_SECRET(32자 �
 (cd apps/api && npx prisma migrate deploy && npm run prisma:seed)
 npm run dev:api        # http://localhost:4000
 npm run typecheck:api  # 개발 서버가 켜져 있을 땐 build:api 말고 이것 (dist를 지워 서버가 죽는다)
-npm run test:api       # vitest 185개 (DB·SMTP가 있으면 통합 시험 포함)
+npm run test:api       # vitest 198개 (DB·SMTP가 있으면 통합 시험 포함)
 ```
 
 ## 모듈 (`src/`)

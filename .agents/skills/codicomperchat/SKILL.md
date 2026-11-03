@@ -166,23 +166,26 @@ git push origin develop
 
 ## 6. 프로젝트/스택 규칙 (에이전트도 준수)
 
-**출처: `CodiComperChat_project_plan.md` §7, §9, §13 그대로. 임의로 스택을 바꾸거나 범위를 넓히지 않는다.**
+**출처: `CodiComperChat_project_plan.md` §7, §9, §13에서 시작해, 구현하며 사용자가 결정한 것을 반영했다. 지금 값의 정본은 `docs/plan/CURRENT_STACK.md`다. 에이전트가 임의로 스택을 바꾸거나 범위를 넓히지 않는다.**
 
-- 프론트: **Next.js (React, TSX)** — `apps/web/`
+- 프론트: **Next.js (React, TSX)** — 이용자 사이트 `apps/web/`, 운영 콘솔 `console/`
 - 도메인/상태 API: **Nest.js (TypeScript)** — `apps/api/`
-- AI 추론: **FastAPI (Python)** — `services/ai/`
-- DB: **PostgreSQL** (1순위), 의미 검색은 pgvector 또는 이후 전용 벡터DB, 세션 캐시/잡은 **Redis**
+- AI 추론·그림: **FastAPI (Python)** — `services/ai/` (로컬 Ollama + 서버 안 그림 엔진)
+- DB: **PostgreSQL**. Redis·벡터 DB는 쓰지 않는다 (요청 한도는 메모리/PostgreSQL, 대기열은 프로세스 메모리, 지식 검색은 2-gram BM25)
 - ORM: Nest 쪽 **Prisma**
 
-저장소 구조 (계획서 7.3):
+저장소 구조:
 ```text
 repo/
 ├── apps/
-│   ├── web/          # Next.js (TSX)
+│   ├── web/          # Next.js 이용자 사이트
 │   └── api/          # Nest.js
+├── console/          # Next.js 운영 콘솔
 ├── services/
 │   └── ai/           # FastAPI
-└── docker-compose.yml
+├── deploy/           # 운영 구성 (GPU 서버 한 대)
+├── e2e/              # Playwright
+└── docker-compose.yml  # 개발용 보조 서비스
 ```
 
 역할 분리 원칙 (계획서 7.1, 위반 금지):
@@ -197,11 +200,12 @@ API 경계 (계획서 13.1, 13.2) — 웹이 치는 것과 내부 전용을 섞�
 
 핵심 도메인 (계획서 7.5, 테이블명 확정은 Prisma 단계에서): `User` `Character` `LoreEntry` `Campaign` `CampaignState` `Session` `Message` `MemoryChunk`
 
-v1 범위 (계획서 §9, 에이전트가 임의로 확장 구현하지 않는다):
-- 있음: 공식 캐릭터 1~3명, 캠페인 템플릿 1개, 7단계 창작 공방(운영자용)
-- 없음(명시적으로 뺌): 유저 캐릭터 광장/카드 마켓, 자체 LLM 학습, 멀티플레이/파티 채팅, 음성 통화·만화 자동생성, 일정/할일/검색류 생산성 기능, 복잡한 전투 룰북
+범위 (에이전트가 임의로 확장 구현하지 않는다):
+- 계획서 §9의 v1: 공식 캐릭터 1~3명, 캠페인 템플릿 1개, 창작 공방
+- 사용자 결정으로 v1 밖에서 넓힌 것: 유저 캐릭터 공개, 코디포토넷, 웹툰, 오퍼레이션, 비밀 퀘스트, 성인 모드 등. 전체 목록은 `docs/FEATURES.md`
+- 여전히 없는 것: 카드 마켓, 자체 LLM 학습, 멀티플레이/파티 채팅, 음성 통화, 일정/할일/검색류 생산성 기능, 복잡한 전투 룰북
 
-포트/인프라 확정값은 아직 계획서에 없음 → 제안값과 확정 여부는 `docs/plan/CURRENT_STACK.md`에서 관리. 이 문서를 고치지 않고 코드에서만 포트를 정하지 않는다.
+새 기능은 사용자가 요청한 것만 넣는다. 포트/인프라 값은 `docs/plan/CURRENT_STACK.md`에서 관리한다. 이 문서를 고치지 않고 코드에서만 포트를 정하지 않는다.
 
 ---
 
