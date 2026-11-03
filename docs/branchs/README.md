@@ -251,5 +251,6 @@
 | 2026-11-03 | `4bf69b4` | feature/record-tools | 커밋 기록 작성기를 저장소에 넣다 | [261103_1251_4bf69b4_record-commit-script_feature-record-tools.md](commits/261103_1251_4bf69b4_record-commit-script_feature-record-tools.md) |
 | 2026-11-03 | `67be2aa` | feature/docs-handover (merge) | develop into feature/docs-handover (no-ff) | [261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md](commits/261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md) |
 | 2026-11-03 | `43a3419` | feature/record-tools | 기록 작성기의 줄바꿈 처리와 시험 파일을 고치다 | [261103_1252_43a3419_record-commit-fix_feature-record-tools.md](commits/261103_1252_43a3419_record-commit-fix_feature-record-tools.md) |
+| 2026-11-03 | `1f7bf99` | feature/seyeon-quest | 이세연 비밀 퀘스트를 넣다 | [261103_1257_1f7bf99_seyeon-quest_feature-seyeon-quest.md](commits/261103_1257_1f7bf99_seyeon-quest_feature-seyeon-quest.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
