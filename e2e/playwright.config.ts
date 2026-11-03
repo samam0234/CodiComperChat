@@ -7,6 +7,8 @@ import { ROOT, URLS } from "./env.mjs";
 // 화면은 prepare.mjs가 만든 운영 빌드다. `next dev`로 돌리면 RAM 16GB에서 무작위 시간 초과가 났다.
 export default defineConfig({
   testDir: "./tests",
+  // 성인 모드를 끈 서버에서만 맞는 시험. npm run test:e2e:adult-off로 따로 돈다
+  testIgnore: process.env.ADULT_MODE === "off" ? undefined : /adult-off\.spec/,
   outputDir: join(ROOT, "e2e", ".tmp", "test-results"),
   // 같은 DB를 쓰므로 한 번에 하나씩. 테스트마다 새 계정을 만들어 서로 간섭하지 않는다
   fullyParallel: false,

@@ -143,6 +143,9 @@ jobs:
       - name: 웹 화면 자동 테스트
         run: npm run test:e2e
 
+      - name: 성인 모드를 끈 서버의 화면 시험
+        run: npm run test:e2e:adult-off
+
       - name: 실패 화면·추적 올리기
         if: failure()
         uses: actions/upload-artifact@v4

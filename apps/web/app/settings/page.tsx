@@ -157,14 +157,18 @@ export default async function SettingsPage() {
               알림 · 콘텐츠 수위
             </h2>
             <h3 className={styles.subheading}>콘텐츠 수위</h3>
-            <p className={styles.sectionLead}>
-              기본은 전체 이용가입니다. 만 19세 이상이고 이메일 인증을 마쳤다면 성인 확인 뒤 코디포토넷에서 성인 모드(성인끼리의 성적 장면·폭력 묘사)를 쓸 수 있습니다.
-              미성년자로 보이는 인물, 실사와 90% 이상 비슷한 그림, 강제적인 성적 묘사, 실존 인물은 성인 모드에서 만들지 않습니다. 문제가 있는 그림은 그 화면에서 신고할 수 있습니다.
-            </p>
-            {user ? (
-              <AdultForm adult={user.adult} emailVerified={user.emailVerified} />
+            {user && !user.adultAvailable ? (
+              <p className={styles.sectionLead}>이 서비스는 지금 전체 이용가 콘텐츠만 제공합니다.</p>
+            ) : user ? (
+              <>
+                <p className={styles.sectionLead}>
+                  기본은 전체 이용가입니다. 만 19세 이상이고 이메일 인증을 마쳤다면 성인 확인 뒤 코디포토넷에서 성인 모드(성인끼리의 성적 장면·폭력 묘사)를 쓸 수 있습니다.
+                  미성년자로 보이는 인물, 실사와 90% 이상 비슷한 그림, 강제적인 성적 묘사, 실존 인물은 성인 모드에서 만들지 않습니다. 문제가 있는 그림은 그 화면에서 신고할 수 있습니다.
+                </p>
+                <AdultForm adult={user.adult} emailVerified={user.emailVerified} />
+              </>
             ) : (
-              <p className={styles.note}>로그인하면 성인 확인을 할 수 있습니다.</p>
+              <p className={styles.note}>로그인하면 콘텐츠 수위를 볼 수 있습니다.</p>
             )}
             <ul className={styles.upcoming}>
               <li>

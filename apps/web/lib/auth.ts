@@ -23,6 +23,8 @@ export type CurrentUser = {
   emailVerified: boolean;
   // 생년월일을 입력했는지 (프리미엄 모델 나이 확인). 날짜 자체는 받지 않는다
   birthDateSet: boolean;
+  // 서비스가 성인 모드를 제공하는지 (ADULT_MODE=off면 false)
+  adultAvailable: boolean;
   // 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 코디포토넷 성인 모드. 생년월일 자체는 받지 않는다
   adult: boolean;
   createdAt: string;
