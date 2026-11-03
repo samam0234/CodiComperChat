@@ -67,6 +67,7 @@ export class StudioPublishService {
       secretUnlockCondition: card.boundary.unlockCondition,
       // 비밀 퀘스트: 제목·부탁·달성 조건이 다 있을 때만 싣는다 (덜 쓴 퀘스트는 없는 것으로)
       quest: isComplete(card.quest) ? { ...card.quest } : Prisma.DbNull,
+      recommendedPersona: card.recommendedPersona.name ? { ...card.recommendedPersona } : Prisma.DbNull,
       published: true,
       visibility: draft.visibility,
       ownerId: userId,

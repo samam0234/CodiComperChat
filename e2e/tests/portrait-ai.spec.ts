@@ -13,14 +13,14 @@ const OPTIONS = {
   background: "city",
 };
 
-type Draft = { hasPortrait: boolean; portraitReview: string | null };
+type Candidate = { image: string; mime: string; review: string };
 
 test.describe("공방 · AI 초상 만들기", () => {
-  test("25 코레딧으로 만들면 자동 검수를 거쳐 초상이 되고, 잘못된 값·코레딧 부족은 빼지 않는다", async () => {
+  test("25 코레딧으로 만들면 검수한 후보를 돌려주고 저장은 하지 않는다. 잘못된 값·코레딧 부족은 빼지 않는다", async () => {
     const owner = await signup("초상AI");
     const draftId = await passedDraft(owner, uniq("초상AI캐"));
     const gen = (json: unknown) =>
-      api<{ draft: Draft; balance: number; cost: number; message?: string }>(`/studio/characters/${draftId}/portrait/generate`, {
+      api<{ candidate: Candidate; balance: number; cost: number; message?: string }>(`/studio/characters/${draftId}/portrait/generate`, {
         token: owner.token,
         json,
       });
@@ -37,12 +37,12 @@ test.describe("공방 · AI 초상 만들기", () => {
 
     const made = await gen({ style: "웹툰", options: OPTIONS, extra: "얇은 안경" });
     expect(made.status).toBe(200);
-    expect(made.body).toMatchObject({ cost: 25, balance: 975, draft: { hasPortrait: true, portraitReview: "APPROVED" } });
+    expect(made.body).toMatchObject({ cost: 25, balance: 975, candidate: { mime: "image/webp", review: "APPROVED" } });
     const ledger = await api<{ history: { delta: number; modelId: string }[] }>("/me/credits", { token: owner.token });
     expect(ledger.body.history[0]).toMatchObject({ delta: -25, modelId: "op:portraitAi" });
-    // 만든 초상을 만든 사람이 받을 수 있다
-    const picture = await api(`/studio/characters/${draftId}/portrait`, { token: owner.token });
-    expect(picture.status).toBe(200);
+    // 후보는 고르기 전까지 초상이 아니다
+    const before = await api(`/studio/characters/${draftId}/portrait`, { token: owner.token });
+    expect(before.status).toBe(404);
   });
 
   test("화면: 외형 단계 → AI로 직접 만들기 → 화풍·생김새 고르기 → 만들기 → 초상 미리보기", async ({ browser }) => {
@@ -62,8 +62,23 @@ test.describe("공방 · AI 초상 만들기", () => {
     await panel.getByLabel("머리색").selectOption("silver");
     await panel.getByLabel("표정").selectOption("smile");
     await panel.getByRole("button", { name: "만들기 · 25 코레딧" }).click();
-    await expect(panel.getByRole("status")).toContainText("초상을 만들었어요", { timeout: 60_000 });
+    await expect(panel.getByRole("status")).toContainText("후보를 만들었어요", { timeout: 60_000 });
     await expect(panel.getByRole("status")).toContainText("975");
+    await expect(page.getByRole("img", { name: "올린 흉상 초상" })).toHaveCount(0);
+
+    // 한 장 더 뽑아 둘을 비교하고, 하나는 버리고 하나를 고른다
+    await panel.getByRole("button", { name: "만들기 · 25 코레딧" }).click();
+    await expect(panel.getByRole("status")).toContainText("950", { timeout: 60_000 });
+    const list = panel.getByRole("list", { name: "만든 후보" });
+    await expect(list.getByRole("img")).toHaveCount(2);
+    await list.getByRole("button", { name: "버리기" }).first().click();
+    await expect(list.getByRole("img")).toHaveCount(1);
+    await list.getByRole("button", { name: "이 그림으로 쓰기" }).click();
+    await expect(panel.getByRole("status")).toContainText("초상으로 저장했어요");
+    await expect(page.getByRole("img", { name: "올린 흉상 초상" })).toBeVisible();
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: /외형/ }).first().click();
     await expect(page.getByRole("img", { name: "올린 흉상 초상" })).toBeVisible();
   });
 });
