@@ -1,6 +1,6 @@
 # 운영 배포 절차 (GPU 서버 한 대, 24시간)
 
-2026-11-03 사용자 결정: **배포 사이트의 GPU 서버에서 24시간 돌린다.** 구성 파일은 [`deploy/`](../../deploy/)에 있다. 호스팅 업체는 아직 고르지 않았고 서버도 만들지 않았다. 비용이 드는 일이라 사용자가 고른다.
+2026-11-03 사용자 결정: **배포 사이트의 GPU 서버에서 24시간 돌린다.** 구성 파일은 [`deploy/`](../../deploy/)에 있다. 호스팅 업체는 아직 고르지 않았고 서버도 만들지 않았다. 비용이 드는 일이라 사용자가 고른다. 후보: [hosting-options.md](hosting-options.md).
 
 ```text
 인터넷 ─ 80·443 ─ caddy ─┬─ web (Next, 이용자)  ─┐
@@ -26,6 +26,7 @@
 
 ```bash
 git clone <저장소> /srv/codicomperchat && cd /srv/codicomperchat
+sudo bash deploy/server-setup.sh            # Ubuntu: 도커·NVIDIA·방화벽. 실서버에서 돌려 본 적 없음
 node scripts/generate-prod-secrets.mjs      # 출력은 터미널에만 둔다
 cp deploy/.env.example deploy/.env          # 값 채우기. 도메인 DNS를 이 서버로 먼저 돌린다
 mkdir -p /srv/codicomperchat/models         # 체크포인트 두 파일을 여기에 둔다 (guidance/photonet-engine.md)

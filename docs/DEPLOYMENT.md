@@ -4,6 +4,7 @@
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
+| 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |
 | 서버에 올리기 (절차·서버 조건·실측) | [web_management/docker-deploy.md](web_management/docker-deploy.md) |
 | 올리기 전 체크 | [web_management/pre-deploy.md](web_management/pre-deploy.md) |
 | 올린 뒤 확인 | [web_management/post-deploy.md](web_management/post-deploy.md) |
@@ -36,7 +37,7 @@
 3. 운영 메일(SMTP) 서비스를 정한다. 없으면 API가 인증 메일을 보내지 못한다
 4. 체크포인트 두 파일을 서버로 옮긴다
 5. 약관·처리방침의 `[운영자 기재]` 칸과 라이선스 권리자 이름을 채우고, 법률 검토를 받는다
-6. Gemma 사용 정책과 성인 모드의 관계를 확인한다 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md))
+6. 성인 모드를 공개할지 변호사와 정한다. 국내법과 호스팅 약관이 걸린다 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md))
 7. 토스 상점 계약(결제 재개할 때만)
 
 ## 구현하며 남긴 메모

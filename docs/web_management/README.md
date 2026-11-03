@@ -4,6 +4,7 @@
 
 | 파일 | 내용 |
 |------|------|
+| [hosting-options.md](hosting-options.md) | 상시 서버 후보와 권장 |
 | [pre-deploy.md](pre-deploy.md) | 배포 전 체크 |
 | [docker-deploy.md](docker-deploy.md) | 운영 배포 절차, 서버 조건, 실측 |
 | [backup-restore.md](backup-restore.md) | 백업과 복구, 연습 기록 |
