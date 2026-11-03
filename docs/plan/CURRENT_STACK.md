@@ -2,13 +2,13 @@
 
 이 문서는 루트 `CodiComperChat_project_plan.md`(원본, §7·§9·§13)에서 파생된 개발용 요약이다. **원본과 모순되면 원본이 이긴다** — 이 문서를 먼저 고치고 원본을 나중에 맞추지 않는다.
 
-> 최종 갱신 2026-10-24. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 결제는 보류). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
+> 최종 갱신 2026-11-03. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
 
 ## 확정 (계획서 §15 "합의")
 
 | 영역 | 값 |
 |------|-----|
-| 프론트 | Next.js 16.3.5 (React 19.2.8, App Router, TSX) — `apps/web/` (이용자 사이트), `console/` (운영 콘솔, 2026-10-21 분리) |
+| 프론트 | Next.js 16.4.4 (React 19.2.8, App Router, TSX) — `apps/web/` (이용자 사이트), `console/` (운영 콘솔, 2026-10-21 분리) |
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
@@ -25,29 +25,31 @@
 | 로그인 토큰 무효화 | 토큰에 계정의 세대(`sessionVersion`)를 싣고, 비밀번호 변경·재설정 때 올려 이전 토큰을 모두 끊는다 | `auth/session.ts` |
 | 메일 발송 | SMTP(`MAIL_SMTP_URL`) / 폴더(`MAIL_OUTBOX_DIR`, 시험용) / 개발 중 로그. **개발 메일 서버는 Mailpit**(docker compose, SMTP 1025·웹 8025). 운영 메일 서비스는 미정 | `mail/mail.service.ts`, 확인 `npm run mail:check --workspace api` |
 | 회원 탈퇴 | 계정·데이터 삭제, 발행 캐릭터는 먼저 내림, 결제 기록은 법정 보관(계정 연결만 끊음) | `account/` |
-| LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). 그림 인식(검수)도 같은 모델. 모델 사용 정책 확인 필요(성인 모드) — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) |
-| 배포 (2026-11-03) | **NVIDIA GPU 서버 한 대에서 24시간.** `deploy/docker-compose.prod.yml`: Caddy(TLS)·web·console·api·postgres·ai·ollama, 바깥 포트 80·443뿐, `restart: always`, 백업 `scripts/db-backup.sh`. 업체는 미정 | [../web_management/docker-deploy.md](../web_management/docker-deploy.md) |
+| LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). 그림 인식(검수)도 같은 모델. Gemma 4는 Apache 2.0 — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
+| 배포 (2026-11-03) | **NVIDIA GPU 서버 한 대에서 24시간.** `deploy/docker-compose.prod.yml`: Caddy(TLS)·web·console·api·postgres·ai·ollama, 바깥 포트 80·443뿐, `restart: always`, 백업 `scripts/db-backup.sh`. **Hetzner GEX45로 결정, 계약 전**, 성인 모드는 끈 채로 연다 | [../web_management/docker-deploy.md](../web_management/docker-deploy.md) |
 | 저장소 비공개 (2026-11-03) | 비공개로 전환한다. 서버는 읽기 전용 배포 키로 받는다. 라이선스의 clone·복제·실행·호스팅 금지는 그대로다. 공개였던 동안 받아 간 사본은 되돌릴 수 없다 | [../../LICENSE](../../LICENSE) |
 | 그림 엔진 (2026-10-24) | **services/ai 안에서 diffusers로 직접 그린다**(`IMAGE_ENGINE=local`, 기본, 선택 설치 `requirements-image.txt`: PyTorch 2.10 CUDA 12.8 · diffusers 0.42). 애니메이션·웹툰 = Animagine XL 4.0, 수채화·실사풍 = SD 1.5, 체크포인트는 `services/ai/models/`(git 제외). 개발 PC 대안으로 기존 Stable Diffusion WebUI(`IMAGE_ENGINE=webui`). GPU 없으면 그림 기능만 "준비 중" | `services/ai/app/services/image_local.py`, `image_engine.py`, [../guidance/photonet-engine.md](../guidance/photonet-engine.md) |
-| 코레딧·모델 (2026-10-21~25) | 출석 1,000(프로 5,000), 100 코레딧 = 350원. 강화 무료 `gemma4:12b` = 무료 하루 30번 → 그 뒤 자정까지 1번 10 코레딧, 프로 무제한. 프리미엄(Claude·Grok)은 코레딧(연동 전이라 "준비 중") | `credits/`, `models/`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
+| 코레딧·모델 (2026-10-21~25) | 출석 1,000(프로 5,000), 100 코레딧 = 350원. 강화 무료 `gemma4:12b` = 무료 하루 30번 → 그 뒤 자정까지 1번 10 코레딧, 프로 무제한. 프리미엄(Claude·Grok)은 코레딧. 연동 코드는 있으나 키가 없어 "준비 중"이고, 만 18세 미만·생년월일 없음은 잠근다 | `credits/`, `models/`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
 | 오퍼레이션 (2026-10-23~24) | 심리 탐구 30 · 일기 20 · 메시지(무료) · 커뮤니티 20/10 · 코디포토넷 50 · **웹툰 한 컷 45(콘티 무료)** | `operations/`, [OPERATIONS.md](OPERATIONS.md) |
-| 성인 모드 (2026-10-24) | 코디포토넷·웹툰의 전체 이용가/성인 분리. 성인 확인 = **생년월일 + 동의 + 이메일 인증(자기 신고, 본인인증 없음 — 사용자 결정)**, 거짓 입력의 법적 책임은 이용자(약관·동의 문구). 미성년자 설정 원천 차단·실사 금지·그림 검수 | `account/adult.ts`, [OPERATIONS.md](OPERATIONS.md) "수위" |
+| 성인 모드 (2026-10-24) | 코디포토넷·웹툰의 전체 이용가/성인 분리. 성인 확인 = **생년월일 + 동의 + 이메일 인증(자기 신고, 본인인증 없음 — 사용자 결정)**, 거짓 입력의 법적 책임은 이용자(약관·동의 문구). 미성년자 설정 원천 차단·실사 금지·그림 검수. 운영 compose는 `ADULT_MODE=off`가 기본이라 공개 서버에서는 꺼져 있다 | `account/adult.ts`, [OPERATIONS.md](OPERATIONS.md) "수위" |
 | 공식 캐릭터 2명 (2026-10-25) | 유지성(23세 과외 선생님 대학생, 비밀 퀘스트 있음)·**이세연**(34세 회장 직속 비서, 시작 장면은 나레이션 먼저). 둘 다 그림 엔진으로 만든 공식 초상 포함. 시드가 이미 있어도 운영자가 바꾼 카드·초상은 덮지 않는다 | `apps/api/prisma/seed.mjs`, `prisma/assets/portraits/`, [CHARACTERS.md](CHARACTERS.md) |
 | 추천 프로필 (2026-10-25) | 캐릭터마다 "추천하는 내 프로필"(선택). 대화 화면 카드에서 그대로 쓰거나 이름·소개를 고쳐 내 프로필로 만들고 바로 고른다. `characters.recommendedPersona`(공개) | `web/…/chat/recommended-persona.tsx`, [../FEATURES.md](../FEATURES.md) |
 | 공방 AI 초상 (2026-10-25) | 외형 단계 "AI로 직접 만들기": 화풍 4가지 × 생김새 8항목, **한 장 25 코레딧**, 성인·전체 이용가만, 올린 그림과 같은 자동 검수, 실패 시 환불. "그림 고르기"는 "내 파일 선택"으로 | `api/studio/studio-portrait-ai.service.ts`, `ai/services/portrait.py` |
 | 대화 서식 (2026-10-25) | `*행동*` = 40% 회색 기울임, `@:` = 나레이션(모델이 장면 전환 때 첫 줄에 씀) | `web/lib/chat-format.ts`, `ai/services/inference.py` |
-| 비밀 퀘스트 (2026-10-24) | 캐릭터가 건네는 숨은 미션. 직접·AI 제작, 엄격 판정(인용 근거 대조). 공식 캐릭터만 100 코레딧(계정×캐릭터당 한 번) | `quests/`, [SECRET_QUEST.md](SECRET_QUEST.md) | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
+| 비밀 퀘스트 (2026-10-24) | 캐릭터가 건네는 숨은 미션. 직접·AI 제작, 엄격 판정(인용 근거 대조). 공식 캐릭터만 100 코레딧(계정×캐릭터당 한 번) | `quests/`, [SECRET_QUEST.md](SECRET_QUEST.md) |
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
 | 요청 한도 | 고정 창. 기본은 서버 메모리, 서버가 여러 대면 `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`) | `security/rate-limit.ts`, `security/rate-store.ts` |
 | 요금 등급 | FREE / PRO. PRO는 공방 긴 글 칸 글자 수 3배(매 턴 들어가는 짧은 칸은 그대로) | `plan/plan.ts`, `studio/card.ts` |
 | 운영 콘솔 | 별도 Next.js 앱(`console/`). 운영자만 로그인(`console_session`), 대시보드·신고·초상 검수·캐릭터·계정 등급. 이용자 사이트의 `/admin/*`는 콘솔로 보낸다 | [../guidance/operations.md](../guidance/operations.md) |
+| 눌러서 프로로 (2026-11-03, 정식 서비스 전 임시) | `/pricing`의 버튼으로 결제 없이 프로 30일. `PRO_CLICK`: 개발 기본 열림, 운영 코드 기본 닫힘, 운영 compose 기본 `on`, 토스를 켜면 닫힘. 주문 기록을 만들지 않는다 | `billing/pro-click.ts` |
+| 프리미엄 나이 (2026-11-03) | 만 18세 미만·생년월일 없음은 잠금. 자기 신고이며 설정에서 한 번만 입력. 성인 확인(만 19세)과 별개 | `models/models.ts` `PREMIUM_MIN_AGE`, `account/` |
 | 결제 (**보류**, 2026-10-21 사용자 결정) | **토스페이먼츠**(SDK v2 결제창 + 승인·취소 API). 키가 없으면 개발 중 가짜 결제(mock), 운영에서는 결제를 열지 않음. 정기 결제 없음 | `billing/`, 확인 `npm run billing:check --workspace api` |
 | 가격 | 프로 30일 4,900원 · 1년 49,000원 — **출시 전 임시값**, `BILLING_PRICE_PRO_30/365`로 바꾼다 | `billing/products.ts` |
 | 초상 이미지 | 공방에서 올림(webp·jpeg·png, 150KB). **자동 검수**(로컬 모델) → 통과·운영자 검수·거절. 승인된 것만 남에게 보임 | `studio/portrait-review.service.ts`, FastAPI `/moderate-image` |
 | 페르소나 지식 RAG | 캐릭터별 비공개 JSON(`apps/api/data/personas`, git 제외) → 글자 2-gram BM25로 관련 조각만 | `persona-rag/`, [../Architecture/data-flow.md](../Architecture/data-flow.md) |
 | 보안 헤더·CSP | 요청마다 nonce를 쓰는 엄격한 CSP(`apps/web/proxy.ts`), 위반은 `/api/csp-report`로 받아 로그 | [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md) "보안 헤더" |
 | 화면 디자인 | "밤하늘 아래 이어지는 이야기" — 보라·분홍 그라데이션, 라이트·다크 두 벌 | [DESIGN.md](DESIGN.md) |
-| 테스트 | API vitest 198개(단위·통합, 실제 PostgreSQL·SMTP 포함), 웹 Playwright e2e 110개(가짜 LLM·가짜 결제·가짜 그림 엔진), AI 품질 평가(`services/ai/evals`, 실제 모델) | [TESTING.md](TESTING.md) |
+| 테스트 | API vitest(단위·통합, 실제 PostgreSQL·SMTP 포함), 웹 Playwright e2e(가짜 LLM·가짜 결제·가짜 그림 엔진), AI unittest, AI 품질 평가(`services/ai/evals`, 실제 모델) | [TESTING.md](TESTING.md) |
 | CI | GitHub Actions(`.github/workflows/ci.yml`), 내 PC에서 같은 단계 재현 `npm run ci:local` | [TESTING.md](TESTING.md) "CI" |
 
 ## 아직 열린 항목 (계획서 §15 "아직 열린 것")
@@ -57,10 +59,10 @@
 - 호스티드 LLM 벤더 — 제품 차원의 벤더는 미정(개발은 로컬 Ollama). 정해지면 [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md)와 함께 갱신
 - 과금 수치 — 구조는 만들었고 **금액 확정만 남음**(위 "가격")
 - 영문 표기 `CodiComperChat` 유지 여부
-- 호스팅 업체(조건은 정함: GPU 서버 한 대, 24시간), 도메인, 운영 메일 서비스, 토스 상점 계약(결제 보류), 약관 법률 검토
+- 서버 계약(Hetzner GEX45로 결정), 도메인, 운영 메일 서비스, 토스 상점 계약(결제 보류), 약관 법률 검토
 - 성인 모드: 방식은 그대로 둔다(2026-11-03 사용자 결정). Gemma 4는 Apache 2.0이라 모델 라이선스 문제는 없다. 자기 신고와 음란물 규정의 법률 검토, 호스팅 약관 확인이 공개 전에 남아 있다
 - 프리미엄 모델: 연동 코드는 넣었다(2026-11-03 사용자 결정, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md)). API 키, 지출 한도, 실제 호출 확인이 남았다
-- 저장소 공개 범위와 라이선스의 권리자 법적 이름(`LICENSE`)
+- 라이선스의 권리자 줄과 공개 저장소 문구(`LICENSE`, 저장소 전환 뒤 정리 — [../TASKS.md](../TASKS.md) T04)
 
 ## 스캐폴딩 단계에서 확정된 것 (2026-09-15)
 
@@ -94,7 +96,7 @@
 | Mailpit (개발 메일) | 1025 SMTP · 8025 웹 | 쓰지 않음(메일은 폴더로) | `docker compose up -d mailpit`, 127.0.0.1에만 열림 |
 | Redis | — | — | 쓰지 않음 |
 
-e2e·CI 재현은 개발 서버·개발 DB와 겹치지 않아 같이 켜 둬도 된다.
+e2e·CI 재현은 포트와 DB가 개발 환경과 겹치지 않는다. 다만 전체 e2e는 RAM 16GB에서 개발 서버를 끄고 돌린다([TESTING.md](TESTING.md)).
 
 ## 역할 분리 원칙 (계획서 §7.1, 위반 금지)
 
@@ -114,7 +116,7 @@ e2e·CI 재현은 개발 서버·개발 DB와 겹치지 않아 같이 켜 둬도
 
 ## 핵심 도메인 (계획서 §7.5)
 
-계획서의 8개(`User` `Character` `LoreEntry` `Campaign` `CampaignState` `Session` `Message` `MemoryChunk`) 중 `LoreEntry`를 뺀 7개가 테이블로 있다 — 로어는 공방 카드(JSON)와 페르소나 지식 파일로 대신한다. 그 밖에 구현하며 생긴 테이블 20개(전체 27개). 전체는 [DATABASE.md](DATABASE.md).
+계획서의 8개(`User` `Character` `LoreEntry` `Campaign` `CampaignState` `Session` `Message` `MemoryChunk`) 중 `LoreEntry`를 뺀 7개가 테이블로 있다 — 로어는 공방 카드(JSON)와 페르소나 지식 파일로 대신한다. 그 밖에 구현하며 생긴 테이블 21개(전체 28개). 전체는 [DATABASE.md](DATABASE.md).
 
 DB 연결: Prisma 7부터 `apps/api/prisma.config.ts`(CLI용) + `PrismaService`의 `@prisma/adapter-pg`(런타임용). 실행 방법은 [docker-run.md](../guidance/docker-run.md).
 

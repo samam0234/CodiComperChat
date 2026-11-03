@@ -17,8 +17,9 @@
 | 이메일 인증 | `/verify-email`, 마이페이지 | `POST /auth/me/verify-email` `POST /auth/verify-email` | api/auth/email-token.ts, api/mail | email · 발행·성인 확인의 전제 |
 | 비밀번호 찾기·재설정 | `/forgot-password` `/reset-password` | `POST /auth/password/forgot` `reset` | api/auth | email · 가입 여부 비노출 |
 | 회원 탈퇴 | `/settings` | `DELETE /auth/me` | api/account | account · 데이터 삭제, 결제 기록만 법정 보관 |
-| 성인 확인·끄기 | `/settings` 콘텐츠 수위, 코디포토넷·웹툰의 성인 버튼(열림 상자) | `POST·DELETE /auth/me/adult` | api/account/adult.ts, web/app/characters/[id]/chat/adult-dialog.tsx | operations · 자기 신고(생년월일+동의+이메일 인증), 본인인증 없음 |
-| 요금 등급(무료/프로) | 마이페이지·`/pricing` | `GET /auth/me`(`plan`) | api/plan | plan · 프로는 공방 긴 글 칸 3배 |
+| 성인 확인·끄기 | `/settings` 콘텐츠 수위, 코디포토넷·웹툰의 성인 버튼(열림 상자) | `POST·DELETE /auth/me/adult` | api/account/adult.ts, web/app/characters/[id]/chat/adult-dialog.tsx | operations · 자기 신고(생년월일+동의+이메일 인증), 본인인증 없음. `ADULT_MODE=off`면 모두 막힘(운영 compose 기본) |
+| 나이 확인(프리미엄용) | `/settings#age-settings`, 대화 화면 모델 안내 링크 | `POST /auth/me/birthdate` | api/account, web/app/settings/forms.tsx | models · 자기 신고, 한 번만 입력. 성인 확인과 별개라 `ADULT_MODE=off`여도 쓴다 |
+| 요금 등급(무료/프로) | 마이페이지·`/pricing` | `GET /auth/me`(`plan`) | api/plan | plan · 프로는 공방 긴 글 칸 3배, 강화 모델 무제한, 출석 5,000 |
 
 ## 2. 프로필(주인공)과 캐릭터 탐색
 
@@ -43,7 +44,7 @@
 | 명령어 | 입력창 | `POST …/chat/regenerate` `continue` `undo` | api/character-chat | commands · `/다시` `/계속` `/되돌리기` `/상황 내용` `/도움말` |
 | 글 꾸미기 | 말풍선 | — | web/lib/chat-format.ts, web/components/chat-text.tsx | format · `*행동*`(40% 회색 기울임) `**굵게**` `~취소선~` 코드·제목·인용·상자·정보창·`@이름`, HTML은 실행되지 않음 |
 | **나레이션 `@:`** | 말풍선(가운데 상자) | — | 위와 같음 + ai/services/inference.py(규칙 8) | format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 |
-| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧, 프리미엄은 "준비 중" |
+| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
 | 프로필 고정 | 대화 | — | api/conversations | chat · 첫 메시지 뒤 새로하기 전까지 못 바꿈 |
 
 ## 4. 기억·이야기 상태
@@ -149,11 +150,14 @@
 
 운영자 지정: `npm run user:role --workspace api -- 이메일 admin`. 상세 [guidance/operations.md](guidance/operations.md).
 
-## 14. 결제 (보류)
+## 14. 요금·결제
+
+실제 결제는 보류이고, 정식 서비스 전까지 눌러서 프로로 바꾼다.
 
 | 기능 | 화면 | API | 비고 |
 |------|------|-----|------|
-| 요금 안내·결제·승인·내역·환불 | `/pricing` `/billing/*` | `GET /billing/products`, `POST checkout` `confirm`, `GET orders`, `POST :id/refund` | billing · 토스페이먼츠 연동 코드와 시험 결제(mock)는 있으나 **운영에서 열지 않음**(2026-10-21 사용자 결정) |
+| **눌러서 프로로 바꾸기(30일, 임시)** | `/pricing` | `POST /billing/pro-click` | billing · `PRO_CLICK`. 이미 프로면 409, 닫혀 있으면 403, 주문 기록 없음, 토스를 켜면 닫힘 |
+| 요금 안내·결제·승인·내역·환불 (보류) | `/pricing` `/billing/*` | `GET /billing/products`, `POST checkout` `confirm`, `GET orders`, `POST :id/refund` | billing · 토스페이먼츠 연동 코드와 시험 결제(mock)는 있으나 **운영에서 열지 않음**(2026-10-21 사용자 결정) |
 
 ## 15. 플랫폼(보이지 않는 기능)
 
@@ -176,4 +180,4 @@
 
 ## 한눈에 안 보이는 한계
 
-스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 결제 보류. 해야 할 일 전체는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md).
+스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함) · 생년월일을 잘못 넣으면 운영자가 DB에서 고침 · 서비스 전체 지출 한도 없음. 해야 할 일 전체는 [TASKS.md](TASKS.md).

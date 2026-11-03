@@ -40,11 +40,11 @@
 
 | 패키지 | 버전 | 라이선스 |
 |--------|------|----------|
-| next | 16.3.5 | MIT |
+| next | 16.4.4 | MIT |
 | react, react-dom | 19.2.8 | MIT |
 | @nestjs/core, common, platform-express | 12.0.3 | MIT |
 | express | 5.2.1 | MIT |
-| @prisma/client, prisma, @prisma/adapter-pg | 7.10.0 | Apache-2.0 |
+| @prisma/client, @prisma/adapter-pg 7.10.0, prisma 7.10.1 | 7.10 | Apache-2.0 |
 | pg | 8.23.0 | MIT |
 | jose | 6.2.12 | MIT |
 | nodemailer | 7.0.13 | MIT-0 |

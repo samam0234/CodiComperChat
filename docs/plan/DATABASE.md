@@ -13,7 +13,7 @@
 
 ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추론에 필요한 슬라이스만 Nest가 조립해 넘긴다.
 
-## 테이블 (27개)
+## 테이블 (28개)
 
 공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.
 
@@ -21,7 +21,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 
 | 테이블 (모델) | 계획서 | 무엇 | 지워질 때 |
 |---|---|---|---|
-| `users` (User) | ● | 이메일·표시 이름·비밀번호 해시·역할(USER/ADMIN)·요금 등급(FREE/PRO, `planUntil`)·이메일 인증 시각·토큰 세대(`sessionVersion`)·성인 확인(`birthDate` 날짜, `adultConsentAt` 동의 시각 — 생년월일은 응답에 싣지 않는다)·계정 정지(`suspendedAt`, `suspendReason`) | 탈퇴: 아래 Cascade가 함께 지워짐 |
+| `users` (User) | ● | 이메일·표시 이름·비밀번호 해시·역할(USER/ADMIN)·요금 등급(FREE/PRO, `planUntil`)·이메일 인증 시각·토큰 세대(`sessionVersion`)·생년월일(`birthDate` 날짜, 프리미엄 나이 확인과 성인 확인에 함께 쓴다 — 날짜는 응답에 싣지 않는다)·성인 동의 시각(`adultConsentAt`)·계정 정지(`suspendedAt`, `suspendReason`) | 탈퇴: 아래 Cascade가 함께 지워짐 |
 | `user_personas` (UserPersona) | | 대화할 때 내가 연기할 프로필 캐릭터(이름·소개), 계정당 10개 | 계정과 함께 |
 | `characters` (Character) | ● | 발행된 캐릭터(카드 핵심 필드·비밀·시작 장면·프로필·공개 범위·초상·운영자가 내린 시각·사유). `ownerId`가 비면 운영 공식 캐릭터. `quest`(JSON): 비밀 퀘스트 정의 — 공개 응답에 싣지 않는다. `recommendedPersona`(JSON, 선택): 이 캐릭터용 추천 프로필 `{ name, description }` — 공개 | 주인 탈퇴 시 `ownerId` 비움(그 전에 내림) |
 | `campaigns` (Campaign) | ● | 유저 × 캐릭터 대화 한 판. 지금 대화(ACTIVE) 하나 + 저장한 대화(CLOSED). 고정된 내 프로필 이름·소개를 그대로 복사해 둔다. `chatModel`은 이 대화의 답을 쓰는 모델 id(기본 `basic`) | 계정과 함께 |
@@ -51,13 +51,13 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 
 ### 개인정보가 들어 있는 칸
 
-[SECURITY.md](../../SECURITY.md)의 "개인정보"와 맞춘다. 이메일(`users.email`, 결제 주문의 `buyerEmail`), 표시 이름, 비밀번호 해시, 성인 확인용 **생년월일**(`users.birthDate` — 날짜만, 한 번 넣으면 바꿀 수 없음)·동의 시각(`adultConsentAt`), 대화·기억·일기·메시지·그림. 결제 기록만 탈퇴 뒤에도 법정 보관. 보관 기간·파기 정책과 생년월일 보관 필요성은 법률 검토 항목이다.
+[SECURITY.md](../../SECURITY.md)의 "개인정보"와 맞춘다. 이메일(`users.email`, 결제 주문의 `buyerEmail`), 표시 이름, 비밀번호 해시, 나이 확인·성인 확인용 **생년월일**(`users.birthDate` — 날짜만, 한 번 넣으면 이용자가 바꿀 수 없음)·동의 시각(`adultConsentAt`), 대화·기억·일기·메시지·그림. 결제 기록만 탈퇴 뒤에도 법정 보관. 보관 기간·파기 정책과 생년월일 보관 필요성은 법률 검토 항목이다.
 
 ### 비공개로 다루는 칸
 
 - `characters.secret`·`secretUnlockCondition`: 어떤 공개 응답에도 싣지 않고 AI에도 보내지 않는다(계획서 §13.3)
 - `users.passwordHash`, `email_tokens.tokenHash`: 응답에 싣지 않는다
-- `users.birthDate`·`adultConsentAt`: 응답에는 `adult`(성인 확인 여부)만 싣는다
+- `users.birthDate`·`adultConsentAt`: 응답에는 `adult`(성인 확인 여부)와 `birthDateSet`(입력 여부)만 싣는다
 - `characters.quest`(비밀 퀘스트 정의): 공개 캐릭터 응답에 싣지 않는다. 달성 조건은 캐릭터(모델)에게도 알리지 않는다
 - 초상 본문(`portrait`)은 목록 응답에 싣지 않고 따로 받는다(`GET /characters/:id/portrait`)
 

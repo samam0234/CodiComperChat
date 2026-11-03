@@ -40,6 +40,8 @@
 
 스크립트로도 등급을 바꿀 수 있다: `npm run user:plan --workspace api -- 이메일 pro 30`
 
+이용자가 `/pricing`에서 직접 프로로 바꿀 수도 있다(`PRO_CLICK`, 30일, 주문 기록 없음). 생년월일을 잘못 넣은 이용자는 지금 콘솔에서 고칠 수 없어 DB의 `users.birthDate`를 직접 고친다.
+
 ## 그림 엔진 운영 (코디포토넷·웹툰)
 
 - 켜기·끄기·확인: [photonet-engine.md](photonet-engine.md). 기본(`IMAGE_ENGINE=local`)은 services/ai가 GPU에서 직접 그리므로 따로 켤 것이 없다 — AI 서비스 로그에 모델 읽기가 보이고, 코디포토넷 창이 "준비 중"이면 설치(`requirements-image.txt`)나 모델 파일(`services/ai/models/`)을 확인한다

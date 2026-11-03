@@ -10,7 +10,8 @@
 - [ ] CI 통과 (GitHub Actions 또는 `npm run ci:local`)
 
 **사람이 정하거나 넣어야 할 것**
-- [ ] 호스팅 업체 선택, GPU 서버 생성 (조건: [docker-deploy.md](docker-deploy.md))
+- [x] 호스팅 업체 선택: Hetzner GEX45 ([hosting-options.md](hosting-options.md))
+- [ ] 서버 계약과 생성 (조건: [docker-deploy.md](docker-deploy.md))
 - [ ] 도메인과 DNS
 - [ ] `deploy/.env` 값 (DB, `AUTH_SECRET`, `AI_SERVICE_TOKEN`, SMTP) — 저장소에 커밋하지 않는다
 - [ ] 운영 SMTP. `npm run mail:check --workspace api -- 주소` 통과
