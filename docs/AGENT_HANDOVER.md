@@ -9,7 +9,7 @@
 | 항목 | 지금 |
 |------|------|
 | 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: GPU 서버 한 대, 24시간. 업체 미정 |
-| 미병합 작업 | `feature/premium-adapters` → `feature/docs-model-license` → `feature/deploy-server-setup` → `feature/adult-mode-switch` 순서로 쌓여 있다(2026-11-03). 맨 위 기준 전체 e2e는 107/110. 실패 3건(`chat`, `operations` 커뮤니티, `theme`)은 시간 초과이고, 해당 파일과 그 앞 순서만 돌리면 22개 모두 통과한다. 원인은 확정하지 못했다(RAM 압박 의심). 전체 통과를 본 뒤 병합한다 |
+| 미병합 작업 | `feature/premium-adapters` → `feature/docs-model-license` → `feature/deploy-server-setup` → `feature/adult-mode-switch` → `feature/pro-click` → `feature/premium-age-gate` → `feature/private-repo-decisions` 순서로 쌓여 있다(2026-11-03). 맨 위 기준 전체 e2e는 108/112, 개발 서버를 켠 채 남은 RAM 약 0.4GB에서 돌렸다. 실패 4건은 시간 초과이며 매번 조금씩 달라진다. `operations` 2건과 `reports`는 따로 돌리면 통과한다. `chat.spec.ts:31`은 전체 실행 3번 모두 실패했고, 따로 돌렸을 때 1번 실패 후 3번 통과했다. 실패할 때 웹 서버 로그에 요청 본문이 비었다는 오류가 시험이 끝난 뒤 찍혀, 요청이 처리되기 전에 15초가 지난 것으로 보지만 원인은 확정하지 못했다. 개발 서버를 끄고 전체를 다시 돌려 통과하면 병합한다. 시간 제한은 늘리지 않았다 |
 | 원격(GitHub) | 저장소는 **공개** 상태. `origin/main`·`origin/develop`은 2026-10-25 launch-safety까지. 2026-11-03 작업은 로컬 `develop`에 병합했고 **푸시하지 않았다**(푸시는 사용자가 말할 때) |
 | 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
