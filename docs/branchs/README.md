@@ -262,5 +262,6 @@
 | 2026-11-03 | `c1eda9f` | develop (merge) | feature/seyeon-quest into develop (no-ff) | [261103_1423_c1eda9f_merge-seyeon-quest_develop.md](commits/261103_1423_c1eda9f_merge-seyeon-quest_develop.md) |
 | 2026-11-03 | `d7a1cec` | develop (merge) | feature/dep-audit into develop (no-ff) | [261103_1423_d7a1cec_merge-dep-audit_develop.md](commits/261103_1423_d7a1cec_merge-dep-audit_develop.md) |
 | 2026-11-03 | `b774e33` | develop (merge) | feature/deploy-gpu into develop (no-ff) | [261103_1423_b774e33_merge-deploy-gpu_develop.md](commits/261103_1423_b774e33_merge-deploy-gpu_develop.md) |
+| 2026-11-03 | `b81abc1` | develop (merge) | feature/portrait-fix into develop (no-ff) | [261103_1423_b81abc1_merge-portrait-fix_develop.md](commits/261103_1423_b81abc1_merge-portrait-fix_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
