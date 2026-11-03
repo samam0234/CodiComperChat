@@ -289,5 +289,6 @@
 | 2026-11-04 | `1a509e1` | feature/docs-overall-2 | 남은 작업과 소유자 안내를 정리하고 전체 문서를 갱신 | [261104_0608_1a509e1_docs-overall-2_feature-docs-overall-2.md](commits/261104_0608_1a509e1_docs-overall-2_feature-docs-overall-2.md) |
 | 2026-11-04 | `d1df7f8` | develop (merge) | feature/e2e-production-build into develop (no-ff) | [261104_0616_d1df7f8_merge-e2e-production-build_develop.md](commits/261104_0616_d1df7f8_merge-e2e-production-build_develop.md) |
 | 2026-11-04 | `e413e38` | develop (merge) | feature/ci-more-tests into develop (no-ff) | [261104_0616_e413e38_merge-ci-more-tests_develop.md](commits/261104_0616_e413e38_merge-ci-more-tests_develop.md) |
+| 2026-11-04 | `8142944` | develop (merge) | feature/adult-off-ui into develop (no-ff) | [261104_0616_8142944_merge-adult-off-ui_develop.md](commits/261104_0616_8142944_merge-adult-off-ui_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

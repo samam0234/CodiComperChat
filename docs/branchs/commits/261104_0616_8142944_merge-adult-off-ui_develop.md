@@ -1,0 +1,42 @@
+# feature/adult-off-ui into develop (no-ff)
+
+| 항목 | 내용 |
+|------|------|
+| Subject | `merge: feature/adult-off-ui into develop (no-ff)` |
+| Full SHA | `814294447d55f1f439c147fec617f25dcb9c6fb1` |
+| Short SHA | `8142944` |
+| Branch | `develop` |
+| Parent | `e413e38, b2cac67` |
+| Date | 2026-11-04 06:16:36 +0900 |
+
+## 주 내용
+
+- `feature/adult-off-ui`를 `develop`에 `--no-ff`로 병합했다
+
+## 상세
+
+**배경**
+사용자가 남은 작업을 맡기며 병합을 지시했다(2026-11-04).
+
+**변경 범위**
+해당 브랜치의 커밋 기록을 본다.
+
+**기술 포인트**
+쌓인 순서대로 병합했다.
+
+**안 한 것**
+푸시.
+
+## 결과
+
+**동작 확인**
+맨 위 브랜치에서 `npm run ci:local` 12/12 통과. 병합 뒤 시험은 병합 묶음의 끝에서 다시 돌린다.
+
+**리스크**
+없음.
+
+**후속**
+`main` 병합.
+
+**관련 문서**
+[branch-merge.md](../../guidance/branch-merge.md)
