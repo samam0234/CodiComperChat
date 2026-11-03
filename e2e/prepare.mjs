@@ -1,10 +1,10 @@
 // e2e 실행 전 한 번: e2e DB 만들기 → 마이그레이션 → 데이터 비우기 → 공식 캐릭터 심기 → API 검증용 빌드
 // (서버를 띄우기 전에 끝나야 해서 Playwright 설정 밖의 별도 단계로 둔다. `npm run test:e2e`가 이어서 호출한다)
 import { execFileSync } from "node:child_process";
-import { rmSync, writeFileSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
-import { E2E_DB, E2E_DB_NAME_EXPORT, MAIL_DIR, NEXT_DIST_DIR, PERSONA_DIR, ROOT } from "./env.mjs";
+import { E2E_DB, E2E_DB_NAME_EXPORT, MAIL_DIR, NEXT_DIST_DIR, PERSONA_DIR, ROOT, URLS } from "./env.mjs";
 
 const run = (cmd, args, cwd, env = {}) =>
   execFileSync(cmd, args, { cwd, stdio: "inherit", env: { ...process.env, ...env }, shell: process.platform === "win32" });
@@ -60,7 +60,22 @@ for (const app of [join(ROOT, "apps", "web"), join(ROOT, "console")]) {
 }
 rmSync(PERSONA_DIR, { recursive: true, force: true });
 rmSync(MAIL_DIR, { recursive: true, force: true });
-rmSync(join(ROOT, "apps", "web", NEXT_DIST_DIR), { recursive: true, force: true });
-rmSync(join(ROOT, "console", NEXT_DIST_DIR), { recursive: true, force: true });
 run("npm", ["run", "build:verify", "--workspace", "api", "--silent"], ROOT);
+// 화면은 운영 빌드로 시험한다. next dev는 화면을 그때그때 컴파일해 메모리가 모자라면 15초를 넘겼다
+// (docs/find_debug/2026-11-03.md). 코드를 안 고치고 일부만 다시 돌릴 때는 E2E_SKIP_BUILD=1로 빌드를 건너뛴다
+const reuseBuild =
+  process.env.E2E_SKIP_BUILD === "1" &&
+  existsSync(join(ROOT, "apps", "web", NEXT_DIST_DIR, "BUILD_ID")) &&
+  existsSync(join(ROOT, "console", NEXT_DIST_DIR, "BUILD_ID"));
+if (!reuseBuild) {
+  for (const [workspace, app] of [["web", join(ROOT, "apps", "web")], ["console", join(ROOT, "console")]]) {
+    rmSync(join(app, NEXT_DIST_DIR), { recursive: true, force: true });
+    run("npm", ["run", "build", "--workspace", workspace, "--silent"], ROOT, {
+      NEXT_DIST_DIR,
+      API_BASE_URL: URLS.api,
+      WEB_BASE_URL: URLS.web,
+      CONSOLE_BASE_URL: URLS.console,
+    });
+  }
+}
 console.log("e2e: 준비 끝");

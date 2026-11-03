@@ -4,6 +4,7 @@ import { ROOT, URLS } from "./env.mjs";
 
 // 웹 자동 테스트. 실행: `npm run test:e2e` (준비 → 서버 3개 기동 → 테스트).
 // 서버는 모두 e2e 전용 포트·DB·가짜 LLM이라 쓰시는 개발 서버와 같이 켜 둬도 된다.
+// 화면은 prepare.mjs가 만든 운영 빌드다. `next dev`로 돌리면 RAM 16GB에서 무작위 시간 초과가 났다.
 export default defineConfig({
   testDir: "./tests",
   outputDir: join(ROOT, "e2e", ".tmp", "test-results"),
