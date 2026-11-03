@@ -222,7 +222,8 @@ Nest는 이 객체를 `CampaignState`에 머지한다.
 
 | 메서드·경로 | 설명 | 응답 |
 |---|---|---|
-| `GET /billing/products` | 상품표와 지금 켜진 결제 방식 | **200** `{ products: [{ id, name, amount, days }], provider: "toss" \| "mock" \| null, clientKey }` · 로그인 불필요. `provider: null`이면 결제를 열지 않는다 |
+| `GET /billing/products` | 상품표와 지금 켜진 결제 방식 | **200** `{ products: [{ id, name, amount, days }], provider: "toss" \| "mock" \| null, clientKey, proClick: { days } \| null }` · 로그인 불필요. `provider: null`이면 결제를 열지 않는다. `proClick`이 있으면 결제 없이 프로로 바꿀 수 있다 |
+| `POST /billing/pro-click` | 결제 없이 프로로 바꾸기 (정식 서비스 전 임시, `PRO_CLICK`) | **200** `{ plan: "PRO", planUntil }` · 지금부터 30일, 주문 기록 없음 · 이미 프로 409, 닫혀 있으면 403 · 🔒 |
 | `POST /billing/checkout` | 주문 만들기 `{ productId }` | **201** `{ orderId, orderName, amount, provider, clientKey, customerKey, customerEmail, customerName }` · 금액은 서버 상품표가 정한다. 없는 상품 400, 결제 미설정 503 · 🔒 |
 | `POST /billing/confirm` | 결제창이 돌려준 결제 승인 `{ orderId, paymentKey, amount }` | **200** `{ paid: true, productId, amount, days, planUntil }` · 금액이 주문과 다르면 400(주문은 FAILED), 남의 주문 404, 실패한 주문 409. **같은 주문을 다시 승인해도 기간은 한 번만 늘어난다** · 🔒 |
 | `GET /billing/orders` | 내 결제 내역(최근 50건)과 프로 만료 시각 | **200** `{ orders: [{ id, name, amount, days, paidAt }], planUntil }` · 🔒 |

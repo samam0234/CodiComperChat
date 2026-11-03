@@ -99,6 +99,8 @@ services:
       WEB_BASE_URL: https://${WEB_DOMAIN}
       MAIL_SMTP_URL: ${MAIL_SMTP_URL:?}
       MAIL_FROM: ${MAIL_FROM:?}
+      # 결제 없이 프로로 바꾸는 버튼. 토스 결제를 켜면 저절로 닫힌다
+      PRO_CLICK: ${PRO_CLICK:-on}
       TOSS_SECRET_KEY: ${TOSS_SECRET_KEY:-}
       TOSS_CLIENT_KEY: ${TOSS_CLIENT_KEY:-}
       PERSONA_DATA_DIR: /app/apps/api/data/personas
