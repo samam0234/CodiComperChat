@@ -255,5 +255,6 @@
 | 2026-11-03 | `a2a3830` | feature/dep-audit | 취약점이 있는 운영 의존성을 올리다 | [261103_1300_a2a3830_dep-audit_feature-dep-audit.md](commits/261103_1300_a2a3830_dep-audit_feature-dep-audit.md) |
 | 2026-11-03 | `d819584` | feature/deploy-gpu | GPU 서버 한 대용 24시간 운영 구성을 넣다 | [261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md](commits/261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md) |
 | 2026-11-03 | `91337b5` | feature/portrait-fix | AI 초상이 얼굴을 보여 주고 화풍이 살도록 고치다 | [261103_1340_91337b5_portrait-face_feature-portrait-fix.md](commits/261103_1340_91337b5_portrait-face_feature-portrait-fix.md) |
+| 2026-11-03 | `d1e6f8c` | feature/license-public | 공개 저장소의 clone과 복제를 제한하다 | [261103_1340_d1e6f8c_license-public_feature-license-public.md](commits/261103_1340_d1e6f8c_license-public_feature-license-public.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
