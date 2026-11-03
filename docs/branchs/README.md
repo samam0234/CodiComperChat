@@ -267,5 +267,6 @@
 | 2026-11-03 | `673ed98` | develop (merge) | feature/docs-launch-prep into develop (no-ff) | [261103_1423_673ed98_merge-docs-launch-prep_develop.md](commits/261103_1423_673ed98_merge-docs-launch-prep_develop.md) |
 | 2026-11-03 | `b471a60` | feature/premium-adapters | 프리미엄 모델 Claude·Grok 호출 연동 | [261103_1730_b471a60_premium-adapters_feature-premium-adapters.md](commits/261103_1730_b471a60_premium-adapters_feature-premium-adapters.md) |
 | 2026-11-03 | `6ca32d3` | feature/docs-model-license | Gemma 4 라이선스를 Apache 2.0으로 정정 | [261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md](commits/261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md) |
+| 2026-11-03 | `368d1ad` | feature/deploy-server-setup | 상시 서버 후보 비교와 Ubuntu 설치 스크립트 | [261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md](commits/261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
