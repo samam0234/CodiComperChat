@@ -107,3 +107,6 @@ package-lock.json linguist-generated=true
 docs/branchs/commits/** linguist-generated=true
 # 문서는 언어 통계에서 뺀다
 docs/** linguist-documentation=true
+
+# 커밋 기록 목록은 줄만 쌓이니 병합 때 양쪽 줄을 모두 남긴다
+docs/branchs/README.md merge=union
