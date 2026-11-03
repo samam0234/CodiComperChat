@@ -280,5 +280,6 @@
 | 2026-11-04 | `07561f1` | feature/docs-handoff | 서버를 끈 전체 e2e 결과를 기록 | [261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md](commits/261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md) |
 | 2026-11-04 | `ad9fe4c` | develop (merge) | feature/docs-handoff into develop (no-ff) | [261104_0018_ad9fe4c_merge-docs-handoff_develop.md](commits/261104_0018_ad9fe4c_merge-docs-handoff_develop.md) |
 | 2026-11-04 | `e669930` | feature/e2e-production-build | 화면 서버를 운영 빌드로 바꿔 무작위 시간 초과를 없앰 | [261104_0441_e669930_e2e-production-build_feature-e2e-production-build.md](commits/261104_0441_e669930_e2e-production-build_feature-e2e-production-build.md) |
+| 2026-11-04 | `600c9e6` | feature/ci-more-tests | AI 단위 시험과 기록 작성기 시험을 CI에 추가 | [261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md](commits/261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
