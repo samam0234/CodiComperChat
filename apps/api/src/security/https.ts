@@ -9,6 +9,8 @@ export type HttpsInput = {
   path: string;
   nodeEnv?: string;
   requireHttps?: string;
+  // 바깥에 열리지 않는 내부 호스트 (쉼표 구분). 같은 내부망의 웹·콘솔이 http로 부른다
+  exemptHosts?: string;
 };
 
 export type HttpsDecision =
@@ -24,7 +26,9 @@ export function isLoopbackHost(host: string): boolean {
 // 공개 호스트의 운영 서버는 HTTPS만 받는다. 루프백(로컬 next start·개발)은 그대로 둔다.
 // 앞단 프록시가 X-Forwarded-Proto를 덮어써야 한다. 이용자가 보낸 값은 믿지 않는다(trust proxy).
 export function decideHttps(input: HttpsInput): HttpsDecision {
-  const local = isLoopbackHost(input.host);
+  const name = input.host.replace(/:\d+$/, '').toLowerCase();
+  const exempt = (input.exemptHosts ?? '').split(',').map((h) => h.trim().toLowerCase()).filter(Boolean);
+  const local = isLoopbackHost(input.host) || exempt.includes(name);
   const https = input.proto === 'https';
   if (input.nodeEnv === 'production' && input.requireHttps !== '1' && !local) {
     return { action: 'refuse', message: '운영 서버는 REQUIRE_HTTPS=1 이 있어야 합니다.' };
@@ -43,6 +47,7 @@ export function httpsEnforcement(req: Request, res: Response, next: NextFunction
     path: req.originalUrl || '/',
     nodeEnv: process.env.NODE_ENV,
     requireHttps: process.env.REQUIRE_HTTPS,
+    exemptHosts: process.env.REQUIRE_HTTPS_EXEMPT_HOSTS,
   });
   if (decision.action === 'refuse') {
     res.status(503).type('text/plain; charset=utf-8').send(decision.message);
