@@ -283,5 +283,6 @@
 | 2026-11-04 | `600c9e6` | feature/ci-more-tests | AI 단위 시험과 기록 작성기 시험을 CI에 추가 | [261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md](commits/261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md) |
 | 2026-11-04 | `bd49926` | feature/adult-off-ui | 성인 모드를 끈 서버에서 성인 입구를 숨김 | [261104_0449_bd49926_adult-off-ui_feature-adult-off-ui.md](commits/261104_0449_bd49926_adult-off-ui_feature-adult-off-ui.md) |
 | 2026-11-04 | `bbf2f4a` | feature/content-report-e2e | 그림 신고와 운영자 처리를 브라우저로 시험 | [261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md](commits/261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md) |
+| 2026-11-04 | `d209e02` | feature/premium-spend-cap | 프리미엄 월 지출 상한과 운영자의 생년월일 정정을 추가 | [261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md](commits/261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

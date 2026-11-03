@@ -24,6 +24,7 @@
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
 | `DELETE /auth/me` | 회원 탈퇴 `{ password, confirm: "탈퇴합니다" }` | **204** · 비밀번호 틀림 401, 확인 문구 다름 400 · 계정과 대화·기억·프로필·엑스트라·초안·신고를 지우고, 발행한 캐릭터는 먼저 내린다(주인 없는 캐릭터가 공식처럼 보이지 않게). 결제 기록은 계정 연결만 끊고 구매자 이메일과 함께 남긴다 · 🔒 |
 | `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
+| `POST /admin/users/birthdate` | 운영자가 생년월일을 고치거나 지운다 `{ email, birthDate: "YYYY-MM-DD" \| null, reason }`. 성인 동의도 지운다 | **200** `{ age }` · 사유 없음·형식 틀림·미래 400 · 일반 계정 403 · 없는 계정 404 · 🔒 운영자 |
 | `POST /auth/me/birthdate` | 나이 확인 `{ birthDate: "YYYY-MM-DD" }` (자기 신고). 프리미엄 모델을 연다. 성인 확인과 별개라 `ADULT_MODE=off`여도 받는다 | **200** `{ saved: true }` · 날짜 형식 틀림 400 · 이미 입력 409(바꿀 수 없다) · 🔒 |
 | `POST /auth/me/adult` | 성인 확인 `{ birthDate: "YYYY-MM-DD", consent: true }` (자기 신고. 본인인증은 하지 않으며, 도입 여부는 법률 검토) | **200** `{ adult: true }` · 동의 없음·날짜 형식 틀림 400 · 이메일 미인증·만 19세 미만 **403** · 생년월일은 처음 넣은 것으로 고정(다시 보내도 바뀌지 않는다) · 정지된 계정은 로그인 자체가 403 · 🔒 |
 | `DELETE /auth/me/adult` | 성인 콘텐츠 끄기 (동의만 거두고 생년월일은 남긴다) | **204** · 🔒 |

@@ -75,6 +75,7 @@ function modelSuffix(m: ModelOption): string {
   if (m.locked === "NOT_READY") return `${cost} · 준비 중`;
   if (m.locked === "NEEDS_BIRTHDATE") return `${cost} · 생년월일 입력 필요`;
   if (m.locked === "UNDER_AGE") return `${cost} · 만 18세 이상`;
+  if (m.locked === "SPEND_CAP") return `${cost} · 이번 달 제공량 소진`;
   if (m.locked === "NO_CREDITS") return `${cost} · 코레딧 부족`;
   return cost;
 }
@@ -252,7 +253,7 @@ export default function CharacterChat({
       setModelOptions((prev) =>
         prev?.map((m) =>
           // 코레딧이 바뀌어도 풀리지 않는 잠금은 그대로 둔다
-          m.locked === "NOT_READY" || m.locked === "NEEDS_BIRTHDATE" || m.locked === "UNDER_AGE"
+          m.locked === "NOT_READY" || m.locked === "SPEND_CAP" || m.locked === "NEEDS_BIRTHDATE" || m.locked === "UNDER_AGE"
             ? m
             : m.credits !== null
               ? { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null }

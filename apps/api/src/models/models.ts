@@ -108,22 +108,34 @@ export const isProviderReady = (provider: ModelProvider, env: NodeJS.ProcessEnv 
     .map((p) => p.trim())
     .includes(provider);
 
+// 서비스 전체가 한 달(한국 시각)에 프리미엄으로 쓸 수 있는 코레딧. 코레딧 판매 전이라 출석 코레딧이 곧 실제 지출이다.
+// 운영에서 값을 넣지 않으면 0으로 보아 열리지 않는다: 키만 넣고 한도를 잊는 사고를 막는다. 개발·시험은 한도 없음(null)
+export function premiumMonthlyCap(env: NodeJS.ProcessEnv = process.env): number | null {
+  const raw = env.PREMIUM_MONTHLY_CREDITS?.trim();
+  const value = raw ? Number(raw) : NaN;
+  if (Number.isInteger(value) && value >= 0) return value;
+  return env.NODE_ENV === 'production' ? 0 : null;
+}
+
 // 하루 한도가 있으면 그 횟수, 없으면 null (강화 무료를 무료 등급이 쓸 때만)
 export function dailyLimitOf(model: ChatModel, plan: Plan, env: NodeJS.ProcessEnv = process.env): number | null {
   return model.tier === 'ENHANCED' && plan !== 'PRO' ? enhancedDailyLimit(env) : null;
 }
 
 // 지금 쓸 수 있나. 잠긴 이유는 화면이 안내 문구를 고를 수 있게 코드로 준다
-export type ModelLock = 'NOT_READY' | 'NEEDS_BIRTHDATE' | 'UNDER_AGE' | 'DAILY_LIMIT' | 'NO_CREDITS';
+export type ModelLock = 'NOT_READY' | 'NEEDS_BIRTHDATE' | 'UNDER_AGE' | 'SPEND_CAP' | 'DAILY_LIMIT' | 'NO_CREDITS';
 
 // age: 생년월일로 계산한 만 나이. 입력하지 않았으면 null
-export type Wallet = { plan: Plan; usedToday: number; balance: number; age: number | null };
+// premiumSpent: 이번 달 서비스 전체가 프리미엄에 쓴 코레딧
+export type Wallet = { plan: Plan; usedToday: number; balance: number; age: number | null; premiumSpent?: number };
 
 export function lockOf(model: ChatModel, wallet: Wallet, env: NodeJS.ProcessEnv = process.env): ModelLock | null {
   if (model.tier === 'PREMIUM') {
     if (!isProviderReady(model.provider, env)) return 'NOT_READY';
     if (wallet.age === null) return 'NEEDS_BIRTHDATE';
     if (wallet.age < PREMIUM_MIN_AGE) return 'UNDER_AGE';
+    const cap = premiumMonthlyCap(env);
+    if (cap !== null && (wallet.premiumSpent ?? 0) + (model.credits ?? 0) > cap) return 'SPEND_CAP';
     if (wallet.balance < (model.credits ?? 0)) return 'NO_CREDITS';
     return null;
   }
@@ -137,12 +149,18 @@ export const LOCK_MESSAGE: Record<ModelLock, string> = {
   NOT_READY: '이 모델은 아직 준비 중이에요.',
   NEEDS_BIRTHDATE: '프리미엄 모델은 만 18세 이상만 쓸 수 있어요. 설정에서 생년월일을 입력해 주세요.',
   UNDER_AGE: '프리미엄 모델은 만 18세 이상만 쓸 수 있어요.',
+  SPEND_CAP: '이번 달 프리미엄 모델 제공량을 모두 썼어요. 다음 달 1일(한국 시각)에 다시 열립니다.',
   DAILY_LIMIT: '오늘 쓸 수 있는 횟수를 모두 썼어요. 한국 시각 자정에 다시 채워집니다. 프로 등급은 무제한이에요.',
   // (강화 무료는 이제 한도에서 잠기지 않고 코레딧으로 넘어간다. 화면 호환을 위해 코드는 남긴다)
   NO_CREDITS: '코레딧이 모자라요. 출석하면 코레딧을 받을 수 있어요.',
 };
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+// 이번 달 1일 0시(한국 시각)
+export function kstMonthStart(now: Date = new Date()): Date {
+  return new Date(`${kstDay(now).slice(0, 7)}-01T00:00:00+09:00`);
+}
 
 // 하루를 세는 날짜: 한국 시각 기준 YYYY-MM-DD
 export function kstDay(now: Date = new Date()): string {
