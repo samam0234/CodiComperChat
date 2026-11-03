@@ -260,5 +260,6 @@
 | 2026-11-03 | `00b3d4c` | develop (merge) | feature/docs-handover into develop (no-ff) | [261103_1423_00b3d4c_merge-docs-handover_develop.md](commits/261103_1423_00b3d4c_merge-docs-handover_develop.md) |
 | 2026-11-03 | `894f4eb` | develop (merge) | feature/record-tools into develop (no-ff) | [261103_1423_894f4eb_merge-record-tools_develop.md](commits/261103_1423_894f4eb_merge-record-tools_develop.md) |
 | 2026-11-03 | `c1eda9f` | develop (merge) | feature/seyeon-quest into develop (no-ff) | [261103_1423_c1eda9f_merge-seyeon-quest_develop.md](commits/261103_1423_c1eda9f_merge-seyeon-quest_develop.md) |
+| 2026-11-03 | `d7a1cec` | develop (merge) | feature/dep-audit into develop (no-ff) | [261103_1423_d7a1cec_merge-dep-audit_develop.md](commits/261103_1423_d7a1cec_merge-dep-audit_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
