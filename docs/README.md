@@ -4,7 +4,9 @@
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재(2026-10-16) 세 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라) → 공방 제작·3턴 테스트·발행, 신고·초상 검수, 프로 결제·환불, 회원 탈퇴. DB는 PostgreSQL(테이블 15개), Redis는 쓰지 않는다. **배포는 아직이다.** `web_management/`·`DEPLOYMENT.md`의 배포 절차는 아직 목표 문서이고, 그렇게 표시해 두었다.
+> 현재(2026-10-25) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 결제는 보류. DB는 PostgreSQL(테이블 27개), Redis는 쓰지 않는다. **배포는 아직이다.** `web_management/`·`DEPLOYMENT.md`의 배포 절차는 아직 목표 문서이고, 그렇게 표시해 두었다.
+>
+> **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(인수인계·해야 할 일)와 [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
 
 ---
 
@@ -13,6 +15,8 @@
 ```text
 docs/
 ├── README.md                 ← 이 파일 (허브 인덱스)
+├── AGENT_HANDOVER.md         ← 에이전트 인수인계 (현재 상태·작업 약속·함정·해야 할 일)
+├── FEATURES.md               ← 전체 기능 카탈로그 (화면·API·코드·시험)
 ├── API_DOCUMENTATION.md      ← API 전체 (Nest·FastAPI 경로, 요청 한도, 보안 헤더, 메일, 결제)
 ├── DEPLOYMENT.md             ← 배포 짧은 진입 + 배포 때 꼭 할 것
 ├── WORKFLOW.md               ← AI 호출 파이프라인 요약 (대화 한 턴, AI 대기열)
@@ -44,10 +48,10 @@ docs/
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
 | console | Next.js 16 (TSX) | `console/` | 3001 / 3102 | 동작 (운영자 전용 콘솔, 2026-10-21) |
-| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 30여 개, 엄격 CSP, 라이트·다크) |
+| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 31개, 엄격 CSP, 라이트·다크) |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
-| ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` |
-| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 15개) |
+| ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` + 같은 프로세스의 그림 엔진(diffusers) |
+| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 27개, 마이그레이션 32개) |
 | 캐시/잡 | Redis | — | — | 쓰지 않음 |
 
 정본: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
@@ -57,10 +61,13 @@ docs/
 ## 빠른 링크
 
 - 기획 원본: [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)
+- **인수인계·해야 할 일: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **전체 기능: [FEATURES.md](FEATURES.md)**
+- 저장소 라이선스·보안·제3자 고지: [../LICENSE](../LICENSE) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
 - 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
 - 현재 스택: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
 - 처음 띄우기: [guidance/getting-started.md](guidance/getting-started.md) · 환경변수: [guidance/environment.md](guidance/environment.md)
 - 운영자 할 일: [guidance/operations.md](guidance/operations.md)
+- 오퍼레이션·코디포토넷·웹툰·수위: [plan/OPERATIONS.md](plan/OPERATIONS.md) · 그림 엔진: [guidance/photonet-engine.md](guidance/photonet-engine.md) · 비밀 퀘스트: [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · 공식 캐릭터: [plan/CHARACTERS.md](plan/CHARACTERS.md)
 - API 전체: [API_DOCUMENTATION.md](API_DOCUMENTATION.md) · DB: [plan/DATABASE.md](plan/DATABASE.md)
 - 테스트·CI: [plan/TESTING.md](plan/TESTING.md) · 디자인: [plan/DESIGN.md](plan/DESIGN.md)
 - 커밋 메시지: [guidance/commit-message.md](guidance/commit-message.md)

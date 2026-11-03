@@ -39,6 +39,8 @@
 | `.agents/AGENTS.md` | 짧은 진입 지시 |
 | `.agents/README.md` | 스킬 허브 설명 |
 | `AGENTS.md` (루트) | Grok/Codex 등 자동 로드용 요약 |
+| `docs/AGENT_HANDOVER.md` | 인수인계(현재 상태·작업 약속·함정·해야 할 일) — 규칙 정본이 아니라 상태 문서 |
+| `docs/FEATURES.md` | 전체 기능 카탈로그 |
 
 **주의:** 스킬 파일은 반드시 `.agents/skills/codicomperchat/SKILL.md` 경로에 둔다. `.agents/SKILL.md`처럼 루트에 바로 두면 일부 도구가 찾지 못한다.
 

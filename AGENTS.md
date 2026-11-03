@@ -14,4 +14,4 @@
 - **브랜치**: 작업은 `feature/*`에서만, `develop`/`main` 병합은 항상 `git merge --no-ff`. FF·force-push·`.env` 커밋 금지.
 - **스택**: Next.js(`apps/web`) · Nest.js(`apps/api`) · FastAPI(`services/ai`) · PostgreSQL/Redis/Prisma. 프론트는 FastAPI를 직접 호출하지 않는다. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
 
-읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`
+읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(인수인계·해야 할 일) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`
