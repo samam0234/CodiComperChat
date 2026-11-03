@@ -663,6 +663,7 @@ export default function CharacterChat({
             </select>
             <span id="model-note" className={styles.modelNote}>
               {modelOptions.find((m) => m.id === model)?.note}
+              {modelOptions.find((m) => m.id === model)?.tier === "PREMIUM" && " · 대화 내용이 외부 AI 제공자(미국)로 전달돼요"}
               {balance !== null && (
                 <>
                   {" · "}
@@ -674,6 +675,7 @@ export default function CharacterChat({
             </span>
           </div>
         )}
+        <p className={styles.modelNote}>캐릭터의 답은 AI가 만든 가상의 이야기예요.</p>
       </div>
       <StoryPanel key={`story-${conversationKey}`} characterId={characterId} characterName={characterName} messageCount={messages.length} />
       <ExtrasPanel key={conversationKey} characterId={characterId} characterName={characterName} />

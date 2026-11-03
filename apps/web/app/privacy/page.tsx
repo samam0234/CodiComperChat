@@ -90,6 +90,9 @@ export default function PrivacyPage() {
                 (현재: <mark>[운영자 기재 — 자체 서버 / 외부 제공자 이름·국가]</mark>).
               </p>
               <ul>
+                <li>
+                  <strong>프리미엄 모델을 고른 대화만</strong> 그 답을 만드는 동안 대화 내용과 프로필이 외부 제공자에게 전달됩니다: Claude는 Anthropic(미국), Grok은 xAI(미국). 기본·강화 무료 모델과 요약·그림 처리는 외부로 보내지 않습니다.
+                </li>
                 <li>캐릭터에 쓴 <strong>비밀과 해금 조건은 AI에 전달하지 않습니다</strong>.</li>
                 <li>대화 내용을 AI 모델을 학습시키는 데 쓰지 않습니다. <mark>[외부 제공자를 쓰면 그곳의 학습·보관 정책을 확인해 기재]</mark></li>
                 <li>AI가 올바르지 않은 말을 할 수 있으니, 민감한 개인정보(주민번호·금융정보·건강정보 등)는 대화에 쓰지 마세요.</li>
@@ -116,6 +119,10 @@ export default function PrivacyPage() {
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <td>Anthropic, xAI (미국)</td>
+                  <td>프리미엄 모델을 고른 대화의 답 생성 <mark>[국외 이전 고지 항목 법률 검토]</mark></td>
+                </tr>
                 <tr>
                   <td>토스페이먼츠(주)</td>
                   <td>프로 등급 결제·환불 처리</td>

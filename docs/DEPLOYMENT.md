@@ -25,7 +25,7 @@
 | 비밀값 | `deploy/.env`(git 제외). `node scripts/generate-prod-secrets.mjs`로 새로 만든다 |
 | 백업 | 하루 한 번 `scripts/db-backup.sh`, 14일 보관 |
 | 대화 모델 | 서버의 Ollama `gemma4:e4b`, `gemma4:12b` |
-| 프리미엄 모델 | 지금 목록 그대로(Claude·Grok, 가격표 포함). 호출 어댑터와 키가 없어 "준비 중"이다 |
+| 프리미엄 모델 | Claude·Grok 연동 코드 있음. `PREMIUM_PROVIDERS`와 API 키를 넣기 전까지 "준비 중"이다. 실제 호출은 키가 없어 미확인. 켜기 전에 [AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)의 지출·정책 항목을 본다 |
 | 성인 모드 | 지금 방식 그대로(자기 신고, 2026-11-03 재확인) |
 | 저장소 | GitHub 공개는 배포용, 라이선스로 clone·복제를 제한한다([../LICENSE](../LICENSE)) |
 

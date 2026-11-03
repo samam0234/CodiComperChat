@@ -44,13 +44,26 @@ describe('쓸 수 있는 조건', () => {
     expect(lockOf(model('enhanced'), pro(9999), {})).toBeNull();
   });
 
-  it('프리미엄은 연동 전이라 준비 중이고, 연동되면 코레딧이 모자랄 때만 잠긴다 (등급과 상관없다)', () => {
+  it('프리미엄은 공급자를 열지 않으면 준비 중이고, 열면 코레딧이 모자랄 때만 잠긴다 (등급과 상관없다)', () => {
     for (const m of MODELS.filter((x) => x.tier === 'PREMIUM')) {
       expect(lockOf(m, pro(0, 99999), {})).toBe('NOT_READY');
-      const ready = { MODEL_PREMIUM_FAKE: '1' };
-      expect(lockOf(m, free(0, m.credits! - 1), ready)).toBe('NO_CREDITS');
-      expect(lockOf(m, free(0, m.credits!), ready)).toBeNull();
+      for (const ready of [{ MODEL_PREMIUM_FAKE: '1' }, { PREMIUM_PROVIDERS: 'anthropic, xai' }]) {
+        expect(lockOf(m, free(0, m.credits! - 1), ready)).toBe('NO_CREDITS');
+        expect(lockOf(m, free(0, m.credits!), ready)).toBeNull();
+      }
     }
+  });
+
+  it('공급자는 적힌 것만 열린다', () => {
+    const only = { PREMIUM_PROVIDERS: 'anthropic' };
+    expect(lockOf(model('claude-haiku-5-5'), free(0, 999), only)).toBeNull();
+    expect(lockOf(model('grok-4-5'), free(0, 999), only)).toBe('NOT_READY');
+    expect(lockOf(model('grok-4-5'), free(0, 999), { PREMIUM_PROVIDERS: '' })).toBe('NOT_READY');
+  });
+
+  it('Grok은 공급자 이름에 점을 쓰고, Claude는 id 그대로 보낸다', () => {
+    expect(model('grok-4-7').runtime).toBe('grok-4.7');
+    expect(model('claude-opus-5-5').runtime).toBe('claude-opus-5-5');
   });
 
   it('하루 한도는 환경변수로 줄일 수 있고, 이상한 값은 30으로 돌아간다', () => {

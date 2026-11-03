@@ -5,7 +5,7 @@ import type { Plan } from '../plan/plan.js';
 //  - 강화 무료: gemma4:12b — 무료 등급은 하루 30번(한국 시각 자정 초기화), 프로 등급은 무제한.
 //    무료 등급이 30번을 다 쓰면 자정까지는 1번에 10 코레딧으로 계속 쓴다 (2026-10-24 사용자 결정 — 예전에는 잠겼다)
 //  - 프리미엄(Claude·Grok): 캐릭터 답 1번마다 코레딧을 쓴다 (값은 아래 표, 근거는 docs/plan/AI_MODEL_STRATEGY.md).
-//    외부 API 연동이 아직 없어 "준비 중"으로 잠가 둔다
+//    PREMIUM_PROVIDERS로 연 공급자만 쓸 수 있고, 나머지는 "준비 중"으로 잠긴다
 export type ModelTier = 'BASIC' | 'ENHANCED' | 'PREMIUM';
 export type ModelProvider = 'ollama' | 'anthropic' | 'xai';
 
@@ -41,13 +41,15 @@ const premium = (
   group: 'Claude' | 'Grok',
   note: string,
   credits: number,
+  // 공급자에게 보낼 이름이 id와 다를 때 (Grok은 grok-4.5처럼 점을 쓴다. id는 대화에 저장돼 있어 그대로 둔다)
+  runtime: string = id,
 ): ChatModel => ({
   id,
   label,
   group,
   tier: 'PREMIUM',
   provider: group === 'Claude' ? 'anthropic' : 'xai',
-  runtime: id,
+  runtime,
   note,
   credits,
 });
@@ -82,22 +84,26 @@ export const MODELS: readonly ChatModel[] = [
   premium('claude-opus-5', 'Claude Opus 5', 'Claude', '깊이 있는 답', 68),
   premium('claude-opus-5-5', 'Claude Opus 5.5', 'Claude', '깊이 있는 답', 75),
   premium('claude-fable-5-1', 'Claude Fable 5.1', 'Claude', '가장 풍부한 이야기', 120),
-  // Grok 값은 공개 가격을 확인하지 못해 Sonnet급 원가로 잡은 임시값이다 (연동할 때 다시 잰다)
-  premium('grok-4-5', 'Grok 4.5', 'Grok', 'xAI', 30),
-  premium('grok-4-6', 'Grok 4.6', 'Grok', 'xAI', 38),
-  premium('grok-4-7', 'Grok 4.7', 'Grok', 'xAI', 45),
+  // Grok 값: 공개 가격($2/$6, 2026-11-03 확인) 기준 답 1번 원가 약 22원이라 처음 잡은 값이 원가의 3배를 덮는다
+  premium('grok-4-5', 'Grok 4.5', 'Grok', 'xAI', 30, 'grok-4.5'),
+  premium('grok-4-6', 'Grok 4.6', 'Grok', 'xAI', 38, 'grok-4.6'),
+  premium('grok-4-7', 'Grok 4.7', 'Grok', 'xAI', 45, 'grok-4.7'),
 ];
 
 export function findModel(id: string): ChatModel | undefined {
   return MODELS.find((m) => m.id === id);
 }
 
-// 호출 어댑터가 있는 공급자. Claude·Grok은 API 연동을 붙일 때 true로 바꾼다.
+// 프리미엄 공급자는 PREMIUM_PROVIDERS(예: "anthropic,xai")에 적은 것만 연다. 키는 services/ai에만 둔다.
+// 실제 돈이 나가는 호출이라 기본은 닫혀 있다.
 // MODEL_PREMIUM_FAKE=1은 e2e 전용: 프리미엄 호출을 가짜 LLM 쪽 services/ai로 보내 코레딧 경로를 시험한다 (운영에서 켜지 않는다)
-const PROVIDER_READY: Record<ModelProvider, boolean> = { ollama: true, anthropic: false, xai: false };
-
 export const isProviderReady = (provider: ModelProvider, env: NodeJS.ProcessEnv = process.env): boolean =>
-  PROVIDER_READY[provider] || env.MODEL_PREMIUM_FAKE === '1';
+  provider === 'ollama' ||
+  env.MODEL_PREMIUM_FAKE === '1' ||
+  (env.PREMIUM_PROVIDERS ?? '')
+    .split(',')
+    .map((p) => p.trim())
+    .includes(provider);
 
 // 하루 한도가 있으면 그 횟수, 없으면 null (강화 무료를 무료 등급이 쓸 때만)
 export function dailyLimitOf(model: ChatModel, plan: Plan, env: NodeJS.ProcessEnv = process.env): number | null {

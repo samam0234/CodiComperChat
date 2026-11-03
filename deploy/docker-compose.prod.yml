@@ -92,6 +92,8 @@ services:
       AI_BASE_URL: http://ai:8000
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
       AI_CONCURRENCY: ${AI_CONCURRENCY:-2}
+      # 실제 돈이 나가는 공급자를 여는 스위치. 비워 두면 프리미엄 모델은 "준비 중"이다
+      PREMIUM_PROVIDERS: ${PREMIUM_PROVIDERS:-}
       WEB_BASE_URL: https://${WEB_DOMAIN}
       MAIL_SMTP_URL: ${MAIL_SMTP_URL:?}
       MAIL_FROM: ${MAIL_FROM:?}
@@ -152,6 +154,8 @@ services:
       OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:e4b}
       IMAGE_ENGINE: local
       SD_OFFLOAD: ${SD_OFFLOAD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
     volumes:
       # 체크포인트 두 파일을 서버의 이 폴더에 둔다 (저장소·이미지에 넣지 않는다)
       - ${SD_MODEL_HOST_DIR:?}:/models:ro

@@ -21,6 +21,7 @@
 | `RATE_LIMIT` | | 켜짐 | `off`면 요청 한도를 끈다(개발 중 막힐 때만) |
 | `RATE_LIMIT_SCALE` | | 1 | 한도에 곱하는 수 |
 | `MODEL_ENHANCED_DAILY_LIMIT` | | 30 | 강화 무료 모델(gemma4:12b)의 하루 사용 횟수(한국 시각 자정에 초기화). e2e는 2로 줄여 쓴다 |
+| `PREMIUM_PROVIDERS` | | — | 실제 호출을 열 프리미엄 공급자(`anthropic`, `xai`를 쉼표로). 비우면 프리미엄은 "준비 중". **실제 돈이 나간다.** 키는 `services/ai`의 `ANTHROPIC_API_KEY`, `XAI_API_KEY`(비밀값, 커밋 금지) |
 | `MODEL_PREMIUM_FAKE` | | — | **e2e 전용.** `1`이면 프리미엄(Claude·Grok) 호출을 연동 없이 services/ai로 보낸다(가짜 LLM에서 코레딧 경로 시험용). 운영·개발에서 켜지 않는다 |
 | `RATE_LIMIT_STORE` | | `memory` | `db`면 PostgreSQL(`rate_limit_buckets`)에 함께 센다 — API 서버가 여러 대일 때 |
 | `MAIL_SMTP_URL` | 운영 필수 | — | 개발: `smtp://127.0.0.1:1025`(Mailpit, `localhost`는 IPv6로 풀려 거절됨). 운영 예: `smtps://user:password@smtp.example.com:465` (비밀번호 특수문자는 URL 인코딩). 없으면 개발 중 로그에 메일 내용, 운영에서는 보내지 않음(오류 로그) |
