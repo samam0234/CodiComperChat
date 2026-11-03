@@ -249,5 +249,6 @@
 | 2026-10-25 | `bd6bbe0` | feature/launch-safety | 성인 그림 차단과 신고·HTTPS 강화 | [261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md](commits/261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md) |
 | 2026-10-25 | `fd64c48` | develop (merge) | feature/launch-safety → develop 병합 (--no-ff) | [261025_2126_fd64c48_merge-launch-safety_develop.md](commits/261025_2126_fd64c48_merge-launch-safety_develop.md) |
 | 2026-11-03 | `4bf69b4` | feature/record-tools | 커밋 기록 작성기를 저장소에 넣다 | [261103_1251_4bf69b4_record-commit-script_feature-record-tools.md](commits/261103_1251_4bf69b4_record-commit-script_feature-record-tools.md) |
+| 2026-11-03 | `67be2aa` | feature/docs-handover (merge) | develop into feature/docs-handover (no-ff) | [261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md](commits/261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
