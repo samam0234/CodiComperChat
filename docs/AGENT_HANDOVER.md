@@ -101,7 +101,7 @@ node --test scripts/record-commit.test.mjs
 | 결정 | 왜 |
 |------|-----|
 | **호스팅 업체·도메인·운영 메일** | 서버를 만들어야 배포할 수 있다. 비용이 드는 일이라 임의로 하지 않는다. 후보: [web_management/hosting-options.md](web_management/hosting-options.md) |
-| **프리미엄 키와 지출 한도** | 열면 무료 출석 코레딧이 실제 지출이 된다. 18세 미만 차단 여부도 정한다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
+| **프리미엄 키와 지출 한도** | 열면 무료 출석 코레딧이 실제 지출이 된다. 만 18세 미만 차단은 자기 신고 생년월일로 구현했다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
 | **저장소 비공개 전환** | 사용자가 보류함. 공개 저장소는 누구나 clone할 수 있고 GitHub 약관상 포크도 허용된다 |
 | **성인 모드 공개** | Gemma 4는 Apache 2.0이라 모델 라이선스 문제가 아니었다(2026-11-03 정정). 남은 것은 나이·본인 확인과 음란물 규정, 호스팅 약관이다. 공개 전에 변호사 확인이 필요하다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)) |
 | 결제 재개·가격 | 토스 연동은 있으나 보류 |

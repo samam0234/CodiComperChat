@@ -45,6 +45,8 @@ type Raw = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
 export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion' | 'birthDate' | 'adultConsentAt'> & {
   emailVerified: boolean;
   adult: boolean;
+  // 생년월일을 입력했는지만 알린다 (날짜 자체는 내보내지 않는다)
+  birthDateSet: boolean;
 };
 
 // PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대·생년월일은 내보내지 않는다
@@ -55,6 +57,7 @@ function present(user: Raw): PublicUser {
     plan: effectivePlan(user),
     emailVerified: emailVerifiedAt !== null,
     adult: adultBlock({ birthDate, adultConsentAt, emailVerifiedAt }) === null,
+    birthDateSet: birthDate !== null,
   };
 }
 

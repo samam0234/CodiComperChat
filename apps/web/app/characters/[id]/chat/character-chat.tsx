@@ -73,6 +73,8 @@ function modelSuffix(m: ModelOption): string {
   }
   const cost = m.credits !== null ? ` · ${m.credits} 코레딧` : "";
   if (m.locked === "NOT_READY") return `${cost} · 준비 중`;
+  if (m.locked === "NEEDS_BIRTHDATE") return `${cost} · 생년월일 입력 필요`;
+  if (m.locked === "UNDER_AGE") return `${cost} · 만 18세 이상`;
   if (m.locked === "NO_CREDITS") return `${cost} · 코레딧 부족`;
   return cost;
 }
@@ -249,7 +251,8 @@ export default function CharacterChat({
       setBalance(credits.balance);
       setModelOptions((prev) =>
         prev?.map((m) =>
-          m.locked === "NOT_READY"
+          // 코레딧이 바뀌어도 풀리지 않는 잠금은 그대로 둔다
+          m.locked === "NOT_READY" || m.locked === "NEEDS_BIRTHDATE" || m.locked === "UNDER_AGE"
             ? m
             : m.credits !== null
               ? { ...m, locked: credits.balance < m.credits ? "NO_CREDITS" : null }
@@ -669,6 +672,14 @@ export default function CharacterChat({
                   {" · "}
                   <Link href="/me" className={styles.personaLink}>
                     내 코레딧 {balance.toLocaleString("ko-KR")}
+                  </Link>
+                </>
+              )}
+              {modelOptions.some((m) => m.locked === "NEEDS_BIRTHDATE") && (
+                <>
+                  {" · "}
+                  <Link href="/settings#age-settings" className={styles.personaLink}>
+                    프리미엄은 나이 확인이 필요해요
                   </Link>
                 </>
               )}

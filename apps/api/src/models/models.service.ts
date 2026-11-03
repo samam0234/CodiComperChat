@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { ageOn } from '../account/adult.js';
 import { CreditsService } from '../credits/credits.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -51,8 +52,14 @@ export class ModelsService {
   }
 
   private async wallets(userId: string) {
-    const [plan, used, balance] = await Promise.all([this.credits.planOf(userId), this.usedToday(userId), this.credits.balance(userId)]);
-    return { plan, balance, of: (m: ChatModel): Wallet => ({ plan, balance, usedToday: used.get(m.id) ?? 0 }) };
+    const [plan, used, balance, user] = await Promise.all([
+      this.credits.planOf(userId),
+      this.usedToday(userId),
+      this.credits.balance(userId),
+      this.prisma.user.findUnique({ where: { id: userId }, select: { birthDate: true } }),
+    ]);
+    const age = user?.birthDate ? ageOn(user.birthDate) : null;
+    return { plan, balance, of: (m: ChatModel): Wallet => ({ plan, balance, age, usedToday: used.get(m.id) ?? 0 }) };
   }
 
   // 화면에 보여 줄 목록: 모델마다 지금 쓸 수 있는지, 오늘 몇 번 썼는지, 코레딧이 얼마인지

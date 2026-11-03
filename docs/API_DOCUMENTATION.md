@@ -19,11 +19,12 @@
 | `POST /auth/signup` | 이메일 회원가입 `{ email, password, displayName }`. 인증 메일을 보낸다 | **201** `{ token, user }` (`user.emailVerified: false`) · 중복 이메일 409 · 형식 오류 400 |
 | `POST /auth/login` | 로그인 `{ email, password }` | **200** `{ token, user }` · 실패 401 (이메일·비밀번호 중 무엇이 틀렸는지 구분하지 않음) |
 | `POST /auth/logout` | 로그아웃 | **204** (토큰이 상태 없는 JWT라 서버가 지울 것이 없다. 쿠키 삭제는 웹이 한다) |
-| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, emailVerified, adult, createdAt }` · `adult`는 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 생년월일 자체는 싣지 않는다 · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
+| `GET /auth/me` | 내 계정 | **200** `{ id, email, displayName, role, plan, emailVerified, adult, birthDateSet, createdAt }` · `birthDateSet`은 생년월일을 입력했는지 · `adult`는 성인 확인(이메일 인증·만 19세·동의)을 마쳤는지 — 생년월일 자체는 싣지 않는다 · `role`은 `USER`/`ADMIN`(운영 표시용. 2026-10-15부터 공방 발행은 누구나라 발행 권한에는 쓰지 않는다) · `plan`은 지금 적용되는 요금 등급(`FREE`/`PRO`, PRO 만료 시각이 지났으면 `FREE`) · 🔒 |
 | `PATCH /auth/me` | 표시 이름 변경 `{ displayName }` | **200** · 🔒 |
 | `POST /auth/me/password` | 비밀번호 변경 `{ currentPassword, newPassword }`. 다른 기기의 로그인은 끊긴다 | **200** `{ token }` (이 기기용 새 토큰) · 현재 비밀번호 틀림 401 · 🔒 |
 | `DELETE /auth/me` | 회원 탈퇴 `{ password, confirm: "탈퇴합니다" }` | **204** · 비밀번호 틀림 401, 확인 문구 다름 400 · 계정과 대화·기억·프로필·엑스트라·초안·신고를 지우고, 발행한 캐릭터는 먼저 내린다(주인 없는 캐릭터가 공식처럼 보이지 않게). 결제 기록은 계정 연결만 끊고 구매자 이메일과 함께 남긴다 · 🔒 |
 | `POST /auth/me/verify-email` | 인증 메일 다시 보내기 | **200** `{ alreadyVerified }` · 🔒 |
+| `POST /auth/me/birthdate` | 나이 확인 `{ birthDate: "YYYY-MM-DD" }` (자기 신고). 프리미엄 모델을 연다. 성인 확인과 별개라 `ADULT_MODE=off`여도 받는다 | **200** `{ saved: true }` · 날짜 형식 틀림 400 · 이미 입력 409(바꿀 수 없다) · 🔒 |
 | `POST /auth/me/adult` | 성인 확인 `{ birthDate: "YYYY-MM-DD", consent: true }` (자기 신고. 본인인증은 하지 않으며, 도입 여부는 법률 검토) | **200** `{ adult: true }` · 동의 없음·날짜 형식 틀림 400 · 이메일 미인증·만 19세 미만 **403** · 생년월일은 처음 넣은 것으로 고정(다시 보내도 바뀌지 않는다) · 정지된 계정은 로그인 자체가 403 · 🔒 |
 | `DELETE /auth/me/adult` | 성인 콘텐츠 끄기 (동의만 거두고 생년월일은 남긴다) | **204** · 🔒 |
 | `POST /auth/verify-email` | 메일 링크의 토큰으로 이메일 인증 `{ token }` (24시간, 한 번만) | **200** `{ verified: true }` · 만료·재사용 400 |
@@ -44,7 +45,7 @@
 | `POST /characters/:id/chat/undo` | 대화 명령어 `/되돌리기`: 마지막 내 말과 그 뒤의 답을 지운다 | **200** `{ removed, ...GET /characters/:id/chat }` · 지울 것이 없으면 409 · 이미 정리된 기억은 남는다 · 🔒 |
 | `GET /me/credits` | 내 코레딧 | **200** `{ balance, attendedToday, attendanceReward(무료 1000·프로 5000), krwPer100(350), history: [{ delta, balance, reason(ATTENDANCE·MODEL_USE·REFUND·ADMIN), modelId, createdAt }] }` (최근 30개) · 🔒 |
 | `POST /me/attendance` | 출석 (하루 한 번, 한국 시각) | **200** `{ credited, balance }` · 같은 날 두 번이면 **409** · 🔒 |
-| `GET /models` | 대화에서 고를 수 있는 모델 목록 | **200** `{ default: "basic", balance, models: [{ id, label, group(무료·Claude·Grok), tier(BASIC·ENHANCED·PREMIUM), note, credits, locked, limit, used, overage }] }` · `balance`는 내 코레딧, `credits`는 프리미엄 답 1번 값 · `locked`는 지금 못 쓰는 이유 `NOT_READY`(연동 전)·`DAILY_LIMIT`(오늘 횟수 소진)·`NO_CREDITS`(코레딧 부족), 쓸 수 있으면 null · `limit`·`used`·`overage`는 하루 한도가 있을 때만(강화 무료를 무료 등급이 쓸 때, 프로는 무제한이라 null). 한도를 다 쓴 뒤에는 잠기지 않고 자정까지 1번에 `overage`(10) 코레딧 — 코레딧이 모자라면 `NO_CREDITS`. 모델은 13개: 기본 무료(`basic`)·강화 무료(`enhanced`)·Claude 8개·Grok 3개 · 🔒 |
+| `GET /models` | 대화에서 고를 수 있는 모델 목록 | **200** `{ default: "basic", balance, models: [{ id, label, group(무료·Claude·Grok), tier(BASIC·ENHANCED·PREMIUM), note, credits, locked, limit, used, overage }] }` · `balance`는 내 코레딧, `credits`는 프리미엄 답 1번 값 · `locked`는 지금 못 쓰는 이유 `NOT_READY`(공급자를 열지 않음)·`NEEDS_BIRTHDATE`(프리미엄인데 생년월일 없음)·`UNDER_AGE`(프리미엄인데 만 18세 미만)·`DAILY_LIMIT`(오늘 횟수 소진)·`NO_CREDITS`(코레딧 부족), 쓸 수 있으면 null · `limit`·`used`·`overage`는 하루 한도가 있을 때만(강화 무료를 무료 등급이 쓸 때, 프로는 무제한이라 null). 한도를 다 쓴 뒤에는 잠기지 않고 자정까지 1번에 `overage`(10) 코레딧 — 코레딧이 모자라면 `NO_CREDITS`. 모델은 13개: 기본 무료(`basic`)·강화 무료(`enhanced`)·Claude 8개·Grok 3개 · 🔒 |
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId, model? }` | **200** `{ reply, model, usage, credits }` (`usage`는 하루 한도가 있으면 `{ used, limit }`, `credits`는 프리미엄이면 `{ spent, balance }`, 아니면 null) · 🔒 · **모델:** `model`을 주면 이번 답부터 그 모델로 쓰고 대화에 저장한다. 안 주면 대화에 저장된 모델(처음은 기본 무료), 저장된 모델이 이제 못 쓰는 것(한도 소진·코레딧 부족)이면 기본 무료로 내려간다. 알 수 없는 모델 400, 준비 중·오늘 한도 소진·코레딧 부족은 **403**(이유가 메시지에 있다, 횟수·코레딧도 줄지 않는다). 프리미엄은 답을 만들기 전에 코레딧을 빼고 실패하면 돌려준다. 강화 무료는 **캐릭터 답 1번 = 1회**(기억 정리·요약·판정 같은 뒤 작업은 세지 않는다), 한국 시각 자정에 초기화 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
 | `POST /characters/:id/report` | 캐릭터 신고 `{ reason, detail?(~500자) }` | **204** · 로그인한 누구나. 보이는(공개·링크 공개, 안 내려간) 캐릭터만, 없으면 404 · 내 캐릭터 400 · 사유 없음·기타인데 내용 없음 400 · 같은 캐릭터에 열린 신고가 있으면 409 · 한 사람이 열어 둔 신고 20건 상한 · 🔒 |
@@ -110,7 +111,7 @@
 | `POST /auth/signup` | 1시간에 10번 | IP |
 | `POST /auth/me/password` | 15분에 5번 | 사용자 |
 | `POST /auth/me/verify-email` | 15분에 3번 | 사용자 |
-| `POST /auth/me/adult` | 15분에 5번 (`password` 규칙) | 사용자 |
+| `POST /auth/me/birthdate`, `POST /auth/me/adult` | 15분에 5번 (`password` 규칙) | 사용자 |
 | `POST /auth/password/forgot` | 15분에 같은 이메일 3번, 한 IP에서 10번 | 이메일+IP, IP |
 | `POST /auth/verify-email`, `POST /auth/password/reset` | 15분에 20번 | IP |
 | `POST /characters/:id/chat` (대화 전송) | 1분에 20번 | 사용자 |
