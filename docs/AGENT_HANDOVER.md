@@ -1,6 +1,6 @@
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-03.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-04.
 
 ## 1. 한 줄 요약
 
@@ -9,11 +9,11 @@
 | 항목 | 지금 |
 |------|------|
 | 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: Hetzner GEX45 한 대, 24시간, 성인 모드는 끈 채로. 계약 전 |
-| 미병합 작업 | `develop` 위로 8개 브랜치가 쌓여 있다(순서는 [TASKS.md](TASKS.md) T03). 개발 서버를 끄고 돌린 마지막 전체 e2e는 111/112(17.9분)이다. `chat.spec.ts:31`은 통과해서 이전 실패는 메모리 부족으로 본다. 실패한 `webtoon.spec.ts:95`는 따로 돌리면 통과했다. 남은 RAM은 서버를 꺼도 약 330MB였다. **112건이 아니라 병합하지 않았다.** 경과: [find_debug/2026-11-03.md](find_debug/2026-11-03.md) |
-| 원격(GitHub) | 저장소는 아직 **공개** 상태이고, 비공개 전환은 사용자가 한다. `origin/develop`은 로컬 `develop`과 같은 `3501523`(2026-11-03), `origin/main`은 로컬 `main`과 같은 `eec38bf`(2026-10-25)다. `develop`이 `main`보다 36커밋 앞선다. 위 미병합 브랜치는 푸시하지 않았다 |
-| 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
+| 병합 | 2026-11-04까지의 작업을 `develop`과 `main`에 병합했다. 미병합 브랜치는 없다. 병합 전후로 전체 e2e를 통과했다 |
+| 원격(GitHub) | **이번 병합은 로컬에만 있고 푸시하지 않았다.** 저장소는 2026-11-04 마지막 확인에서 공개 상태였고, 비공개 전환은 사용자가 한다. `origin/develop`은 `8fddd79`, `origin/main`은 `eec38bf`(2026-10-25)다 |
+| 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
-| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md). API 단위 시험과 타입 검사는 통과, 전체 e2e는 위와 같다 |
+| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md). 코드 시험은 모두 통과한다. 실제 모델 평가에 기준 미달 항목이 있다([TASKS.md](TASKS.md) 3장) |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
@@ -55,13 +55,13 @@
 | `npx prisma format`이 `schema.prisma` 전체 정렬을 바꿔 diff가 지저분해진다 | 쓰지 않는다. 필요한 줄만 직접 고친다. 마이그레이션은 `migrate diff`로 SQL을 보고 폴더를 만든 뒤 `migrate deploy` |
 | `services/` 아래를 재귀 `grep`하면 `.venv`까지 훑어 120초를 넘긴다 | `services/ai/app`만 지정한다 |
 | **`services/ai/models/`(수 GB)를 `git add`하면 모델 파일이 올라간다** | `.gitignore`에 들어 있다(develop 기준). 새 브랜치를 낡은 곳에서 따면 빠져 있을 수 있으니 `git check-ignore`로 확인. 한 번 사고 났다(직접 만든 큰 객체만 지우고 `fsck`로 확인) |
-| e2e를 돌리면 느려지거나 실패한다 | **그림 엔진(WebUI·GPU 모델)과 개발 서버를 끈다**(RAM 16GB). 개발 서버를 끄는 것은 사용자에게 부탁한다. 전체 e2e는 `npm run test:e2e`(준비 단계가 DB를 비운다). `npx playwright test`를 직접 돌리면 준비가 빠져 이름 충돌이 난다 |
+| e2e를 돌리면 느려지거나 실패한다 | **그림 엔진(WebUI·GPU 모델)을 끈다**(RAM 16GB). 화면은 운영 빌드로 뜨므로 **화면 코드를 고친 뒤 `E2E_SKIP_BUILD=1`을 쓰면 낡은 빌드를 시험한다**. 전체 e2e는 `npm run test:e2e`(준비 단계가 DB를 비운다). `npx playwright test`를 직접 돌리면 준비가 빠져 이름 충돌이 난다 |
 | 시험이 날짜에 기대면 며칠 뒤 깨진다 | 날짜는 "오늘"로(테마 시험을 고친 전례) |
 | 실제 모델 확인이 필요한 것을 e2e가 못 잡는다 | 가짜 LLM·가짜 그림은 흐름만 본다. 모델·프롬프트를 바꾸면 실제 gemma로 확인하고 결과를 문서에 남긴다([plan/TESTING.md](plan/TESTING.md) "자동화되지 않은 확인") |
 | 커밋 기록 쓰기 | `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit --trailer "..."`. 병합 기록은 `--sha`, `--branch develop`. 본문(`## 주 내용`부터)만 직접 쓴다 |
 | **명령을 이어 쓰면 시험 실패 뒤에도 커밋까지 간다**(2026-11-03에 실제로 일어나 기록에 거짓 통과를 적었다) | 시험과 커밋을 묶을 때는 `set -e`. 결과를 읽은 뒤 기록을 쓴다 |
 | **RAM 16GB**: 도커 빌드와 그림 엔진이 겹치면 SDXL 뒤 gemma가 502, 또는 프로세스가 조용히 죽는다 | 실측은 다른 무거운 작업 없이 한다. 파이프로 묶으면 종료 코드가 가려지니 로그 파일에 받고 `$?`를 본다 |
-| e2e가 메모리 압박에서 시간 초과로 드물게 실패한다. 2026-11-03에 3번 돌려 3건 실패, 1건 실패, 전부 통과였고 실패한 시험이 매번 달랐다. 전체 시간도 약 7분에서 약 13분으로 늘었다. Next 16.4.4 탓인지 PC 메모리 탓인지는 재지 않았다 | 실패하면 위치가 같은지 본다. 같은 시험이 또 실패하면 진짜 결함으로 본다. 시간 제한을 늘려 덮지 않는다. `reports.spec`의 긴 시험은 2026-11-03에 두 번 시간 초과했고 따로 돌리면 통과한다. 진행 중 로그의 실패 표시는 `x`이니 `FAIL`로 찾으면 못 잡는다 |
+| e2e가 `next dev`일 때 메모리 압박으로 실행마다 다른 시험이 시간 초과했다(2026-11-03) | 2026-11-04에 운영 빌드로 바꿔 없앴다. 다시 실패하면 부하 탓으로 넘기지 말고 결함으로 본다. 시간 제한을 늘려 덮지 않는다. 진행 중 로그의 실패 표시는 `x`이니 `FAIL`로 찾으면 못 잡는다 |
 | 사용자의 도커에 다른 프로젝트 컨테이너가 있다(`storyforge-postgres`) | 이 저장소 일이 아니다. `docker system prune`이나 `wsl --shutdown`을 하지 않는다. 내가 만든 이미지·볼륨만 지운다 |
 
 ## 5. 검증 명령 (병합·푸시 전)
@@ -73,7 +73,8 @@ npm run test:api
 (cd console && npx next typegen && npx tsc --noEmit)
 npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e   # CI와 같은 명령
 (cd services/ai && ./.venv/Scripts/python.exe -c "import app.main")
-npm run test:e2e                         # 약 15분(2026-11-03). 개발 서버·WebUI 끄고
+npm run test:e2e                         # 빌드 포함 약 5분. WebUI 끄고
+npm run test:e2e:adult-off               # test:e2e 뒤에
 node --test scripts/record-commit.test.mjs
 (cd services/ai && ./.venv/Scripts/python.exe -m unittest discover tests)
 # 모델을 건드렸다면
@@ -95,6 +96,7 @@ node --test scripts/record-commit.test.mjs
 | 항목 | 결정 | 상태 |
 |------|------|------|
 | GPU 서버 | 배포 사이트에서 24시간 | 구성 완료, Hetzner GEX45로 결정, 계약 전 |
+| 병합 (2026-11-04) | 남은 작업을 맡기며 `develop` 다음 `main`까지 병합하라고 함. `release/*` 없이 직접 병합했다 | 완료, 푸시 안 함 |
 | 성인 모드 | 기능은 그대로 두고(자기 신고, 그림 가드, 그림 신고), 공개 서버에서는 끈다 | 운영 compose 기본 `ADULT_MODE=off`. Hetzner 약관이 음란물을 금지한다 |
 | 프리미엄 모델 | 일단 연동 | 코드 있음(`services/ai/app/services/premium.py`), 기본은 닫힘. 키가 없어 실제 호출 미확인 |
 | 저장소 | 비공개로 전환(2026-11-03) | 아직 공개 상태. `gh`가 로그인돼 있지 않아 소유자가 전환한다. 공개였던 동안 받아 간 사본은 되돌릴 수 없다 |
@@ -109,7 +111,7 @@ node --test scripts/record-commit.test.mjs
 | 결정 | 왜 |
 |------|-----|
 | **서버 계약·도메인·운영 메일** | 서버를 만들어야 배포할 수 있다. 비용이 드는 일이라 임의로 하지 않는다 |
-| **프리미엄 키와 지출 한도** | 열면 무료 출석 코레딧이 실제 지출이 된다. 만 18세 미만 차단은 자기 신고 생년월일로 구현했다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
+| **프리미엄 키와 월 상한 값** | 열면 무료 출석 코레딧이 실제 지출이 된다. 상한은 `PREMIUM_MONTHLY_CREDITS`로 구현했고 값은 사용자가 정한다. 만 18세 미만 차단은 자기 신고 생년월일로 구현했다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
 | **성인 모드 공개** | Gemma 4는 Apache 2.0이라 모델 라이선스 문제가 아니었다(2026-11-03 정정). 남은 것은 나이·본인 확인과 음란물 규정, 호스팅 약관이다. 공개 전에 변호사 확인이 필요하다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)) |
 | 결제 재개·가격 | 토스 연동은 있으나 보류 |
 
@@ -157,6 +159,7 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 운영 구성·배포 | `deploy/`, [DEPLOYMENT.md](DEPLOYMENT.md) |
 | 그림 신고·계정 정지 | `apps/api/src/content-reports/`, `console/app/content/` |
+| 소유자가 직접 할 일 | [guidance/owner-checklist.md](guidance/owner-checklist.md) |
 
 ## 9. 이 프로젝트에서 반복해서 맞은 교훈
 

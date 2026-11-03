@@ -1,6 +1,6 @@
 # 배포 (짧은 진입)
 
-> 상태(2026-11-03): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "Hetzner GEX45에서 24시간, 성인 모드는 끈 채로"이고 계약은 아직이다.
+> 상태(2026-11-04): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "Hetzner GEX45에서 24시간, 성인 모드는 끈 채로"이고 계약은 아직이다.
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
@@ -26,13 +26,15 @@
 | 비밀값 | `deploy/.env`(git 제외). `node scripts/generate-prod-secrets.mjs`로 새로 만든다 |
 | 백업 | 하루 한 번 `scripts/db-backup.sh`, 14일 보관 |
 | 대화 모델 | 서버의 Ollama `gemma4:e4b`, `gemma4:12b` |
-| 프리미엄 모델 | Claude·Grok 연동 코드 있음. `PREMIUM_PROVIDERS`와 API 키를 넣기 전까지 "준비 중"이다. 실제 호출은 키가 없어 미확인. 켜기 전에 [AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)의 지출·정책 항목을 본다 |
+| 프리미엄 모델 | Claude·Grok 연동 코드 있음. `PREMIUM_PROVIDERS`, `PREMIUM_MONTHLY_CREDITS`, API 키를 넣기 전까지 "준비 중"이다. 실제 호출은 키가 없어 미확인. 켜기 전에 [AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)의 지출·정책 항목을 본다 |
 | 성인 모드 | 기능은 그대로 두고(자기 신고), 공개 서버에서는 끈다. 운영 compose 기본값이 `ADULT_MODE=off`다 |
 | 저장소 | 비공개로 전환한다(2026-11-03 결정, 전환 실행은 저장소 소유자). 서버는 읽기 전용 배포 키로 받는다 |
 | 호스팅 | Hetzner GEX45, 성인 모드 끈 채로 ([web_management/hosting-options.md](web_management/hosting-options.md)). 아직 계약 전 |
 | 결제 | 받지 않는다. 눌러서 프로로 바꾼다(`PRO_CLICK`). 정식 서비스 전 임시 |
 
 ## 아직 사람이 해야 할 것
+
+순서와 하는 법: [guidance/owner-checklist.md](guidance/owner-checklist.md).
 
 1. **Hetzner GEX45를 계약하고 서버를 만든다.** 계약 전에 값과 약관을 다시 확인한다. 조건은 [docker-deploy.md](web_management/docker-deploy.md) "서버 조건"
 2. 도메인을 사서 DNS를 서버로 돌린다
@@ -53,5 +55,5 @@
 | 운영 스위치 | `NODE_ENV=production`, `APP_ENV=production`이면 개발용 스위치가 켜져 있을 때 시작하지 않는다 | `apps/api/src/security/production.ts`, `services/ai/app/internal_auth.py` |
 | 그림 엔진 | 첫 실행 때 모델 구성 파일(수십 KB)을 Hugging Face에서 받아 볼륨에 캐시한다. GPU가 없으면 코디포토넷·웹툰은 "준비 중"으로 잠기고 나머지는 돈다 | [guidance/photonet-engine.md](guidance/photonet-engine.md) |
 | DB 마이그레이션 | `migrate` 서비스가 기동 때 적용한다. 지금까지 33개 | [plan/DATABASE.md](plan/DATABASE.md) |
-| `apps/api/data/personas/*.json` | git에 없다. 볼륨 `personas`에 둔다. 서버를 새로 만들면 다시 발행하거나 파일을 옮긴다 | [`apps/api/data/personas/README.md`](../apps/api/data/personas/README.md) |
+| `apps/api/data/personas/*.json` | git에 없다. 볼륨 `personas`에 둔다. 공식 캐릭터의 `유지성.json`, `이세연.json`은 개발 PC에서 옮긴다. 공방 캐릭터는 다시 발행하면 생긴다 | [`apps/api/data/personas/README.md`](../apps/api/data/personas/README.md) |
 | 웹의 `CONSOLE_BASE_URL` | 빌드할 때 리다이렉트에 박힌다. 도메인을 바꾸면 다시 빌드한다 | `deploy/node.Dockerfile` |

@@ -2,7 +2,7 @@
 
 코디컴퍼챗에 **지금 구현된 모든 기능**을 한곳에 모았다. 각 줄은 *무엇인지 · 어디서 쓰는지(화면) · API · 코드 · 자세한 문서 · 시험* 순서다. 기능을 추가하거나 바꾸면 이 표를 같이 고친다(체크리스트: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) "문서 갱신 체크리스트").
 
-- 기준 시점: 2026-11-03. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시).
+- 기준 시점: 2026-11-04. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시).
 - 경로의 `:id`는 캐릭터 id. API 전체 계약은 [API_DOCUMENTATION.md](API_DOCUMENTATION.md), 화면 구조는 [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md).
 - 코드 위치의 `api/`는 `apps/api/src/`, `web/`은 `apps/web/`, `ai/`는 `services/ai/app/`, `console/`은 `console/`.
 - 시험 열의 이름은 `e2e/tests/<이름>.spec.ts`, "단위"는 `apps/api` vitest.
@@ -17,9 +17,10 @@
 | 이메일 인증 | `/verify-email`, 마이페이지 | `POST /auth/me/verify-email` `POST /auth/verify-email` | api/auth/email-token.ts, api/mail | email · 발행·성인 확인의 전제 |
 | 비밀번호 찾기·재설정 | `/forgot-password` `/reset-password` | `POST /auth/password/forgot` `reset` | api/auth | email · 가입 여부 비노출 |
 | 회원 탈퇴 | `/settings` | `DELETE /auth/me` | api/account | account · 데이터 삭제, 결제 기록만 법정 보관 |
-| 성인 확인·끄기 | `/settings` 콘텐츠 수위, 코디포토넷·웹툰의 성인 버튼(열림 상자) | `POST·DELETE /auth/me/adult` | api/account/adult.ts, web/app/characters/[id]/chat/adult-dialog.tsx | operations · 자기 신고(생년월일+동의+이메일 인증), 본인인증 없음. `ADULT_MODE=off`면 모두 막힘(운영 compose 기본) |
+| 성인 확인·끄기 | `/settings` 콘텐츠 수위, 코디포토넷·웹툰의 성인 버튼(열림 상자) | `POST·DELETE /auth/me/adult` | api/account/adult.ts, web/app/characters/[id]/chat/adult-dialog.tsx | operations · 자기 신고(생년월일+동의+이메일 인증), 본인인증 없음. `ADULT_MODE=off`면 모두 막히고 화면의 입구도 숨는다(운영 compose 기본, adult-off) |
 | 나이 확인(프리미엄용) | `/settings#age-settings`, 대화 화면 모델 안내 링크 | `POST /auth/me/birthdate` | api/account, web/app/settings/forms.tsx | models · 자기 신고, 한 번만 입력. 성인 확인과 별개라 `ADULT_MODE=off`여도 쓴다 |
 | 요금 등급(무료/프로) | 마이페이지·`/pricing` | `GET /auth/me`(`plan`) | api/plan | plan · 프로는 공방 긴 글 칸 3배, 강화 모델 무제한, 출석 5,000 |
+| 프리미엄 월 상한 | 대화 화면 모델 안내("이번 달 제공량 소진") | — | api/models | 단위 · `PREMIUM_MONTHLY_CREDITS`. 운영에서 값이 없으면 열리지 않는다 |
 
 ## 2. 프로필(주인공)과 캐릭터 탐색
 
@@ -145,7 +146,7 @@
 | 대시보드(처리할 일·숫자·AI 대기열) | `/` | `GET /admin/stats` | console |
 | 신고함(내리기·기각·복구) | `/reports` | `GET …/reports`, `POST …/take-down` `dismiss-reports` `restore` | reports, console |
 | 초상 검수(승인·반려) | `/portraits` | `GET·POST /admin/portraits` | moderation |
-| **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | 단위(content-reports) · 브라우저로 눌러 보지는 않았다. 운영자 계정은 정지하지 않음 |
+| **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | content-reports, 단위 · 코디포토넷으로 시험. 웹툰 신고는 같은 부품이고 브라우저로 눌러 보지 않았다. 운영자 계정은 정지하지 않음 |
 | 캐릭터 관리 | `/characters` | `GET /admin/characters` | console |
 | 계정 등급·결제 내역·환불·생년월일 고치기 | `/users` | `GET /admin/users`, `POST …/plan`, `POST …/birthdate`, `POST /billing/:id/refund`(운영자) | billing |
 

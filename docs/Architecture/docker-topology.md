@@ -34,7 +34,7 @@
 - Redis는 쓰지 않는다
 - Compose 프로젝트 이름은 `codicomperchat`이다. 백업 스크립트가 이 이름으로 컨테이너를 찾는다
 - internal 망은 바깥에서 들어올 수 없지만 나가는 길은 있다. Ollama 모델과 Hugging Face 구성 파일을 받아야 한다
-- 한 GPU의 그래픽 메모리를 Ollama와 그림 엔진이 나눠 쓴다. 12GB에서 실측했고, 그림 뒤 검수 때문에 내리고 올리기가 반복돼 SDXL은 느리다
+- 한 GPU의 그래픽 메모리를 Ollama와 그림 엔진이 나눠 쓴다. 12GB에서 실측했고, 그림 뒤 검수 때문에 내리고 올리기가 반복돼 SDXL은 느리다. 검수 뒤 대화 모델을 바로 내린다(2026-11-04)
 - 나눌 때는 `ai`·`ollama`를 다른 서버로 옮기고 사설망으로 잇는다. FastAPI를 공개 주소에 열지 않는다
 
 절차와 실측: [../web_management/docker-deploy.md](../web_management/docker-deploy.md). 포트: [../web_management/ports-inventory.md](../web_management/ports-inventory.md).

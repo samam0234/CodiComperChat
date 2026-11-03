@@ -42,13 +42,16 @@ DB 주소는 `apps/api/.env`의 `DATABASE_URL`에서 데이터베이스 이름�
 | `reports.spec.ts` | 신고→운영자 내리기→숨김·주인 안내→복구, 신고 기각 |
 | `plan.spec.ts` | 요금 등급(프로 긴 글 3배), 만료 처리 |
 | `billing.spec.ts` | 시험 결제·승인 검증·환불·운영자 등급 변경, 눌러서 프로로 바꾸기 |
-| `console.spec.ts` | 운영 콘솔 로그인·대시보드·캐릭터 관리·CSP |
+| `console.spec.ts` · `console-birthdate.spec.ts` | 운영 콘솔 로그인·대시보드·캐릭터 관리·CSP, 생년월일 고치기 |
+| `content-reports.spec.ts` | 그림 신고 → 콘솔의 그림 표시·접근 차단·문제없음·계정 정지와 해제 |
+| `adult-off.spec.ts` | `ADULT_MODE=off` 서버 전용(`npm run test:e2e:adult-off`). 성인 입구가 없고 서버가 막는다 |
 | `operations.spec.ts` | 오퍼레이션 4종(심리 탐구·일기·메시지·커뮤니티), 코디포토넷(만들기·대사 고르기·코레딧), **수위(성인 확인·성인 가드·미성년자 설정 거절·동의 철회·열림 상자)** |
 | `webtoon.spec.ts` | 웹툰(콘티 무료·컷당 45·이중 그리기 방지·남의 컷 404·성인 가드·화면) |
 | `quest.spec.ts` | 비밀 퀘스트(진행·문턱·중복 보상 방지·공방 직접/AI 제작·유저 캐릭터 보상 없음·화면) |
 | `popular.spec.ts` | 인기 순위 |
 | `persona-recommend.spec.ts` | 추천 프로필(그대로 시작·나레이션 시작 장면·고쳐서 쓰기·같은 이름 재사용·API 응답) |
-| `portrait-ai.spec.ts` | 공방 AI 초상 만들기(25 코레딧·값 검증·검수 저장·화면) |
+| `portrait-ai.spec.ts` | 공방 AI 초상 후보(25 코레딧·값 검증·여러 장 비교·고른 그림만 저장·화면) |
+| `studio-recommend.spec.ts` | 공방의 추천 프로필 칸(발행·비우기·테스트 유지·글자 수) |
 | `mypage.spec.ts` · `theme.spec.ts` | 마이페이지·설정, 테마(한국 시각 자동 전환·영구 설정) |
 | `security.spec.ts` | 보안 헤더·엄격한 CSP(nonce)·CSP 위반 보고·약한 비밀번호 거절·약관 본문 |
 

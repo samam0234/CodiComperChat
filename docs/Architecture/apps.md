@@ -1,6 +1,6 @@
 # 앱 역할
 
-정본: `CodiComperChat_project_plan.md` §7.2, §8. 최종 갱신 2026-10-24 — 네 앱이 연결되어 동작한다.
+정본: `CodiComperChat_project_plan.md` §7.2, §8. 최종 갱신 2026-11-04 — 네 앱이 연결되어 동작한다.
 
 | 앱 | 스택 | 위치 | 역할 |
 |----|------|------|------|
@@ -27,16 +27,16 @@
 ## 서로 어떻게 연결되나
 
 - **web → api**: 서버 컴포넌트·서버 액션만 부른다(`API_BASE_URL`, 기본 `http://localhost:4000`). 로그인 토큰은 httpOnly `session` 쿠키에서 꺼내 `Authorization: Bearer`로 붙인다. 브라우저가 Nest를 직접 부르지 않아 CORS를 열지 않았다. 요청 한도가 사람마다 세어지도록 실제 IP를 `X-Forwarded-For`로 넘긴다
-- **api → ai**: `apps/api/src/ai/ai-client.ts`의 `postToAi`가 대기열을 거쳐 부른다(`AI_BASE_URL`, 기본 `http://localhost:8000`). ai에는 아직 서비스 토큰 인증이 없다 — 내부망 전제(배포 때 막는다)
+- **api → ai**: `apps/api/src/ai/ai-client.ts`의 `postToAi`가 대기열을 거쳐 부른다(`AI_BASE_URL`, 기본 `http://localhost:8000`). ai는 `AI_SERVICE_TOKEN`이 맞는 요청만 받고, 비우면 루프백만 받는다
 - **ai → Ollama**: `services/ai/app/services/llm.py`(`OLLAMA_BASE_URL`, `OLLAMA_MODEL`)
 
 ## 운영 콘솔은 별도 앱이다 (2026-10-21)
 
 | 앱 | 스택 | 위치 | 포트 | 역할 |
 |----|------|------|------|------|
-| console | Next.js 16 (React 19, App Router) | `console/` (저장소 루트) | 3001 (e2e 3102) | 운영자 전용: 대시보드, 신고함, 초상 검수, 캐릭터 관리, 계정 등급 |
+| console | Next.js 16 (React 19, App Router) | `console/` (저장소 루트) | 3001 (e2e 3102) | 운영자 전용: 대시보드, 신고함, 초상 검수, 그림 신고, 캐릭터 관리, 계정 등급·생년월일 정정 |
 
-- 이용자 사이트와 나눈 이유: 운영 화면을 바깥에 열지 않고(사내망·VPN·IP 제한) 따로 막을 수 있게, 운영자 로그인 쿠키(`console_session`, SameSite=Strict)를 이용자 쿠키와 섞지 않게, 배포·장애를 따로 다루게
+- 이용자 사이트와 나눈 이유: 운영 화면을 별도 도메인에 두고 허용 IP만 들여보내 따로 막을 수 있게, 운영자 로그인 쿠키(`console_session`, SameSite=Strict)를 이용자 쿠키와 섞지 않게, 배포·장애를 따로 다루게
 - 콘솔도 **Nest만** 부른다(`API_BASE_URL`). 권한은 Nest `AdminGuard`가 판단한다. FastAPI는 모른다
 - 디자인 토큰은 이용자 사이트와 같다(`console/app/globals.css`는 `apps/web/app/globals.css`의 토큰을 그대로 쓴다)
 
