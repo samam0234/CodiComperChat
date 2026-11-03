@@ -9,6 +9,7 @@
 | 항목 | 지금 |
 |------|------|
 | 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: GPU 서버 한 대, 24시간. 업체 미정 |
+| 미병합 작업 | `feature/premium-adapters` → `feature/docs-model-license` → `feature/deploy-server-setup` → `feature/adult-mode-switch` 순서로 쌓여 있다(2026-11-03). 맨 위 기준 전체 e2e는 107/110. 실패 3건(`chat`, `operations` 커뮤니티, `theme`)은 시간 초과이고, 해당 파일과 그 앞 순서만 돌리면 22개 모두 통과한다. 원인은 확정하지 못했다(RAM 압박 의심). 전체 통과를 본 뒤 병합한다 |
 | 원격(GitHub) | 저장소는 **공개** 상태. `origin/main`·`origin/develop`은 2026-10-25 launch-safety까지. 2026-11-03 작업은 로컬 `develop`에 병합했고 **푸시하지 않았다**(푸시는 사용자가 말할 때) |
 | 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
