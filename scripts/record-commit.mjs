@@ -53,13 +53,14 @@ export function recordOf({ title, subject, full, short, branch, parent, date, no
 export function addRow(index, { day, short, label, title, file }) {
   if (index.includes(`| \`${short}\` |`)) return index;
   const row = `| ${day} | \`${short}\` | ${label} | ${title.replaceAll('|', '\|')} | [${file}](commits/${file}) |`;
-  const lines = index.split('\n');
+  const eol = index.includes('\r\n') ? '\r\n' : '\n';
+  const lines = index.split(eol);
   const at = lines.findIndex((l) => l.startsWith(FOOTER));
   if (at < 0) throw new Error('docs/branchs/README.md에서 목록 끝을 찾지 못했습니다.');
   let last = at - 1;
   while (last >= 0 && !lines[last].startsWith('|')) last -= 1;
   lines.splice(last + 1, 0, row);
-  return lines.join('\n');
+  return lines.join(eol);
 }
 
 function git(...args) {

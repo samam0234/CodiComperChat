@@ -13,8 +13,8 @@
 
 - `scripts/record-commit.mjs`: 기록 파일 생성, `docs/branchs/README.md` 목록 추가, 선택적 커밋
 - 파일 이름·제목·표·부모 SHA는 git에서 읽는다. 사람은 `## 주 내용`부터의 본문만 쓴다
-- 목록 파일의 CRLF를 지키고, 같은 커밋을 두 번 넣지 않는다
-- 시험 6개(`scripts/record-commit.test.mjs`)
+- 같은 커밋을 두 번 넣지 않는다
+- 시험 파일 `scripts/record-commit.test.mjs` (이 커밋에서는 실패, 아래 결과 참고)
 
 ## 상세
 
@@ -33,7 +33,7 @@ git hook으로 자동 실행하기. 본문은 사람이 써야 해서 강제하�
 ## 결과
 
 **동작 확인**
-`node --test scripts/record-commit.test.mjs` 6개 통과. 이 기록 자체를 작성기로 만들었다.
+이 커밋 시점의 시험 파일은 문법 오류로 실패했고, CRLF 처리도 빠져 있었다. 다음 커밋(`fix(scripts)`)에서 고쳐 6개가 통과한다. 처음에 "6개 통과"로 잘못 적어 바로잡았다. 이 기록은 작성기로 만들었다.
 
 **리스크**
 없음. 런타임 코드와 무관하다.

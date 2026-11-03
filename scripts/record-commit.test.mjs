@@ -36,13 +36,6 @@ test('목록의 마지막 줄 뒤에 넣고, 같은 커밋은 다시 넣지 않�
 });
 
 test('목록의 줄바꿈(CRLF)을 지킨다', () => {
-  const out = addRow('| a |
-
-새 커밋 기록 md를
-', { day: 'D', short: 'abc1234', label: 'L', title: 'T', file: 'f.md' });
-  assert.equal(out, '| a |
-| D | `abc1234` | L | T | [f.md](commits/f.md) |
-
-새 커밋 기록 md를
-');
+  const out = addRow('| a |\r\n\r\n새 커밋 기록 md를\r\n', { day: 'D', short: 'abc1234', label: 'L', title: 'T', file: 'f.md' });
+  assert.equal(out, '| a |\r\n| D | `abc1234` | L | T | [f.md](commits/f.md) |\r\n\r\n새 커밋 기록 md를\r\n');
 });
