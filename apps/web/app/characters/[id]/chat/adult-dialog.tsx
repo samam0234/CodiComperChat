@@ -93,7 +93,7 @@ function Body({
       </>
     );
   }
-  if (reason === "UNDERAGE") {
+  if (reason === "UNDERAGE" || reason === "DISABLED") {
     return (
       <>
         <p className={styles.lead}>{message}</p>

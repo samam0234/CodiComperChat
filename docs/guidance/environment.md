@@ -21,6 +21,7 @@
 | `RATE_LIMIT` | | 켜짐 | `off`면 요청 한도를 끈다(개발 중 막힐 때만) |
 | `RATE_LIMIT_SCALE` | | 1 | 한도에 곱하는 수 |
 | `MODEL_ENHANCED_DAILY_LIMIT` | | 30 | 강화 무료 모델(gemma4:12b)의 하루 사용 횟수(한국 시각 자정에 초기화). e2e는 2로 줄여 쓴다 |
+| `ADULT_MODE` | | 켜짐(개발) · `off`(운영 compose 기본) | `off`면 성인 그림 만들기·보기와 성인 확인을 모두 막는다. 이미 확인한 계정도 막히고, 켜면 다시 쓸 수 있다 |
 | `PREMIUM_PROVIDERS` | | — | 실제 호출을 열 프리미엄 공급자(`anthropic`, `xai`를 쉼표로). 비우면 프리미엄은 "준비 중". **실제 돈이 나간다.** 키는 `services/ai`의 `ANTHROPIC_API_KEY`, `XAI_API_KEY`(비밀값, 커밋 금지) |
 | `MODEL_PREMIUM_FAKE` | | — | **e2e 전용.** `1`이면 프리미엄(Claude·Grok) 호출을 연동 없이 services/ai로 보낸다(가짜 LLM에서 코레딧 경로 시험용). 운영·개발에서 켜지 않는다 |
 | `RATE_LIMIT_STORE` | | `memory` | `db`면 PostgreSQL(`rate_limit_buckets`)에 함께 센다 — API 서버가 여러 대일 때 |

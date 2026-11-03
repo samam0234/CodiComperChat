@@ -12,7 +12,7 @@
 | 원격(GitHub) | 저장소는 **공개** 상태. `origin/main`·`origin/develop`은 2026-10-25 launch-safety까지. 2026-11-03 작업은 로컬 `develop`에 병합했고 **푸시하지 않았다**(푸시는 사용자가 말할 때) |
 | 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
-| 시험 | API 200개, e2e 110개(22파일), AI evals 9묶음 + 이세연 판정, AI unittest 22개, 기록 작성기 6개 |
+| 시험 | API 201개, e2e 110개(22파일), AI evals 9묶음 + 이세연 판정, AI unittest 22개, 기록 작성기 6개 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
@@ -58,14 +58,14 @@
 | 커밋 기록 쓰기 | `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit --trailer "..."`. 병합 기록은 `--sha`, `--branch develop`. 본문(`## 주 내용`부터)만 직접 쓴다 |
 | **명령을 이어 쓰면 시험 실패 뒤에도 커밋까지 간다**(2026-11-03에 실제로 일어나 기록에 거짓 통과를 적었다) | 시험과 커밋을 묶을 때는 `set -e`. 결과를 읽은 뒤 기록을 쓴다 |
 | **RAM 16GB**: 도커 빌드와 그림 엔진이 겹치면 SDXL 뒤 gemma가 502, 또는 프로세스가 조용히 죽는다 | 실측은 다른 무거운 작업 없이 한다. 파이프로 묶으면 종료 코드가 가려지니 로그 파일에 받고 `$?`를 본다 |
-| e2e가 메모리 압박에서 시간 초과로 드물게 실패한다. 2026-11-03에 3번 돌려 3건 실패, 1건 실패, 전부 통과였고 실패한 시험이 매번 달랐다. 전체 시간도 약 7분에서 약 13분으로 늘었다. Next 16.4.4 탓인지 PC 메모리 탓인지는 재지 않았다 | 실패하면 위치가 같은지 본다. 같은 시험이 또 실패하면 진짜 결함으로 본다. 시간 제한을 늘려 덮지 않는다 |
+| e2e가 메모리 압박에서 시간 초과로 드물게 실패한다. 2026-11-03에 3번 돌려 3건 실패, 1건 실패, 전부 통과였고 실패한 시험이 매번 달랐다. 전체 시간도 약 7분에서 약 13분으로 늘었다. Next 16.4.4 탓인지 PC 메모리 탓인지는 재지 않았다 | 실패하면 위치가 같은지 본다. 같은 시험이 또 실패하면 진짜 결함으로 본다. 시간 제한을 늘려 덮지 않는다. `reports.spec`의 긴 시험은 2026-11-03에 두 번 시간 초과했고 따로 돌리면 통과한다. 진행 중 로그의 실패 표시는 `x`이니 `FAIL`로 찾으면 못 잡는다 |
 | 사용자의 도커에 다른 프로젝트 컨테이너가 있다(`storyforge-postgres`) | 이 저장소 일이 아니다. `docker system prune`이나 `wsl --shutdown`을 하지 않는다. 내가 만든 이미지·볼륨만 지운다 |
 
 ## 5. 검증 명령 (병합·푸시 전)
 
 ```bash
 npm run typecheck:api
-npm run test:api                         # 200개
+npm run test:api                         # 201개
 (cd apps/web && npx next typegen && npx tsc --noEmit)
 npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e   # CI와 같은 명령
 (cd services/ai && ./.venv/Scripts/python.exe -c "import app.main")
@@ -104,7 +104,7 @@ node --test scripts/record-commit.test.mjs
 | **저장소 비공개 전환** | 사용자가 보류함. 공개 저장소는 누구나 clone할 수 있고 GitHub 약관상 포크도 허용된다 |
 | **성인 모드 공개** | Gemma 4는 Apache 2.0이라 모델 라이선스 문제가 아니었다(2026-11-03 정정). 남은 것은 나이·본인 확인과 음란물 규정, 호스팅 약관이다. 공개 전에 변호사 확인이 필요하다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)) |
 | 결제 재개·가격 | 토스 연동은 있으나 보류 |
-| 권리자 법적 이름, 보안 연락처 | `LICENSE`, `SECURITY.md`에 빈칸 |
+| 권리자 법적 이름, 보안 연락처 | `LICENSE`, `SECURITY.md`에 빈칸. 추천안(2026-11-03): 권리자는 개인이면 본인 법적 실명, 사업자를 내면 그 상호. 연락처는 도메인을 정한 뒤 `security@도메인`, 그 전에는 GitHub 비공개 보안 권고. 개인 메일을 공개 저장소에 적지 않는다. 사용자 확정 전 |
 
 ### 6-2. 공개 전 필수
 

@@ -94,6 +94,8 @@ services:
       AI_CONCURRENCY: ${AI_CONCURRENCY:-2}
       # 실제 돈이 나가는 공급자를 여는 스위치. 비워 두면 프리미엄 모델은 "준비 중"이다
       PREMIUM_PROVIDERS: ${PREMIUM_PROVIDERS:-}
+      # 법률 검토 전에는 끈 채로 연다. on으로 바꾸기 전에 THIRD_PARTY_NOTICES.md를 본다
+      ADULT_MODE: ${ADULT_MODE:-off}
       WEB_BASE_URL: https://${WEB_DOMAIN}
       MAIL_SMTP_URL: ${MAIL_SMTP_URL:?}
       MAIL_FROM: ${MAIL_FROM:?}

@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ADULT_BLOCK_MESSAGE, adultBlock, parseBirthDate } from './adult.js';
+import { ADULT_BLOCK_MESSAGE, adultBlock, adultModeOff, parseBirthDate } from './adult.js';
 import { verifyPassword } from '../auth/password.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { StudioPublishService } from '../studio/studio-publish.service.js';
@@ -28,6 +28,8 @@ export class AccountService {
   // 성인 확인 { birthDate: "YYYY-MM-DD", consent: true } (임시 — 공개 전 본인인증으로 바꾼다).
   // 생년월일은 한 번 넣으면 바꿀 수 없다: 만 19세 미만으로 막힌 뒤 날짜만 고쳐 다시 시도하는 것을 막는다
   async confirmAdult(userId: string, body: { birthDate?: unknown; consent?: unknown } | undefined): Promise<{ adult: true }> {
+    // 꺼져 있으면 생년월일도 받아 저장하지 않는다
+    if (adultModeOff()) throw new ForbiddenException(ADULT_BLOCK_MESSAGE.DISABLED);
     if (body?.consent !== true) throw new BadRequestException('성인 콘텐츠 보기에 동의해 주세요.');
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

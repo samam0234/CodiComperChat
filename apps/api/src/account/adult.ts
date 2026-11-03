@@ -19,9 +19,13 @@ export function ageOn(birthDate: Date, now: Date = new Date()): number {
 export type AdultFields = { birthDate: Date | null; adultConsentAt: Date | null; emailVerifiedAt: Date | null };
 
 // 성인 콘텐츠를 볼 수 있나. 안 되면 이유를 코드로 (화면이 안내 문구를 고른다)
-export type AdultBlock = 'EMAIL_UNVERIFIED' | 'NO_BIRTHDATE' | 'UNDERAGE' | 'NO_CONSENT';
+export type AdultBlock = 'DISABLED' | 'EMAIL_UNVERIFIED' | 'NO_BIRTHDATE' | 'UNDERAGE' | 'NO_CONSENT';
 
-export function adultBlock(user: AdultFields, now: Date = new Date()): AdultBlock | null {
+// 서비스 전체에서 성인 모드를 끈다 (ADULT_MODE=off). 운영 compose의 기본값이다: 법률 검토 전에는 공개하지 않는다
+export const adultModeOff = (env: NodeJS.ProcessEnv = process.env): boolean => env.ADULT_MODE === 'off';
+
+export function adultBlock(user: AdultFields, now: Date = new Date(), env: NodeJS.ProcessEnv = process.env): AdultBlock | null {
+  if (adultModeOff(env)) return 'DISABLED';
   if (!user.emailVerifiedAt) return 'EMAIL_UNVERIFIED';
   if (!user.birthDate) return 'NO_BIRTHDATE';
   if (ageOn(user.birthDate, now) < ADULT_AGE) return 'UNDERAGE';
@@ -30,6 +34,7 @@ export function adultBlock(user: AdultFields, now: Date = new Date()): AdultBloc
 }
 
 export const ADULT_BLOCK_MESSAGE: Record<AdultBlock, string> = {
+  DISABLED: '성인 콘텐츠는 지금 제공하지 않아요.',
   EMAIL_UNVERIFIED: '성인 콘텐츠는 이메일 인증을 마친 계정에서만 쓸 수 있어요.',
   NO_BIRTHDATE: '설정에서 성인 확인(생년월일·동의)을 먼저 해 주세요.',
   UNDERAGE: '만 19세 이상만 성인 콘텐츠를 볼 수 있어요.',
