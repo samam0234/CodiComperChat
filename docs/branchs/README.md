@@ -271,5 +271,6 @@
 | 2026-11-03 | `123c35f` | feature/adult-mode-switch | Anthropic SDK를 프리미엄 호출 때만 불러오기 | [261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md](commits/261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md) |
 | 2026-11-03 | `57f12cc` | feature/adult-mode-switch | 성인 모드를 끄는 ADULT_MODE 스위치 | [261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md](commits/261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md) |
 | 2026-11-03 | `69ce804` | feature/adult-mode-switch | 미병합 브랜치와 e2e 결과 기록 | [261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md](commits/261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md) |
+| 2026-11-03 | `5b5c5ae` | feature/pro-click | 결제 없이 눌러서 프로로 바꾸기 | [261103_1930_5b5c5ae_pro-click_feature-pro-click.md](commits/261103_1930_5b5c5ae_pro-click_feature-pro-click.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
