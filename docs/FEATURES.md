@@ -2,7 +2,7 @@
 
 코디컴퍼챗에 **지금 구현된 모든 기능**을 한곳에 모았다. 각 줄은 *무엇인지 · 어디서 쓰는지(화면) · API · 코드 · 자세한 문서 · 시험* 순서다. 기능을 추가하거나 바꾸면 이 표를 같이 고친다(체크리스트: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) "문서 갱신 체크리스트").
 
-- 기준 시점: 2026-10-25. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시).
+- 기준 시점: 2026-11-03. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시).
 - 경로의 `:id`는 캐릭터 id. API 전체 계약은 [API_DOCUMENTATION.md](API_DOCUMENTATION.md), 화면 구조는 [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md).
 - 코드 위치의 `api/`는 `apps/api/src/`, `web/`은 `apps/web/`, `ai/`는 `services/ai/app/`, `console/`은 `console/`.
 - 시험 열의 이름은 `e2e/tests/<이름>.spec.ts`, "단위"는 `apps/api` vitest.
@@ -88,7 +88,7 @@
 | 숨은 부탁(이름·부탁·달성 조건·보상 장면·열리는 친밀도) | 대화 "비밀 퀘스트" 열림 상자 | `GET …/chat/quest` | api/quests, web/…/chat/secret-quest.tsx | quest · 건네기 전엔 `???`, 달성 조건은 캐릭터에게 알리지 않음 |
 | 엄격 판정 | 보이지 않음 | `/summarize`(`quest`) | ai/services/summarization.py | 후보 + 전용 판정(인용 근거 대조, 확신 85↑). 실제 gemma 16/16 |
 | 보상 | 열림 상자 | — | api/credits(`grantQuestReward`) | 공식 캐릭터만 100 코레딧(계정×캐릭터 1회), 유저 캐릭터는 보상 장면만 |
-| 현재 퀘스트 | — | 시드 | api/prisma/seed.mjs | 유지성 「접어 둔 문제집」(친밀도 40). 이세연에는 아직 없음 |
+| 현재 퀘스트 | — | 시드 | api/prisma/seed.mjs, services/ai/evals/quest_seyeon.py | 유지성 「접어 둔 문제집」(친밀도 40). 이세연 「결재되지 않은 서류」(친밀도 50): 혼인에 이르거나, 기혼인 채 이어져 실제 충돌이 벌어지면 달성. 실제 gemma 장면 10개 모두 맞음 |
 
 ## 8. 오퍼레이션(대화 플러그인)
 
@@ -119,7 +119,7 @@
 | 실사 금지·그림 검수(어려 보임·강제·실존 인물·실사·혐오·자해) | 〃 | ai/services/photonet_moderation.py | evals 밖(실측만) |
 | 거짓 정보 책임 고지 | 동의 문구·약관 | web/app/terms | security |
 
-공개 전 필수 점검은 [../SECURITY.md](../SECURITY.md)와 [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). 성인 콘텐츠 **운영 체계(신고·검토)는 아직 없다.**
+공개 전 필수 점검은 [../SECURITY.md](../SECURITY.md)와 [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). 신고·검토·접근 차단·계정 정지는 13장 「그림 신고」에 있다. 성인 그림에서는 실사 유사도 90 이상도 막는다.
 
 ## 11. 에이전트·안내
 
@@ -143,6 +143,7 @@
 | 대시보드(처리할 일·숫자·AI 대기열) | `/` | `GET /admin/stats` | console |
 | 신고함(내리기·기각·복구) | `/reports` | `GET …/reports`, `POST …/take-down` `dismiss-reports` `restore` | reports, console |
 | 초상 검수(승인·반려) | `/portraits` | `GET·POST /admin/portraits` | moderation |
+| **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | 단위(content-reports) · 브라우저로 눌러 보지는 않았다. 운영자 계정은 정지하지 않음 |
 | 캐릭터 관리 | `/characters` | `GET /admin/characters` | console |
 | 계정 등급·결제 내역·환불 | `/users` | `GET /admin/users`, `POST …/plan`, `POST /billing/:id/refund`(운영자) | billing |
 
@@ -162,11 +163,17 @@
 | AI 호출 대기열(동시 수 제한·기다리는 답 우선) | api/ai/ai-queue.ts | [WORKFLOW.md](WORKFLOW.md) |
 | 보안 헤더·nonce CSP·CSP 보고 | web/proxy.ts, api/main.ts | security |
 | 메일 발송(SMTP·폴더·로그) | api/mail | `npm run mail:check --workspace api` |
+| HTTPS 강제·HSTS | api/security/https.ts, web/lib/https.ts, console/lib/https.ts | 단위 · `REQUIRE_HTTPS`, 내부 호스트는 `REQUIRE_HTTPS_EXEMPT_HOSTS` |
+| 운영 기동 검사 | api/security/production.ts, ai/internal_auth.py | 단위 · 개발용 스위치가 켜져 있거나 토큰이 짧으면 시작하지 않음 |
+| FastAPI 내부 인증 | ai/internal_auth.py | 토큰 또는 루프백 |
+| **운영 배포 구성** | deploy/, [web_management/docker-deploy.md](web_management/docker-deploy.md) | 개발 PC에서 실제로 띄워 확인, 서버 배포는 아직 |
+| DB 백업 | scripts/db-backup.sh, [web_management/backup-restore.md](web_management/backup-restore.md) | 복구 연습 1회 |
 | 상태 확인 | `GET /health` | — |
 | 계획서 `/campaigns/*` 자리 | api/campaigns | 501(실제 대화는 `/characters/:id/chat*`) |
 | 개발 도구 | apps/api/scripts | `user:role` `user:plan` `persona:build` `persona:search` `billing:check` `mail:check` |
+| 커밋 기록 작성기 | scripts/record-commit.mjs | `node --test scripts/record-commit.test.mjs` |
 | CI | .github/workflows/ci.yml, scripts/ci-local.mjs | [plan/TESTING.md](plan/TESTING.md) |
 
 ## 한눈에 안 보이는 한계
 
-스트리밍 없음 · 퀘스트는 캐릭터당 1개(이세연엔 아직 없음) · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 성인 콘텐츠 운영 체계·본인인증 없음 · 결제 보류 · 프리미엄 모델(Claude·Grok) 연동 전. 해야 할 일 전체는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md).
+스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델 호출 어댑터 없음 · 결제 보류 · 프리미엄 모델(Claude·Grok) 연동 전. 해야 할 일 전체는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md).

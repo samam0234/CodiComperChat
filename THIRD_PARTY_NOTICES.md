@@ -2,7 +2,7 @@
 
 코디컴퍼챗 자체 코드는 [LICENSE](LICENSE)(독점)를 따른다. 이 문서는 **그 밖의 것** — 의존하는 오픈소스 소프트웨어, 쓰는 AI 모델, 함께 쓰는 도구 — 의 라이선스를 정리한다. 이들은 각자의 조건을 따른다.
 
-- 기준 시점: 2026-10-24. 아래 소프트웨어 버전과 라이선스 표기는 이 저장소에 설치된 패키지의 메타데이터에서 읽은 값이다.
+- 기준 시점: 2026-11-03(운영 이미지 추가, Next.js 16.4.4·Nodemailer 10.3). 아래 소프트웨어 버전과 라이선스 표기는 이 저장소에 설치된 패키지의 메타데이터에서 읽은 값이다.
 - 전체 목록(의존하는 의존성까지)은 이 문서에 다 적지 않았다. 배포 전에 도구로 전체를 뽑아 검토한다: Node `npx license-checker --production --summary`, Python `pip-licenses`(설치 필요).
 - **모델 가중치는 저장소에 없다.** 개발 PC에서 각자 받아 `services/ai/models/`(git 제외)에 둔다.
 
@@ -29,6 +29,10 @@
 | Mailpit | MIT | 개발용 메일 서버(docker compose) |
 | Stable Diffusion WebUI (AUTOMATIC1111) | **AGPL-3.0** | 개발 PC의 선택적 그림 엔진(`IMAGE_ENGINE=webui`). **배포물에 넣거나 서비스로 공개하지 않는다** — 기본 엔진(`local`, diffusers)은 WebUI 코드를 쓰지 않는다 |
 | Docker | 제품 약관 | 선택(개발 DB·메일) |
+
+## 2-1. 운영 컨테이너 이미지
+
+운영 구성(`deploy/`)이 받아 쓰는 이미지다. 저장소에 포함되지 않는다. 라이선스는 일반적으로 알려진 값이며 배포 전 원문을 확인한다: Caddy(Apache-2.0), PostgreSQL(PostgreSQL License), Ollama(MIT), Node.js·Python 공식 이미지(각 구성요소의 라이선스).
 
 ## 3. 웹·API (Node)
 

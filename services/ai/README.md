@@ -45,6 +45,8 @@ cd services/ai
 ./.venv/Scripts/python.exe -m evals.run                      # 전체, 질문마다 2회
 ./.venv/Scripts/python.exe -m evals.run --suite override --repeat 3
 ./.venv/Scripts/python.exe -m evals.run --json out.json -v   # 결과 저장, 통과한 질문도 출력
+./.venv/Scripts/python.exe -m evals.quest_seyeon             # 이세연 퀘스트 판정 (잘못 통과가 있으면 실패)
+./.venv/Scripts/python.exe -m unittest discover tests        # 모델 없이 도는 규칙 시험
 ```
 
 | 묶음 | 보는 것 | 기준 |

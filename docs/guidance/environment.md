@@ -14,6 +14,7 @@
 | `AI_BASE_URL` | | `http://localhost:8000` | FastAPI 주소 |
 | `AI_SERVICE_TOKEN` | 운영 필수 | 비움 | FastAPI와 같은 내부 호출 토큰(32자 이상). 개발에서 비우면 FastAPI는 루프백만 받는다. `node scripts/generate-prod-secrets.mjs` |
 | `REQUIRE_HTTPS` | 운영 필수 | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 https 응답에 HSTS를 붙인다. `NODE_ENV=production`인데 이 값이 없고 공개 호스트면 API가 시작되지 않거나 503 |
+| `REQUIRE_HTTPS_EXEMPT_HOSTS` | 내부망 배포 | — | 쉼표로 구분한 내부 호스트 이름(운영 compose는 `api`). 이 호스트의 http는 https로 돌려보내지 않는다. 공개 도메인을 넣지 않는다 |
 | `AI_CONCURRENCY` | | 2 | AI 동시 호출 수(**서버 한 대 기준**. 서버 N대면 모델이 받는 동시 호출은 N × 이 값) |
 | `PERSONA_RAG` | | 켜짐 | `off`면 지식 JSON을 무시하고 카드 원문 전부를 넣는다(효과 비교용) |
 | `PERSONA_DATA_DIR` | | `apps/api/data/personas` | 페르소나 지식 JSON 폴더 |

@@ -43,7 +43,7 @@ docs/
 
 ---
 
-## 앱과 포트 (계획 §7.3, 포트는 미확정)
+## 앱과 포트
 
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
@@ -51,7 +51,7 @@ docs/
 | web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 31개, 엄격 CSP, 라이트·다크) |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
 | ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` + 같은 프로세스의 그림 엔진(diffusers) |
-| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 27개, 마이그레이션 32개) |
+| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 28개, 마이그레이션 33개) |
 | 캐시/잡 | Redis | — | — | 쓰지 않음 |
 
 정본: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
