@@ -20,6 +20,13 @@ describe('HTTPS 결정', () => {
     ).toEqual({ action: 'redirect', location: 'https://api.example.com/auth/me' });
   });
 
+  it('내부 호스트로 지정한 곳은 http를 그대로 받고, 다른 호스트는 그대로 돌려보낸다', () => {
+    const base = { proto: 'http', path: '/auth/me', nodeEnv: 'production', requireHttps: '1', exemptHosts: 'api, internal' };
+    expect(decideHttps({ ...base, host: 'api:4000' })).toEqual({ action: 'next', hsts: false });
+    expect(decideHttps({ ...base, host: 'API' })).toEqual({ action: 'next', hsts: false });
+    expect(decideHttps({ ...base, host: 'api.example.com' }).action).toBe('redirect');
+  });
+
   it('이미 https면 HSTS를 붙인다', () => {
     expect(
       decideHttps({ host: 'api.example.com', proto: 'https', path: '/', requireHttps: '1' }),

@@ -1,0 +1,24 @@
+# 이미지에 들어가면 안 되는 것: 비밀값, 모델 가중치, 산출물, 개발 기록
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/.next
+**/.next-e2e
+**/dist
+**/dist-verify
+**/*.tsbuildinfo
+**/__pycache__
+**/*.pyc
+services/ai/.venv
+services/ai/models
+apps/api/data/personas/*.json
+!apps/api/data/personas/_example.json
+.git
+.agents
+.claude
+docs
+e2e
+deploy/.env
+deploy/backups
+CodiComperChat_project_plan.md
