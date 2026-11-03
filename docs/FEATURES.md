@@ -78,7 +78,8 @@
 | 발행 · 공개 범위 · 내리기 | 위쪽 막대 | `POST …/:id/publish` `unpublish`, `PATCH …/:id/visibility` | api/studio/studio-publish.service.ts | studio · 이메일 인증 + 필수 단계 + 테스트 통과 |
 | 프로 등급 글자 수 3배·프롬프트 연장 | 긴 글 칸 | — | api/studio/card.ts | plan |
 | 초상 올리기(**내 파일 선택**) | 외형 단계 | `PUT·DELETE·GET …/:id/portrait` | api/studio/portrait.ts | studio · 형식·150KB·첫 바이트 검사 |
-| **AI로 초상 만들기(25 코레딧)** | 외형 단계 "AI로 직접 만들기" | `POST …/:id/portrait/generate` | api/studio/studio-portrait-ai.service.ts, ai/services/portrait.py, web/app/studio/[id]/portrait-ai.tsx | portrait-ai · 화풍 4×생김새 8항목, 성인·전체 이용가, 검수 거침 |
+| **AI로 초상 만들기(25 코레딧)** | 외형 단계 "AI로 직접 만들기" | `POST …/:id/portrait/generate` | api/studio/studio-portrait-ai.service.ts, ai/services/portrait.py, web/app/studio/[id]/portrait-ai.tsx | portrait-ai · 화풍 4×생김새 8항목, 전체 이용가, 검수 거침. 후보를 보고 고른 그림만 저장하며 여러 장 뽑을 수 있다. 후보는 화면을 나가면 사라진다 |
+| 추천 프로필 칸(선택) | 비밀 퀘스트 단계 아래 | `PATCH …/:id`(`card.recommendedPersona`) | api/studio/card.ts | studio-recommend · 발행하면 캐릭터에 실린다. 3턴 테스트를 무효로 만들지 않는다 |
 | 비밀 퀘스트 한 번에 AI 제작 | 비밀 퀘스트 단계 | `POST …/:id/draft-quest` | ai/services/draft.py | quest |
 | 초상 자동 검수 | 올릴 때 | `/moderate-image`(내부) | api/studio/portrait-review.service.ts, ai/services/image_moderation.py | moderation |
 
@@ -180,4 +181,4 @@
 
 ## 한눈에 안 보이는 한계
 
-스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).
+스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).

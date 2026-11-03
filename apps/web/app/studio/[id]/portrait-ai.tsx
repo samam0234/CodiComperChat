@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { generatePortrait } from "@/app/actions/studio";
+import { generatePortrait, uploadPortrait, type PortraitCandidate } from "@/app/actions/studio";
 import type { DraftView } from "@/lib/studio-card";
 import styles from "./studio-editor.module.css";
 import ai from "./portrait-ai.module.css";
@@ -49,7 +49,7 @@ const OPTIONS: { key: string; label: string; choices: [string, string][] }[] = [
 type PortraitState = Pick<DraftView, "hasPortrait" | "portraitReview" | "portraitReviewNote">;
 
 // 공방 외형 단계: AI로 흉상 초상 만들기 (2026-10-25 사용자 요청, 한 장 25 코레딧).
-// 화풍 하나와 생김새를 고르면 그림 엔진이 그리고, 올린 그림과 같은 자동 검수를 거쳐 초상이 된다
+// 화풍 하나와 생김새를 고르면 그림 엔진이 그리고, 후보를 보고 고른 그림만 초상이 된다. 올린 그림과 같은 자동 검수를 거쳐 초상이 된다
 export default function PortraitAi({
   draftId,
   busy,
@@ -69,6 +69,25 @@ export default function PortraitAi({
   const [extra, setExtra] = useState("");
   const [useCard, setUseCard] = useState(true);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  // 이 화면에만 있는 후보. 나가면 사라지니 고르거나 지울 때까지 남겨 둔다
+  const [candidates, setCandidates] = useState<PortraitCandidate[]>([]);
+
+  const choose = async (candidate: PortraitCandidate) => {
+    onBusy(true);
+    setMessage(null);
+    const bytes = Uint8Array.from(atob(candidate.image), (c) => c.charCodeAt(0));
+    const form = new FormData();
+    form.set("file", new File([bytes], "portrait", { type: candidate.mime }));
+    const result = await uploadPortrait(draftId, form);
+    onBusy(false);
+    if (!result.ok) {
+      setMessage({ ok: false, text: result.error });
+      return;
+    }
+    onChange(result.data);
+    setCandidates((list) => list.filter((item) => item !== candidate));
+    setMessage({ ok: true, text: "고른 그림을 초상으로 저장했어요." });
+  };
 
   const make = async () => {
     onBusy(true);
@@ -79,8 +98,8 @@ export default function PortraitAi({
       setMessage({ ok: false, text: result.error });
       return;
     }
-    onChange(result.data.draft);
-    setMessage({ ok: true, text: `초상을 만들었어요. ${result.data.cost} 코레딧을 썼고, 남은 코레딧은 ${result.data.balance.toLocaleString("ko-KR")}이에요.` });
+    setCandidates((list) => [result.data.candidate, ...list]);
+    setMessage({ ok: true, text: `후보를 만들었어요. 마음에 들면 "이 그림으로 쓰기"를 눌러 주세요. ${result.data.cost} 코레딧을 썼고, 남은 코레딧은 ${result.data.balance.toLocaleString("ko-KR")}이에요.` });
   };
 
   if (!open) {
@@ -151,6 +170,31 @@ export default function PortraitAi({
           {busy ? "그리는 중…" : `만들기 · ${COST} 코레딧`}
         </button>
       </div>
+      {candidates.length > 0 && (
+        <ul className={ai.candidates} aria-label="만든 후보">
+          {candidates.map((candidate, index) => (
+            <li key={`${candidates.length - index}`} className={ai.candidate}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`data:${candidate.mime};base64,${candidate.image}`} alt={`후보 ${candidates.length - index}`} width={120} height={120} />
+              {candidate.review === "PENDING" && <p className={styles.hint}>쓰면 운영자가 확인한 뒤 남에게 보여요.</p>}
+              <div className={styles.portraitActions}>
+                <button type="button" className={styles.secondary} onClick={() => void choose(candidate)} disabled={busy}>
+                  이 그림으로 쓰기
+                </button>
+                <button
+                  type="button"
+                  className={styles.textButton}
+                  onClick={() => setCandidates((list) => list.filter((item) => item !== candidate))}
+                  disabled={busy}
+                >
+                  버리기
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {candidates.length > 0 && <p className={styles.hint}>후보는 이 화면을 나가면 사라지고, 코레딧은 돌아오지 않아요.</p>}
       {message && (
         <p className={message.ok ? ai.ok : styles.errorText} role={message.ok ? "status" : "alert"}>
           {message.text}

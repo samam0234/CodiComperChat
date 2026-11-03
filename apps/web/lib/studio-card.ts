@@ -24,6 +24,8 @@ export type Card = {
   lore: { world: string; person: string; taboo: string; extra: { title: string; text: string }[] };
   // 비밀 퀘스트(선택): 친밀도가 unlockAt을 넘으면 캐릭터가 offer를 건네고, objective를 해내면 달성 (정본: apps/api/src/quests/quest.ts)
   quest: Quest;
+  // 이 캐릭터와 대화할 때 추천하는 내 프로필(선택)
+  recommendedPersona: { name: string; description: string };
 };
 
 export type Quest = { title: string; offer: string; objective: string; reward: string; unlockAt: number };

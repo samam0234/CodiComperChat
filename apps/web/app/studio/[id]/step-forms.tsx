@@ -414,7 +414,26 @@ function StepFormBody({
       );
     }
     case "quest": {
-      return <QuestStep card={card} update={update} samples={samples} max={LIMITS.field} />;
+      return (
+        <>
+          <QuestStep card={card} update={update} samples={samples} max={LIMITS.field} />
+          <h3 className={styles.label}>추천 프로필 (선택)</h3>
+          <Text
+            label="추천 프로필 이름"
+            value={card.recommendedPersona.name}
+            max={20}
+            onChange={(v) => update((d) => void (d.recommendedPersona.name = v))}
+            hint="대화 화면에서 유저에게 이 이름의 내 프로필을 추천해요. 비우면 추천하지 않아요."
+          />
+          <Text
+            label="추천 프로필 소개"
+            value={card.recommendedPersona.description}
+            max={300}
+            rows={3}
+            onChange={(v) => update((d) => void (d.recommendedPersona.description = v))}
+          />
+        </>
+      );
     }
     case "lore": {
       const c = card.lore;
