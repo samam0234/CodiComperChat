@@ -123,23 +123,25 @@ export default function WebtoonPanel({ data: initial }: { data: WebtoonView }) {
         </p>
       ) : (
         <div className={styles.maker}>
-          <div className={styles.rating} role="group" aria-label="수위">
-            <button type="button" className={styles.ratingButton} aria-pressed={!adult} onClick={() => chooseRating("sfw")} disabled={busy}>
-              전체 이용가
-            </button>
-            <button
-              type="button"
-              className={`${styles.ratingButton} ${styles.ratingAdult}`}
-              aria-pressed={adult}
-              onClick={() => chooseRating("nsfw")}
-              disabled={busy}
-            >
-              <span className={styles.badge} aria-hidden="true">
-                19
-              </span>{" "}
-              성인
-            </button>
-          </div>
+          {data.nsfw.reason !== "DISABLED" && (
+            <div className={styles.rating} role="group" aria-label="수위">
+              <button type="button" className={styles.ratingButton} aria-pressed={!adult} onClick={() => chooseRating("sfw")} disabled={busy}>
+                전체 이용가
+              </button>
+              <button
+                type="button"
+                className={`${styles.ratingButton} ${styles.ratingAdult}`}
+                aria-pressed={adult}
+                onClick={() => chooseRating("nsfw")}
+                disabled={busy}
+              >
+                <span className={styles.badge} aria-hidden="true">
+                  19
+                </span>{" "}
+                성인
+              </button>
+            </div>
+          )}
           <label className={form.field}>
             <span className={form.label}>장면 설명</span>
             <textarea
