@@ -8,6 +8,8 @@
 
 **처음이라면: [docs/AGENT_HANDOVER.md](docs/AGENT_HANDOVER.md)(인수인계·해야 할 일) · [docs/FEATURES.md](docs/FEATURES.md)(전체 기능 목록).**
 
+> **이 저장소는 오픈소스가 아닙니다.** GitHub 공개는 서비스 배포를 위한 것이며, 허락 없는 clone·다운로드·복제·실행·호스팅을 허용하지 않습니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
+
 [LICENSE](LICENSE)(독점, 모든 권리 보유) · [SECURITY.md](SECURITY.md)(취약점 신고·구현된 보안·공개 전 필수) · [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)(오픈소스·AI 모델 고지)
 
 ---
