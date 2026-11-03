@@ -36,3 +36,6 @@ Thumbs.db
 apps/api/data/personas/*
 !apps/api/data/personas/README.md
 !apps/api/data/personas/_example.json
+
+# 운영 DB 덤프
+deploy/backups/

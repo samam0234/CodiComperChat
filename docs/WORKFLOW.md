@@ -1,6 +1,6 @@
 # AI 호출 파이프라인 (요약)
 
-정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-10-24 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md).
+정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-04 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md).
 
 ## 한 번의 유저 메시지 처리
 
@@ -18,7 +18,7 @@ Next.js (서버 액션)
       → AI 대기열 (기다리는 답 우선) → FastAPI POST /infer → 답 한 번에
       → 개인사를 물은 턴이면 FastAPI POST /ground-check → 지어냈으면 다시 쓰기(최대 2번)
       → 유저 말 + 답 저장 → 답 돌려줌
-      (컨텍스트에는 비밀 퀘스트 지시도 붙는다: 친밀도가 문턱을 넘으면 "부탁을 꺼낼 때", 건넨 뒤엔 "되풀이하지 않기", 달성 직후엔 보상 장면 — 달성 조건은 절대 넣지 않는다)
+      (컨텍스트에는 비밀 퀘스트 지시도 붙는다: 친밀도가 문턱을 넘으면 "부탁을 꺼낼 때", 건넨 뒤엔 "되풀이하지 않기", 달성 직후엔 보상 장면 — 달성 조건은 절대 넣지 않는다. 보상 장면은 놓치지 않게 프롬프트 맨 끝 `sceneNote`로 보낸다)
       (답에서 장면이 바뀌면 모델이 첫 줄을 `@: ` 나레이션으로 쓴다 — 웹이 그림 상자로 그린다)
   → (뒤에서, 메시지 6개마다) 대기열의 배경 몫으로
       FastAPI POST /remember  → memory_chunks
@@ -38,11 +38,11 @@ Nest: 로그인·요청 한도·성인 확인(성인 모드면 DB로 매번)·�
       ① 로컬 LLM이 장면 설계표를 쓴다 (등장인물 명단·줄거리·대화·고른 대사 → 사람·외모·표정·행동·장소). 답하자마자 Ollama에서 내린다(keep_alive 0)
       ② 코드가 프롬프트를 조립한다 (인물 수 태그, 인물마다 성인 태그, BREAK, 수위 태그, 화풍·품질 태그)
       ③ 그림 엔진이 그린다 — IMAGE_ENGINE=local: 같은 프로세스에서 diffusers / webui: 외부 WebUI API
-      ④ WebP로 줄인다 → 그림 검수(gemma가 그림을 읽는다, 수위별 규칙) → 걸리면 422(환불)
+      ④ WebP로 줄인다 → 그림 검수(gemma가 그림을 읽는다, 수위별 규칙, 끝나면 다시 내린다) → 걸리면 422(환불)
   → Nest가 DB에 저장 (photonet_images / webtoon_panels)
 ```
 
-웹툰은 콘티(무료)를 먼저 짠다: 외모를 한 번 정한 뒤(`_looks`) 컷마다 구도·행동·해설·대사를 쓰고, 컷은 하나씩 따로 요청해 그린다. 자세한 것: [guidance/photonet-engine.md](guidance/photonet-engine.md), [plan/OPERATIONS.md](plan/OPERATIONS.md).
+웹툰은 콘티(무료)를 먼저 짠다: 외모를 한 번 정한 뒤(`_looks`) 컷마다 구도·행동·해설·대사를 쓰고, 컷은 하나씩 따로 요청해 그린다. 한 편의 컷은 웹툰 id에서 만든 같은 시드로 그린다. 자세한 것: [guidance/photonet-engine.md](guidance/photonet-engine.md), [plan/OPERATIONS.md](plan/OPERATIONS.md).
 
 ## 원칙
 

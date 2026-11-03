@@ -120,6 +120,11 @@ export class StudioService {
   // 초상은 카드(지문)와 따로다 — 바꿔도 다시 테스트할 필요 없다.
   // 올리면 자동 검수를 거친다(명백히 안 되는 그림은 400). 발행 중이면 승인된 초상만 캐릭터에 바로 싣고,
   // 검수 대기면 캐릭터에서는 초상을 내려 둔다(운영자가 승인하면 실린다)
+  // 저장하지 않고 검수만 한다 (AI 초상 후보)
+  reviewPortrait(image: { data: Buffer; mime: PortraitMime }) {
+    return this.reviews.moderate(image);
+  }
+
   async setPortrait(ownerId: string, id: string, image: { data: Buffer; mime: PortraitMime } | null) {
     const draft = await this.findOwned(ownerId, id);
     const review = image ? await this.reviews.moderate(image) : null;

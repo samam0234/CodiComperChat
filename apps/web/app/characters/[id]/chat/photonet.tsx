@@ -100,6 +100,8 @@ export default function Photonet({
   const poor = status ? status.balance < status.cost : false;
   const adult = rating === "nsfw";
   const nsfwAllowed = status?.nsfw.allowed ?? false;
+  // 서비스가 성인 모드를 끈 상태(ADULT_MODE=off)면 수위 고르기를 보여 주지 않는다
+  const adultOff = status?.nsfw.reason === "DISABLED";
   const blockedStyles = adult ? (status?.nsfw.blockedStyles ?? ["실사풍"]) : [];
   const images = (status?.images ?? []).filter((image) => image.rating === rating);
 
@@ -154,27 +156,29 @@ export default function Photonet({
           </div>
           <p className={styles.lead}>지금 대화 장면을 한 장의 그림으로 만들어요. 그린 그림은 나에게만 보여요.</p>
 
-          <div className={styles.rating} role="group" aria-label="수위">
-            <button
-              type="button"
-              className={styles.ratingButton}
-              aria-pressed={!adult}
-              onClick={() => chooseRating("sfw")}
-              disabled={making}
-            >
-              전체 이용가
-            </button>
-            <button
-              type="button"
-              className={`${styles.ratingButton} ${styles.ratingAdult}`}
-              aria-pressed={adult}
-              onClick={() => chooseRating("nsfw")}
-              disabled={making || !status}
-            >
-              <span className={styles.badge} aria-hidden="true">19</span> 성인
-            </button>
-          </div>
-          {status && !nsfwAllowed && (
+          {!adultOff && (
+            <div className={styles.rating} role="group" aria-label="수위">
+              <button
+                type="button"
+                className={styles.ratingButton}
+                aria-pressed={!adult}
+                onClick={() => chooseRating("sfw")}
+                disabled={making}
+              >
+                전체 이용가
+              </button>
+              <button
+                type="button"
+                className={`${styles.ratingButton} ${styles.ratingAdult}`}
+                aria-pressed={adult}
+                onClick={() => chooseRating("nsfw")}
+                disabled={making || !status}
+              >
+                <span className={styles.badge} aria-hidden="true">19</span> 성인
+              </button>
+            </div>
+          )}
+          {status && !nsfwAllowed && !adultOff && (
             <p className={styles.ratingNote}>
               성인 모드는 성인 확인 뒤에 쓸 수 있어요. <strong>성인</strong> 버튼을 눌러 확인해 주세요.
             </p>

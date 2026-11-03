@@ -14,12 +14,17 @@
 | `AI_BASE_URL` | | `http://localhost:8000` | FastAPI 주소 |
 | `AI_SERVICE_TOKEN` | 운영 필수 | 비움 | FastAPI와 같은 내부 호출 토큰(32자 이상). 개발에서 비우면 FastAPI는 루프백만 받는다. `node scripts/generate-prod-secrets.mjs` |
 | `REQUIRE_HTTPS` | 운영 필수 | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 https 응답에 HSTS를 붙인다. `NODE_ENV=production`인데 이 값이 없고 공개 호스트면 API가 시작되지 않거나 503 |
+| `REQUIRE_HTTPS_EXEMPT_HOSTS` | 내부망 배포 | — | 쉼표로 구분한 내부 호스트 이름(운영 compose는 `api`). 이 호스트의 http는 https로 돌려보내지 않는다. 공개 도메인을 넣지 않는다 |
 | `AI_CONCURRENCY` | | 2 | AI 동시 호출 수(**서버 한 대 기준**. 서버 N대면 모델이 받는 동시 호출은 N × 이 값) |
 | `PERSONA_RAG` | | 켜짐 | `off`면 지식 JSON을 무시하고 카드 원문 전부를 넣는다(효과 비교용) |
 | `PERSONA_DATA_DIR` | | `apps/api/data/personas` | 페르소나 지식 JSON 폴더 |
 | `RATE_LIMIT` | | 켜짐 | `off`면 요청 한도를 끈다(개발 중 막힐 때만) |
 | `RATE_LIMIT_SCALE` | | 1 | 한도에 곱하는 수 |
 | `MODEL_ENHANCED_DAILY_LIMIT` | | 30 | 강화 무료 모델(gemma4:12b)의 하루 사용 횟수(한국 시각 자정에 초기화). e2e는 2로 줄여 쓴다 |
+| `ADULT_MODE` | | 켜짐(개발) · `off`(운영 compose 기본) | `off`면 성인 그림 만들기·보기와 성인 확인을 모두 막는다. 이미 확인한 계정도 막히고, 켜면 다시 쓸 수 있다 |
+| `PRO_CLICK` | | 켜짐(개발) · 꺼짐(`NODE_ENV=production` 기본) · `on`(운영 compose 기본) | `on`이면 `/pricing`에서 결제 없이 프로로 30일 바꾼다(정식 서비스 전 임시). 토스 결제가 켜지면 값과 상관없이 닫힌다. 프로는 출석 코레딧이 5배(1000→5000)라 `PREMIUM_PROVIDERS`와 함께 켜면 무료 코레딧으로 나가는 실제 지출도 그만큼 늘 수 있다 |
+| `PREMIUM_PROVIDERS` | | — | 실제 호출을 열 프리미엄 공급자(`anthropic`, `xai`를 쉼표로). 비우면 프리미엄은 "준비 중". **실제 돈이 나간다.** 키는 `services/ai`의 `ANTHROPIC_API_KEY`, `XAI_API_KEY`(비밀값, 커밋 금지) |
+| `PREMIUM_MONTHLY_CREDITS` | | 한도 없음(개발) · `0`(`NODE_ENV=production` 기본) | 서비스 전체가 한 달(한국 시각)에 프리미엄으로 쓸 코레딧. 넘으면 `SPEND_CAP`으로 잠긴다. 운영에서 값을 넣지 않으면 키가 있어도 열리지 않는다. 동시 요청이 겹치면 답 몇 번만큼 넘을 수 있어 공급자 콘솔의 월 한도도 함께 건다 |
 | `MODEL_PREMIUM_FAKE` | | — | **e2e 전용.** `1`이면 프리미엄(Claude·Grok) 호출을 연동 없이 services/ai로 보낸다(가짜 LLM에서 코레딧 경로 시험용). 운영·개발에서 켜지 않는다 |
 | `RATE_LIMIT_STORE` | | `memory` | `db`면 PostgreSQL(`rate_limit_buckets`)에 함께 센다 — API 서버가 여러 대일 때 |
 | `MAIL_SMTP_URL` | 운영 필수 | — | 개발: `smtp://127.0.0.1:1025`(Mailpit, `localhost`는 IPv6로 풀려 거절됨). 운영 예: `smtps://user:password@smtp.example.com:465` (비밀번호 특수문자는 URL 인코딩). 없으면 개발 중 로그에 메일 내용, 운영에서는 보내지 않음(오류 로그) |

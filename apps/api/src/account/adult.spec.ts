@@ -21,6 +21,15 @@ describe('성인 확인', () => {
     expect(adultBlock({ ...ok, adultConsentAt: null }, now)).toBe('NO_CONSENT');
   });
 
+  it('ADULT_MODE=off면 확인을 마친 성인도 막고, 다른 값이면 평소대로 본다', () => {
+    const now = new Date('2026-10-24T03:00:00Z');
+    const ok = { birthDate: d('2000-05-05'), adultConsentAt: now, emailVerifiedAt: now };
+    expect(adultBlock(ok, now, { ADULT_MODE: 'off' })).toBe('DISABLED');
+    expect(adultBlock({ ...ok, birthDate: null }, now, { ADULT_MODE: 'off' })).toBe('DISABLED');
+    expect(adultBlock(ok, now, { ADULT_MODE: 'on' })).toBeNull();
+    expect(adultBlock(ok, now, {})).toBeNull();
+  });
+
   it('생년월일은 YYYY-MM-DD의 실제 날짜만', () => {
     expect(parseBirthDate('2000-02-29')?.toISOString().slice(0, 10)).toBe('2000-02-29');
     expect(parseBirthDate('2001-02-29')).toBeNull();

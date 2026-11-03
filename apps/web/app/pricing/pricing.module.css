@@ -114,6 +114,12 @@
   cursor: progress;
 }
 
+.proClick {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
 .notice,
 .testMode,
 .fine {

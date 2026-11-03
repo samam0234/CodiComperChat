@@ -9,7 +9,7 @@ cp apps/api/.env.example apps/api/.env      # DATABASE_URL, AUTH_SECRET(32자 �
 (cd apps/api && npx prisma migrate deploy && npm run prisma:seed)
 npm run dev:api        # http://localhost:4000
 npm run typecheck:api  # 개발 서버가 켜져 있을 땐 build:api 말고 이것 (dist를 지워 서버가 죽는다)
-npm run test:api       # vitest 185개 (DB·SMTP가 있으면 통합 시험 포함)
+npm run test:api       # vitest (DB·SMTP가 있으면 통합 시험 포함)
 ```
 
 ## 모듈 (`src/`)
@@ -27,7 +27,7 @@ npm run test:api       # vitest 185개 (DB·SMTP가 있으면 통합 시험 포�
 | `ai` `security` `mail` `agent-chat` `health` `prisma` | FastAPI 호출·대기열, 요청 한도, 메일, 안내 챗봇, 상태 확인, DB |
 | `campaigns` | 계획서 §13.1 경로 자리(501). 실제 대화는 `character-chat` |
 
-모듈은 `*.module.ts` + `*.controller.ts` + `*.service.ts`가 기본이고 계층은 Controller → Service → Prisma다(별도 Repository 없음). 입력 검증은 모듈마다 작은 파서 함수로 한다. 테이블 27개 — [../../docs/plan/DATABASE.md](../../docs/plan/DATABASE.md).
+모듈은 `*.module.ts` + `*.controller.ts` + `*.service.ts`가 기본이고 계층은 Controller → Service → Prisma다(별도 Repository 없음). 입력 검증은 모듈마다 작은 파서 함수로 한다. 테이블 28개 — [../../docs/plan/DATABASE.md](../../docs/plan/DATABASE.md).
 
 - 엔드포인트 목록: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 계층 규칙: [../../docs/Architecture/layers.md](../../docs/Architecture/layers.md) · 폴더 구조: [../../docs/plan/PROJECT_STRUCTURE.md](../../docs/plan/PROJECT_STRUCTURE.md)

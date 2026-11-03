@@ -1,4 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { CreditReason } from '@prisma/client';
+import { ageOn } from '../account/adult.js';
 import { CreditsService } from '../credits/credits.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -9,6 +11,8 @@ import {
   dailyLimitOf,
   findModel,
   kstDay,
+  kstMonthStart,
+  premiumMonthlyCap,
   lockOf,
   type ChatModel,
   type ModelLock,
@@ -50,9 +54,32 @@ export class ModelsService {
     return new Map(rows.map((r) => [r.modelId, r.count]));
   }
 
+  // 이번 달 서비스 전체의 프리미엄 코레딧 사용량 (쓴 것 - 돌려준 것). 한도가 없으면 세지 않는다.
+  // 동시 요청이 겹치면 답 몇 번만큼 넘을 수 있으니, 공급자 콘솔의 월 한도도 함께 건다
+  private async premiumSpent(): Promise<number> {
+    if (premiumMonthlyCap() === null) return 0;
+    const ids = MODELS.filter((m) => m.tier === 'PREMIUM').map((m) => m.id);
+    const { _sum } = await this.prisma.creditLedger.aggregate({
+      _sum: { delta: true },
+      where: {
+        modelId: { in: ids },
+        reason: { in: [CreditReason.MODEL_USE, CreditReason.REFUND] },
+        createdAt: { gte: kstMonthStart() },
+      },
+    });
+    return Math.max(0, -(_sum.delta ?? 0));
+  }
+
   private async wallets(userId: string) {
-    const [plan, used, balance] = await Promise.all([this.credits.planOf(userId), this.usedToday(userId), this.credits.balance(userId)]);
-    return { plan, balance, of: (m: ChatModel): Wallet => ({ plan, balance, usedToday: used.get(m.id) ?? 0 }) };
+    const [plan, used, balance, user, premiumSpent] = await Promise.all([
+      this.credits.planOf(userId),
+      this.usedToday(userId),
+      this.credits.balance(userId),
+      this.prisma.user.findUnique({ where: { id: userId }, select: { birthDate: true } }),
+      this.premiumSpent(),
+    ]);
+    const age = user?.birthDate ? ageOn(user.birthDate) : null;
+    return { plan, balance, of: (m: ChatModel): Wallet => ({ plan, balance, age, premiumSpent, usedToday: used.get(m.id) ?? 0 }) };
   }
 
   // 화면에 보여 줄 목록: 모델마다 지금 쓸 수 있는지, 오늘 몇 번 썼는지, 코레딧이 얼마인지

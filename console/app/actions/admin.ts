@@ -72,6 +72,8 @@ export type AdminUser = {
   plan: "FREE" | "PRO";
   effectivePlan: "FREE" | "PRO";
   planUntil: string | null;
+  // 만 나이. 생년월일을 넣지 않았으면 null (날짜 자체는 받지 않는다)
+  age: number | null;
   createdAt: string;
   orders: { productId: string; amount: number; paidAt: string }[];
 };
@@ -90,6 +92,13 @@ export type AdminOrder = {
 
 export async function findUser(email: string) {
   return call<AdminUser>(`/admin/users?email=${encodeURIComponent(email)}`);
+}
+
+export async function setUserBirthDate(email: string, birthDate: string, reason: string) {
+  return call<{ age: number | null }>("/admin/users/birthdate", {
+    method: "POST",
+    body: { email, birthDate: birthDate.trim() || null, reason },
+  });
 }
 
 export async function setUserPlan(email: string, plan: "PRO" | "FREE", days: string) {

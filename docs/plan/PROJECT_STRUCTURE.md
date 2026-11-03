@@ -15,7 +15,8 @@ repo/
 ├── services/
 │   └── ai/                 # FastAPI (Python 3.12) — 워크스페이스 밖, 자체 .venv
 ├── e2e/                    # 웹 화면 자동 테스트(Playwright) + 부하 측정(bench.mjs)
-├── scripts/                # ci-local.mjs(CI를 깨끗한 클론에서 재현) · start-sd-webui.cmd(개발용 WebUI 그림 엔진)
+├── deploy/                 # 운영 구성: docker-compose.prod.yml · node·ai Dockerfile · Caddyfile · .env.example
+├── scripts/                # ci-local.mjs · record-commit.mjs(커밋 기록) · db-backup.sh · generate-prod-secrets.mjs · start-sd-webui.cmd(개발용 WebUI 그림 엔진)
 ├── .github/workflows/ci.yml
 ├── docker-compose.yml      # postgres · mailpit (web·api·ai 컨테이너화는 배포 단계에서)
 └── docs/
@@ -133,7 +134,7 @@ e2e/
 ├── env.mjs · prepare.mjs   # 전용 포트(3101/4101/8101)·DB·폴더, 준비(DB 생성·마이그레이션·비우기·검증 빌드)
 ├── servers/                # e2e용 web·api·ai 서버 실행 (가짜 LLM, 가짜 결제, 메일은 폴더로)
 ├── helpers.ts              # API 호출·가입·로그인 쿠키·SQL·메일함 읽기
-├── tests/*.spec.ts         # 20개: 인증·이메일·대화·명령어·글 꾸미기·모델·공방·검수·신고·결제·콘솔·오퍼레이션·웹툰·퀘스트·테마·보안 등
+├── tests/*.spec.ts         # 22개: 인증·이메일·대화·명령어·글 꾸미기·모델·공방·검수·신고·결제·콘솔·오퍼레이션·웹툰·퀘스트·테마·보안 등
 └── bench.mjs               # 부하 측정 (npm run bench)
 ```
 

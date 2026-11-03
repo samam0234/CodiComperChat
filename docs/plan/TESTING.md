@@ -1,15 +1,17 @@
 # 테스트 전략
 
-> 상태(2026-10-24): **`apps/api` vitest 185개(파일 26개), 웹 화면 Playwright e2e 110개(파일 22개), AI 품질 평가(`services/ai/evals`, 9묶음)가 실재.** `services/ai`의 pytest 단위 테스트는 아직 없다. 실제 모델·실제 그림 엔진이 필요한 확인은 자동화돼 있지 않다(아래 "자동화되지 않은 확인").
+> 시험 수의 정본은 이 문서다. 다른 문서에는 수를 적지 않고 여기를 가리킨다.
+>
+> 상태(2026-11-04): **`apps/api` vitest 210개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 5개), `services/ai` unittest 26개(파일 4개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가에는 기준에 못 미치는 항목이 있다(아래 "실제 모델 평가").
 
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
 |----|------|------|------|
-| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 단위 185개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
-| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 105건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
-| `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 9묶음 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성(`tone` 포함 9묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
-| `services/ai` (FastAPI) | pytest | 미도입 (앱은 있으나 테스트 설정 없음) | 라우트/컨텍스트 조립/요약 파싱 |
+| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 210개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
+| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 117건 + 성인 끔 1건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
+| `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 11묶음 + 별도 5개 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성·나레이션·웹툰 콘티(`tone` 포함 11묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
+| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 26개 | 그림 검수 규칙, 초상, 프리미엄 요청 모양. 라우트 시험은 없다 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
 
@@ -18,12 +20,13 @@
 ```bash
 npm run test:api        # vitest 단위 테스트
 npm run test:api:e2e    # vitest e2e (앱을 띄워 라우트 확인)
-npm run test:e2e        # 웹 화면 e2e (Chrome, 가짜 LLM, 별도 DB — 개발 서버와 같이 켜 둬도 된다)
+npm run test:e2e        # 웹 화면 e2e (Chrome, 가짜 LLM, 별도 DB, 운영 빌드). 빌드 포함 약 5분
+npm run test:e2e:adult-off   # ADULT_MODE=off 서버의 화면. test:e2e 뒤에 돌린다(빌드를 다시 쓴다)
 ```
 
 AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬 Ollama 필요).
 
-**e2e를 돌릴 때는 개발용 그림 엔진(WebUI)을 끈다.** 켜 두면 RAM이 모자라 시험이 느려지고 실패한다(16GB 기준 측정). 개발 서버·개발 DB와는 겹치지 않아 켜 둬도 된다.
+**e2e를 돌릴 때는 그림 엔진(WebUI)을 끈다.** 포트·DB·빌드 폴더가 개발 환경과 겹치지 않아 개발 서버는 켜 둬도 된다. `next dev`로 돌리던 때는 RAM 16GB에서 무작위 시간 초과가 났고, 운영 빌드로 바꾼 뒤 남은 RAM 약 400MB에서도 통과했다([../find_debug/2026-11-03.md](../find_debug/2026-11-03.md)).
 
 ## 시험이 지키는 약속 (보안·안전 포함)
 
@@ -36,17 +39,21 @@ AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬
 | 요청 한도, 로그인 무차별 대입 방어, 토큰 세대(비밀번호 변경 시 이전 토큰 무효) | e2e `security`, `auth`, API 단위 |
 | CSP·보안 헤더 | e2e `security` |
 
-## 자동화되지 않은 확인 (실제 모델·엔진, 손으로)
+## 실제 모델 평가 (2026-11-04, gemma4:e4b, RTX 4070 SUPER)
 
-가짜 LLM·가짜 그림 엔진은 흐름만 본다. 아래는 실제로 돌려 본 결과를 각 문서에 기록했고, 모델이나 프롬프트를 바꾸면 다시 해야 한다.
+가짜 LLM·가짜 그림 엔진은 흐름만 본다. 모델이나 프롬프트를 바꾸면 아래를 다시 돌린다. 기준을 낮춰 통과시키지 않는다.
 
-- **비밀 퀘스트 판정**: 유지성 퀘스트로 시나리오 8개 × 2번(분명한 달성·미룸·다그침·부탁 없음·"나중에"·판정 지시 끼워 넣기·캐릭터가 대신 말함) — [SECRET_QUEST.md](SECRET_QUEST.md)
-- **나레이션 `@:`**: 장면 전환 4번 모두 나레이션, 평범한 대화 2번 없음 — [NAVIGATION_IA.md](NAVIGATION_IA.md)
-- **성인 그림 가드**: 실사·실사에 가까운 3D·애니·수채화·어린이 그림을 만들어 성인 모드 검수 규칙을 확인 — [../guidance/photonet-engine.md](../guidance/photonet-engine.md)
-- **웹툰 콘티**: 4·6컷 — [OPERATIONS.md](OPERATIONS.md)
-- **서버 안 그림 엔진**: 애니메이션 한 장(첫 로드 포함 약 188초). 수채화·따뜻한 상태의 속도는 미측정
+| 명령 | 결과 | 상태 |
+|------|------|------|
+| `python -m evals.quest_seyeon` | 장면 10개 모두 맞음 (2026-11-03) | 통과 |
+| `python -m evals.quest_yujiseong --repeat 1` | 7/8, 잘못 통과 0 | 잘못 통과 없음, 놓침 1건 |
+| `python -m evals.quest_reward --repeat 4` | 4/8. 혼인 4/4, 기혼의 충돌 0/4 | **기준 75% 미달** |
+| `python -m evals.run --suite narration --repeat 1` | 4/6 | **기준 80% 미달**, 표본 작음 |
+| `python -m evals.run --suite webtoon_plan --repeat 1` | 2/2 | 통과 |
+| `python -m evals.photonet_guard` | 2번 돌려 실사풍은 모두 막음. 애니메이션은 1번 통과, 1번 잘못 막음 | **잘못 막는 경우 있음**, 막는 쪽은 코레딧을 돌려준다 |
+| `python -m evals.image_speed` | [../guidance/photonet-engine.md](../guidance/photonet-engine.md) | 메모리가 모자라 수치가 흔들림 |
 
-이것들을 `evals`로 옮기면 모델을 바꿀 때 바로 다시 잴 수 있다(후속).
+미달 항목의 할 일: [../TASKS.md](../TASKS.md) 3장. 평가에 없는 손 확인은 서버 안 그림 엔진의 화풍별 품질이다.
 
 ## 자동 테스트보다 먼저 확인해야 하는 것 — 플레이테스트 시트 (계획서 §14)
 
@@ -88,7 +95,7 @@ develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈
 
 | 단계 | 내용 |
 |---|---|
-| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web) → API 단위 테스트(DB 한도 저장소 시험 포함) → AI 서비스 불러오기(`compileall`, `import app.main`) |
+| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → 기록 작성기 시험 → AI 서비스 불러오기(`compileall`, `import app.main`) → AI unittest |
 | e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
 
 AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.

@@ -17,5 +17,6 @@ export function fullCard(): Card {
     lore: { world: '', person: '', taboo: '', extra: [] },
     // 퀘스트는 선택 단계라 기본은 비어 있다
     quest: { ...EMPTY_QUEST },
+    recommendedPersona: { name: '', description: '' },
   };
 }

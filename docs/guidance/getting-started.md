@@ -1,6 +1,6 @@
 # 시작하기
 
-새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-10-24.
+새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-11-04.
 
 ## 전제 조건
 
@@ -100,7 +100,7 @@ npm run dev:console    # http://localhost:3001  운영 콘솔 (운영자만, 필
 | `http://localhost:3000` | 홈(히어로·캐릭터 카드). 오른쪽 위 "시작하기" |
 | 가입 → 마이페이지에서 프로필 캐릭터 만들기 → 캐릭터 → 대화 시작하기 | 캐릭터가 답한다(첫 답은 모델을 올리느라 수십 초 걸릴 수 있다) |
 | 가입 인증 메일 | Mailpit을 띄웠으면 `http://127.0.0.1:8025`에 도착(링크를 누르면 인증 화면). 메일 설정이 없으면 **api 터미널 로그**에 `[개발용 메일]`과 링크가 찍힌다 |
-| 결제 | 토스 키가 없으면 "시험 모드" 가짜 결제창 (돈이 오가지 않음). 결제는 현재 보류 |
+| 프로 | `/pricing`의 "프로로 바꾸기"로 30일 프로(정식 서비스 전 임시). 토스 키가 없으면 결제는 "시험 모드" 가짜 결제창이다 |
 | 그림 | 대화 화면 입력창 위 "코디포토넷"·오퍼레이션 → 웹툰. 엔진이 준비되면 "준비 중" 표시가 사라진다 |
 
 ## 테스트
@@ -108,7 +108,7 @@ npm run dev:console    # http://localhost:3001  운영 콘솔 (운영자만, 필
 ```bash
 npm run test:api       # API 단위·통합 (DATABASE_URL이 있으면 실제 DB 시험 포함)
 npm run typecheck:api
-npm run test:e2e       # 웹 화면 자동 테스트 — 전용 포트·DB·가짜 LLM·가짜 그림 엔진이라 개발 서버를 켜 둔 채로 된다. 단, 그림 엔진(WebUI·GPU 모델)이 메모리를 많이 쓰면 느려지므로 e2e 동안은 꺼 둔다
+npm run test:e2e       # 웹 화면 자동 테스트 — 전용 포트·DB·가짜 LLM·가짜 그림 엔진·운영 빌드라 개발 서버를 켜 둔 채로 된다. 그림 엔진(WebUI·GPU 모델)은 메모리를 많이 쓰니 꺼 둔다
 npm run ci:local       # CI 단계를 깨끗한 클론에서 재현
 ```
 
@@ -118,6 +118,6 @@ npm run ci:local       # CI 단계를 깨끗한 클론에서 재현
 
 - **개발 서버가 켜져 있을 때 `npm run build:api`를 하지 않는다** — `dist`를 지워 서버가 죽는다. 타입 확인은 `npm run typecheck:api`, 빌드 확인은 `npm run build:verify --workspace api`(별도 폴더) · [../repeater/nest-dev-server-dist-missing.md](../repeater/nest-dev-server-dist-missing.md)
 - `.env`를 고치면 그 서버를 다시 켜야 반영된다
-- `apps/web/AGENTS.md`·`CLAUDE.md`는 `next dev`가 자동으로 만든다. 손으로 고치지 않는다
+- `apps/web/AGENTS.md`·`console/AGENTS.md`는 Next가 다시 쓴다. 손으로 고치지 않고, 바뀌면 커밋하지 말고 `git checkout -- <파일>`로 되돌린다
 
 관련: [environment.md](environment.md), [operations.md](operations.md), [docker-run.md](docker-run.md), [../plan/CURRENT_STACK.md](../plan/CURRENT_STACK.md)

@@ -72,8 +72,9 @@ if (which === 'all' || which === 'checks') {
     step('타입 검사 (api)', 'npm run typecheck:api', '.', env) &&
     step('타입 검사 (web)', 'npx next typegen && npx tsc --noEmit', 'apps/web', env) &&
     step('타입 검사 (console)', 'npx next typegen && npx tsc --noEmit', 'console', env) &&
-    step('API 단위 테스트', 'npm run test:api', '.', env);
-  step('AI 서비스 불러오기', `"${python}" -m venv .venv && ${venvPy} -m pip install -q -r requirements.txt && ${venvPy} -m compileall -q app evals && ${venvPy} -c "import app.main"`, 'services/ai');
+    step('API 단위 테스트', 'npm run test:api', '.', env) &&
+    step('커밋 기록 작성기 시험', 'node --test scripts/record-commit.test.mjs', '.', env);
+  step('AI 서비스 불러오기', `"${python}" -m venv .venv && ${venvPy} -m pip install -q -r requirements.txt && ${venvPy} -m compileall -q app evals && ${venvPy} -c "import app.main" && ${venvPy} -m unittest discover tests`, 'services/ai');
 }
 
 if (which === 'all' || which === 'e2e') {
@@ -85,6 +86,7 @@ if (which === 'all' || which === 'e2e') {
   const e2e = dbUrl('codicomperchat_ci_e2e');
   step('Prisma 생성', 'npx prisma generate', 'apps/api', { DATABASE_URL: e2e });
   step('웹 화면 자동 테스트', 'npm run test:e2e', '.', { E2E_DATABASE_URL: e2e, DATABASE_URL: e2e });
+  step('성인 모드를 끈 서버의 화면 시험', 'npm run test:e2e:adult-off', '.', { E2E_DATABASE_URL: e2e, DATABASE_URL: e2e });
 }
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} 단계 통과`);

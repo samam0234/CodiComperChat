@@ -75,6 +75,7 @@
 - 성인 웹툰: 코디포토넷과 같은 규칙 — 성인 확인 필요(403), 미성년자 관련 설정이 장면·등장인물·콘티의 해설·대사에 있으면 400, 동의를 거두면 목록·그림에서 사라짐(404)
 - 요청 한도: 콘티 10분 6번(`webtoonPlan`), 컷 10분 14번(`webtoonPanel`)
 - API: `GET /characters/:id/chat/ops/webtoon`, `POST .../webtoon`(`{ prompt?, panels, rating? }`), `POST .../webtoon/:webtoonId/panels/:index`, `GET .../webtoon/:webtoonId/panels/:index`(그림 본문). AI: `POST /webtoon/plan`, `POST /webtoon/panel`
+- 한 편의 컷은 웹툰 id에서 만든 같은 시드로 그린다(2026-11-04). 3컷을 시드 고정과 무작위로 그려 눈으로 비교하니 고정 쪽 머리 모양이 더 비슷했지만 옷 색은 컷마다 달랐다(같은 콘티, 한 번 비교).
 - 실측(실제 gemma4:e4b, 그림 없이 콘티만): 4컷 약 25초, 6컷 약 19초. 외모가 영어·서로 다르게·모든 컷에서 같게, 구도가 컷마다 바뀌고, 대사는 실제 대화에서 가져옴. **실제 엔진으로 컷 그림을 그려 보지는 않았다**(컷 그리기는 코디포토넷과 같은 경로)
 
 ## 코디포토넷 (대화 화면 안의 창)

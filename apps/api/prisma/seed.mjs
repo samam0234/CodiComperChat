@@ -21,6 +21,24 @@ const YU_QUEST = {
   unlockAt: 40,
 };
 
+// 이세연의 비밀 퀘스트 (2026-11-03 사용자 결정). 두 갈래 중 하나로 끝난다:
+//  1) 연인 관계가 혼인으로 이어진다  2) 유저가 이미 기혼인 채 세연과도 이어져, 그 사실로 실제 충돌이 벌어진다(반전 드라마)
+// 판정 시험: services/ai/evals/quest_seyeon.py (같은 문구를 쓴다 — 고치면 함께 고친다)
+const SEYEON_QUEST = {
+  title: '결재되지 않은 서류',
+  offer:
+    '늦은 밤 둘만 남은 회장실에서, 이세연이 결재 서류를 덮고 잠시 말을 고르다 "회장님, 제게도 결재가 필요한 안건이 하나 있습니다. 저를 곁에 두시는 일을 어디까지 생각하고 계신지, 이번에는 확실하게 정해 주십시오."라고 평소처럼 사무적인 말투로, 그러나 처음으로 눈을 피하며 묻는다.',
+  objective:
+    '다음 두 갈래 중 하나가 대화에서 실제로 일어나면 달성이다. 어느 한 갈래만 충족하면 된다.\n' +
+    '(갈래 1: 혼인) 유저와 이세연이 연인 사이에서 혼인에 이른다. 유저가 청혼해 이세연이 승낙하거나, 두 사람의 결혼식·혼인신고가 실제로 이루어진다.\n' +
+    '(갈래 2: 기혼의 충돌) 유저에게 이미 배우자가 있다는 사실이 드러나고, 그런 채로 유저가 이세연과 연인으로 이어져, 그 일로 배우자나 이세연이나 주변 사람과 실제 충돌(대면·추궁·폭로·다툼)이 벌어진다.\n' +
+    '좋아한다는 고백, 결혼하고 싶다는 바람, 나중에 하자는 약속, 거절당한 청혼, 기혼이라는 언급만 있고 충돌이 없는 경우는 달성이 아니다.',
+  reward:
+    '혼인에 이르렀다면: 세연이 처음으로 "회장님" 대신 유저의 이름을 조용히 부르고, 곧바로 "…공식 일정표에는 올리지 않겠습니다"라며 얼굴을 붉힌 채 업무 말투로 돌아간다. ' +
+    '기혼의 충돌이 벌어졌다면: 세연이 흔들림 없는 얼굴로 사직서를 책상에 올려 두고 "결재는 회장님 몫입니다. 다만 이번만큼은 제가 대신 수습해 드리지 않겠습니다"라고 말한다. 호칭은 그대로 "회장님"이고, 떠나지는 않은 채 답을 기다린다.',
+  unlockAt: 50,
+};
+
 // 출처: docs/plan/CHARACTERS.md "유지성" — 카드 원문을 그대로 옮긴다
 async function main() {
   await prisma.character.upsert({
@@ -68,11 +86,11 @@ async function main() {
   await prisma.character.upsert({
     where: { name: '이세연' },
     update: {},
-    create: { ...SEYEON, published: true },
+    create: { ...SEYEON, published: true, quest: SEYEON_QUEST },
   });
   await prisma.character.updateMany({
     where: { name: '이세연', ownerId: null },
-    data: { recommendedPersona: SEYEON.recommendedPersona },
+    data: { recommendedPersona: SEYEON.recommendedPersona, quest: SEYEON_QUEST },
   });
 
   // 공식 캐릭터 초상 (2026-10-25, 그림 엔진 Animagine XL 4.0으로 만들어 고른 것 — 512px WebP, 150KB 이하).

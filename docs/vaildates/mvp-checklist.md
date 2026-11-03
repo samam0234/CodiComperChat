@@ -24,7 +24,7 @@
 
 ## 기술 점검 (데모·배포 전, 명령으로 확인)
 
-- [ ] `npm run ci:local` 9/9 통과 (린트·타입 검사·API 시험·AI 서비스·웹 e2e를 깨끗한 클론에서)
+- [ ] `npm run ci:local` 전 단계 통과 (린트·타입 검사·API 시험·기록 작성기·AI 서비스·웹 e2e·성인 끔 e2e를 깨끗한 클론에서)
 - [ ] AI 품질 평가 기준 통과: `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (실제 모델 필요)
 - [ ] `npm run bench -- --users 8 --delay 1500`로 연속 대화 꼬리 지연 확인 (대기열이 기다리는 답을 먼저 처리하는지)
 - [ ] `npm run billing:check --workspace api`, `npm run mail:check --workspace api -- 주소` (실제 키·메일 서비스로)

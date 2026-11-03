@@ -140,7 +140,7 @@ def _fake_png(width: int, height: int) -> bytes:
     return buf.getvalue()
 
 
-def txt2img(*, prompt: str, negative: str, style: Style, ratio: str) -> tuple[bytes, int, int]:
+def txt2img(*, prompt: str, negative: str, style: Style, ratio: str, seed: int | None = None) -> tuple[bytes, int, int]:
     """그림 한 장(PNG 바이트)과 크기. 엔진이 없거나 실패하면 503/502."""
     width, height = style.family.sizes[ratio]
     if fake():
@@ -155,6 +155,7 @@ def txt2img(*, prompt: str, negative: str, style: Style, ratio: str) -> tuple[by
             height=height,
             steps=style.family.steps,
             cfg=style.family.cfg,
+            seed=seed,
         )
         return png, width, height
     payload = {
@@ -165,7 +166,7 @@ def txt2img(*, prompt: str, negative: str, style: Style, ratio: str) -> tuple[by
         "steps": style.family.steps,
         "cfg_scale": style.family.cfg,
         "sampler_name": "Euler a",
-        "seed": -1,
+        "seed": -1 if seed is None else seed,
         "batch_size": 1,
         "n_iter": 1,
         # 요청마다 체크포인트를 못 박는다. 바꾼 뒤 되돌리지 않아 같은 화풍을 연달아 쓰면 다시 읽지 않는다

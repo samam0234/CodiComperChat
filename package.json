@@ -18,6 +18,7 @@
     "typecheck:api": "npm run typecheck --workspace api",
     "bench": "node e2e/bench.mjs",
     "test:e2e": "node e2e/prepare.mjs && playwright test -c e2e/playwright.config.ts",
+    "test:e2e:adult-off": "node e2e/run-adult-off.mjs",
     "ci:local": "node scripts/ci-local.mjs"
   },
   "devDependencies": {

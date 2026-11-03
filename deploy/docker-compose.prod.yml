@@ -1,0 +1,200 @@
+# 운영 구성: NVIDIA GPU 서버 한 대에서 24시간 돈다 (2026-11-03 사용자 결정).
+# 바깥에 열리는 것은 caddy의 80·443뿐이다. postgres·api·ai·ollama·web·console은 내부망에만 있다.
+#
+#   cp deploy/.env.example deploy/.env   # 값 채우기
+#   docker compose --env-file deploy/.env -f deploy/docker-compose.prod.yml up -d --build
+#
+# restart: always — 프로세스가 죽거나 서버가 재부팅돼도 도커가 다시 띄운다 (도커 서비스가 부팅 때 켜져 있어야 한다).
+# 절차 전체: docs/web_management/docker-deploy.md
+name: codicomperchat
+
+x-always: &always
+  restart: always
+  logging:
+    driver: json-file
+    options: { max-size: 20m, max-file: '5' }
+
+services:
+  caddy:
+    <<: *always
+    image: caddy:2.10-alpine
+    depends_on: [web, console]
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+    environment:
+      WEB_DOMAIN: ${WEB_DOMAIN:?}
+      CONSOLE_DOMAIN: ${CONSOLE_DOMAIN:?}
+      CONSOLE_CADDY_ALLOW: ${CONSOLE_CADDY_ALLOW:?}
+      ACME_EMAIL: ${ACME_EMAIL:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+
+  web:
+    <<: *always
+    build:
+      context: ..
+      dockerfile: deploy/node.Dockerfile
+      target: web
+      args:
+        CONSOLE_BASE_URL: https://${CONSOLE_DOMAIN:?}
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      REQUIRE_HTTPS: '1'
+      API_BASE_URL: http://api:4000
+      CONSOLE_BASE_URL: https://${CONSOLE_DOMAIN}
+    healthcheck:
+      # 컨테이너 안 루프백이라 https로 돌려보내지 않는다
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks: [edge, internal]
+
+  console:
+    <<: *always
+    build:
+      context: ..
+      dockerfile: deploy/node.Dockerfile
+      target: console
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      REQUIRE_HTTPS: '1'
+      API_BASE_URL: http://api:4000
+      WEB_BASE_URL: https://${WEB_DOMAIN}
+      CONSOLE_IP_ALLOWLIST: ${CONSOLE_IP_ALLOWLIST:?}
+    networks: [edge, internal]
+
+  api:
+    <<: *always
+    build:
+      context: ..
+      dockerfile: deploy/node.Dockerfile
+      target: api
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    environment:
+      NODE_ENV: production
+      REQUIRE_HTTPS: '1'
+      # 내부망에서 web·console이 http://api:4000으로 부른다 (바깥에 열리지 않는 호스트)
+      REQUIRE_HTTPS_EXEMPT_HOSTS: api
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      AUTH_SECRET: ${AUTH_SECRET:?}
+      AI_BASE_URL: http://ai:8000
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
+      AI_CONCURRENCY: ${AI_CONCURRENCY:-2}
+      # 실제 돈이 나가는 공급자를 여는 스위치. 비워 두면 프리미엄 모델은 "준비 중"이다
+      PREMIUM_PROVIDERS: ${PREMIUM_PROVIDERS:-}
+      PREMIUM_MONTHLY_CREDITS: ${PREMIUM_MONTHLY_CREDITS:-0}
+      # 법률 검토 전에는 끈 채로 연다. on으로 바꾸기 전에 THIRD_PARTY_NOTICES.md를 본다
+      ADULT_MODE: ${ADULT_MODE:-off}
+      WEB_BASE_URL: https://${WEB_DOMAIN}
+      MAIL_SMTP_URL: ${MAIL_SMTP_URL:?}
+      MAIL_FROM: ${MAIL_FROM:?}
+      # 결제 없이 프로로 바꾸는 버튼. 토스 결제를 켜면 저절로 닫힌다
+      PRO_CLICK: ${PRO_CLICK:-on}
+      TOSS_SECRET_KEY: ${TOSS_SECRET_KEY:-}
+      TOSS_CLIENT_KEY: ${TOSS_CLIENT_KEY:-}
+      PERSONA_DATA_DIR: /app/apps/api/data/personas
+    volumes:
+      - personas:/app/apps/api/data/personas
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks: [internal]
+
+  # 한 번 돌고 끝난다: 마이그레이션 → 공식 캐릭터 시드(이미 있으면 퀘스트·추천 프로필만 맞춘다)
+  migrate:
+    build:
+      context: ..
+      dockerfile: deploy/node.Dockerfile
+      target: api
+    restart: 'no'
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: ['sh', '-c', 'npx prisma migrate deploy && npx prisma db seed']
+    networks: [internal]
+
+  postgres:
+    <<: *always
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  ai:
+    <<: *always
+    build:
+      context: ..
+      dockerfile: deploy/ai.Dockerfile
+    gpus: all
+    depends_on: [ollama]
+    environment:
+      APP_ENV: production
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:e4b}
+      IMAGE_ENGINE: local
+      SD_OFFLOAD: ${SD_OFFLOAD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+    volumes:
+      # 체크포인트 두 파일을 서버의 이 폴더에 둔다 (저장소·이미지에 넣지 않는다)
+      - ${SD_MODEL_HOST_DIR:?}:/models:ro
+      - hf_cache:/cache/huggingface
+    healthcheck:
+      # 컨테이너 안 루프백은 토큰 없이 /health를 볼 수 있다
+      test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks: [internal]
+
+  ollama:
+    <<: *always
+    # 개발 PC와 같은 버전. gemma4를 읽으려면 이 정도로 새 버전이어야 한다
+    image: ollama/ollama:0.40.13
+    gpus: all
+    environment:
+      # 대화 모델을 그래픽 메모리에 30분 둔다. 그림을 그릴 때는 services/ai가 먼저 내린다(keep_alive=0)
+      OLLAMA_KEEP_ALIVE: 30m
+    volumes:
+      - ollama_models:/root/.ollama
+    networks: [internal]
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  personas:
+  hf_cache:
+  ollama_models:
+
+networks:
+  edge:
+  # 포트를 열지 않은 서비스끼리 쓰는 망. 바깥에서 들어올 수 없지만, 모델 받기(ollama pull·HF 구성 파일)를 위해 나가는 길은 둔다
+  internal:

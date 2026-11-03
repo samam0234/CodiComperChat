@@ -1,14 +1,16 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
-import { extendPro } from '../plan/plan.js';
+import { effectivePlan, extendPro } from '../plan/plan.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { activeProvider, cancelPayment, clientKey, confirmPayment, type ProviderName } from './payment-provider.js';
+import { PRO_CLICK_DAYS, proClickOpen } from './pro-click.js';
 import { findProduct, products } from './products.js';
 
 const DAY_MS = 86_400_000;
@@ -19,7 +21,23 @@ export class BillingService {
 
   products() {
     const provider = activeProvider();
-    return { products: products(), provider, clientKey: provider ? clientKey(provider) : null };
+    return {
+      products: products(),
+      provider,
+      clientKey: provider ? clientKey(provider) : null,
+      proClick: proClickOpen() ? { days: PRO_CLICK_DAYS } : null,
+    };
+  }
+
+  // 결제 없이 프로로 바꾼다. 남은 프로 기간이 있으면 거절해, 눌러서 기간을 끝없이 쌓지 못하게 한다. 돈이 오가지 않으니 주문을 만들지 않는다
+  async claimProClick(userId: string) {
+    if (!proClickOpen()) throw new ForbiddenException('지금은 결제 없이 프로로 바꿀 수 없어요.');
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { plan: true, planUntil: true } });
+    if (!user) throw new NotFoundException('계정을 찾을 수 없습니다.');
+    if (effectivePlan(user) === 'PRO') throw new ConflictException('이미 프로 등급이에요. 기간이 끝나면 다시 바꿀 수 있어요.');
+    const planUntil = extendPro(user, PRO_CLICK_DAYS);
+    await this.prisma.user.update({ where: { id: userId }, data: { plan: 'PRO', planUntil } });
+    return { plan: 'PRO' as const, planUntil };
   }
 
   private provider(): ProviderName {

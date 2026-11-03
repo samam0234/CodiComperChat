@@ -1,0 +1,18 @@
+# TLS를 끝내는 앞단. 인증서를 자동으로 받고 갱신한다.
+# Caddy는 바깥에서 온 X-Forwarded-For·X-Forwarded-Proto를 덮어쓴다 (앱의 HTTPS·IP 판단이 이 값을 믿는다).
+{
+	email {$ACME_EMAIL}
+}
+
+{$WEB_DOMAIN} {
+	encode gzip
+	reverse_proxy web:3000
+}
+
+# 운영 콘솔은 앱에서 CONSOLE_IP_ALLOWLIST로 한 번, 여기서 한 번 더 막는다
+{$CONSOLE_DOMAIN} {
+	@denied not client_ip {$CONSOLE_CADDY_ALLOW}
+	respond @denied "Forbidden" 403
+	encode gzip
+	reverse_proxy console:3001
+}

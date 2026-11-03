@@ -109,3 +109,5 @@ class ContextSlice(WireModel):
     story_so_far: str | None = Field(default=None, max_length=600)
     # 이번 유저 말이 건드렸지만 캐릭터 설정에 근거가 없는 개인사 주제. 단정하지 말고 넘기게 한다
     ungrounded_topics: list[str] = Field(default_factory=list, max_length=4)
+    # 이번 답에서 꼭 보여 줄 장면 (비밀 퀘스트 보상). 작은 모델이 놓치지 않게 프롬프트 맨 끝에 붙인다
+    scene_note: str | None = None

@@ -23,6 +23,11 @@ async function send(user: Awaited<ReturnType<typeof signup>>, personaId: string,
   });
 }
 
+// 프리미엄은 나이 확인이 있어야 열린다
+async function confirmAge(user: Awaited<ReturnType<typeof signup>>, birthDate = "1990-01-01") {
+  return api<{ message?: string }>("/auth/me/birthdate", { token: user.token, json: { birthDate } });
+}
+
 async function models(user: Awaited<ReturnType<typeof signup>>) {
   return (await api<{ default: string; balance: number; models: ModelRow[] }>("/models", { token: user.token })).body;
 }
@@ -32,6 +37,7 @@ test.describe("모델 선택", () => {
     const free = await signup("모델무료");
     const pro = await signup("모델프로");
     await setPlan(pro, "PRO");
+    await confirmAge(free);
 
     const list = await models(free);
     expect(list.default).toBe("basic");
@@ -99,6 +105,7 @@ test.describe("모델 선택", () => {
   test("프리미엄: 답 1번마다 코레딧을 쓰고, 모자라면 거절한다 (거절된 턴은 코레딧이 줄지 않는다)", async () => {
     const user = await signup("모델코레딧");
     const personaId = await createPersona(user);
+    await confirmAge(user);
 
     const poor = await send(user, personaId, "안녕", OPUS.id);
     expect(poor.status).toBe(403);
@@ -119,9 +126,58 @@ test.describe("모델 선택", () => {
     expect((await send(user, personaId, "안녕", "gpt-nothing")).status).toBe(400);
   });
 
+  test("프리미엄 나이 확인: 생년월일이 없거나 만 18세 미만이면 코레딧이 있어도 잠기고, 생년월일은 바꿀 수 없다", async ({ browser }) => {
+    const opusOf = async (u: Awaited<ReturnType<typeof signup>>) => (await models(u)).models.find((m) => m.id === OPUS.id)?.locked;
+
+    const minor = await signup("나이미성년");
+    const personaId = await createPersona(minor);
+    await api("/me/attendance", { token: minor.token, method: "POST" });
+    expect(await opusOf(minor)).toBe("NEEDS_BIRTHDATE");
+    const none = await send(minor, personaId, "안녕", OPUS.id);
+    expect(none.status).toBe(403);
+    expect(none.body.message).toContain("생년월일");
+
+    expect((await confirmAge(minor, "not-a-date")).status).toBe(400);
+    const seventeen = `${new Date().getUTCFullYear() - 17}-12-31`;
+    expect((await confirmAge(minor, seventeen)).status).toBe(200);
+    expect(await opusOf(minor)).toBe("UNDER_AGE");
+    const under = await send(minor, personaId, "안녕", OPUS.id);
+    expect(under.status).toBe(403);
+    expect(under.body.message).toContain("만 18세");
+    // 날짜를 고쳐 다시 넣을 수 없고, 코레딧은 그대로이며, 무료 모델은 계속 쓴다
+    expect((await confirmAge(minor, "1990-01-01")).status).toBe(409);
+    expect(await opusOf(minor)).toBe("UNDER_AGE");
+    expect((await models(minor)).balance).toBe(1000);
+    expect((await send(minor, personaId, "안녕", "basic")).status).toBe(200);
+
+    // 화면: 잠긴 까닭과 나이 확인 링크가 보이고, 설정에서 입력하면 열린다
+    const adult = await signup("나이성인");
+    await createPersona(adult, "민준");
+    await api("/me/attendance", { token: adult.token, method: "POST" });
+    const context = await browser.newContext();
+    const page = await signedInPage(context, adult);
+    await page.goto(CHAT);
+    await page.waitForLoadState("networkidle");
+    const opus = page.locator(`#model-select option[value="${OPUS.id}"]`);
+    await expect(opus).toBeDisabled();
+    await expect(opus).toHaveText(`Claude Opus 5.5 · ${OPUS.credits} 코레딧 · 생년월일 입력 필요`);
+    await page.getByRole("link", { name: "프리미엄은 나이 확인이 필요해요" }).click();
+    await expect(page).toHaveURL(/\/settings#age-settings/);
+    const section = page.getByRole("region", { name: "나이 확인" });
+    await section.getByLabel("생년월일").fill("1990-01-01");
+    await section.getByRole("button", { name: "나이 확인" }).click();
+    await expect(section).toContainText("생년월일을 입력했어요");
+    expect(await opusOf(adult)).toBeNull();
+    const me = await api("/auth/me", { token: adult.token });
+    expect(me.body).toMatchObject({ birthDateSet: true });
+    expect(me.body).not.toHaveProperty("birthDate");
+    await context.close();
+  });
+
   test("대화 화면: 모델을 고르고 보내면 오늘 횟수·코레딧이 바뀌고, 한도를 넘으면 안내가 나온다", async ({ browser }) => {
     const user = await signup("모델화면");
     await createPersona(user, "민준");
+    await confirmAge(user);
     const context = await browser.newContext();
     const page = await signedInPage(context, user);
     await page.goto(CHAT);

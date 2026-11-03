@@ -221,7 +221,7 @@ def panel(request: WebtoonPanelRequest) -> WebtoonPanelResponse:
     style = image_engine.STYLES[STYLE]
     prompt, _cast = photonet.compose(scene, style, request.rating)
     png, width, height = image_engine.txt2img(
-        prompt=prompt, negative=photonet.negative_for(style, request.rating), style=style, ratio=request.ratio
+        prompt=prompt, negative=photonet.negative_for(style, request.rating), style=style, ratio=request.ratio, seed=request.seed
     )
     photonet._check(png, request.rating)
     return WebtoonPanelResponse(

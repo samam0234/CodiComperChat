@@ -156,7 +156,7 @@ def _pipeline(path: Path, xl: bool):
     return pipe
 
 
-def txt2img(*, prompt: str, negative: str, checkpoint: str, xl: bool, width: int, height: int, steps: int, cfg: float) -> bytes:
+def txt2img(*, prompt: str, negative: str, checkpoint: str, xl: bool, width: int, height: int, steps: int, cfg: float, seed: int | None = None) -> bytes:
     """그림 한 장(PNG 바이트). 설치·모델이 없으면 503, 그리다 실패하면 502."""
     if reason := _deps():
         raise HTTPException(status_code=503, detail=f"그림 엔진을 쓸 수 없어요 ({reason}).")
@@ -181,6 +181,7 @@ def txt2img(*, prompt: str, negative: str, checkpoint: str, xl: bool, width: int
                     height=height,
                     num_inference_steps=steps,
                     guidance_scale=cfg,
+                    generator=None if seed is None else torch.Generator(device="cpu").manual_seed(seed),
                     **extra,
                 ).images[0]
         except HTTPException:

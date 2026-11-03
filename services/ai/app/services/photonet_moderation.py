@@ -89,6 +89,8 @@ def check(rating: Rating, image_b64: str) -> list[str]:
         return []
     try:
         raw = llm.generate(
+            # 그림을 이어 그릴 때 대화 모델이 그래픽 메모리를 차지하면 다음 장이 몇 배 느려진다 (evals.image_speed)
+            keep_alive=0,
             system=SYSTEM_PROMPT,
             contents=[{"role": "user", "content": "Review this image.", "images": [image_b64]}],
             max_output_tokens=200,

@@ -43,7 +43,7 @@ Route (app/routes) → Service (app/services) → llm.generate → Ollama /api/c
 
 `/train`은 스키마도 서비스 계층도 없다. v1 정책상 라우트에서 바로 403 (계획서 §7.7).
 
-아직 없는 것: 서비스 토큰 인증(계획서 §7.8 — 배포 때 내부망 + 토큰으로 막는다), pytest(대신 `evals`가 실제 모델로 품질을 잰다).
+서비스 토큰: `AI_SERVICE_TOKEN`이 있으면 그 헤더(`x-ai-token`)가 맞는 요청만, 없으면 루프백만 받는다(`services/ai/app/internal_auth.py`). 단위 시험은 `services/ai/tests`(unittest), 모델 품질은 `evals`가 실제 모델로 잰다.
 
 ## Next.js (`apps/web`)
 

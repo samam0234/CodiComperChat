@@ -42,6 +42,29 @@ test.describe("결제", () => {
     await expect(page.getByRole("link", { name: "기간 늘리기" })).toBeVisible();
   });
 
+  test("결제 없이 누르면 프로가 30일 켜지고, 기간이 남았으면 다시 누를 수 없으며 주문은 생기지 않는다", async ({ browser }) => {
+    const user = await signup("클릭프로");
+    const page = await signedInPage(await browser.newContext(), user);
+    await page.goto("/pricing");
+    await page.waitForLoadState("networkidle");
+    const box = page.getByRole("region", { name: "결제 없이 프로로 바꾸기" });
+    await box.getByRole("button", { name: "프로로 바꾸기" }).click();
+    await expect(box).toBeHidden();
+    await expect(page.getByRole("article", { name: "프로" })).toContainText("지금 쓰는 등급");
+
+    expect((await api<{ plan: string }>("/auth/me", { token: user.token })).body.plan).toBe("PRO");
+    const orders = await api<{ orders: unknown[]; planUntil: string }>("/billing/orders", { token: user.token });
+    expect(orders.body.orders).toHaveLength(0);
+    const left = new Date(orders.body.planUntil).getTime() - Date.now();
+    expect(left).toBeGreaterThan(29 * 86_400_000);
+    expect(left).toBeLessThan(31 * 86_400_000);
+
+    // 눌러서 기간을 쌓을 수 없다
+    expect((await api("/billing/pro-click", { token: user.token, method: "POST" })).status).toBe(409);
+    expect((await api<{ planUntil: string }>("/billing/orders", { token: user.token })).body.planUntil).toBe(orders.body.planUntil);
+    expect((await api("/billing/pro-click", { method: "POST" })).status).toBe(401);
+  });
+
   test("남은 프로 기간이 있으면 결제한 기간이 그 뒤에 붙는다", async () => {
     const user = await signup("연장");
     const pay = async () => {

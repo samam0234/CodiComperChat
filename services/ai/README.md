@@ -45,6 +45,12 @@ cd services/ai
 ./.venv/Scripts/python.exe -m evals.run                      # 전체, 질문마다 2회
 ./.venv/Scripts/python.exe -m evals.run --suite override --repeat 3
 ./.venv/Scripts/python.exe -m evals.run --json out.json -v   # 결과 저장, 통과한 질문도 출력
+./.venv/Scripts/python.exe -m evals.quest_seyeon             # 이세연 퀘스트 판정 (잘못 통과가 있으면 실패)
+./.venv/Scripts/python.exe -m evals.quest_yujiseong          # 유지성 퀘스트 판정 (잘못 통과가 있으면 실패)
+./.venv/Scripts/python.exe -m evals.quest_reward             # 달성 직후 보상 장면
+./.venv/Scripts/python.exe -m evals.photonet_guard           # 성인 모드 그림 가드 (그림 엔진 필요)
+./.venv/Scripts/python.exe -m evals.image_speed              # 그림 단계별 시간 (그림 엔진 필요)
+./.venv/Scripts/python.exe -m unittest discover tests        # 모델 없이 도는 규칙 시험
 ```
 
 | 묶음 | 보는 것 | 기준 |
@@ -58,6 +64,8 @@ cd services/ai
 | `moderation_rules` | 초상 검수: 항목별 판정 → 결과(통과·운영자 검수·거절) 규칙 (모델 없이) | 100% |
 | `moderation_benign` | 초상 검수: 정상 그림 6장(웃는 얼굴·풍경·만화 흉상·칼 든 기사·고양이·빨간 목도리)을 막지 않는가 | 90% |
 | `moderation_stability` | 초상 검수: 같은 그림에 같은 판정을 내는가 | 90% |
+| `narration` | 장면이 바뀌면 첫 줄에 `@:`를 쓰고 평범한 대화에는 안 쓰는가 | 80% |
+| `webtoon_plan` | 콘티의 컷 수·영어 태그·인물 외모가 맞는가 | 75% |
 
 기준에 못 미치는 묶음이 있으면 종료 코드 1이다. 평가용 가상 캐릭터는 `evals/fixture.py`(실제 캐릭터 설정은 비공개라 쓰지 않는다).
 판정·요약 호출(`/critique-test`·`/ground-check`·`/summarize`)은 `seed`를 고정해 같은 입력에 같은 결과가 나온다. 대화 연기는 고정하지 않는다.

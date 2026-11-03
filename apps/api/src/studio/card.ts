@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { BadRequestException } from '@nestjs/common';
+import { PERSONA_DESCRIPTION_MAX, PERSONA_NAME_MAX } from '../personas/personas.service.js';
 import { EMPTY_QUEST, QUEST_TITLE_MAX, type Quest } from '../quests/quest.js';
 
 // 공방 카드 = 기획서 §4.1의 7층. "프롬프트 메모장"이 아니라 구조화된 필드다.
@@ -58,6 +59,8 @@ export type Card = {
   };
   // 비밀 퀘스트(선택). 직접 쓰거나 AI로 만든다 — 구조·판정은 src/quests/quest.ts
   quest: Quest;
+  // 이 캐릭터와 대화할 때 추천하는 내 프로필(선택). 이름이 없으면 싣지 않는다
+  recommendedPersona: { name: string; description: string };
 };
 
 // 글자 수 상한(무료 기준). 길면 매 턴 컨텍스트를 잡아먹어 최근 대화가 밀려난다 (§6.3)
@@ -118,6 +121,7 @@ export const EMPTY_CARD: Card = {
   greeting: { firstMessage: '', alternates: [], examples: [] },
   lore: { world: '', person: '', taboo: '', extra: [] },
   quest: { ...EMPTY_QUEST },
+  recommendedPersona: { name: '', description: '' },
 };
 
 type Obj = Record<string, unknown>;
@@ -169,6 +173,7 @@ export function normalizeCard(raw: unknown, opts: { multiplier?: number; existin
   const gr = obj(c.greeting);
   const lo = obj(c.lore);
   const qu = obj(c.quest);
+  const rp = obj(c.recommendedPersona);
 
   const examples = Array.isArray(gr.examples) ? gr.examples : [];
   if (examples.length > L.examples) throw new BadRequestException(`예시 대화는 ${L.examples}세트까지입니다.`);
@@ -246,6 +251,10 @@ export function normalizeCard(raw: unknown, opts: { multiplier?: number; existin
       objective: text(qu.objective, L.field, '퀘스트 달성 조건', ex?.quest?.objective),
       reward: text(qu.reward, L.field, '퀘스트 보상 장면', ex?.quest?.reward),
       unlockAt: questUnlock(qu.unlockAt),
+    },
+    recommendedPersona: {
+      name: text(rp.name, PERSONA_NAME_MAX, '추천 프로필 이름'),
+      description: text(rp.description, PERSONA_DESCRIPTION_MAX, '추천 프로필 소개'),
     },
   };
 }
@@ -362,6 +371,6 @@ function stepTouched(card: Card, key: StepKey): boolean {
 // 비밀 퀘스트는 3턴 테스트 대화에 쓰이지 않으므로 지문에서 뺀다 — 퀘스트만 고쳤다고 다시 테스트하게 하지 않고,
 // 퀘스트가 생기기 전에 테스트를 통과한 기존 카드의 지문도 그대로 유지된다
 export function cardHash(card: Card): string {
-  const { quest: _quest, ...rest } = card;
+  const { quest: _quest, recommendedPersona: _persona, ...rest } = card;
   return createHash('sha256').update(JSON.stringify(rest)).digest('hex').slice(0, 16);
 }

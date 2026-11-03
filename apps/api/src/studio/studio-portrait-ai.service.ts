@@ -8,7 +8,8 @@ import { StudioService } from './studio.service.js';
 
 // 공방 외형 단계의 "AI로 직접 만들기" (2026-10-25 사용자 요청, 한 장 25 코레딧).
 // 화풍 4가지 중 하나와 생김새를 고르면 그림 엔진이 흉상을 그리고, 그 그림을 올린 그림과 똑같이
-// 초상 자동 검수(PortraitReviewService)를 거쳐 저장한다. 못 그리거나 검수에서 막히면 코레딧을 돌려준다.
+// 초상 자동 검수(PortraitReviewService)를 거쳐 후보로 돌려준다. 저장은 이용자가 고른 그림만 일반 업로드 길로 한다
+// (2026-11-04). 못 그리거나 검수에서 막히면 코레딧을 돌려준다.
 // 남에게 보이는 초상이라 전체 이용가로만 그린다
 export const PORTRAIT_STYLES = ['애니메이션', '웹툰', '수채화', '실사풍'] as const;
 export const PORTRAIT_OPTIONS = {
@@ -85,9 +86,13 @@ export class StudioPortraitAiService {
         { style: input.style, options: input.options, appearance, extra: input.extra, maxBytes: PORTRAIT_MAX_BYTES },
         { timeoutMs: PORTRAIT_TIMEOUT_MS },
       );
-      // 올린 그림과 같은 길로: 초상 자동 검수 → 저장 (명백히 안 되면 여기서 400 → 환불)
-      const draft = await this.studio.setPortrait(ownerId, id, { data: Buffer.from(raw.image, 'base64'), mime: raw.mime });
-      return { draft, balance: await this.credits.balance(ownerId), cost };
+      // 올린 그림과 같은 자동 검수 (명백히 안 되면 여기서 400 → 환불). 고르면 업로드 길에서 한 번 더 검수한다
+      const review = await this.studio.reviewPortrait({ data: Buffer.from(raw.image, 'base64'), mime: raw.mime });
+      return {
+        candidate: { image: raw.image, mime: raw.mime, review: review.review, note: review.note },
+        balance: await this.credits.balance(ownerId),
+        cost,
+      };
     } catch (error) {
       await this.credits.refund(ownerId, cost, 'op:portraitAi');
       throw error;

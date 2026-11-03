@@ -14,6 +14,15 @@ export class BillingController {
     return this.billing.products();
   }
 
+  // 결제 없이 프로로 바꾼다. 정식 서비스 전에만 열린다
+  @Post('pro-click')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @RateLimit('billing')
+  proClick(@CurrentUserId() userId: string) {
+    return this.billing.claimProClick(userId);
+  }
+
   @Post('checkout')
   @UseGuards(AuthGuard)
   @RateLimit('billing')

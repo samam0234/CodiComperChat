@@ -1,9 +1,9 @@
 import { creditsToKrw, attendanceReward } from '../credits/credits.js';
-import { DEFAULT_MODEL_ID, ENHANCED_OVERAGE_CREDITS, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstDay, lockOf } from './models.js';
+import { DEFAULT_MODEL_ID, ENHANCED_OVERAGE_CREDITS, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstMonthStart, premiumMonthlyCap, kstDay, lockOf } from './models.js';
 
 const model = (id: string) => findModel(id)!;
-const free = (usedToday = 0, balance = 0) => ({ plan: 'FREE' as const, usedToday, balance });
-const pro = (usedToday = 0, balance = 0) => ({ plan: 'PRO' as const, usedToday, balance });
+const free = (usedToday = 0, balance = 0, age: number | null = 30) => ({ plan: 'FREE' as const, usedToday, balance, age });
+const pro = (usedToday = 0, balance = 0, age: number | null = 30) => ({ plan: 'PRO' as const, usedToday, balance, age });
 
 describe('모델 목록', () => {
   it('기본 무료·강화 무료·Claude 8개·Grok 3개이고 id가 겹치지 않는다', () => {
@@ -44,13 +44,41 @@ describe('쓸 수 있는 조건', () => {
     expect(lockOf(model('enhanced'), pro(9999), {})).toBeNull();
   });
 
-  it('프리미엄은 연동 전이라 준비 중이고, 연동되면 코레딧이 모자랄 때만 잠긴다 (등급과 상관없다)', () => {
+  it('프리미엄은 공급자를 열지 않으면 준비 중이고, 열면 코레딧이 모자랄 때만 잠긴다 (등급과 상관없다)', () => {
     for (const m of MODELS.filter((x) => x.tier === 'PREMIUM')) {
       expect(lockOf(m, pro(0, 99999), {})).toBe('NOT_READY');
-      const ready = { MODEL_PREMIUM_FAKE: '1' };
-      expect(lockOf(m, free(0, m.credits! - 1), ready)).toBe('NO_CREDITS');
-      expect(lockOf(m, free(0, m.credits!), ready)).toBeNull();
+      for (const ready of [{ MODEL_PREMIUM_FAKE: '1' }, { PREMIUM_PROVIDERS: 'anthropic, xai' }]) {
+        expect(lockOf(m, free(0, m.credits! - 1), ready)).toBe('NO_CREDITS');
+        expect(lockOf(m, free(0, m.credits!), ready)).toBeNull();
+      }
     }
+  });
+
+  it('프리미엄은 생년월일이 없거나 만 18세 미만이면 코레딧이 있어도 잠긴다. 무료 모델은 나이와 상관없다', () => {
+    const ready = { PREMIUM_PROVIDERS: 'anthropic' };
+    const claude = model('claude-haiku-5-5');
+    expect(lockOf(claude, free(0, 999, null), ready)).toBe('NEEDS_BIRTHDATE');
+    expect(lockOf(claude, free(0, 999, 17), ready)).toBe('UNDER_AGE');
+    expect(lockOf(claude, pro(0, 999, 17), ready)).toBe('UNDER_AGE');
+    expect(lockOf(claude, free(0, 999, 18), ready)).toBeNull();
+    // 나이를 먼저 보여 준다 (코레딧을 모아도 못 쓰는 사람에게 코레딧 부족이라고 하지 않는다)
+    expect(lockOf(claude, free(0, 0, 17), ready)).toBe('UNDER_AGE');
+    // 공급자를 열지 않았으면 준비 중이 먼저다
+    expect(lockOf(claude, free(0, 999, null), {})).toBe('NOT_READY');
+    expect(lockOf(model('basic'), free(0, 0, 13))).toBeNull();
+    expect(lockOf(model('enhanced'), free(0, 0, null), {})).toBeNull();
+  });
+
+  it('공급자는 적힌 것만 열린다', () => {
+    const only = { PREMIUM_PROVIDERS: 'anthropic' };
+    expect(lockOf(model('claude-haiku-5-5'), free(0, 999), only)).toBeNull();
+    expect(lockOf(model('grok-4-5'), free(0, 999), only)).toBe('NOT_READY');
+    expect(lockOf(model('grok-4-5'), free(0, 999), { PREMIUM_PROVIDERS: '' })).toBe('NOT_READY');
+  });
+
+  it('Grok은 공급자 이름에 점을 쓰고, Claude는 id 그대로 보낸다', () => {
+    expect(model('grok-4-7').runtime).toBe('grok-4.7');
+    expect(model('claude-opus-5-5').runtime).toBe('claude-opus-5-5');
   });
 
   it('하루 한도는 환경변수로 줄일 수 있고, 이상한 값은 30으로 돌아간다', () => {
@@ -77,5 +105,36 @@ describe('하루의 기준', () => {
   it('한국 시각 자정에 날짜가 바뀐다', () => {
     expect(kstDay(new Date('2026-10-21T14:59:59Z'))).toBe('2026-10-21');
     expect(kstDay(new Date('2026-10-21T15:00:00Z'))).toBe('2026-10-22');
+  });
+});
+
+describe('프리미엄 월 지출 한도', () => {
+  const claude = findModel('claude-haiku-5-5')!;
+  const wallet = (premiumSpent: number) => ({ plan: 'FREE' as const, usedToday: 0, balance: 999, age: 30, premiumSpent });
+
+  it('운영에서 값을 넣지 않으면 0이고, 개발은 한도가 없다', () => {
+    expect(premiumMonthlyCap({ NODE_ENV: 'production' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '많이' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '-1' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '5000' })).toBe(5000);
+    expect(premiumMonthlyCap({})).toBeNull();
+  });
+
+  it('이번 답까지 더해 한도를 넘으면 잠근다', () => {
+    const env = { PREMIUM_PROVIDERS: 'anthropic', PREMIUM_MONTHLY_CREDITS: '100' };
+    expect(lockOf(claude, wallet(92), env)).toBeNull();
+    expect(lockOf(claude, wallet(93), env)).toBe('SPEND_CAP');
+    expect(lockOf(claude, wallet(0), { PREMIUM_PROVIDERS: 'anthropic', NODE_ENV: 'production' })).toBe('SPEND_CAP');
+  });
+
+  it('무료 모델은 한도와 상관없다', () => {
+    const env = { PREMIUM_MONTHLY_CREDITS: '0' };
+    expect(lockOf(findModel('basic')!, wallet(999), env)).toBeNull();
+  });
+
+  it('이번 달 시작은 한국 시각 기준이다', () => {
+    expect(kstMonthStart(new Date('2026-10-31T15:30:00Z')).toISOString()).toBe('2026-10-31T15:00:00.000Z');
+    expect(kstMonthStart(new Date('2026-10-31T14:59:00Z')).toISOString()).toBe('2026-09-30T15:00:00.000Z');
   });
 });

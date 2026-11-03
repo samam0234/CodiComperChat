@@ -1,12 +1,14 @@
 # 배포·포트·운영
 
-배포 전 점검, Compose 배포, 롤백, 포트/도메인 관련 기록을 모은다.
+배포 전 점검, Compose 배포, 백업, 포트 관련 기록을 모은다. 진입점: [../DEPLOYMENT.md](../DEPLOYMENT.md).
 
 | 파일 | 내용 |
 |------|------|
+| [hosting-options.md](hosting-options.md) | 상시 서버 후보와 권장 |
 | [pre-deploy.md](pre-deploy.md) | 배포 전 체크 |
-| [docker-deploy.md](docker-deploy.md) | Compose 배포 절차 |
+| [docker-deploy.md](docker-deploy.md) | 운영 배포 절차, 서버 조건, 실측 |
+| [backup-restore.md](backup-restore.md) | 백업과 복구, 연습 기록 |
 | [ports-inventory.md](ports-inventory.md) | 포트 표 (기준: `../plan/CURRENT_STACK.md`) |
 | [post-deploy.md](post-deploy.md) | 배포 후 확인 |
 
-> 상태: 배포 대상(호스팅, 도메인)이 아직 정해지지 않았다 (계획서 §15). 아래 문서들은 지금은 체크리스트/TBD 수준이며, 배포 인프라가 확정되면 실제 절차로 채운다.
+> 상태(2026-11-03): 구성은 만들어 개발 PC에서 시험했다. 서버는 Hetzner GEX45로 정했고 계약 전이다. 도메인은 아직 정하지 않았다.

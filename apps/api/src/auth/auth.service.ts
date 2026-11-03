@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { adultBlock } from '../account/adult.js';
+import { adultBlock, adultModeOff } from '../account/adult.js';
 import { MailService, webBaseUrl } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
@@ -45,6 +45,10 @@ type Raw = Prisma.UserGetPayload<{ select: typeof PUBLIC_USER }>;
 export type PublicUser = Omit<Raw, 'planUntil' | 'emailVerifiedAt' | 'sessionVersion' | 'birthDate' | 'adultConsentAt'> & {
   emailVerified: boolean;
   adult: boolean;
+  // 생년월일을 입력했는지만 알린다 (날짜 자체는 내보내지 않는다)
+  birthDateSet: boolean;
+  // 서비스가 성인 모드를 제공하는지 (ADULT_MODE=off면 false). 화면이 입구를 숨기는 데 쓴다
+  adultAvailable: boolean;
 };
 
 // PRO 만료 시각이 지났으면 FREE로 내려 보낸다. 만료 시각·토큰 세대·생년월일은 내보내지 않는다
@@ -55,6 +59,8 @@ function present(user: Raw): PublicUser {
     plan: effectivePlan(user),
     emailVerified: emailVerifiedAt !== null,
     adult: adultBlock({ birthDate, adultConsentAt, emailVerifiedAt }) === null,
+    birthDateSet: birthDate !== null,
+    adultAvailable: !adultModeOff(),
   };
 }
 

@@ -39,6 +39,9 @@
 | `.agents/AGENTS.md` | 짧은 진입 지시 |
 | `.agents/README.md` | 스킬 허브 설명 |
 | `AGENTS.md` (루트) | Grok/Codex 등 자동 로드용 요약 |
+| `docs/AGENT_HANDOVER.md` | 인수인계(현재 상태·작업 약속·함정·해야 할 일) — 규칙 정본이 아니라 상태 문서 |
+| `docs/TASKS.md` | 작업 지시서(다음에 할 일, 선행 조건, 끝난 기준) |
+| `docs/FEATURES.md` | 전체 기능 카탈로그 |
 
 **주의:** 스킬 파일은 반드시 `.agents/skills/codicomperchat/SKILL.md` 경로에 둔다. `.agents/SKILL.md`처럼 루트에 바로 두면 일부 도구가 찾지 못한다.
 
@@ -54,7 +57,7 @@
 
 | 경로 | 생성 주체 | 성격 |
 |------|-----------|------|
-| `apps/web/AGENTS.md`, `apps/web/CLAUDE.md` | `next dev` (Next.js 16) | 해당 Next 버전의 주의사항 안내. 지우면 다시 생성되므로 변경분은 그대로 커밋한다 |
+| `apps/web/AGENTS.md`, `apps/web/CLAUDE.md`, `console/AGENTS.md`, `console/CLAUDE.md` | `next dev`, `next typegen` (Next.js 16) | 해당 Next 버전의 주의사항 안내. 시험이나 타입 검사가 다시 쓰면 작업과 섞어 커밋하지 않고 `git checkout -- <파일>`로 되돌린다. Next 코드를 고치기 전에 안내대로 `node_modules/next/dist/docs/`를 읽는다 |
 
 이 파일들은 **작업 방식(커밋/브랜치/문서) 규칙이 아니다.** 프레임워크 사용법만 다루므로 이 정본과 충돌하지 않으며, 충돌하는 것처럼 보이면 이 정본이 이긴다. 손으로 고치지 않는다.
 
@@ -107,7 +110,8 @@ type(scope): 한국어 한 줄 요약
 | 시점 | 커밋 **전 또는 직후** |
 | 템플릿 | `docs/branchs/TEMPLATE.md` |
 | 목록 | `docs/branchs/README.md` 표에도 링크 추가 |
-| 기록 파일 | 같은 브랜치에 커밋·푸시 |
+| 기록 파일 | 같은 브랜치에 커밋. 푸시는 사용자가 요청할 때만 |
+| 작성기 | `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit` (`--trailer`는 선택) |
 
 파일명:
 ```text
@@ -140,7 +144,8 @@ main          ← 배포 통합만
 | 작업·커밋 | `feature/*` 등에서만 |
 | 일자 통합 | develop / main 만 |
 | 병합 | **`git merge --no-ff`** (FF 금지) |
-| feature 완료 | develop에 --no-ff |
+| feature 완료 | 사용자가 "병합"이라고 말하면 develop에 --no-ff |
+| 푸시 | 사용자가 요청할 때만 |
 | 배포 | release/* 검증 후 main |
 
 금지:
@@ -155,7 +160,7 @@ main          ← 배포 통합만
 git checkout develop
 git pull origin develop
 git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
-git push origin develop
+# 병합 기록을 남기고 시험 결과를 보고한다. 푸시는 요청받았을 때만 한다.
 ```
 
 상세: `docs/guidance/branch-merge.md`
@@ -164,23 +169,26 @@ git push origin develop
 
 ## 6. 프로젝트/스택 규칙 (에이전트도 준수)
 
-**출처: `CodiComperChat_project_plan.md` §7, §9, §13 그대로. 임의로 스택을 바꾸거나 범위를 넓히지 않는다.**
+**출처: `CodiComperChat_project_plan.md` §7, §9, §13에서 시작해, 구현하며 사용자가 결정한 것을 반영했다. 지금 값의 정본은 `docs/plan/CURRENT_STACK.md`다. 에이전트가 임의로 스택을 바꾸거나 범위를 넓히지 않는다.**
 
-- 프론트: **Next.js (React, TSX)** — `apps/web/`
+- 프론트: **Next.js (React, TSX)** — 이용자 사이트 `apps/web/`, 운영 콘솔 `console/`
 - 도메인/상태 API: **Nest.js (TypeScript)** — `apps/api/`
-- AI 추론: **FastAPI (Python)** — `services/ai/`
-- DB: **PostgreSQL** (1순위), 의미 검색은 pgvector 또는 이후 전용 벡터DB, 세션 캐시/잡은 **Redis**
+- AI 추론·그림: **FastAPI (Python)** — `services/ai/` (로컬 Ollama + 서버 안 그림 엔진)
+- DB: **PostgreSQL**. Redis·벡터 DB는 쓰지 않는다 (요청 한도는 메모리/PostgreSQL, 대기열은 프로세스 메모리, 지식 검색은 2-gram BM25)
 - ORM: Nest 쪽 **Prisma**
 
-저장소 구조 (계획서 7.3):
+저장소 구조:
 ```text
 repo/
 ├── apps/
-│   ├── web/          # Next.js (TSX)
+│   ├── web/          # Next.js 이용자 사이트
 │   └── api/          # Nest.js
+├── console/          # Next.js 운영 콘솔
 ├── services/
 │   └── ai/           # FastAPI
-└── docker-compose.yml
+├── deploy/           # 운영 구성 (GPU 서버 한 대)
+├── e2e/              # Playwright
+└── docker-compose.yml  # 개발용 보조 서비스
 ```
 
 역할 분리 원칙 (계획서 7.1, 위반 금지):
@@ -195,11 +203,12 @@ API 경계 (계획서 13.1, 13.2) — 웹이 치는 것과 내부 전용을 섞�
 
 핵심 도메인 (계획서 7.5, 테이블명 확정은 Prisma 단계에서): `User` `Character` `LoreEntry` `Campaign` `CampaignState` `Session` `Message` `MemoryChunk`
 
-v1 범위 (계획서 §9, 에이전트가 임의로 확장 구현하지 않는다):
-- 있음: 공식 캐릭터 1~3명, 캠페인 템플릿 1개, 7단계 창작 공방(운영자용)
-- 없음(명시적으로 뺌): 유저 캐릭터 광장/카드 마켓, 자체 LLM 학습, 멀티플레이/파티 채팅, 음성 통화·만화 자동생성, 일정/할일/검색류 생산성 기능, 복잡한 전투 룰북
+범위 (에이전트가 임의로 확장 구현하지 않는다):
+- 계획서 §9의 v1: 공식 캐릭터 1~3명, 캠페인 템플릿 1개, 창작 공방
+- 사용자 결정으로 v1 밖에서 넓힌 것: 유저 캐릭터 공개, 코디포토넷, 웹툰, 오퍼레이션, 비밀 퀘스트, 성인 모드 등. 전체 목록은 `docs/FEATURES.md`
+- 여전히 없는 것: 카드 마켓, 자체 LLM 학습, 멀티플레이/파티 채팅, 음성 통화, 일정/할일/검색류 생산성 기능, 복잡한 전투 룰북
 
-포트/인프라 확정값은 아직 계획서에 없음 → 제안값과 확정 여부는 `docs/plan/CURRENT_STACK.md`에서 관리. 이 문서를 고치지 않고 코드에서만 포트를 정하지 않는다.
+새 기능은 사용자가 요청한 것만 넣는다. 포트/인프라 값은 `docs/plan/CURRENT_STACK.md`에서 관리한다. 이 문서를 고치지 않고 코드에서만 포트를 정하지 않는다.
 
 ---
 
@@ -221,6 +230,8 @@ v1 범위 (계획서 §9, 에이전트가 임의로 확장 구현하지 않는�
 
 새 하위 폴더가 더 필요해지면 이 표에 추가하고 용도를 적는다 — 말없이 폴더만 만들지 않는다.
 
+**값은 한곳에만 적는다.** 어떤 값을 어느 문서가 맡는지는 `docs/README.md`의 "문서 정본 표"를 따른다. 시험 수처럼 자주 바뀌는 값은 정본에만 적고, 다른 문서는 링크로 가리킨다.
+
 ### docs에서 절대 하지 말 것
 - `docs/commits/`에 기록 (금지) → `docs/branchs/commits/`만
 - 커밋 기록 생략
@@ -236,5 +247,22 @@ v1 범위 (계획서 §9, 에이전트가 임의로 확장 구현하지 않는�
 3. **커밋:** type/scope 영어, **요약·본문·바닥글 한국어**
 4. **매 커밋마다** `docs/branchs/commits/`에 템플릿 md + 목록 표 갱신 (생략 금지, 잘못된 경로 금지)
 5. **작업은 feature**, **합칠 때만 develop/main + `--no-ff`**
-6. **스택·범위는 기획서 §7~9 그대로**, 임의로 프레임워크를 바꾸거나 v1 범위를 넓히지 않는다
+6. **스택·범위는 `docs/plan/CURRENT_STACK.md` 기준**, 임의로 프레임워크를 바꾸거나 범위를 넓히지 않는다
 7. 시크릿·force-push 금지
+8. **병합은 사용자가 말할 때만, 푸시는 요청할 때만**
+
+---
+
+## 9. 사용자와 합의한 작업 방식
+
+모든 에이전트에 똑같이 적용한다. 이전 대화 기록은 도구 사이에 넘어가지 않으므로 여기에 적어 둔다.
+
+- 응답은 **한국어, 간결, 결과 중심**. 못 한 것과 확인하지 못한 것은 숨기지 않고 말한다.
+- 사용자가 "작업 ㄴㄴ"라고 하면 설명만 한다.
+- 큰 기능은 만들기 전에 방향을 한 번 묻는다. 비용이 드는 일과 바깥으로 나가는 일은 먼저 확인한다.
+- 사용자의 개발 서버(web·api·ai·console)를 켜거나 끄거나 죽이지 않는다. 내가 켠 것만 내가 끈다.
+- 개발 서버가 켜져 있을 때 `npm run build:api`를 하지 않는다(`dist`를 지워 서버가 죽는다). `npm run typecheck:api`나 `npm run build:verify --workspace api`를 쓴다.
+- 시험을 통과시키려고 시간 제한을 늘리거나 시험을 건너뛰지 않는다. 결과를 읽은 뒤에 기록을 쓴다.
+- `.env`, 키, DB 비밀번호, `AUTH_SECRET`, SMTP·토스 값은 출력하거나 커밋하지 않는다. `services/ai/models/`의 모델 파일도 커밋하지 않는다.
+- 다른 프로젝트의 도커 컨테이너(`storyforge-postgres`)를 건드리지 않고, `docker system prune`과 `wsl --shutdown`을 하지 않는다.
+- 바닥글의 `Co-Authored-By`는 쓰는 도구의 안내가 정한 값만 쓴다. 안내가 없으면 넣지 않는다.

@@ -11,6 +11,8 @@ MESSAGE_STYLE = """지금은 장면 속 대화가 아니라 휴대폰 메신저�
 - 1~2문장으로 짧게, 실제 문자처럼 쓴다. 말투는 캐릭터 그대로.
 - 행동·표정 묘사(*별표*)나 장면 서술은 쓰지 않는다. 문자에 보낼 글만 쓴다.
 - 얼굴을 보고 있지 않으므로 지금 같은 장소에 있는 것처럼 말하지 않는다."""
+# 외부 공급자의 사용 정책(Anthropic은 성적 콘텐츠 생성 금지)에 맞춘다. 로컬 모델 대화에는 붙이지 않는다
+EXTERNAL_PROVIDER_RULE = "성적으로 노골적인 묘사는 쓰지 않는다. 장면이 그쪽으로 흐르면 캐릭터답게 분위기를 돌리거나 시간을 건너뛴다."
 # 낮출수록 설정에서 덜 벗어난다. 캐릭터 연기의 생기를 잃지 않는 선에서 기본값(0.8)보다 살짝 낮춘다
 TEMPERATURE = 0.7
 
@@ -224,13 +226,18 @@ def run(request: InferRequest) -> InferResponse:
     system = _fill_user(_build_system_prompt(request.context), user_name)
     if request.channel == "message":
         system += "\n\n" + MESSAGE_STYLE
+    if request.context.scene_note:
+        system += "\n\n이번 답에서 꼭 할 일: " + _fill_user(request.context.scene_note, user_name)
     if request.retry_note:
         system += "\n\n다시 쓰기: " + request.retry_note
+    if request.provider != "ollama":
+        system += "\n\n" + EXTERNAL_PROVIDER_RULE
     reply = llm.generate(
         system=system,
         contents=[{**c, "content": _fill_user(str(c["content"]), user_name)} for c in _build_messages(request.context, request.user_turn)],
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=TEMPERATURE,
         model=request.model,
+        provider=request.provider,
     )
     return InferResponse(reply=reply)

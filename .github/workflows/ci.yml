@@ -73,6 +73,9 @@ jobs:
       - name: API 단위 테스트
         run: npm run test:api
 
+      - name: 커밋 기록 작성기 시험
+        run: node --test scripts/record-commit.test.mjs
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -85,6 +88,10 @@ jobs:
           pip install -r requirements.txt
           python -m compileall -q app evals
           python -c "import app.main"
+
+      - name: AI 서비스 단위 시험
+        working-directory: services/ai
+        run: python -m unittest discover tests
 
   e2e:
     needs: checks
@@ -135,6 +142,9 @@ jobs:
       # 러너에 설치된 Chrome을 쓴다 (playwright.config.ts의 channel: "chrome")
       - name: 웹 화면 자동 테스트
         run: npm run test:e2e
+
+      - name: 성인 모드를 끈 서버의 화면 시험
+        run: npm run test:e2e:adult-off
 
       - name: 실패 화면·추적 올리기
         if: failure()

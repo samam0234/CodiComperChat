@@ -5,28 +5,50 @@ Copyright (c) 2026 코디컴퍼챗 프로젝트. 모든 권리 보유.
 
 This repository and everything in it (source code, documentation, designs,
 character cards, prompts, database schemas, and other materials created for
-the CodiComperChat project) are PROPRIETARY. No license or permission is granted
-except as stated below or in a separate written agreement with the rights holder.
+the CodiComperChat project) are PROPRIETARY. This is NOT open-source software.
+No license or permission is granted except as stated below or in a separate
+written agreement with the rights holder.
 
 이 저장소와 그 안의 모든 것(소스 코드, 문서, 디자인, 캐릭터 카드, 프롬프트,
-데이터베이스 스키마 등 코디컴퍼챗 프로젝트를 위해 만든 자료)은 비공개 독점 자산입니다.
-아래에 적은 경우나 권리자와 맺은 별도의 서면 계약이 없는 한 어떤 허락도 주어지지 않습니다.
+데이터베이스 스키마 등 코디컴퍼챗 프로젝트를 위해 만든 자료)은 독점 자산입니다.
+오픈소스가 아닙니다. 아래에 적은 경우나 권리자와 맺은 별도의 서면 계약이 없는 한
+어떤 허락도 주어지지 않습니다.
 
-1. What you may do / 허용되는 것
+1. Public visibility is not permission / 공개되어 있어도 허락이 아닙니다
+   This repository may be publicly visible on GitHub only so that the service can
+   be deployed. Being able to see it does not give you any right to use it.
+   이 저장소가 GitHub에 공개되어 있는 것은 서비스 배포를 위해서입니다.
+   볼 수 있다는 것이 사용할 권리를 주지는 않습니다.
+
+2. What you may do / 허용되는 것
    - Rights holders and people they have authorized in writing may use, modify,
-     and run this software for developing and operating the CodiComperChat service.
+     clone, and run this software for developing and operating the CodiComperChat
+     service, including the deployment systems they operate.
+   - Anyone may view this repository on GitHub, and may use the forking feature
+     only to the extent GitHub's Terms of Service require for public repositories.
+     That does not permit anything in section 3 outside GitHub.
+   - Anyone may read the code to report a security problem as described in SECURITY.md.
    - 권리자와, 권리자가 서면으로 허락한 사람은 코디컴퍼챗 서비스를 개발·운영하는 목적으로
-     이 소프트웨어를 사용·수정·실행할 수 있습니다.
+     이 소프트웨어를 사용·수정·복제(clone)·실행할 수 있고, 그들이 운영하는 배포 시스템도 같습니다.
+   - 누구나 GitHub에서 이 저장소를 볼 수 있고, 포크 기능은 GitHub 서비스 약관이 공개 저장소에
+     요구하는 범위에서만 쓸 수 있습니다. GitHub 밖에서 3항의 일을 하도록 허락하는 것이 아닙니다.
+   - 누구나 SECURITY.md에 따라 보안 문제를 신고하려고 코드를 읽을 수 있습니다.
 
-2. What you may not do without written permission / 서면 허락 없이는 안 되는 것
-   - Copy, publish, redistribute, sublicense, sell, or rent this repository or any part of it.
-   - Use it, or anything derived from it, to build or train a competing product or model.
+3. What you may not do without written permission / 서면 허락 없이는 안 되는 것
+   - Clone, download, mirror, or otherwise copy this repository or any part of it,
+     except as section 2 allows.
+   - Run, deploy, or host this software or anything derived from it.
+   - Publish, redistribute, sublicense, sell, or rent this repository or any part of it.
+   - Use it, or anything derived from it, to build or train a competing product or model,
+     or to train any machine-learning model.
    - Remove or alter copyright, license, or notice files.
-   - 저장소나 그 일부를 복제·공개·재배포·재라이선스·판매·대여하는 것
-   - 이를 이용해 경쟁 제품이나 모델을 만들거나 학습시키는 것
+   - 2항에서 허용한 경우 말고 저장소나 그 일부를 clone·다운로드·미러링 등으로 복제하는 것
+   - 이 소프트웨어나 이를 바탕으로 만든 것을 실행·배포·호스팅하는 것
+   - 저장소나 그 일부를 공개·재배포·재라이선스·판매·대여하는 것
+   - 이를 이용해 경쟁 제품이나 모델을 만들거나, 기계 학습 모델을 학습시키는 것
    - 저작권·라이선스·고지 문서를 지우거나 고치는 것
 
-3. Third-party components / 제3자 구성요소
+4. Third-party components / 제3자 구성요소
    This repository depends on open-source software and uses third-party AI models.
    They are NOT covered by this license; each keeps its own license and terms.
    See THIRD_PARTY_NOTICES.md. Model weights are not included in this repository.
@@ -34,14 +56,14 @@ except as stated below or in a separate written agreement with the rights holder
    대상이 아니며 각자의 라이선스와 약관을 따릅니다. THIRD_PARTY_NOTICES.md를 보세요.
    모델 가중치 파일은 이 저장소에 들어 있지 않습니다.
 
-4. User-generated content / 이용자가 만든 콘텐츠
+5. User-generated content / 이용자가 만든 콘텐츠
    Characters, personas, conversations, and images created by users of the running
    service belong to those users as described in the service's Terms of Use
    (apps/web/app/terms). They are not part of this repository.
    서비스 이용자가 만든 캐릭터·프로필·대화·그림의 권리는 서비스 이용약관(apps/web/app/terms)에
    따라 만든 사람에게 있으며 이 저장소의 일부가 아닙니다.
 
-5. No warranty / 보증 없음
+6. No warranty / 보증 없음
    THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR
    PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE RIGHTS HOLDER BE LIABLE

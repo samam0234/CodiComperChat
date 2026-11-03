@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import { ADULT_BLOCK_MESSAGE } from '../account/adult.js';
 import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
@@ -65,6 +66,11 @@ function present(w: WebtoonRow) {
       height: p.height,
     })),
   };
+}
+
+// 한 편의 컷이 같은 시드를 쓰게 웹툰 id에서 만든다 (같은 인물의 얼굴·머리색이 컷마다 덜 달라진다)
+export function panelSeed(webtoonId: string): number {
+  return createHash('sha256').update(webtoonId).digest().readUInt32BE(0) & 0x7fffffff;
 }
 
 @Injectable()
@@ -186,7 +192,7 @@ export class WebtoonService {
       const { result, balance } = await this.ops.charged(ctx.userId, 'webtoon', async () => {
         const raw = await postToAi<PanelResult>(
           '/webtoon/panel',
-          { plan: panel.plan, rating: webtoon.rating, ratio: PANEL_RATIO },
+          { plan: panel.plan, rating: webtoon.rating, ratio: PANEL_RATIO, seed: panelSeed(webtoon.id) },
           { timeoutMs: PHOTONET_TIMEOUT_MS },
         );
         return this.prisma.webtoonPanel.update({

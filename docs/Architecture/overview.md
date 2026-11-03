@@ -1,6 +1,6 @@
 # 시스템 개요
 
-정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-10-24 — **구현된 구조**(배포는 아직).
+정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-03 — **구현된 구조**(배포는 아직).
 
 ```text
 브라우저
@@ -8,12 +8,10 @@
   ▼
 Next.js  apps/web :3000          Next.js  console :3001 (운영자 전용, 따로 로그인)
   │                                 │  같은 방식으로 Nest만 부른다 (/admin/*, AdminGuard)
-  │                                 ▼
-Next.js  apps/web :3000
   │  proxy.ts: 요청마다 CSP(nonce) · 회원 전용 화면 1차 거름망
   │  서버 컴포넌트·서버 액션만 Nest를 부른다 (API_BASE_URL, Authorization: Bearer)
   ▼
-Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 27개)
+Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 28개)
   │  인증·계정·캐릭터·대화·기억·        ├──▶ 페르소나 지식 JSON (apps/api/data/personas, 파일)
   │  공방·신고·검수·결제·코레딧·        ├──▶ SMTP (메일 발송, MAIL_SMTP_URL)
   │  모델·오퍼레이션·퀘스트·요청 한도   └──▶ 토스페이먼츠 API (결제 승인·취소, 보류)
@@ -22,6 +20,7 @@ Nest.js  apps/api :4000 ─────────────┬──▶ Post
 FastAPI  services/ai :8000  (내부 전용)
   │  연기(/infer)·요약·기억·판정·대답 추천·AI 초안·초상 검수
   │  오퍼레이션·코디포토넷·웹툰(장면 설계·그림·그림 검수)
+  ├──▶ 프리미엄 공급자: Anthropic·xAI (코드 있음, PREMIUM_PROVIDERS와 키가 없으면 닫힘)
   ├──▶ 그림 엔진: diffusers (같은 프로세스, GPU, services/ai/models/)
   │      └ 개발 PC 선택: Stable Diffusion WebUI :7860 (IMAGE_ENGINE=webui)
   ▼

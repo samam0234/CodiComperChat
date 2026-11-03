@@ -5,6 +5,7 @@
 - 템플릿: [TEMPLATE.md](TEMPLATE.md)
 - 커밋 기록 저장 위치: `docs/branchs/commits/` (다른 경로 금지)
 - 작성 규칙 정본: `.agents/skills/codicomperchat/SKILL.md` §4
+- 작성기: `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> [--commit --trailer "..."]` — 파일 이름·표·이 목록의 한 줄을 git에서 읽어 채운다. 본문(`## 주 내용`부터)만 직접 쓴다
 
 ## 커밋 기록 목록
 
@@ -246,8 +247,56 @@
 | 2026-10-25 | `9dbdbfc` | feature/official-iseyeon | 유지성·이세연 공식 초상 (그림 엔진으로 제작) | [261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md](commits/261025_0426_9dbdbfc_official-portraits_feature-official-iseyeon.md) |
 | 2026-10-25 | `8411210` | feature/official-iseyeon | 외형 단계 AI로 초상 직접 만들기 (25 코레딧) | [261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md](commits/261025_0436_8411210_studio-portrait-ai_feature-official-iseyeon.md) |
 | 2026-10-25 | `8603bf2` | develop (merge) | feature/official-iseyeon → develop 병합 (--no-ff) | [261025_0531_8603bf2_merge-official-iseyeon_develop.md](commits/261025_0531_8603bf2_merge-official-iseyeon_develop.md) |
+| 2026-10-25 | `c7d9e5e` | feature/docs-handover | 에이전트 인수인계와 전체 기능 카탈로그 추가, 최근 기능 문서 반영 | [261025_1751_c7d9e5e_docs-handover-features_feature-docs-handover.md](commits/261025_1751_c7d9e5e_docs-handover-features_feature-docs-handover.md) |
 | 2026-10-25 | `bd6bbe0` | feature/launch-safety | 성인 그림 차단과 신고·HTTPS 강화 | [261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md](commits/261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md) |
 | 2026-10-25 | `fd64c48` | develop (merge) | feature/launch-safety → develop 병합 (--no-ff) | [261025_2126_fd64c48_merge-launch-safety_develop.md](commits/261025_2126_fd64c48_merge-launch-safety_develop.md) |
 | 2026-10-25 | `febb852` | main (merge) | develop → main 병합 (--no-ff) | [261025_2205_febb852_merge-develop-into-main_main.md](commits/261025_2205_febb852_merge-develop-into-main_main.md) |
+| 2026-11-03 | `4bf69b4` | feature/record-tools | 커밋 기록 작성기를 저장소에 넣다 | [261103_1251_4bf69b4_record-commit-script_feature-record-tools.md](commits/261103_1251_4bf69b4_record-commit-script_feature-record-tools.md) |
+| 2026-11-03 | `67be2aa` | feature/docs-handover (merge) | develop into feature/docs-handover (no-ff) | [261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md](commits/261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md) |
+| 2026-11-03 | `43a3419` | feature/record-tools | 기록 작성기의 줄바꿈 처리와 시험 파일을 고치다 | [261103_1252_43a3419_record-commit-fix_feature-record-tools.md](commits/261103_1252_43a3419_record-commit-fix_feature-record-tools.md) |
+| 2026-11-03 | `1f7bf99` | feature/seyeon-quest | 이세연 비밀 퀘스트를 넣다 | [261103_1257_1f7bf99_seyeon-quest_feature-seyeon-quest.md](commits/261103_1257_1f7bf99_seyeon-quest_feature-seyeon-quest.md) |
+| 2026-11-03 | `a2a3830` | feature/dep-audit | 취약점이 있는 운영 의존성을 올리다 | [261103_1300_a2a3830_dep-audit_feature-dep-audit.md](commits/261103_1300_a2a3830_dep-audit_feature-dep-audit.md) |
+| 2026-11-03 | `d819584` | feature/deploy-gpu | GPU 서버 한 대용 24시간 운영 구성을 넣다 | [261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md](commits/261103_1340_d819584_deploy-gpu_feature-deploy-gpu.md) |
+| 2026-11-03 | `91337b5` | feature/portrait-fix | AI 초상이 얼굴을 보여 주고 화풍이 살도록 고치다 | [261103_1340_91337b5_portrait-face_feature-portrait-fix.md](commits/261103_1340_91337b5_portrait-face_feature-portrait-fix.md) |
+| 2026-11-03 | `d1e6f8c` | feature/license-public | 공개 저장소의 clone과 복제를 제한하다 | [261103_1340_d1e6f8c_license-public_feature-license-public.md](commits/261103_1340_d1e6f8c_license-public_feature-license-public.md) |
+| 2026-11-03 | `b954c55` | feature/docs-launch-prep | 배포 구성과 사용자 결정, 점검 결과를 전체 문서에 반영하다 | [261103_1423_b954c55_docs-launch-prep_feature-docs-launch-prep.md](commits/261103_1423_b954c55_docs-launch-prep_feature-docs-launch-prep.md) |
+| 2026-11-03 | `00b3d4c` | develop (merge) | feature/docs-handover into develop (no-ff) | [261103_1423_00b3d4c_merge-docs-handover_develop.md](commits/261103_1423_00b3d4c_merge-docs-handover_develop.md) |
+| 2026-11-03 | `894f4eb` | develop (merge) | feature/record-tools into develop (no-ff) | [261103_1423_894f4eb_merge-record-tools_develop.md](commits/261103_1423_894f4eb_merge-record-tools_develop.md) |
+| 2026-11-03 | `c1eda9f` | develop (merge) | feature/seyeon-quest into develop (no-ff) | [261103_1423_c1eda9f_merge-seyeon-quest_develop.md](commits/261103_1423_c1eda9f_merge-seyeon-quest_develop.md) |
+| 2026-11-03 | `d7a1cec` | develop (merge) | feature/dep-audit into develop (no-ff) | [261103_1423_d7a1cec_merge-dep-audit_develop.md](commits/261103_1423_d7a1cec_merge-dep-audit_develop.md) |
+| 2026-11-03 | `b774e33` | develop (merge) | feature/deploy-gpu into develop (no-ff) | [261103_1423_b774e33_merge-deploy-gpu_develop.md](commits/261103_1423_b774e33_merge-deploy-gpu_develop.md) |
+| 2026-11-03 | `b81abc1` | develop (merge) | feature/portrait-fix into develop (no-ff) | [261103_1423_b81abc1_merge-portrait-fix_develop.md](commits/261103_1423_b81abc1_merge-portrait-fix_develop.md) |
+| 2026-11-03 | `850e52f` | develop (merge) | feature/license-public into develop (no-ff) | [261103_1423_850e52f_merge-license-public_develop.md](commits/261103_1423_850e52f_merge-license-public_develop.md) |
+| 2026-11-03 | `673ed98` | develop (merge) | feature/docs-launch-prep into develop (no-ff) | [261103_1423_673ed98_merge-docs-launch-prep_develop.md](commits/261103_1423_673ed98_merge-docs-launch-prep_develop.md) |
+| 2026-11-03 | `b471a60` | feature/premium-adapters | 프리미엄 모델 Claude·Grok 호출 연동 | [261103_1730_b471a60_premium-adapters_feature-premium-adapters.md](commits/261103_1730_b471a60_premium-adapters_feature-premium-adapters.md) |
+| 2026-11-03 | `6ca32d3` | feature/docs-model-license | Gemma 4 라이선스를 Apache 2.0으로 정정 | [261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md](commits/261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md) |
+| 2026-11-03 | `368d1ad` | feature/deploy-server-setup | 상시 서버 후보 비교와 Ubuntu 설치 스크립트 | [261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md](commits/261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md) |
+| 2026-11-03 | `123c35f` | feature/adult-mode-switch | Anthropic SDK를 프리미엄 호출 때만 불러오기 | [261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md](commits/261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md) |
+| 2026-11-03 | `57f12cc` | feature/adult-mode-switch | 성인 모드를 끄는 ADULT_MODE 스위치 | [261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md](commits/261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md) |
+| 2026-11-03 | `69ce804` | feature/adult-mode-switch | 미병합 브랜치와 e2e 결과 기록 | [261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md](commits/261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md) |
+| 2026-11-03 | `5b5c5ae` | feature/pro-click | 결제 없이 눌러서 프로로 바꾸기 | [261103_1930_5b5c5ae_pro-click_feature-pro-click.md](commits/261103_1930_5b5c5ae_pro-click_feature-pro-click.md) |
+| 2026-11-03 | `d4d9573` | feature/premium-age-gate | 프리미엄 모델을 만 18세 이상으로 제한 | [261103_1932_d4d9573_premium-age-gate_feature-premium-age-gate.md](commits/261103_1932_d4d9573_premium-age-gate_feature-premium-age-gate.md) |
+| 2026-11-03 | `981213c` | feature/private-repo-decisions | 저장소 비공개와 호스팅 결정 반영 | [261103_1933_981213c_private-repo-decisions_feature-private-repo-decisions.md](commits/261103_1933_981213c_private-repo-decisions_feature-private-repo-decisions.md) |
+| 2026-11-03 | `fec9551` | feature/private-repo-decisions | 미병합 브랜치 순서와 e2e 결과 갱신 | [261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md](commits/261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md) |
+| 2026-11-03 | `ea6b788` | feature/docs-handoff | 코드와 어긋난 문서 수치와 결정을 맞춤 | [261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md](commits/261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md) |
+| 2026-11-03 | `d41d032` | feature/docs-handoff | Cursor가 이어받을 작업 지시서와 규칙을 정리 | [261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md](commits/261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md) |
+| 2026-11-04 | `07561f1` | feature/docs-handoff | 서버를 끈 전체 e2e 결과를 기록 | [261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md](commits/261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md) |
+| 2026-11-04 | `ad9fe4c` | develop (merge) | feature/docs-handoff into develop (no-ff) | [261104_0018_ad9fe4c_merge-docs-handoff_develop.md](commits/261104_0018_ad9fe4c_merge-docs-handoff_develop.md) |
+| 2026-11-04 | `e669930` | feature/e2e-production-build | 화면 서버를 운영 빌드로 바꿔 무작위 시간 초과를 없앰 | [261104_0441_e669930_e2e-production-build_feature-e2e-production-build.md](commits/261104_0441_e669930_e2e-production-build_feature-e2e-production-build.md) |
+| 2026-11-04 | `600c9e6` | feature/ci-more-tests | AI 단위 시험과 기록 작성기 시험을 CI에 추가 | [261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md](commits/261104_0442_600c9e6_ci-more-tests_feature-ci-more-tests.md) |
+| 2026-11-04 | `bd49926` | feature/adult-off-ui | 성인 모드를 끈 서버에서 성인 입구를 숨김 | [261104_0449_bd49926_adult-off-ui_feature-adult-off-ui.md](commits/261104_0449_bd49926_adult-off-ui_feature-adult-off-ui.md) |
+| 2026-11-04 | `bbf2f4a` | feature/content-report-e2e | 그림 신고와 운영자 처리를 브라우저로 시험 | [261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md](commits/261104_0452_bbf2f4a_content-report-e2e_feature-content-report-e2e.md) |
+| 2026-11-04 | `d209e02` | feature/premium-spend-cap | 프리미엄 월 지출 상한과 운영자의 생년월일 정정을 추가 | [261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md](commits/261104_0458_d209e02_premium-spend-cap_feature-premium-spend-cap.md) |
+| 2026-11-04 | `f8dbec2` | feature/studio-portrait-preview | 공방 AI 초상 후보 고르기와 추천 프로필 칸을 추가 | [261104_0505_f8dbec2_studio-portrait-preview_feature-studio-portrait-preview.md](commits/261104_0505_f8dbec2_studio-portrait-preview_feature-studio-portrait-preview.md) |
+| 2026-11-04 | `259718a` | feature/ai-quality | 품질 평가를 늘리고 보상 장면과 그림 메모리 처리를 고침 | [261104_0602_259718a_ai-quality_feature-ai-quality.md](commits/261104_0602_259718a_ai-quality_feature-ai-quality.md) |
+| 2026-11-04 | `1a509e1` | feature/docs-overall-2 | 남은 작업과 소유자 안내를 정리하고 전체 문서를 갱신 | [261104_0608_1a509e1_docs-overall-2_feature-docs-overall-2.md](commits/261104_0608_1a509e1_docs-overall-2_feature-docs-overall-2.md) |
+| 2026-11-04 | `d1df7f8` | develop (merge) | feature/e2e-production-build into develop (no-ff) | [261104_0616_d1df7f8_merge-e2e-production-build_develop.md](commits/261104_0616_d1df7f8_merge-e2e-production-build_develop.md) |
+| 2026-11-04 | `e413e38` | develop (merge) | feature/ci-more-tests into develop (no-ff) | [261104_0616_e413e38_merge-ci-more-tests_develop.md](commits/261104_0616_e413e38_merge-ci-more-tests_develop.md) |
+| 2026-11-04 | `8142944` | develop (merge) | feature/adult-off-ui into develop (no-ff) | [261104_0616_8142944_merge-adult-off-ui_develop.md](commits/261104_0616_8142944_merge-adult-off-ui_develop.md) |
+| 2026-11-04 | `0066c43` | develop (merge) | feature/content-report-e2e into develop (no-ff) | [261104_0616_0066c43_merge-content-report-e2e_develop.md](commits/261104_0616_0066c43_merge-content-report-e2e_develop.md) |
+| 2026-11-04 | `9331563` | develop (merge) | feature/premium-spend-cap into develop (no-ff) | [261104_0616_9331563_merge-premium-spend-cap_develop.md](commits/261104_0616_9331563_merge-premium-spend-cap_develop.md) |
+| 2026-11-04 | `56fbe96` | develop (merge) | feature/studio-portrait-preview into develop (no-ff) | [261104_0616_56fbe96_merge-studio-portrait-preview_develop.md](commits/261104_0616_56fbe96_merge-studio-portrait-preview_develop.md) |
+| 2026-11-04 | `76c7042` | develop (merge) | feature/ai-quality into develop (no-ff) | [261104_0616_76c7042_merge-ai-quality_develop.md](commits/261104_0616_76c7042_merge-ai-quality_develop.md) |
+| 2026-11-04 | `99512d0` | develop (merge) | feature/docs-overall-2 into develop (no-ff) | [261104_0616_99512d0_merge-docs-overall-2_develop.md](commits/261104_0616_99512d0_merge-docs-overall-2_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
