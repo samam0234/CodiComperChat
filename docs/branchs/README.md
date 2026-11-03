@@ -269,5 +269,6 @@
 | 2026-11-03 | `6ca32d3` | feature/docs-model-license | Gemma 4 라이선스를 Apache 2.0으로 정정 | [261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md](commits/261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md) |
 | 2026-11-03 | `368d1ad` | feature/deploy-server-setup | 상시 서버 후보 비교와 Ubuntu 설치 스크립트 | [261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md](commits/261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md) |
 | 2026-11-03 | `123c35f` | feature/adult-mode-switch | Anthropic SDK를 프리미엄 호출 때만 불러오기 | [261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md](commits/261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md) |
+| 2026-11-03 | `57f12cc` | feature/adult-mode-switch | 성인 모드를 끄는 ADULT_MODE 스위치 | [261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md](commits/261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
