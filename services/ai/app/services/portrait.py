@@ -102,11 +102,14 @@ def compose(request: PortraitRequest, described: str) -> str:
         count,
         f"({who}:1.2)",
         "solo",
-        "upper body, portrait, looking at viewer, centered",
+        # 화풍은 앞에 둔다. 75토큰 뒤로 밀리면 SD 1.5에서 수채화가 사진처럼 나왔다 (2026-11-03 실측)
+        style.tags,
+        # 얼굴이 보여야 초상이다. 가중치 없이는 SD 1.5가 도시 배경에서 뒷모습을 자주 그렸다 (2026-11-03 실측)
+        "(portrait, face focus, looking at viewer, facing viewer:1.3)",
+        "upper body, centered",
         look,
         BACKGROUND[o.background],
         style.family.ratings["safe"],
-        style.tags,
         style.family.quality,
     ]
     return ", ".join(t for t in tags if t)[:1500]
@@ -116,9 +119,8 @@ def create(request: PortraitRequest) -> PortraitResponse:
     described = _translate(" / ".join(x for x in (request.appearance, request.extra) if x.strip()))
     style = image_engine.STYLES[request.style]
     prompt = compose(request, described)
-    png, _width, _height = image_engine.txt2img(
-        prompt=prompt, negative=photonet.negative_for(style, "sfw"), style=style, ratio="정사각"
-    )
+    negative = f"(from behind, back view, back of head, facing away:1.4), {photonet.negative_for(style, 'sfw')}"
+    png, _width, _height = image_engine.txt2img(prompt=prompt, negative=negative, style=style, ratio="정사각")
     photonet._check(png, "sfw")
     data = photonet._webp(png, PORTRAIT_SIDE, PORTRAIT_QUALITY)
     if len(data) > request.max_bytes:
