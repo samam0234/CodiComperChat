@@ -5,6 +5,7 @@
 - 템플릿: [TEMPLATE.md](TEMPLATE.md)
 - 커밋 기록 저장 위치: `docs/branchs/commits/` (다른 경로 금지)
 - 작성 규칙 정본: `.agents/skills/codicomperchat/SKILL.md` §4
+- 작성기: `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> [--commit --trailer "..."]` — 파일 이름·표·이 목록의 한 줄을 git에서 읽어 채운다. 본문(`## 주 내용`부터)만 직접 쓴다
 
 ## 커밋 기록 목록
 
