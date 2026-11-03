@@ -5,6 +5,7 @@
 - 템플릿: [TEMPLATE.md](TEMPLATE.md)
 - 커밋 기록 저장 위치: `docs/branchs/commits/` (다른 경로 금지)
 - 작성 규칙 정본: `.agents/skills/codicomperchat/SKILL.md` §4
+- 작성기: `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> [--commit --trailer "..."]` — 파일 이름·표·이 목록의 한 줄을 git에서 읽어 채운다. 본문(`## 주 내용`부터)만 직접 쓴다
 
 ## 커밋 기록 목록
 
@@ -247,5 +248,8 @@
 | 2026-10-25 | `c7d9e5e` | feature/docs-handover | 에이전트 인수인계와 전체 기능 카탈로그 추가, 최근 기능 문서 반영 | [261025_1751_c7d9e5e_docs-handover-features_feature-docs-handover.md](commits/261025_1751_c7d9e5e_docs-handover-features_feature-docs-handover.md) |
 | 2026-10-25 | `bd6bbe0` | feature/launch-safety | 성인 그림 차단과 신고·HTTPS 강화 | [261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md](commits/261025_1917_bd6bbe0_launch-safety_feature-launch-safety.md) |
 | 2026-10-25 | `fd64c48` | develop (merge) | feature/launch-safety → develop 병합 (--no-ff) | [261025_2126_fd64c48_merge-launch-safety_develop.md](commits/261025_2126_fd64c48_merge-launch-safety_develop.md) |
+| 2026-11-03 | `4bf69b4` | feature/record-tools | 커밋 기록 작성기를 저장소에 넣다 | [261103_1251_4bf69b4_record-commit-script_feature-record-tools.md](commits/261103_1251_4bf69b4_record-commit-script_feature-record-tools.md) |
+| 2026-11-03 | `67be2aa` | feature/docs-handover (merge) | develop into feature/docs-handover (no-ff) | [261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md](commits/261103_1249_67be2aa_merge-develop-into-docs-handover_feature-docs-handover.md) |
+| 2026-11-03 | `43a3419` | feature/record-tools | 기록 작성기의 줄바꿈 처리와 시험 파일을 고치다 | [261103_1252_43a3419_record-commit-fix_feature-record-tools.md](commits/261103_1252_43a3419_record-commit-fix_feature-record-tools.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
