@@ -3,7 +3,7 @@ import "server-only";
 import { API_BASE_URL, getSessionToken } from "./auth";
 
 // 대화에서 고를 수 있는 모델 (정본은 apps/api/src/models/models.ts, 화면은 이 목록만 그린다)
-export type ModelLock = "NOT_READY" | "NEEDS_BIRTHDATE" | "UNDER_AGE" | "DAILY_LIMIT" | "NO_CREDITS";
+export type ModelLock = "NOT_READY" | "NEEDS_BIRTHDATE" | "UNDER_AGE" | "SPEND_CAP" | "DAILY_LIMIT" | "NO_CREDITS";
 
 export type ModelOption = {
   id: string;

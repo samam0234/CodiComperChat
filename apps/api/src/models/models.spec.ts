@@ -1,5 +1,5 @@
 import { creditsToKrw, attendanceReward } from '../credits/credits.js';
-import { DEFAULT_MODEL_ID, ENHANCED_OVERAGE_CREDITS, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstDay, lockOf } from './models.js';
+import { DEFAULT_MODEL_ID, ENHANCED_OVERAGE_CREDITS, MODELS, dailyLimitOf, enhancedDailyLimit, findModel, kstMonthStart, premiumMonthlyCap, kstDay, lockOf } from './models.js';
 
 const model = (id: string) => findModel(id)!;
 const free = (usedToday = 0, balance = 0, age: number | null = 30) => ({ plan: 'FREE' as const, usedToday, balance, age });
@@ -105,5 +105,36 @@ describe('하루의 기준', () => {
   it('한국 시각 자정에 날짜가 바뀐다', () => {
     expect(kstDay(new Date('2026-10-21T14:59:59Z'))).toBe('2026-10-21');
     expect(kstDay(new Date('2026-10-21T15:00:00Z'))).toBe('2026-10-22');
+  });
+});
+
+describe('프리미엄 월 지출 한도', () => {
+  const claude = findModel('claude-haiku-5-5')!;
+  const wallet = (premiumSpent: number) => ({ plan: 'FREE' as const, usedToday: 0, balance: 999, age: 30, premiumSpent });
+
+  it('운영에서 값을 넣지 않으면 0이고, 개발은 한도가 없다', () => {
+    expect(premiumMonthlyCap({ NODE_ENV: 'production' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '많이' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '-1' })).toBe(0);
+    expect(premiumMonthlyCap({ NODE_ENV: 'production', PREMIUM_MONTHLY_CREDITS: '5000' })).toBe(5000);
+    expect(premiumMonthlyCap({})).toBeNull();
+  });
+
+  it('이번 답까지 더해 한도를 넘으면 잠근다', () => {
+    const env = { PREMIUM_PROVIDERS: 'anthropic', PREMIUM_MONTHLY_CREDITS: '100' };
+    expect(lockOf(claude, wallet(92), env)).toBeNull();
+    expect(lockOf(claude, wallet(93), env)).toBe('SPEND_CAP');
+    expect(lockOf(claude, wallet(0), { PREMIUM_PROVIDERS: 'anthropic', NODE_ENV: 'production' })).toBe('SPEND_CAP');
+  });
+
+  it('무료 모델은 한도와 상관없다', () => {
+    const env = { PREMIUM_MONTHLY_CREDITS: '0' };
+    expect(lockOf(findModel('basic')!, wallet(999), env)).toBeNull();
+  });
+
+  it('이번 달 시작은 한국 시각 기준이다', () => {
+    expect(kstMonthStart(new Date('2026-10-31T15:30:00Z')).toISOString()).toBe('2026-10-31T15:00:00.000Z');
+    expect(kstMonthStart(new Date('2026-10-31T14:59:00Z')).toISOString()).toBe('2026-09-30T15:00:00.000Z');
   });
 });

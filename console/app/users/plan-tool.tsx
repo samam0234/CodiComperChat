@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { findOrders, findUser, refundOrder, setUserPlan, type AdminOrder, type AdminUser } from "@/app/actions/admin";
+import { findOrders, findUser, refundOrder, setUserBirthDate, setUserPlan, type AdminOrder, type AdminUser } from "@/app/actions/admin";
 import { formatDay } from "@/lib/format-time";
 import form from "@/components/form.module.css";
 import styles from "./plan-tool.module.css";
@@ -12,6 +12,8 @@ export default function PlanTool() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [refundReason, setRefundReason] = useState("");
   const [days, setDays] = useState("30");
+  const [birthDate, setBirthDate] = useState("");
+  const [birthReason, setBirthReason] = useState("");
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
   const [busy, startTransition] = useTransition();
 
@@ -42,6 +44,21 @@ export default function PlanTool() {
       const found = await findUser(user.email);
       if (found.ok) setUser(found.data);
       setMessage({ tone: "success", text: `${user.email} → ${plan === "PRO" ? "프로" : "무료"}` });
+    });
+
+  const fixBirthDate = () =>
+    startTransition(async () => {
+      if (!user) return;
+      setMessage(null);
+      const result = await setUserBirthDate(user.email, birthDate, birthReason);
+      if (!result.ok) {
+        setMessage({ tone: "error", text: result.error });
+        return;
+      }
+      setUser({ ...user, age: result.data.age });
+      setBirthDate("");
+      setBirthReason("");
+      setMessage({ tone: "success", text: "생년월일을 고쳤습니다. 성인 확인을 했다면 이용자가 다시 해야 합니다." });
     });
 
   const refund = (order: AdminOrder) =>
@@ -84,6 +101,26 @@ export default function PlanTool() {
             지금 등급: <strong>{user.effectivePlan === "PRO" ? "프로" : "무료"}</strong>
             {user.effectivePlan === "PRO" && (user.planUntil ? ` (${formatDay(user.planUntil)}까지)` : " (만료 없음)")} · 가입 {formatDay(user.createdAt)}
           </p>
+          <p className={styles.meta}>나이 확인: {user.age === null ? "입력 안 함" : `만 ${user.age}세`}</p>
+          <div className={styles.actions} role="group" aria-label="생년월일 고치기">
+            <input
+              className={form.input}
+              placeholder="새 생년월일 YYYY-MM-DD (비우면 지움)"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              aria-label="새 생년월일"
+            />
+            <input
+              className={form.input}
+              placeholder="고치는 사유"
+              value={birthReason}
+              onChange={(e) => setBirthReason(e.target.value)}
+              aria-label="고치는 사유"
+            />
+            <button type="button" className={form.secondary} disabled={busy} onClick={fixBirthDate}>
+              생년월일 고치기
+            </button>
+          </div>
           {orders.length > 0 && (
             <div className={styles.orders} aria-label="결제 내역">
               <input

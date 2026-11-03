@@ -146,7 +146,7 @@
 | 초상 검수(승인·반려) | `/portraits` | `GET·POST /admin/portraits` | moderation |
 | **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | 단위(content-reports) · 브라우저로 눌러 보지는 않았다. 운영자 계정은 정지하지 않음 |
 | 캐릭터 관리 | `/characters` | `GET /admin/characters` | console |
-| 계정 등급·결제 내역·환불 | `/users` | `GET /admin/users`, `POST …/plan`, `POST /billing/:id/refund`(운영자) | billing |
+| 계정 등급·결제 내역·환불·생년월일 고치기 | `/users` | `GET /admin/users`, `POST …/plan`, `POST …/birthdate`, `POST /billing/:id/refund`(운영자) | billing |
 
 운영자 지정: `npm run user:role --workspace api -- 이메일 admin`. 상세 [guidance/operations.md](guidance/operations.md).
 
@@ -180,4 +180,4 @@
 
 ## 한눈에 안 보이는 한계
 
-스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함) · 생년월일을 잘못 넣으면 운영자가 DB에서 고침 · 서비스 전체 지출 한도 없음. 해야 할 일 전체는 [TASKS.md](TASKS.md).
+스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 공방에서 유저 캐릭터에 추천 프로필을 다는 칸 없음 · AI 초상은 미리보기 없이 바로 저장 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).
