@@ -300,5 +300,6 @@
 | 2026-11-04 | `99512d0` | develop (merge) | feature/docs-overall-2 into develop (no-ff) | [261104_0616_99512d0_merge-docs-overall-2_develop.md](commits/261104_0616_99512d0_merge-docs-overall-2_develop.md) |
 | 2026-11-04 | `31e3bf4` | feature/merge-record-union | 커밋 기록 목록의 병합 충돌을 없애고 함정을 기록 | [261104_0623_31e3bf4_merge-record-union_feature-merge-record-union.md](commits/261104_0623_31e3bf4_merge-record-union_feature-merge-record-union.md) |
 | 2026-11-04 | `d117ce7` | develop (merge) | feature/merge-record-union into develop (no-ff) | [261104_0623_d117ce7_merge-merge-record-union_develop.md](commits/261104_0623_d117ce7_merge-merge-record-union_develop.md) |
+| 2026-11-04 | `3900baa` | main (merge) | develop into main (no-ff) | [261104_0623_3900baa_merge-develop-into-main_main.md](commits/261104_0623_3900baa_merge-develop-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
