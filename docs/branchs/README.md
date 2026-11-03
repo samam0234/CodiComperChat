@@ -292,5 +292,6 @@
 | 2026-11-04 | `8142944` | develop (merge) | feature/adult-off-ui into develop (no-ff) | [261104_0616_8142944_merge-adult-off-ui_develop.md](commits/261104_0616_8142944_merge-adult-off-ui_develop.md) |
 | 2026-11-04 | `0066c43` | develop (merge) | feature/content-report-e2e into develop (no-ff) | [261104_0616_0066c43_merge-content-report-e2e_develop.md](commits/261104_0616_0066c43_merge-content-report-e2e_develop.md) |
 | 2026-11-04 | `9331563` | develop (merge) | feature/premium-spend-cap into develop (no-ff) | [261104_0616_9331563_merge-premium-spend-cap_develop.md](commits/261104_0616_9331563_merge-premium-spend-cap_develop.md) |
+| 2026-11-04 | `56fbe96` | develop (merge) | feature/studio-portrait-preview into develop (no-ff) | [261104_0616_56fbe96_merge-studio-portrait-preview_develop.md](commits/261104_0616_56fbe96_merge-studio-portrait-preview_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
