@@ -22,7 +22,8 @@
 
 **공개 전 확인**
 - [ ] [../../SECURITY.md](../../SECURITY.md) "공개 전 필수" 전부
-- [ ] [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md): 특히 Gemma 사용 금지 정책(성인 모드)과 RAIL 사용 제한
+- [ ] [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md): 성인 모드의 국내법·호스팅 약관, RAIL 사용 제한
+- [ ] 프리미엄을 켠다면: 공급자 콘솔의 월 한도, `python -m evals.premium_check`로 실제 호출, 처리방침의 국외 이전 항목
 - [ ] 저장소 공개 범위 결정: 공개 저장소는 clone을 기술적으로 막을 수 없다. 막으려면 비공개로 돌리고 배포 키를 쓴다
 - [ ] GitHub 설정: 비공개 보안 권고, 브랜치 보호, 비밀 스캔
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 통과

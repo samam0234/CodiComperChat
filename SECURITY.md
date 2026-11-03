@@ -101,7 +101,9 @@
 - [x] **개발용 스위치** (코드): `NODE_ENV=production` / `APP_ENV=production`이면 `LLM_FAKE`, `IMAGE_FAKE`, `MODEL_PREMIUM_FAKE`, `BILLING_PROVIDER=mock`, `MAIL_OUTBOX_DIR`이 있으면 시작하지 않는다. Mailpit은 개발 compose 전용이다.
 - [x] **서버 대수**: 한 대로 정했다(2026-11-03). 여러 대로 늘리면 `RATE_LIMIT_STORE=db`, AI 대기열은 서버 대수만큼 따로 센다는 점을 감안한다.
 - [ ] **성인 확인의 법률 검토**: 방식은 자기 신고를 유지한다(2026-10-25). 본인인증을 넣을지는 변호사 검토. 신고·검토·접근 차단·계정 정지는 콘솔 「그림 신고」에 있다.
-- [ ] **모델 사용 정책**: Gemma 금지 정책 4항은 성적 만족을 위한 생성(성적 챗봇 예)을 금지한다. 성인 모드의 장면 설계·대화가 이 예외에 드는지는 확인되지 않았다. 원문과 판단은 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). 확인 전에는 성인 모드를 공개하지 않는다.
+- [x] **Gemma 라이선스** (2026-11-03 정정): 쓰는 Gemma 4는 Apache 2.0이고 예전 Gemma 금지 정책의 적용 대상이 아니다. 근거는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- [ ] **성인 모드의 공개 여부**: 청소년 보호법의 나이·본인 확인(지금은 자기 신고), 음란물 유통 규정, 호스팅 약관(Hetzner는 금지)을 변호사와 확인한다. 확인 전에는 공개하지 않는다.
+- [ ] **프리미엄 공급자**: 키는 `services/ai`에만 둔다. 켜기 전에 콘솔에서 월 한도를 건다. 18세 미만 사용 차단 여부를 정한다. xAI 사용 정책을 읽는다.
 - [ ] **개인정보**: 처리방침 법률 검토, 보관 기간·파기, 생년월일 보관 필요성, 로그 마스킹.
 - [x] **백업·복구** (2026-11-03): `scripts/db-backup.sh`, 새 DB로 복구 연습 1회 성공([docs/web_management/backup-restore.md](docs/web_management/backup-restore.md)). 남은 일 — 서버 cron 등록, 서버 밖 저장소로 복사.
 - [x] **의존성 점검** (2026-11-03): `npm audit --omit=dev` 14건(치명 1) → **0건**(Next.js 16.4.4, Nodemailer 10.3). `pip-audit`은 torch 2.10.0에 2건이 남았다(PYSEC-2026-139 pt2 로더, PYSEC-2025-194 `torch.jit.script`). 둘 다 로컬에서 그 기능을 쓸 때의 문제이고, 이 서비스는 safetensors만 읽고 해당 기능을 부르지 않으며 이용자 파일을 torch에 넘기지 않아 올리지 않았다. 개발 의존성의 npm 경고는 운영 이미지 실행 경로가 아니다. 남은 일 — 서드파티 라이선스 전체 검토.

@@ -12,7 +12,7 @@
 | 원격(GitHub) | 저장소는 **공개** 상태. `origin/main`·`origin/develop`은 2026-10-25 launch-safety까지. 2026-11-03 작업은 로컬 `develop`에 병합했고 **푸시하지 않았다**(푸시는 사용자가 말할 때) |
 | 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
-| 시험 | API 198개, e2e 110개(22파일), AI evals 9묶음 + 이세연 판정, AI unittest 9개, 기록 작성기 6개 — 2026-11-03 전체 통과 |
+| 시험 | API 200개, e2e 110개(22파일), AI evals 9묶음 + 이세연 판정, AI unittest 22개, 기록 작성기 6개 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
@@ -65,7 +65,7 @@
 
 ```bash
 npm run typecheck:api
-npm run test:api                         # 198개
+npm run test:api                         # 200개
 (cd apps/web && npx next typegen && npx tsc --noEmit)
 npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e   # CI와 같은 명령
 (cd services/ai && ./.venv/Scripts/python.exe -c "import app.main")
@@ -90,18 +90,19 @@ node --test scripts/record-commit.test.mjs
 |------|------|------|
 | GPU 서버 | 배포 사이트에서 24시간 | 구성 완료, 업체 미정 |
 | 성인 모드 | 지금 그대로(자기 신고, 그림 가드, 그림 신고) | 유지 |
-| 프리미엄 모델 | 지금 목록 그대로 | 목록 확정, 호출 어댑터 없음 |
-| 저장소 | 배포용 공개, 자율 clone 불허 | 라이선스 반영. 기술적 차단은 불가능 |
+| 프리미엄 모델 | 일단 연동 | 코드 있음(`services/ai/app/services/premium.py`), 기본은 닫힘. 키가 없어 실제 호출 미확인 |
+| 저장소 | 배포용 공개, 자율 clone 불허. 비공개 전환은 보류 | 라이선스 반영. 기술적 차단은 불가능 |
 | 이세연 퀘스트 | 혼인, 또는 기혼인 채 이어져 충돌 | 완료 |
+| 호스팅 형태 | 상시 서버 | 구성·설치 스크립트 있음. 업체 후보는 [web_management/hosting-options.md](web_management/hosting-options.md), 계약 안 함 |
 
 **아직 사용자에게 물어야 할 것**
 
 | 결정 | 왜 |
 |------|-----|
-| **호스팅 업체·도메인·운영 메일** | 서버를 만들어야 배포할 수 있다. 비용이 드는 일이라 임의로 하지 않는다 |
-| **프리미엄 모델을 실제로 열지** | "지금 있는 걸로"가 목록 유지인지, 연동까지인지 확실하지 않다. 열려면 Anthropic·xAI 키와 어댑터가 필요하다. Grok 값은 임시다 |
-| **저장소 비공개 전환** | 공개 저장소는 누구나 clone할 수 있고 GitHub 약관상 포크도 허용된다. 정말 막으려면 비공개로 돌리고 배포 키를 쓴다 |
-| **Gemma 정책과 성인 모드** | Gemma 금지 정책 4항이 성적 만족을 위한 생성을 금지한다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)). "그대로"는 방식에 대한 결정이고, 이 위험은 공개 전에 사용자가 판단해야 한다 |
+| **호스팅 업체·도메인·운영 메일** | 서버를 만들어야 배포할 수 있다. 비용이 드는 일이라 임의로 하지 않는다. 후보: [web_management/hosting-options.md](web_management/hosting-options.md) |
+| **프리미엄 키와 지출 한도** | 열면 무료 출석 코레딧이 실제 지출이 된다. 18세 미만 차단 여부도 정한다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
+| **저장소 비공개 전환** | 사용자가 보류함. 공개 저장소는 누구나 clone할 수 있고 GitHub 약관상 포크도 허용된다 |
+| **성인 모드 공개** | Gemma 4는 Apache 2.0이라 모델 라이선스 문제가 아니었다(2026-11-03 정정). 남은 것은 나이·본인 확인과 음란물 규정, 호스팅 약관이다. 공개 전에 변호사 확인이 필요하다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)) |
 | 결제 재개·가격 | 토스 연동은 있으나 보류 |
 | 권리자 법적 이름, 보안 연락처 | `LICENSE`, `SECURITY.md`에 빈칸 |
 
@@ -165,4 +166,5 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 - **안전 규칙은 코드로 강제한다**(성인 여부, 소유, 비밀, 미성년자 설정). 모델 출력에 기대지 않는다.
 - **그래픽 메모리는 LLM과 그림 엔진이 나눠 쓴다.** 그림 직전에 LLM을 내린다(`keep_alive 0`).
 - **실측 없이 "된다"고 쓰지 않는다.** 확인 못 한 것은 문서에 "미확인"으로 적는다.
+- **라이선스는 쓰는 판의 원문을 본다.** "Gemma 금지 정책이 성인 모드를 막는다"고 한동안 적어 두었는데, 그 약관은 Gemma 3n까지만 적용되고 Gemma 4는 Apache 2.0이었다. `ollama show <모델> --license`로 바로 볼 수 있었다.
 - **실제로 띄워 봐야 나오는 결함이 있다.** `REQUIRE_HTTPS`는 단위 시험을 통과했지만 내부 호출을 막고 있었고, AI 초상은 시험이 통과하는데 뒷모습이 나왔다. 그림은 눈으로 본다.
