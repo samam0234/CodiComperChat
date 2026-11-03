@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getBillingInfo, won } from "@/lib/billing";
 import BuyButton from "./buy-button";
+import ProClickButton from "./pro-click-button";
 import PurchaseConsent from "./purchase-consent";
 import styles from "./pricing.module.css";
 
@@ -17,7 +18,7 @@ export default async function PricingPage() {
   return (
     <section className={styles.page}>
       <h1 className={styles.title}>요금 안내</h1>
-      <p className={styles.lead}>캐릭터를 더 깊이 쓰고 싶을 때 프로로 올려 보세요. 결제한 기간이 지나면 자동으로 무료로 돌아가고, 자동 결제는 없어요.</p>
+      <p className={styles.lead}>캐릭터를 더 깊이 쓰고 싶을 때 프로로 올려 보세요. 기간이 지나면 자동으로 무료로 돌아가고, 자동 결제는 없어요.</p>
 
       <div className={styles.plans}>
         <article className={styles.plan} aria-label="무료">
@@ -33,18 +34,39 @@ export default async function PricingPage() {
 
         <article className={`${styles.plan} ${styles.pro}`} aria-label="프로">
           <h2 className={styles.planName}>프로</h2>
-          {info?.products[0] && <p className={styles.price}>{won(Math.min(...info.products.map((p) => p.amount)))}부터</p>}
+          {info?.proClick && !info.provider ? (
+            <p className={styles.price}>정식 서비스 전 무료</p>
+          ) : (
+            info?.products[0] && <p className={styles.price}>{won(Math.min(...info.products.map((p) => p.amount)))}부터</p>
+          )}
           <ul className={styles.features}>
             {PRO.map((f) => (
               <li key={f}>{f}</li>
             ))}
           </ul>
-          {user?.plan === "PRO" && <p className={styles.current}>지금 쓰는 등급 · 결제하면 남은 기간 뒤에 이어 붙어요</p>}
+          {user?.plan === "PRO" && (
+            <p className={styles.current}>지금 쓰는 등급{info?.provider ? " · 결제하면 남은 기간 뒤에 이어 붙어요" : ""}</p>
+          )}
+
+          {info?.proClick && user?.plan !== "PRO" && (
+            <section className={styles.proClick} aria-label="결제 없이 프로로 바꾸기">
+              <p className={styles.notice}>
+                아직 정식 서비스 전이라 결제 없이 프로를 {info.proClick.days}일 쓸 수 있어요. 기간이 끝나면 무료로 돌아가고, 다시 바꿀 수 있어요.
+              </p>
+              {user ? (
+                <ProClickButton />
+              ) : (
+                <Link href="/login?next=/pricing" className={styles.loginLink}>
+                  로그인하고 프로로 바꾸기
+                </Link>
+              )}
+            </section>
+          )}
 
           {!info ? (
             <p className={styles.notice}>요금 정보를 불러오지 못했어요. 잠시 뒤에 다시 열어 주세요.</p>
           ) : !info.provider ? (
-            <p className={styles.notice}>결제는 준비 중이에요. 프로가 필요하면 고객센터로 문의해 주세요.</p>
+            !info.proClick && <p className={styles.notice}>결제는 준비 중이에요. 프로가 필요하면 고객센터로 문의해 주세요.</p>
           ) : (
             <PurchaseConsent>
             <ul className={styles.products}>
@@ -73,7 +95,7 @@ export default async function PricingPage() {
       </div>
 
       <p className={styles.fine}>
-        결제 후 환불·문의는 <Link href="/support">고객센터</Link>로 연락해 주세요. 가격은 정식 출시 전 바뀔 수 있어요.
+        환불·문의는 <Link href="/support">고객센터</Link>로 연락해 주세요. 가격은 정식 출시 전 바뀔 수 있어요.
       </p>
     </section>
   );

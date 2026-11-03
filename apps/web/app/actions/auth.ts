@@ -211,6 +211,17 @@ export async function deleteAccount(_prev: FormState, formData: FormData): Promi
   redirect("/?bye=1");
 }
 
+// 나이 확인 (프리미엄 모델). 성인 확인과 별개다
+export async function saveBirthDate(_prev: FormState, formData: FormData): Promise<FormState> {
+  const token = await getSessionToken();
+  if (!token) redirect("/login?next=/settings");
+  const birthDate = String(formData.get("birthDate") ?? "");
+  const result = await callApi("/auth/me/birthdate", { method: "POST", token, body: { birthDate } });
+  if (!result.ok) return { error: result.error, values: { birthDate } };
+  revalidatePath("/", "layout");
+  return { success: "생년월일을 저장했어요." };
+}
+
 // 성인 확인 (코디포토넷 성인 모드). 임시: 생년월일 + 동의 — 실제 공개 전에는 본인인증으로 바꾼다
 export async function confirmAdult(_prev: FormState, formData: FormData): Promise<FormState> {
   const token = await getSessionToken();

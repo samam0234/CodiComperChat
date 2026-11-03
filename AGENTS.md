@@ -12,6 +12,8 @@
 - **커밋 메시지**: `type(scope):` 는 영어, **요약·본문·바닥글은 한국어**. 예: `feat(api): 캠페인 상태 갱신 엔드포인트 추가`
 - **커밋 기록 md**: 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식으로 남긴다. 생략 금지, 다른 경로 금지.
 - **브랜치**: 작업은 `feature/*`에서만, `develop`/`main` 병합은 항상 `git merge --no-ff`. FF·force-push·`.env` 커밋 금지.
+- **병합·푸시**: 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만.
+- **개발 서버**: 사용자의 서버를 켜거나 끄지 않고, 켜져 있을 때 `npm run build:api`를 하지 않는다. 합의한 작업 방식 전체는 정본 §9.
 - **스택**: Next.js(`apps/web`) · Nest.js(`apps/api`) · FastAPI(`services/ai`) · 운영 콘솔(`console`) · PostgreSQL/Prisma. 프론트는 FastAPI를 직접 호출하지 않는다. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
 
-읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(인수인계·해야 할 일) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`
+읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(지금 상태·함정) → `docs/TASKS.md`(할 일) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`

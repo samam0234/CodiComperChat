@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getThemeState } from "@/lib/theme";
 import {
   AdultForm,
+  BirthDateForm,
   DeleteAccountForm,
   LogoutButton,
   PasswordForm,
@@ -24,6 +25,7 @@ export default async function SettingsPage() {
           { id: "profile-settings", label: "계정" },
           { id: "password-settings", label: "비밀번호" },
           { id: "session-settings", label: "로그인" },
+          { id: "age-settings", label: "나이 확인" },
         ]
       : []),
     { id: "upcoming-settings", label: "알림 · 수위" },
@@ -124,6 +126,16 @@ export default async function SettingsPage() {
                 </h2>
                 <p className={styles.note}>{user.email}(으)로 로그인되어 있습니다.</p>
                 <LogoutButton />
+              </section>
+
+              <section id="age-settings" className={styles.section} aria-labelledby="age-title">
+                <h2 id="age-title" className={styles.heading}>
+                  나이 확인
+                </h2>
+                <p className={styles.sectionLead}>
+                  프리미엄 모델(Claude·Grok)은 만 18세 이상만 쓸 수 있어요. 입력한 생년월일을 그대로 믿고 판단하며, 날짜는 화면에 보여 주지 않습니다.
+                </p>
+                <BirthDateForm saved={user.birthDateSet} />
               </section>
             </>
           ) : (

@@ -16,6 +16,15 @@ export class AccountController {
     await this.account.deleteAccount(userId, body);
   }
 
+  // 나이 확인 { birthDate } — 프리미엄 모델을 연다. 성인 확인과 별개다
+  @Post('me/birthdate')
+  @HttpCode(200)
+  @RateLimit('password')
+  @UseGuards(AuthGuard)
+  setBirthDate(@CurrentUserId() userId: string, @Body() body: { birthDate?: unknown } | undefined) {
+    return this.account.setBirthDate(userId, body);
+  }
+
   // 성인 확인 { birthDate, consent: true } — 코디포토넷 NSFW를 연다
   @Post('me/adult')
   @HttpCode(200)

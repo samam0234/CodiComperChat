@@ -1,9 +1,10 @@
 # 배포 (짧은 진입)
 
-> 상태(2026-11-03): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "GPU 서버에서 24시간"이다. 호스팅 업체 선택과 비용은 사용자 몫으로 남아 있다.
+> 상태(2026-11-03): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "Hetzner GEX45에서 24시간, 성인 모드는 끈 채로"이고 계약은 아직이다.
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
+| 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |
 | 서버에 올리기 (절차·서버 조건·실측) | [web_management/docker-deploy.md](web_management/docker-deploy.md) |
 | 올리기 전 체크 | [web_management/pre-deploy.md](web_management/pre-deploy.md) |
 | 올린 뒤 확인 | [web_management/post-deploy.md](web_management/post-deploy.md) |
@@ -25,18 +26,20 @@
 | 비밀값 | `deploy/.env`(git 제외). `node scripts/generate-prod-secrets.mjs`로 새로 만든다 |
 | 백업 | 하루 한 번 `scripts/db-backup.sh`, 14일 보관 |
 | 대화 모델 | 서버의 Ollama `gemma4:e4b`, `gemma4:12b` |
-| 프리미엄 모델 | 지금 목록 그대로(Claude·Grok, 가격표 포함). 호출 어댑터와 키가 없어 "준비 중"이다 |
-| 성인 모드 | 지금 방식 그대로(자기 신고, 2026-11-03 재확인) |
-| 저장소 | GitHub 공개는 배포용, 라이선스로 clone·복제를 제한한다([../LICENSE](../LICENSE)) |
+| 프리미엄 모델 | Claude·Grok 연동 코드 있음. `PREMIUM_PROVIDERS`와 API 키를 넣기 전까지 "준비 중"이다. 실제 호출은 키가 없어 미확인. 켜기 전에 [AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)의 지출·정책 항목을 본다 |
+| 성인 모드 | 기능은 그대로 두고(자기 신고), 공개 서버에서는 끈다. 운영 compose 기본값이 `ADULT_MODE=off`다 |
+| 저장소 | 비공개로 전환한다(2026-11-03 결정, 전환 실행은 저장소 소유자). 서버는 읽기 전용 배포 키로 받는다 |
+| 호스팅 | Hetzner GEX45, 성인 모드 끈 채로 ([web_management/hosting-options.md](web_management/hosting-options.md)). 아직 계약 전 |
+| 결제 | 받지 않는다. 눌러서 프로로 바꾼다(`PRO_CLICK`). 정식 서비스 전 임시 |
 
 ## 아직 사람이 해야 할 것
 
-1. **호스팅 업체를 고르고 서버를 만든다.** 조건은 [docker-deploy.md](web_management/docker-deploy.md) "서버 조건"
+1. **Hetzner GEX45를 계약하고 서버를 만든다.** 계약 전에 값과 약관을 다시 확인한다. 조건은 [docker-deploy.md](web_management/docker-deploy.md) "서버 조건"
 2. 도메인을 사서 DNS를 서버로 돌린다
 3. 운영 메일(SMTP) 서비스를 정한다. 없으면 API가 인증 메일을 보내지 못한다
 4. 체크포인트 두 파일을 서버로 옮긴다
-5. 약관·처리방침의 `[운영자 기재]` 칸과 라이선스 권리자 이름을 채우고, 법률 검토를 받는다
-6. Gemma 사용 정책과 성인 모드의 관계를 확인한다 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md))
+5. 약관·처리방침의 `[운영자 기재]` 칸을 채우고 법률 검토를 받는다. 저장소를 비공개로 해도 이용자에게 보이는 이 칸은 없어지지 않는다
+6. 성인 모드를 공개할지 변호사와 정한다. 국내법과 호스팅 약관이 걸린다 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md))
 7. 토스 상점 계약(결제 재개할 때만)
 
 ## 구현하며 남긴 메모

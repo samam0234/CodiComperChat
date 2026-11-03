@@ -15,6 +15,9 @@
 - [ ] 대화 3번 뒤 "지난 이야기"가 갱신됨
 - [ ] `/photonet/status`가 ready, 코디포토넷 한 장 + 웹툰 한 컷, 코레딧이 빠지고 실패하면 돌아옴
 - [ ] 콘솔에서 신고·초상·그림 신고 화면이 열림
+- [ ] `/pricing`의 "프로로 바꾸기"로 프로가 되고 출석이 5,000이 됨 (`PRO_CLICK`)
+- [ ] 설정에서 나이 확인을 입력할 수 있고, 프리미엄은 키가 없으면 "준비 중"
+- [ ] 성인 그림과 성인 확인이 막혀 있음 (`ADULT_MODE=off`)
 
 **운영**
 - [ ] `docker compose ... exec ai python -c "import torch; print(torch.cuda.is_available())"` True

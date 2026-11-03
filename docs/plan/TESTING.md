@@ -1,15 +1,17 @@
 # 테스트 전략
 
-> 상태(2026-11-03): **`apps/api` vitest 198개(파일 28개), 웹 화면 Playwright e2e 110개(파일 22개), AI 품질 평가(`services/ai/evals`, 9묶음 + 이세연 퀘스트 판정), `services/ai` unittest 9개, 기록 작성기 시험 6개가 실재.** 실제 모델·실제 그림 엔진이 필요한 확인은 자동화돼 있지 않다(아래 "자동화되지 않은 확인").
+> 시험 수의 정본은 이 문서다. 다른 문서에는 수를 적지 않고 여기를 가리킨다.
+>
+> 상태(2026-11-03, 미병합 브랜치 기준): **`apps/api` vitest 205개(파일 29개), 웹 화면 Playwright e2e 112개(파일 22개), AI 품질 평가(`services/ai/evals`, 9묶음 + 이세연 퀘스트 판정), `services/ai` unittest 22개(파일 3개), 기록 작성기 시험 6개가 실재.** 개발 서버를 끈 마지막 전체 e2e는 111/112였다([../find_debug/2026-11-03.md](../find_debug/2026-11-03.md)). 실제 모델·실제 그림 엔진이 필요한 확인은 자동화돼 있지 않다(아래 "자동화되지 않은 확인").
 
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
 |----|------|------|------|
-| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 198개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
-| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 110건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
+| `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 205개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
+| `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 112건, 마지막 전체 실행 111건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
 | `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 9묶음 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성(`tone` 포함 9묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
-| `services/ai` (FastAPI) | pytest | 미도입 (앱은 있으나 테스트 설정 없음) | 라우트/컨텍스트 조립/요약 파싱 |
+| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 22개, CI에는 없음 | 그림 검수 규칙, 초상, 프리미엄 요청 모양. 라우트 시험은 없다 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
 
@@ -18,12 +20,12 @@
 ```bash
 npm run test:api        # vitest 단위 테스트
 npm run test:api:e2e    # vitest e2e (앱을 띄워 라우트 확인)
-npm run test:e2e        # 웹 화면 e2e (Chrome, 가짜 LLM, 별도 DB — 개발 서버와 같이 켜 둬도 된다)
+npm run test:e2e        # 웹 화면 e2e (Chrome, 가짜 LLM, 별도 DB). 전체 약 15분
 ```
 
 AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬 Ollama 필요).
 
-**e2e를 돌릴 때는 개발용 그림 엔진(WebUI)을 끈다.** 켜 두면 RAM이 모자라 시험이 느려지고 실패한다(16GB 기준 측정). 개발 서버·개발 DB와는 겹치지 않아 켜 둬도 된다.
+**전체 e2e를 돌릴 때는 그림 엔진(WebUI)과 개발 서버를 끈다.** 포트와 DB는 겹치지 않지만, 16GB PC에서는 RAM이 모자라 시간 초과가 난다. 개발 서버를 켠 채 112건 중 4건이 실패했고, 서버를 끈 뒤에도 다른 프로그램 때문에 남은 RAM이 약 330MB라 111/112였다([../find_debug/2026-11-03.md](../find_debug/2026-11-03.md)). 112건이 아니면 병합하지 않는다.
 
 ## 시험이 지키는 약속 (보안·안전 포함)
 
@@ -88,10 +90,10 @@ develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈
 
 | 단계 | 내용 |
 |---|---|
-| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web) → API 단위 테스트(DB 한도 저장소 시험 포함) → AI 서비스 불러오기(`compileall`, `import app.main`) |
+| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → AI 서비스 불러오기(`compileall`, `import app.main`) |
 | e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
 
-AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
+`services/ai` unittest와 기록 작성기 시험은 아직 CI에 없다([../TASKS.md](../TASKS.md) Q01). AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
 
 ### CI를 내 PC에서 재현 (`npm run ci:local`)
 

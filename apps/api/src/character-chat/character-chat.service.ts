@@ -210,9 +210,9 @@ export class CharacterChatService {
       : await this.models.usableOrDefault(userId, existing?.chatModel ?? DEFAULT_MODEL_ID);
     const ticket = await this.models.reserve(userId, model);
     try {
-      const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime });
+      const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime, provider: model.provider });
       // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
-      const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime);
+      const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime, model.provider);
       return { reply, ticket };
     } catch (error) {
       await this.models.release(userId, ticket);

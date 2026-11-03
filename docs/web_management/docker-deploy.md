@@ -1,6 +1,6 @@
 # 운영 배포 절차 (GPU 서버 한 대, 24시간)
 
-2026-11-03 사용자 결정: **배포 사이트의 GPU 서버에서 24시간 돌린다.** 구성 파일은 [`deploy/`](../../deploy/)에 있다. 호스팅 업체는 아직 고르지 않았고 서버도 만들지 않았다. 비용이 드는 일이라 사용자가 고른다.
+2026-11-03 사용자 결정: **배포 사이트의 GPU 서버에서 24시간 돌린다.** 구성 파일은 [`deploy/`](../../deploy/)에 있다. 업체는 Hetzner GEX45로 정했고, 계약은 아직 하지 않았다. 비용이 드는 일이라 사용자가 한다: [hosting-options.md](hosting-options.md).
 
 ```text
 인터넷 ─ 80·443 ─ caddy ─┬─ web (Next, 이용자)  ─┐
@@ -22,10 +22,22 @@
 | 네트워크 | 공인 IP로 80·443을 직접 받을 수 있을 것 | Caddy가 인증서를 받는다 |
 | 과금 | 멈추지 않는 상시 서버(월정액 또는 온디맨드) | 스팟·중단형은 24시간 조건에 맞지 않는다 |
 
+## 배포 키
+
+저장소가 비공개라 서버가 받으려면 키가 필요하다. 비밀 키는 서버에만 두고 저장소에 커밋하지 않는다.
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/codicomperchat_deploy -N "" -C "codicomperchat-server"
+cat ~/.ssh/codicomperchat_deploy.pub    # GitHub 저장소 Settings → Deploy keys에 등록. 쓰기 권한은 주지 않는다
+git config --global core.sshCommand "ssh -i ~/.ssh/codicomperchat_deploy -o IdentitiesOnly=yes"
+```
+
 ## 처음 설치
 
 ```bash
-git clone <저장소> /srv/codicomperchat && cd /srv/codicomperchat
+# 저장소가 비공개이므로 먼저 서버에 읽기 전용 배포 키를 등록한다 (아래 "배포 키")
+git clone git@github.com:samam0234/CodiComperChat.git /srv/codicomperchat && cd /srv/codicomperchat
+sudo bash deploy/server-setup.sh            # Ubuntu: 도커·NVIDIA·방화벽. 실서버에서 돌려 본 적 없음
 node scripts/generate-prod-secrets.mjs      # 출력은 터미널에만 둔다
 cp deploy/.env.example deploy/.env          # 값 채우기. 도메인 DNS를 이 서버로 먼저 돌린다
 mkdir -p /srv/codicomperchat/models         # 체크포인트 두 파일을 여기에 둔다 (guidance/photonet-engine.md)

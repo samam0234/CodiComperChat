@@ -17,8 +17,9 @@ main          ← 배포 통합만
 | 작업·커밋 | `feature/*` `bugfix/*` `experimental/*` 에서만 |
 | 일자 통합 | `develop` / `main` 만 |
 | 병합 방식 | **`git merge --no-ff`** (fast-forward 금지) |
-| feature 완료 | `develop`에 `--no-ff`로 합류 |
-| 배포 | `release/*`에서 검증 후 `main`으로 |
+| feature 완료 | 사용자가 "병합"이라고 말하면 `develop`에 `--no-ff`로 합류 |
+| 푸시 | 사용자가 요청할 때만 |
+| 배포 | `release/*`에서 검증 후 `main`으로. 지금까지는 사용자 지시로 `develop`을 직접 병합했다. 어느 쪽으로 할지 먼저 묻는다 |
 
 ## 금지 사항
 
@@ -35,10 +36,11 @@ main          ← 배포 통합만
 git checkout develop
 git pull origin develop
 git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
-git push origin develop
 ```
 
-병합 후에도 `docs/branchs/commits/`에 병합 기록 md를 남긴다 (§ `docs/branchs/TEMPLATE.md`).
+병합 후에도 `docs/branchs/commits/`에 병합 기록 md를 남긴다 (§ `docs/branchs/TEMPLATE.md`). 작성기: `node scripts/record-commit.mjs --name merge-xxx --notes <파일> --sha <병합 커밋> --branch develop --commit`. 시험 결과를 보고하고, 푸시는 `git push origin develop`을 요청받았을 때만 한다.
+
+브랜치를 쌓아 작업했으면 아래 브랜치부터 순서대로 병합한다.
 
 ## 이 프로젝트가 아직 git 저장소가 아닐 때
 

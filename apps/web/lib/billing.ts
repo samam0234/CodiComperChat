@@ -3,7 +3,7 @@ import "server-only";
 import { API_BASE_URL, getSessionToken } from "./auth";
 
 export type Product = { id: string; name: string; amount: number; days: number };
-export type BillingInfo = { products: Product[]; provider: "toss" | "mock" | null; clientKey: string | null };
+export type BillingInfo = { products: Product[]; provider: "toss" | "mock" | null; clientKey: string | null; proClick: { days: number } | null };
 export type PaidOrder = {
   id: string;
   name: string;

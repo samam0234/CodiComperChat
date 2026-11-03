@@ -33,10 +33,30 @@ def generate(
     # 답한 뒤 모델을 그래픽 메모리에 얼마나 두나 (Ollama keep_alive). 0이면 바로 내린다 —
     # 코디포토넷이 곧바로 Stable Diffusion을 돌려야 할 때 메모리를 비워 준다. 없으면 Ollama 기본(5분)
     keep_alive: int | None = None,
+    # 프리미엄 모델의 공급자. /infer만 넘긴다 (나머지 호출은 언제나 로컬)
+    provider: str = "ollama",
 ) -> str:
     # 웹 자동 테스트(e2e)용: 모델 없이 고정된 응답을 돌려준다. 실제 품질 확인용이 아니다
     if os.environ.get("LLM_FAKE") == "1":
         return fake_llm.generate(response_json_schema)
+
+    if provider != "ollama":
+        # 프리미엄을 실제로 부를 때만 SDK를 불러온다 (불러오는 데 수 초·약 58MB. 무료 모델만 쓰면 필요 없다)
+        from app.services import premium
+
+        if not model:
+            raise HTTPException(status_code=400, detail="프리미엄 호출에는 모델 이름이 필요하다.")
+        if provider == "anthropic":
+            return premium.generate_claude(model=model, system=system, contents=contents)
+        if provider == "xai":
+            return premium.generate_grok(
+                model=model,
+                system=system,
+                contents=contents,
+                max_output_tokens=max_output_tokens,
+                temperature=temperature,
+            )
+        raise HTTPException(status_code=400, detail="알 수 없는 공급자다.")
 
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
     model = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)

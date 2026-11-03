@@ -4,11 +4,11 @@
 
 > 제품 기획 원본은 [CodiComperChat_project_plan.md](CodiComperChat_project_plan.md)다. 이 README를 포함한 모든 문서는 원본에서 파생된 것이며, 원본은 사용자 승인 없이 수정하지 않는다.
 
-**상태(2026-11-03): 개발 단계, 배포 전.** 네 앱(웹·콘솔·API·AI)이 연결되어 실제로 동작하고, 운영 구성(`deploy/`)도 만들어 시험했다. 호스팅 업체를 고르고 서버를 만드는 일이 남았다([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)의 모델 라이선스 확인이다.
+**상태(2026-11-03): 개발 단계, 배포 전.** 네 앱(웹·콘솔·API·AI)이 연결되어 실제로 동작하고, 운영 구성(`deploy/`)도 만들어 시험했다. 서버(Hetzner GEX45)를 계약해 올리는 일이 남았다([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)의 모델 라이선스 확인이다.
 
-**처음이라면: [docs/AGENT_HANDOVER.md](docs/AGENT_HANDOVER.md)(인수인계·해야 할 일) · [docs/FEATURES.md](docs/FEATURES.md)(전체 기능 목록).**
+**처음이라면: [docs/AGENT_HANDOVER.md](docs/AGENT_HANDOVER.md)(지금 상태) · [docs/TASKS.md](docs/TASKS.md)(해야 할 일) · [docs/FEATURES.md](docs/FEATURES.md)(전체 기능 목록).**
 
-> **이 저장소는 오픈소스가 아닙니다.** GitHub 공개는 서비스 배포를 위한 것이며, 허락 없는 clone·다운로드·복제·실행·호스팅을 허용하지 않습니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
+> **이 저장소는 오픈소스가 아닙니다.** 저장소는 비공개로 전환한다(2026-11-03 결정). 허락 없는 clone·다운로드·복제·실행·호스팅을 허용하지 않습니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
 
 [LICENSE](LICENSE)(독점, 모든 권리 보유) · [SECURITY.md](SECURITY.md)(취약점 신고·구현된 보안·공개 전 필수) · [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)(오픈소스·AI 모델 고지)
 
@@ -28,7 +28,7 @@
 | 운영 | 별도 운영 콘솔(신고·초상 검수·그림 신고·캐릭터·계정 등급·정지), 요청 한도, CSP, 신고 |
 | 배포 구성 | GPU 서버 한 대용 Docker 구성, TLS(Caddy), 자동 재시작, DB 백업 ([docs/web_management/docker-deploy.md](docs/web_management/docker-deploy.md)) |
 
-보류: 결제(토스페이먼츠 연동은 있으나 열지 않음). 프리미엄 모델(Claude·Grok)은 목록과 가격만 있고 "준비 중"이다. 아직 없음: 스트리밍 응답, 본인인증.
+보류: 실제 결제(토스페이먼츠 연동은 있으나 열지 않음). 대신 `/pricing`에서 눌러서 프로 30일로 바꾼다(정식 서비스 전 임시). 프리미엄 모델(Claude·Grok)은 연동 코드가 있지만 키가 없어 "준비 중"이고, 만 18세 미만은 잠근다. 아직 없음: 스트리밍 응답, 본인인증.
 
 ---
 
@@ -76,13 +76,13 @@ Next.js 16 (App Router, React 19, TypeScript, CSS Modules). 화면 31개: 홈·�
 
 ### `console` — 운영자 콘솔
 
-별도 Next.js 앱. 운영자만 로그인하고(`console_session`), 대시보드·신고함·초상 검수·캐릭터·계정 등급을 다룬다. 바깥에 열지 않는다(사내망·VPN).
+별도 Next.js 앱. 운영자만 로그인하고(`console_session`), 대시보드·신고함·초상 검수·캐릭터·계정 등급을 다룬다. 바깥에 열 때는 별도 도메인에 허용 IP만 들여보낸다.
 
 → [console/README.md](console/README.md)
 
 ### `apps/api` — 도메인/상태 API
 
-Nest.js 12 (TypeScript, **ESM**), Prisma 7, vitest, oxlint. 외부에 공개되는 유일한 백엔드이고 **신뢰 경계**다. DB 접근은 여기에만 있다. 모듈 24개(인증·계정·캐릭터·대화·기억·공방·신고·결제·코레딧·모델·오퍼레이션·퀘스트 등), 테이블 27개.
+Nest.js 12 (TypeScript, **ESM**), Prisma 7, vitest, oxlint. 외부에 공개되는 유일한 백엔드이고 **신뢰 경계**다. DB 접근은 여기에만 있다. 모듈 24개(인증·계정·캐릭터·대화·기억·공방·신고·결제·코레딧·모델·오퍼레이션·퀘스트 등), 테이블 28개.
 
 → [apps/api/README.md](apps/api/README.md)
 
@@ -126,7 +126,7 @@ Claude, Cursor, Codex, Grok, Antigravity 등 AI 에이전트가 공통으로 따
 # 2) web + api + console (저장소 루트에서)
 npm install
 cp apps/api/.env.example apps/api/.env     # AUTH_SECRET 등을 채운다
-(cd apps/api && npx prisma migrate deploy && npm run prisma:seed)   # 테이블 만들기 + 공식 캐릭터(유지성)
+(cd apps/api && npx prisma migrate deploy && npm run prisma:seed)   # 테이블 만들기 + 공식 캐릭터(유지성·이세연)
 npm run dev:api                            # http://localhost:4000
 npm run dev:web                            # http://localhost:3000
 npm run dev:console                        # http://localhost:3001 (운영자)
@@ -156,7 +156,7 @@ npm run test:e2e          # 웹 화면 자동 테스트 (Playwright, 가짜 LLM�
 npm run ci:local          # GitHub Actions와 같은 단계를 내 PC에서
 ```
 
-e2e를 돌릴 때는 개발용 그림 엔진(WebUI)을 꺼 두는 편이 안전하다(메모리). 설명: [docs/plan/TESTING.md](docs/plan/TESTING.md)
+전체 e2e를 돌릴 때는 그림 엔진(WebUI)과 개발 서버를 끈다(RAM 16GB에서 시간 초과가 난다). 설명: [docs/plan/TESTING.md](docs/plan/TESTING.md)
 
 ---
 

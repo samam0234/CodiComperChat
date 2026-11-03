@@ -265,5 +265,18 @@
 | 2026-11-03 | `b81abc1` | develop (merge) | feature/portrait-fix into develop (no-ff) | [261103_1423_b81abc1_merge-portrait-fix_develop.md](commits/261103_1423_b81abc1_merge-portrait-fix_develop.md) |
 | 2026-11-03 | `850e52f` | develop (merge) | feature/license-public into develop (no-ff) | [261103_1423_850e52f_merge-license-public_develop.md](commits/261103_1423_850e52f_merge-license-public_develop.md) |
 | 2026-11-03 | `673ed98` | develop (merge) | feature/docs-launch-prep into develop (no-ff) | [261103_1423_673ed98_merge-docs-launch-prep_develop.md](commits/261103_1423_673ed98_merge-docs-launch-prep_develop.md) |
+| 2026-11-03 | `b471a60` | feature/premium-adapters | 프리미엄 모델 Claude·Grok 호출 연동 | [261103_1730_b471a60_premium-adapters_feature-premium-adapters.md](commits/261103_1730_b471a60_premium-adapters_feature-premium-adapters.md) |
+| 2026-11-03 | `6ca32d3` | feature/docs-model-license | Gemma 4 라이선스를 Apache 2.0으로 정정 | [261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md](commits/261103_1732_6ca32d3_docs-model-license_feature-docs-model-license.md) |
+| 2026-11-03 | `368d1ad` | feature/deploy-server-setup | 상시 서버 후보 비교와 Ubuntu 설치 스크립트 | [261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md](commits/261103_1732_368d1ad_deploy-server-setup_feature-deploy-server-setup.md) |
+| 2026-11-03 | `123c35f` | feature/adult-mode-switch | Anthropic SDK를 프리미엄 호출 때만 불러오기 | [261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md](commits/261103_1758_123c35f_ai-lazy-sdk_feature-adult-mode-switch.md) |
+| 2026-11-03 | `57f12cc` | feature/adult-mode-switch | 성인 모드를 끄는 ADULT_MODE 스위치 | [261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md](commits/261103_1758_57f12cc_adult-mode-switch_feature-adult-mode-switch.md) |
+| 2026-11-03 | `69ce804` | feature/adult-mode-switch | 미병합 브랜치와 e2e 결과 기록 | [261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md](commits/261103_1817_69ce804_handover-unmerged_feature-adult-mode-switch.md) |
+| 2026-11-03 | `5b5c5ae` | feature/pro-click | 결제 없이 눌러서 프로로 바꾸기 | [261103_1930_5b5c5ae_pro-click_feature-pro-click.md](commits/261103_1930_5b5c5ae_pro-click_feature-pro-click.md) |
+| 2026-11-03 | `d4d9573` | feature/premium-age-gate | 프리미엄 모델을 만 18세 이상으로 제한 | [261103_1932_d4d9573_premium-age-gate_feature-premium-age-gate.md](commits/261103_1932_d4d9573_premium-age-gate_feature-premium-age-gate.md) |
+| 2026-11-03 | `981213c` | feature/private-repo-decisions | 저장소 비공개와 호스팅 결정 반영 | [261103_1933_981213c_private-repo-decisions_feature-private-repo-decisions.md](commits/261103_1933_981213c_private-repo-decisions_feature-private-repo-decisions.md) |
+| 2026-11-03 | `fec9551` | feature/private-repo-decisions | 미병합 브랜치 순서와 e2e 결과 갱신 | [261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md](commits/261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md) |
+| 2026-11-03 | `ea6b788` | feature/docs-handoff | 코드와 어긋난 문서 수치와 결정을 맞춤 | [261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md](commits/261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md) |
+| 2026-11-03 | `d41d032` | feature/docs-handoff | Cursor가 이어받을 작업 지시서와 규칙을 정리 | [261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md](commits/261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md) |
+| 2026-11-04 | `07561f1` | feature/docs-handoff | 서버를 끈 전체 e2e 결과를 기록 | [261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md](commits/261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

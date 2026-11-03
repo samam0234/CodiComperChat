@@ -10,6 +10,7 @@ import {
   revokeAdult,
   updateProfile,
   type FormState,
+  saveBirthDate,
 } from "@/app/actions/auth";
 import { saveTheme } from "@/app/actions/preferences";
 import form from "@/components/form.module.css";
@@ -188,6 +189,26 @@ export function LogoutButton() {
     <form action={logout}>
       <button type="submit" className={form.secondary}>
         로그아웃
+      </button>
+    </form>
+  );
+}
+
+// 프리미엄 모델 나이 확인. 성인 확인과 별개이고, 생년월일은 한 번 넣으면 바꿀 수 없다(서버가 막는다)
+export function BirthDateForm({ saved }: { saved: boolean }) {
+  const [state, action, pending] = useActionState(saveBirthDate, undefined);
+
+  if (saved) return <p className={styles.note}>생년월일을 입력했어요. 한 번 입력하면 바꿀 수 없어요.</p>;
+  return (
+    <form action={action} className={form.form}>
+      <label className={form.field}>
+        <span className={form.label}>생년월일</span>
+        <input className={form.input} name="birthDate" type="date" min="1900-01-01" defaultValue={state?.values?.birthDate} required />
+        <span className={form.hint}>한 번 저장하면 바꿀 수 없어요. 거짓으로 입력하면 안 돼요(<Link href="/terms" className={styles.inlineLink}>이용약관</Link>).</span>
+      </label>
+      <Status state={state} />
+      <button type="submit" className={form.secondary} disabled={pending}>
+        나이 확인
       </button>
     </form>
   );

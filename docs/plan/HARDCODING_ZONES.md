@@ -39,6 +39,8 @@
 | 코레딧 값 | 출석 1,000(프로 5,000) · 오퍼레이션 30/20/20/10 · 코디포토넷 50 · 웹툰 컷 45 · 비밀 퀘스트 보상 100 · 강화 무료 초과 1번 10 | `apps/api/src/credits/credits.ts`, `quests/quest.ts` `QUEST_REWARD_CREDITS`, `models/models.ts` `ENHANCED_OVERAGE_CREDITS` | 요금 정책·원가 |
 | 강화 무료 하루 무료 횟수 | 30 | `models/models.ts` `ENHANCED_DAILY_LIMIT_DEFAULT` (env `MODEL_ENHANCED_DAILY_LIMIT`) | |
 | 성인 나이 | 만 19세 (한국 시각) | `apps/api/src/account/adult.ts` `ADULT_AGE` | 본인인증 도입 시 |
+| 프리미엄 나이 | 만 18세 | `apps/api/src/models/models.ts` `PREMIUM_MIN_AGE` | 공급자 정책이 바뀔 때 |
+| 클릭 프로 기간 | 30일 | `apps/api/src/billing/pro-click.ts` `PRO_CLICK_DAYS` | 정식 서비스로 바꿀 때 없앤다 |
 | 미성년자 낱말·나이 검사 | 넓게("고등학생 때"도 막음) | `services/ai/app/services/photonet.py` `MINOR_WORDS`·`MINOR_AGE` | 성인 장면이 지나치게 막히면 — 안전 쪽으로 기운 값이라 신중히 |
 | 그림 검수 기준 | 성인: 어려 보임·강제·실존 인물·실사·혐오·자해 / 전체 이용가: 성적·노출·유혈·폭력 추가. 확신도는 보지 않는다 | `services/ai/app/services/photonet_moderation.py` `REFUSE` | 검수 기록이 쌓이면 |
 | 퀘스트 판정 | 확신 85 이상 + 근거 인용 8자 이상이 실제 대사에 있어야 | `services/ai/app/services/summarization.py` `VERIFY_MIN_CONFIDENCE`·`EVIDENCE_MIN` | 판정이 너무 엄격/느슨할 때 |

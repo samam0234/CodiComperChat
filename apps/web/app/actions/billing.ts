@@ -49,3 +49,10 @@ export async function confirmPayment(input: { orderId: string; paymentKey: strin
   if (result.ok) revalidatePath("/", "layout");
   return result;
 }
+
+// 결제 없이 프로로 바꾼다. 등급이 바로 바뀌므로 화면을 새로 그린다
+export async function claimProClick() {
+  const result = await post<{ plan: "PRO"; planUntil: string }>("/billing/pro-click", {});
+  if (result.ok) revalidatePath("/", "layout");
+  return result;
+}
