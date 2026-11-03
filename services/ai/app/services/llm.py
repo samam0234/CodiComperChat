@@ -5,7 +5,7 @@ import os
 import httpx
 from fastapi import HTTPException
 
-from app.services import fake_llm, premium
+from app.services import fake_llm
 
 # 로컬에 pull된 모델 태그. 확인: `ollama list`
 DEFAULT_MODEL = "gemma4:e4b"
@@ -41,6 +41,9 @@ def generate(
         return fake_llm.generate(response_json_schema)
 
     if provider != "ollama":
+        # 프리미엄을 실제로 부를 때만 SDK를 불러온다 (불러오는 데 수 초·약 58MB. 무료 모델만 쓰면 필요 없다)
+        from app.services import premium
+
         if not model:
             raise HTTPException(status_code=400, detail="프리미엄 호출에는 모델 이름이 필요하다.")
         if provider == "anthropic":
