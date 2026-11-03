@@ -72,8 +72,9 @@ if (which === 'all' || which === 'checks') {
     step('타입 검사 (api)', 'npm run typecheck:api', '.', env) &&
     step('타입 검사 (web)', 'npx next typegen && npx tsc --noEmit', 'apps/web', env) &&
     step('타입 검사 (console)', 'npx next typegen && npx tsc --noEmit', 'console', env) &&
-    step('API 단위 테스트', 'npm run test:api', '.', env);
-  step('AI 서비스 불러오기', `"${python}" -m venv .venv && ${venvPy} -m pip install -q -r requirements.txt && ${venvPy} -m compileall -q app evals && ${venvPy} -c "import app.main"`, 'services/ai');
+    step('API 단위 테스트', 'npm run test:api', '.', env) &&
+    step('커밋 기록 작성기 시험', 'node --test scripts/record-commit.test.mjs', '.', env);
+  step('AI 서비스 불러오기', `"${python}" -m venv .venv && ${venvPy} -m pip install -q -r requirements.txt && ${venvPy} -m compileall -q app evals && ${venvPy} -c "import app.main" && ${venvPy} -m unittest discover tests`, 'services/ai');
 }
 
 if (which === 'all' || which === 'e2e') {

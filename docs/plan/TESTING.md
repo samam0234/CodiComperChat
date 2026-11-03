@@ -11,7 +11,7 @@
 | `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 205개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
 | `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 112건, 마지막 전체 실행 111건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
 | `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 9묶음 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성(`tone` 포함 9묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
-| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 22개, CI에는 없음 | 그림 검수 규칙, 초상, 프리미엄 요청 모양. 라우트 시험은 없다 |
+| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 22개 | 그림 검수 규칙, 초상, 프리미엄 요청 모양. 라우트 시험은 없다 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
 
@@ -90,10 +90,10 @@ develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈
 
 | 단계 | 내용 |
 |---|---|
-| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → AI 서비스 불러오기(`compileall`, `import app.main`) |
+| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → 기록 작성기 시험 → AI 서비스 불러오기(`compileall`, `import app.main`) → AI unittest |
 | e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
 
-`services/ai` unittest와 기록 작성기 시험은 아직 CI에 없다([../TASKS.md](../TASKS.md) Q01). AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
+AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
 
 ### CI를 내 PC에서 재현 (`npm run ci:local`)
 
