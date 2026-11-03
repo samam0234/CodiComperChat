@@ -6,6 +6,7 @@ import { createWebtoon, drawWebtoonPanel, loadWebtoons } from "@/app/actions/ope
 import form from "@/components/form.module.css";
 import { formatDay } from "@/lib/format-time";
 import type { PhotonetRating, Webtoon, WebtoonView } from "@/lib/operations";
+import ContentReport from "@/components/content-report";
 import AdultDialog from "../adult-dialog";
 import ops from "../ops.module.css";
 import styles from "./webtoon.module.css";
@@ -220,7 +221,18 @@ export default function WebtoonPanel({ data: initial }: { data: WebtoonView }) {
                       {w.title}
                     </h2>
                     <time dateTime={w.createdAt}>{formatDay(w.createdAt)}</time>
+                    {w.blocked ? null : (
+                      <ContentReport
+                        characterId={data.character.id}
+                        target="WEBTOON"
+                        targetId={w.id}
+                        returnTo={`/characters/${data.character.id}/chat/webtoon`}
+                      />
+                    )}
                   </div>
+                  {w.blocked ? (
+                    <p className={styles.blocked}>운영 조치로 볼 수 없는 웹툰입니다. {w.blockReason}</p>
+                  ) : (
                   <ol className={styles.panels}>
                     {w.panels.map((p) => {
                       const now = drawing === `${w.id}:${p.index}`;
@@ -266,7 +278,8 @@ export default function WebtoonPanel({ data: initial }: { data: WebtoonView }) {
                       );
                     })}
                   </ol>
-                  {left > 0 && left < w.panels.length && !busy && (
+                  )}
+                  {!w.blocked && left > 0 && left < w.panels.length && !busy && (
                     <button
                       type="button"
                       className={styles.rest}

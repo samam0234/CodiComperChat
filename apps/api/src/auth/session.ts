@@ -1,4 +1,6 @@
+import { ForbiddenException } from '@nestjs/common';
 import type { PrismaService } from '../prisma/prisma.service.js';
+import { SUSPEND_MESSAGE } from '../content-reports/content-reports.service.js';
 import { readToken } from './token.js';
 
 // Authorization 헤더의 로그인 토큰을 확인해 userId를 돌려준다. 아니면 null.
@@ -9,7 +11,9 @@ export async function readSession(prisma: PrismaService, authorization: string |
   if (!claims) return null;
   const user = await prisma.user.findUnique({
     where: { id: claims.userId },
-    select: { sessionVersion: true },
+    select: { sessionVersion: true, suspendedAt: true },
   });
-  return user && user.sessionVersion === claims.sessionVersion ? claims.userId : null;
+  if (!user || user.sessionVersion !== claims.sessionVersion) return null;
+  if (user.suspendedAt) throw new ForbiddenException(SUSPEND_MESSAGE);
+  return claims.userId;
 }

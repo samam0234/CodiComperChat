@@ -20,9 +20,17 @@ export async function postToAi<T>(path: string, payload: unknown, options: AiCal
 }
 
 // 대기열을 거치지 않는 짧은 조회 (상태 확인처럼 모델을 부르지 않는 것). 실패하면 예외
+function aiHeaders(json: boolean): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (json) headers['Content-Type'] = 'application/json';
+  const token = process.env.AI_SERVICE_TOKEN;
+  if (token) headers['X-AI-Token'] = token;
+  return headers;
+}
+
 export async function getFromAi<T>(path: string, timeoutMs: number): Promise<T> {
   const aiBaseUrl = process.env.AI_BASE_URL ?? 'http://localhost:8000';
-  const res = await fetch(`${aiBaseUrl}${path}`, { signal: AbortSignal.timeout(timeoutMs) });
+  const res = await fetch(`${aiBaseUrl}${path}`, { headers: aiHeaders(false), signal: AbortSignal.timeout(timeoutMs) });
   if (!res.ok) throw new HttpException('AI 서비스 조회가 실패했다', res.status);
   return (await res.json()) as T;
 }
@@ -34,7 +42,7 @@ async function send<T>(path: string, payload: unknown, timeoutMs: number): Promi
   try {
     res = await fetch(`${aiBaseUrl}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: aiHeaders(true),
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(timeoutMs),
     });

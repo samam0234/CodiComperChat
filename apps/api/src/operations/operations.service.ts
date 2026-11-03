@@ -50,7 +50,23 @@ const PHOTONET_GALLERY = 12;
 const ENGINE_STATUS_TIMEOUT_MS = 3000;
 // 그림 한 장: 화풍 계열(SDXL ↔ SD1.5)을 바꾸면 모델을 다시 읽느라 2~3분 걸릴 수 있다 (RAM 16GB에서 측정)
 export const PHOTONET_TIMEOUT_MS = 300_000;
-const PHOTONET_SELECT = { id: true, prompt: true, style: true, ratio: true, rating: true, width: true, height: true, createdAt: true } as const;
+const PHOTONET_SELECT = {
+  id: true,
+  prompt: true,
+  style: true,
+  ratio: true,
+  rating: true,
+  width: true,
+  height: true,
+  createdAt: true,
+  blockedAt: true,
+  blockReason: true,
+} as const;
+
+function presentImage<T extends { blockedAt: Date | null; blockReason: string | null }>(image: T) {
+  const { blockedAt, blockReason, ...rest } = image;
+  return { ...rest, blocked: blockedAt !== null, blockReason: blockedAt ? blockReason : null };
+}
 type PhotonetResult = { image: string; mime: string; width: number; height: number; promptUsed: string; cast?: string[] };
 // 커뮤니티 글 길이 한도
 export const POST_TITLE_MAX = 60;
@@ -366,7 +382,7 @@ export class OperationsService {
       styles: PHOTONET_STYLES,
       ratios: PHOTONET_RATIOS,
       nsfw: { allowed: block === null, reason: block, message: block ? ADULT_BLOCK_MESSAGE[block] : null, blockedStyles: NSFW_BLOCKED_STYLES },
-      images,
+      images: images.map(presentImage),
     };
   }
 
@@ -479,7 +495,7 @@ export class OperationsService {
         select: PHOTONET_SELECT,
       });
     });
-    return { image: result, balance, cast: castShown };
+    return { image: presentImage(result), balance, cast: castShown };
   }
 
   // 그림 본문: 그 대화를 하는 사람(내 대화)에게만. 남의 그림은 없는 것과 같은 404.
@@ -490,9 +506,9 @@ export class OperationsService {
     const block = await this.adultBlockOf(userId);
     const image = await this.prisma.photonetImage.findFirst({
       where: { id: imageId, campaign: { userId, characterId }, ...(block ? { rating: 'sfw' } : {}) },
-      select: { data: true, mime: true },
+      select: { data: true, mime: true, blockedAt: true },
     });
-    if (!image) throw new NotFoundException('그림이 없습니다.');
+    if (!image || image.blockedAt) throw new NotFoundException(image?.blockedAt ? '운영 조치로 볼 수 없는 그림입니다.' : '그림이 없습니다.');
     return { data: Buffer.from(image.data), mime: image.mime };
   }
 }

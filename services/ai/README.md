@@ -78,7 +78,7 @@ cd services/ai
 
 `/train`의 403은 미구현이 아니라 정책이다. v1은 자체 가중치 학습을 하지 않고 경로만 설계에 남긴다 (기획서 §7.7).
 
-**이 서비스에는 인증이 없다.** Nest만 호출하는 내부망 전제이므로 외부에 열지 않는다([../../SECURITY.md](../../SECURITY.md) "공개 전 필수").
+**바깥에 열지 않는다.** `AI_SERVICE_TOKEN`이 있으면 그 헤더가 맞는 요청만 받고, 비우면 루프백만 받는다. `/health`는 이 기계에서만 토큰 없이 연다. 운영(`APP_ENV=production`)은 토큰이 필수다.
 
 ## 환경변수
 
@@ -89,6 +89,7 @@ cd services/ai
 | `SD_MODEL_DIR` · `SD_OFFLOAD` | `services/ai/models/` · 꺼짐 | 체크포인트 폴더, 그래픽 메모리 절약(느려짐) |
 | `SD_WEBUI_URL` · `SD_ANIME_MODEL` · `SD_BASE_MODEL` | — | `webui` 주소, 화풍별 체크포인트 파일 이름 |
 | `LLM_FAKE` · `IMAGE_FAKE` | 꺼짐 | **시험용**: 가짜 답·가짜 그림(e2e). 운영에서 켜지 않는다 |
+| `AI_SERVICE_TOKEN` · `APP_ENV` | 비움 | 내부 호출 토큰. `APP_ENV=production`이면 토큰이 필수이고 가짜 스위치가 켜져 있으면 시작하지 않는다 |
 
 전체 표: [../../docs/guidance/environment.md](../../docs/guidance/environment.md)
 

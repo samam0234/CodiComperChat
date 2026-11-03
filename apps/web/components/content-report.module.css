@@ -1,0 +1,96 @@
+.button {
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dialog {
+  width: min(420px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.body {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.text,
+.error {
+  margin: 0;
+  font-size: 14px;
+}
+
+.error {
+  color: var(--danger, #b42318);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+
+.field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.plain,
+.primary {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.plain {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+}
+
+.primary {
+  border: 0;
+  background: var(--gradient);
+  color: #fff;
+  font-weight: 600;
+}

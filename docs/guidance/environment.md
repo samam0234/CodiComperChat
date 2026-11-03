@@ -1,6 +1,6 @@
 # 환경변수
 
-각 앱이 읽는 환경변수 전체. 정본은 코드이고, 샘플은 `apps/api/.env.example`·`services/ai/.env.example`이다. 바뀌면 샘플 두 곳과 이 표를 함께 고친다. 최종 갱신 2026-10-24.
+각 앱이 읽는 환경변수 전체. 정본은 코드이고, 샘플은 `apps/api/.env.example`·`services/ai/.env.example`이다. 바뀌면 샘플 두 곳과 이 표를 함께 고친다. 최종 갱신 2026-10-25.
 
 `.env`는 git에 올라가지 않는다(`.gitignore`). 비밀 값(DB 비밀번호, `AUTH_SECRET`, 토스 시크릿 키, SMTP 비밀번호)은 문서·대화·커밋·로그에 남기지 않는다.
 
@@ -12,6 +12,8 @@
 | `AUTH_SECRET` | **필수** | — | 로그인 토큰 서명 키, 32자 이상(짧으면 시작하지 않음) |
 | `PORT` | | 4000 | |
 | `AI_BASE_URL` | | `http://localhost:8000` | FastAPI 주소 |
+| `AI_SERVICE_TOKEN` | 운영 필수 | 비움 | FastAPI와 같은 내부 호출 토큰(32자 이상). 개발에서 비우면 FastAPI는 루프백만 받는다. `node scripts/generate-prod-secrets.mjs` |
+| `REQUIRE_HTTPS` | 운영 필수 | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 https 응답에 HSTS를 붙인다. `NODE_ENV=production`인데 이 값이 없고 공개 호스트면 API가 시작되지 않거나 503 |
 | `AI_CONCURRENCY` | | 2 | AI 동시 호출 수(**서버 한 대 기준**. 서버 N대면 모델이 받는 동시 호출은 N × 이 값) |
 | `PERSONA_RAG` | | 켜짐 | `off`면 지식 JSON을 무시하고 카드 원문 전부를 넣는다(효과 비교용) |
 | `PERSONA_DATA_DIR` | | `apps/api/data/personas` | 페르소나 지식 JSON 폴더 |
@@ -29,7 +31,7 @@
 | `TOSS_CLIENT_KEY` | 결제 시 | — | 토스 클라이언트 키(웹 결제창용, 공개돼도 되는 키) |
 | `BILLING_PRICE_PRO_30` | | 4900 | 프로 30일 가격(원, 100~10,000,000 정수. 잘못 적으면 기본값) |
 | `BILLING_PRICE_PRO_365` | | 49000 | 프로 1년 가격 |
-| `NODE_ENV` | | — | `production`이면: 가짜 결제·개발용 메일 로그가 꺼진다 |
+| `NODE_ENV` | | — | `production`이면: 가짜 결제·개발용 메일 로그가 꺼지고, `REQUIRE_HTTPS=1`·`AI_SERVICE_TOKEN`(32자 이상)이 있어야 시작된다. `LLM_FAKE`·`IMAGE_FAKE`·`MODEL_PREMIUM_FAKE`·`MAIL_OUTBOX_DIR`·`BILLING_PROVIDER=mock`이 있으면 시작하지 않는다 |
 
 확인 도구: `npm run billing:check --workspace api`(토스 키·연결), `npm run mail:check --workspace api -- 받을주소`(SMTP). 둘 다 설정 값을 출력하지 않는다.
 
@@ -41,6 +43,8 @@
 |----|--------|------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | 로컬 Ollama |
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
+| `AI_SERVICE_TOKEN` | 비움 | Nest와 같은 값. 있으면 `X-AI-Token`이 맞는 요청만 받는다. 비우면 루프백만 |
+| `APP_ENV` | 꺼짐 | `production`이면 토큰 32자 이상이 필요하고 `LLM_FAKE`·`IMAGE_FAKE`가 켜져 있으면 시작하지 않는다 |
 | `LLM_FAKE` | 꺼짐 | **시험용.** `1`이면 모델 없이 고정된 가짜 답. e2e가 자동으로 켠다 (코디포토넷의 가짜 그림 엔진도 함께 켜진다) |
 | `IMAGE_ENGINE` | `local` | 코디포토넷 그림 엔진. `local`: services/ai 안에서 diffusers로 직접 그린다(배포용, `requirements-image.txt` 필요) / `webui`: 따로 띄운 WebUI를 부른다. [photonet-engine.md](photonet-engine.md) |
 | `SD_MODEL_DIR` | `services/ai/models/` | `local` 엔진이 체크포인트 파일을 찾는 폴더(아래 두 파일 이름 그대로) |
@@ -60,8 +64,8 @@
 |----|--------|------|
 | `API_BASE_URL` | `http://localhost:4000` | Nest 주소 (서버에서만 쓰인다) |
 | `NEXT_DIST_DIR` | `.next` | 빌드 폴더. e2e는 `.next-e2e`로 개발 서버와 나눈다 |
-| `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·웹소켓)을 빼고 쿠키를 https 전용으로 |
-
+| `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·웹소켓)을 빼고 쿠키를 https 전용으로. 공개 호스트는 `REQUIRE_HTTPS=1`이 없으면 503 |
+| `REQUIRE_HTTPS` | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 HSTS를 붙인다. 루프백은 그대로 |
 | `CONSOLE_BASE_URL` | `http://localhost:3001` | 운영 콘솔 주소(마이페이지의 "운영 콘솔 열기", 예전 `/admin/*` 이동) |
 
 ## `console` (운영 콘솔, Next.js)
@@ -73,7 +77,10 @@
 | `API_BASE_URL` | `http://localhost:4000` | Nest 주소 (서버에서만 쓰인다) |
 | `WEB_BASE_URL` | `http://localhost:3000` | 이용자 사이트 주소(캐릭터 이름을 누르면 실제 화면으로) |
 | `NEXT_DIST_DIR` | `.next` | e2e는 `.next-e2e` |
-| `NODE_ENV` | — | `production`이면 CSP 개발용 허용을 빼고 쿠키를 https 전용으로 |
+| `NODE_ENV` | — | `production`이면 CSP 개발용 허용을 빼고 쿠키를 https 전용으로. 공개 호스트는 허용 목록이 없으면 403 (`CONSOLE_ALLOW_PUBLIC=1`로만 연다) |
+| `REQUIRE_HTTPS` | 꺼짐 | 웹과 같다 |
+| `CONSOLE_IP_ALLOWLIST` | 비움 | 쉼표로 구분한 이용자 IP. 운영의 공개 호스트에서 이 목록에 있을 때만 연다. 앞단이 `X-Forwarded-For`를 덮어써야 한다 |
+| `CONSOLE_ALLOW_PUBLIC` | 꺼짐 | `1`이면 IP 제한을 끈다. 공개 전에 켜지 않는다 |
 
 ## 자동 테스트·CI가 쓰는 것
 

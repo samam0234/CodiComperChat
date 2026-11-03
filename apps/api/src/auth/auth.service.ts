@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -19,6 +20,7 @@ import type {
 import { consumeEmailToken, issueEmailToken } from './email-token.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { effectivePlan } from '../plan/plan.js';
+import { SUSPEND_MESSAGE } from '../content-reports/content-reports.service.js';
 import { signToken } from './token.js';
 
 // passwordHash는 어떤 응답에도 넣지 않는다
@@ -117,7 +119,7 @@ export class AuthService {
   async login(input: LoginInput): Promise<{ token: string; user: PublicUser }> {
     const found = await this.prisma.user.findUnique({
       where: { email: input.email },
-      select: { ...PUBLIC_USER, passwordHash: true },
+      select: { ...PUBLIC_USER, passwordHash: true, suspendedAt: true },
     });
 
     const ok = await verifyPassword(
@@ -128,7 +130,8 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
 
-    const { passwordHash: _omit, ...user } = found;
+    if (found.suspendedAt) throw new ForbiddenException(SUSPEND_MESSAGE);
+    const { passwordHash: _omit, suspendedAt: _suspended, ...user } = found;
     return { token: await signToken(user.id, user.sessionVersion), user: present(user) };
   }
 

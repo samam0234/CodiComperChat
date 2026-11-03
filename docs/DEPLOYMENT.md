@@ -30,7 +30,7 @@ repo/
 | `AI_CONCURRENCY`를 대수로 나눠 정하기 | 대기열은 서버마다 따로다 | 〃 |
 | `NODE_ENV=production` | 가짜 결제·개발용 메일 로그가 꺼지고, 쿠키가 https 전용, CSP에서 개발용 허용이 빠진다 | 〃 |
 | 개발용 스위치 끄기 | `LLM_FAKE`·`IMAGE_FAKE`·`MODEL_PREMIUM_FAKE`·가짜 결제·`MAIL_OUTBOX_DIR`·Mailpit | [../SECURITY.md](../SECURITY.md) |
-| HSTS | 앱 코드에 없다. 앞단 프록시에서 https를 끝내고 `Strict-Transport-Security`를 붙인다 | 〃 |
+| HSTS·HTTPS | `REQUIRE_HTTPS=1`이면 공개 호스트의 http를 https로 보내고 HSTS를 붙인다. 인증서와 `X-Forwarded-Proto` 덮어쓰기는 앞단 프록시(배포 대상 결정 후) | `apps/api/src/security/https.ts`, `apps/web/proxy.ts`, `console/proxy.ts` |
 | `MAIL_SMTP_URL`·`WEB_BASE_URL` | 없으면 인증·재설정 메일이 안 나간다 | `npm run mail:check --workspace api` |
 | `TOSS_SECRET_KEY`·`TOSS_CLIENT_KEY`(+ 가격) | 없으면 운영에서 결제를 열지 않는다 | `npm run billing:check --workspace api` |
 | FastAPI를 바깥에 열지 않고 서비스 토큰으로 막기 | 지금은 내부망 전제라 인증이 없다(계획서 §7.8) | `services/ai` |

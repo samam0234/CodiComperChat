@@ -49,6 +49,20 @@ export async function decidePortrait(draftId: string, decision: "approve" | "rej
   return call(`/admin/portraits/${encodeURIComponent(draftId)}`, { method: "POST", body: { decision, note } });
 }
 
+// ---- 성인 그림 신고 ----
+
+export async function blockContent(id: string, note: string, suspend: boolean) {
+  return call(`/admin/content-reports/${encodeURIComponent(id)}/block`, { method: "POST", body: { note, suspend } });
+}
+
+export async function dismissContent(id: string, note: string) {
+  return call(`/admin/content-reports/${encodeURIComponent(id)}/dismiss`, { method: "POST", body: { note } });
+}
+
+export async function unsuspendUser(id: string) {
+  return call(`/admin/users/${encodeURIComponent(id)}/unsuspend`, { method: "POST", body: {} });
+}
+
 // ---- 계정 등급·결제 ----
 
 export type AdminUser = {

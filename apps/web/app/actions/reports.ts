@@ -32,3 +32,14 @@ export async function reportCharacter(characterId: string, reason: string, detai
   return call(`/characters/${encodeURIComponent(characterId)}/report`, { reason, detail }, `/characters/${characterId}`);
 }
 
+export async function reportContent(
+  characterId: string,
+  target: "PHOTONET" | "WEBTOON",
+  targetId: string,
+  reason: string,
+  detail: string,
+  returnTo: string,
+) {
+  return call(`/characters/${encodeURIComponent(characterId)}/content-reports`, { target, targetId, reason, detail }, returnTo);
+}
+

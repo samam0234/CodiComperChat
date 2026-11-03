@@ -264,6 +264,15 @@
   color: var(--muted);
 }
 
+.blocked {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+
 :root[data-theme="dark"] .progress {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
