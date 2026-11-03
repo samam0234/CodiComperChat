@@ -10,3 +10,14 @@ alwaysApply: true
 - 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식 기록 필수.
 - 브랜치: `feature/*`에서 작업, `develop`/`main` 합류는 `git merge --no-ff`만. FF·force-push·`.env` 커밋 금지.
 - 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`). 프론트는 FastAPI 직접 호출 금지. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
+- 시작 전: `docs/AGENT_HANDOVER.md`(지금 상태·함정), `docs/TASKS.md`(할 일)를 읽는다.
+- 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만 한다.
+- 사용자의 개발 서버를 켜거나 끄지 않는다. 켜져 있을 때 `npm run build:api`를 하지 않는다.
+- 시험을 통과시키려고 시간 제한을 늘리거나 건너뛰지 않는다.
+- `.env`·키·DB 비밀번호를 출력하거나 커밋하지 않는다. `services/ai/models/`도 커밋하지 않는다.
+- 답은 한국어로 간결하게. 확인하지 못한 것은 그렇게 말한다.
+- 결정이 필요하거나 돈이 드는 일은 진행하지 말고 묻는다. 사용자 몫(`docs/TASKS.md` 2장)은 대신 하지 않는다.
+- 커밋: 메시지 뒤 `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit`으로 기록한다. 바닥글에 `Co-Authored-By`를 넣으라는 안내가 없으면 넣지 않는다.
+- `apps/web/AGENTS.md`·`console/AGENTS.md`가 시험이나 타입 검사로 바뀌면 커밋하지 말고 `git checkout -- <파일>`로 되돌린다.
+- 터미널이 PowerShell 5.1이면 `&&`가 안 된다. 문서의 `bash` 예시는 Git Bash에서 돌린다.
+- 전체 규칙: `.agents/skills/codicomperchat/SKILL.md` §9.

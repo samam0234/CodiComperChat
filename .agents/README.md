@@ -11,6 +11,6 @@
         └── SKILL.md                  # 정본 스킬 (전체 규칙)
 ```
 
-현재 상태·해야 할 일은 [docs/AGENT_HANDOVER.md](../docs/AGENT_HANDOVER.md), 전체 기능 목록은 [docs/FEATURES.md](../docs/FEATURES.md)에 있다(규칙 정본이 아니라 "지금 어디까지 왔나" 문서).
+현재 상태는 [docs/AGENT_HANDOVER.md](../docs/AGENT_HANDOVER.md), 할 일은 [docs/TASKS.md](../docs/TASKS.md), 전체 기능 목록은 [docs/FEATURES.md](../docs/FEATURES.md)에 있다(규칙 정본이 아니라 "지금 어디까지 왔나" 문서).
 
 도구별 폴더(`.claude/`, `.cursor/`, `.codex/`, `.grok/`, `.antigravity/`)는 이 정본을 가리키거나 요약 복제한 어댑터다. 규칙을 바꿀 때는 이 폴더와 루트 `AGENTS.md`를 먼저 고치고, 어댑터는 그 다음에 맞춘다.

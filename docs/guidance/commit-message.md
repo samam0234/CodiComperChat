@@ -45,6 +45,10 @@ type(scope): 한국어 한 줄 요약
 ❌ `feat(api): add campaign endpoint` — 요약이 영어라 금지
 ❌ `작업함` — type/scope 없음, 요약 없음
 
+## 바닥글의 `Co-Authored-By`
+
+쓰는 도구의 안내가 정한 값만 쓴다. 안내가 없으면 넣지 않는다.
+
 ## 병합 커밋
 
 ```text

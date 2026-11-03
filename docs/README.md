@@ -6,7 +6,7 @@
 
 > 현재(2026-11-03) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 28개), Redis는 쓰지 않는다. **배포는 아직이다.** `web_management/`·`DEPLOYMENT.md`의 배포 절차는 아직 목표 문서이고, 그렇게 표시해 두었다.
 >
-> **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(인수인계·해야 할 일)와 [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
+> **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(지금 상태), [TASKS.md](TASKS.md)(할 일), [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
 
 ---
 
@@ -15,7 +15,8 @@
 ```text
 docs/
 ├── README.md                 ← 이 파일 (허브 인덱스)
-├── AGENT_HANDOVER.md         ← 에이전트 인수인계 (현재 상태·작업 약속·함정·해야 할 일)
+├── AGENT_HANDOVER.md         ← 에이전트 인수인계 (현재 상태·작업 약속·함정)
+├── TASKS.md                  ← 작업 지시서 (다음에 할 일, 선행 조건, 끝난 기준)
 ├── FEATURES.md               ← 전체 기능 카탈로그 (화면·API·코드·시험)
 ├── API_DOCUMENTATION.md      ← API 전체 (Nest·FastAPI 경로, 요청 한도, 보안 헤더, 메일, 결제)
 ├── DEPLOYMENT.md             ← 배포 짧은 진입 + 배포 때 꼭 할 것
@@ -43,6 +44,29 @@ docs/
 
 ---
 
+## 문서 정본 표
+
+같은 값을 여러 문서에 적으면 어긋난다. 값은 아래 정본에 적고, 다른 문서는 링크로 가리킨다. 코드를 바꾸면 해당 정본을 같은 브랜치에서 고친다.
+
+| 무엇 | 정본 |
+|------|------|
+| 작업 규칙 | [../.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md) |
+| 지금 상태, 사용자 결정, 함정 | [AGENT_HANDOVER.md](AGENT_HANDOVER.md) |
+| 다음에 할 일 | [TASKS.md](TASKS.md) |
+| 스택, 버전, 포트 | [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) |
+| 구현된 기능과 한계 | [FEATURES.md](FEATURES.md) |
+| 시험 수, 시험 방법 | [plan/TESTING.md](plan/TESTING.md) |
+| 테이블 | [plan/DATABASE.md](plan/DATABASE.md) |
+| API 계약 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) |
+| 환경변수 | [guidance/environment.md](guidance/environment.md) |
+| 공개 전 보안·법률 체크 | [../SECURITY.md](../SECURITY.md) |
+| 모델·라이선스 | [plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md), [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) |
+| 배포 | [DEPLOYMENT.md](DEPLOYMENT.md), [web_management/](web_management/) |
+
+`branchs/commits/`와 `find_debug/`는 그때의 기록이라 지금 상태에 맞춰 고치지 않는다.
+
+---
+
 ## 앱과 포트
 
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
@@ -61,7 +85,7 @@ docs/
 ## 빠른 링크
 
 - 기획 원본: [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)
-- **인수인계·해야 할 일: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **전체 기능: [FEATURES.md](FEATURES.md)**
+- **인수인계: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **할 일: [TASKS.md](TASKS.md)** · **전체 기능: [FEATURES.md](FEATURES.md)**
 - 저장소 라이선스·보안·제3자 고지: [../LICENSE](../LICENSE) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
 - 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
 - 현재 스택: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)

@@ -1,19 +1,19 @@
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`이고, 이 문서는 "지금 어디까지 왔고, 무엇을 해야 하며, 어디서 걸려 넘어지는가"를 적는다. 최종 갱신 2026-11-03.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-03.
 
 ## 1. 한 줄 요약
 
-캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **실제 서버 배포는 하지 않았다.** 호스팅 업체 선택을 기다린다.
+캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **실제 서버 배포는 하지 않았다.** 서버 계약(Hetzner GEX45)을 기다린다.
 
 | 항목 | 지금 |
 |------|------|
-| 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: GPU 서버 한 대, 24시간. 업체 미정 |
-| 미병합 작업 | `feature/premium-adapters` → `feature/docs-model-license` → `feature/deploy-server-setup` → `feature/adult-mode-switch` → `feature/pro-click` → `feature/premium-age-gate` → `feature/private-repo-decisions` 순서로 쌓여 있다(2026-11-03). 맨 위 기준 전체 e2e는 108/112, 개발 서버를 켠 채 남은 RAM 약 0.4GB에서 돌렸다. 실패 4건은 시간 초과이며 매번 조금씩 달라진다. `operations` 2건과 `reports`는 따로 돌리면 통과한다. `chat.spec.ts:31`은 전체 실행 3번 모두 실패했고, 따로 돌렸을 때 1번 실패 후 3번 통과했다. 실패할 때 웹 서버 로그에 요청 본문이 비었다는 오류가 시험이 끝난 뒤 찍혀, 요청이 처리되기 전에 15초가 지난 것으로 보지만 원인은 확정하지 못했다. 개발 서버를 끄고 전체를 다시 돌려 통과하면 병합한다. 시간 제한은 늘리지 않았다 |
-| 원격(GitHub) | 저장소는 **공개** 상태. `origin/main`·`origin/develop`은 2026-10-25 launch-safety까지. 2026-11-03 작업은 로컬 `develop`에 병합했고 **푸시하지 않았다**(푸시는 사용자가 말할 때) |
+| 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: Hetzner GEX45 한 대, 24시간, 성인 모드는 끈 채로. 계약 전 |
+| 미병합 작업 | `develop` 위로 8개 브랜치가 쌓여 있다(순서는 [TASKS.md](TASKS.md) T03). 맨 위 기준 마지막 전체 e2e는 108/112로, 개발 서버를 켠 채 남은 RAM 약 0.4GB에서 돌렸다. **병합 조건을 못 채워 병합하지 않았다.** 개발 서버를 끄고 다시 돌린다(T01). `chat.spec.ts:31`은 전체 실행 3번 모두 실패했고 원인은 확정하지 못했다. 시간 제한은 늘리지 않았다. 경과: [find_debug/2026-11-03.md](find_debug/2026-11-03.md) |
+| 원격(GitHub) | 저장소는 아직 **공개** 상태이고, 비공개 전환은 사용자가 한다. `origin/develop`은 로컬 `develop`과 같은 `3501523`(2026-11-03), `origin/main`은 로컬 `main`과 같은 `eec38bf`(2026-10-25)다. `develop`이 `main`보다 36커밋 앞선다. 위 미병합 브랜치는 푸시하지 않았다 |
 | 로컬 브랜치 | 병합 끝난 `feature/*`가 100개 넘게 남아 있다(지워도 되지만 사용자 확인 후) |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
-| 시험 | API 201개, e2e 110개(22파일), AI evals 9묶음 + 이세연 판정, AI unittest 22개, 기록 작성기 6개 |
+| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md). API 단위 시험과 타입 검사는 통과, 전체 e2e는 위와 같다 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
@@ -21,15 +21,16 @@
 
 1. `.agents/skills/codicomperchat/SKILL.md` — 정본 규칙. **§0 원본 보존: 루트 `CodiComperChat_project_plan.md`는 사용자 승인 없이 수정하지 않는다.**
 2. 이 문서
-3. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험)
-4. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
-5. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
-6. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
+3. [TASKS.md](TASKS.md) — **다음에 할 일**(선행 조건·끝난 기준)
+4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험)
+5. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
+6. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
+7. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
 
 ## 3. 작업 약속 (사용자와 합의된 것)
 
 **저장소 규칙**
-- 커밋 메시지: `type(scope):`는 영어, 요약·본문·바닥글은 한국어. 바닥글의 `Co-Authored-By` 줄은 그 시점의 시스템 안내가 정하는 값을 쓴다.
+- 커밋 메시지: `type(scope):`는 영어, 요약·본문·바닥글은 한국어. 바닥글의 `Co-Authored-By` 줄은 쓰는 도구의 안내가 정하는 값을 쓰고, 안내가 없으면 넣지 않는다.
 - **매 커밋마다** `docs/branchs/commits/`에 [TEMPLATE.md](branchs/TEMPLATE.md) 형식의 기록 md를 남기고 `docs/branchs/README.md` 목록에 넣는다(생략 금지, 다른 경로 금지). 병합 때는 병합 기록도 남긴다.
 - 작업은 **작업별 `feature/*` 브랜치**에서, `develop`/`main`에는 **`git merge --no-ff`만**(FF·force-push 금지). 기능 브랜치 위에 다른 기능을 쌓으면 아래 브랜치를 먼저 병합한다.
 - **병합은 사용자가 "병합"이라고 말할 때만, 푸시는 푸시를 요청할 때만** 한다. 병합 후 시험을 돌린 결과를 보고한다.
@@ -46,14 +47,15 @@
 
 | 상황 | 해결 |
 |------|------|
-| Windows. Bash 도구(Git Bash)와 PowerShell을 오간다 | 경로는 `/d/vscode/...`(Bash) vs `D:\vscode\...`(PowerShell·Read/Edit) |
+| Windows. Bash 도구(Git Bash)와 PowerShell을 오간다 | 경로는 `/d/vscode/...`(Bash) vs `D:\vscode\...`(PowerShell·Read/Edit). 이 문서의 `bash` 예시는 Git Bash에서 돌린다. PowerShell 5.1에서는 `&&`가 안 된다 |
+| `apps/web/AGENTS.md`·`console/AGENTS.md`가 `next typegen`이나 e2e로 다시 쓰인다 | 작업과 섞어 커밋하지 말고 `git checkout -- <파일>`로 되돌린다. 안내 내용(새 Next 문서를 먼저 읽기)은 따른다 |
 | Git Bash에서 `cmd`로 `.cmd`를 부르면 깨진다 | WebUI는 PowerShell에서 `cmd /c "D:\vscode\CodiComperChat\scripts\start-sd-webui.cmd"`. `.cmd`는 ASCII + CRLF로 둔다 |
 | **한글·역슬래시·정규식이 든 `node -e`/python heredoc**이 이스케이프로 깨진다(두 번 실제로 문서·코드를 망가뜨릴 뻔함) | 긴 편집은 Edit/Write 도구를 쓰거나, 스크립트를 파일로 써서 `node 파일`로 돌린다. 편집 뒤 `grep`으로 확인 |
 | 파일이 CRLF(`.gitattributes`) | 스크립트로 고칠 땐 `\r\n`→`\n`으로 바꿔 편집하고 되돌려 쓴다 |
 | `npx prisma format`이 `schema.prisma` 전체 정렬을 바꿔 diff가 지저분해진다 | 쓰지 않는다. 필요한 줄만 직접 고친다. 마이그레이션은 `migrate diff`로 SQL을 보고 폴더를 만든 뒤 `migrate deploy` |
 | `services/` 아래를 재귀 `grep`하면 `.venv`까지 훑어 120초를 넘긴다 | `services/ai/app`만 지정한다 |
 | **`services/ai/models/`(수 GB)를 `git add`하면 모델 파일이 올라간다** | `.gitignore`에 들어 있다(develop 기준). 새 브랜치를 낡은 곳에서 따면 빠져 있을 수 있으니 `git check-ignore`로 확인. 한 번 사고 났다(직접 만든 큰 객체만 지우고 `fsck`로 확인) |
-| e2e를 돌리면 느려지거나 실패한다 | **그림 엔진(WebUI·GPU 모델)을 끈다**(RAM 16GB). 전체 e2e는 `npm run test:e2e`(준비 단계가 DB를 비운다). `npx playwright test`를 직접 돌리면 준비가 빠져 이름 충돌이 난다 |
+| e2e를 돌리면 느려지거나 실패한다 | **그림 엔진(WebUI·GPU 모델)과 개발 서버를 끈다**(RAM 16GB). 개발 서버를 끄는 것은 사용자에게 부탁한다. 전체 e2e는 `npm run test:e2e`(준비 단계가 DB를 비운다). `npx playwright test`를 직접 돌리면 준비가 빠져 이름 충돌이 난다 |
 | 시험이 날짜에 기대면 며칠 뒤 깨진다 | 날짜는 "오늘"로(테마 시험을 고친 전례) |
 | 실제 모델 확인이 필요한 것을 e2e가 못 잡는다 | 가짜 LLM·가짜 그림은 흐름만 본다. 모델·프롬프트를 바꾸면 실제 gemma로 확인하고 결과를 문서에 남긴다([plan/TESTING.md](plan/TESTING.md) "자동화되지 않은 확인") |
 | 커밋 기록 쓰기 | `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit --trailer "..."`. 병합 기록은 `--sha`, `--branch develop`. 본문(`## 주 내용`부터)만 직접 쓴다 |
@@ -66,11 +68,12 @@
 
 ```bash
 npm run typecheck:api
-npm run test:api                         # 201개
+npm run test:api
 (cd apps/web && npx next typegen && npx tsc --noEmit)
+(cd console && npx next typegen && npx tsc --noEmit)
 npx oxlint --deny-warnings apps/api/src apps/web/app apps/web/lib apps/web/components console/app console/lib console/components e2e   # CI와 같은 명령
 (cd services/ai && ./.venv/Scripts/python.exe -c "import app.main")
-npm run test:e2e                         # 110개, 약 13분(2026-11-03). WebUI 끄고
+npm run test:e2e                         # 약 15분(2026-11-03). 개발 서버·WebUI 끄고
 node --test scripts/record-commit.test.mjs
 (cd services/ai && ./.venv/Scripts/python.exe -m unittest discover tests)
 # 모델을 건드렸다면
@@ -81,7 +84,9 @@ node --test scripts/record-commit.test.mjs
 
 푸시 전에는 올라갈 범위에 큰 파일·비밀값이 없는지 본다(`git rev-list --objects origin/develop..develop`의 큰 객체, `.env`·`*.safetensors`).
 
-## 6. 해야 할 일
+## 6. 결정과 남은 일
+
+작업 목록은 [TASKS.md](TASKS.md)가 정본이다. 여기에는 사용자 결정과 공개 전 체크의 위치만 적는다.
 
 ### 6-1. 사용자 결정 기록과 남은 결정
 
@@ -90,7 +95,7 @@ node --test scripts/record-commit.test.mjs
 | 항목 | 결정 | 상태 |
 |------|------|------|
 | GPU 서버 | 배포 사이트에서 24시간 | 구성 완료, Hetzner GEX45로 결정, 계약 전 |
-| 성인 모드 | 지금 그대로(자기 신고, 그림 가드, 그림 신고) | 유지 |
+| 성인 모드 | 기능은 그대로 두고(자기 신고, 그림 가드, 그림 신고), 공개 서버에서는 끈다 | 운영 compose 기본 `ADULT_MODE=off`. Hetzner 약관이 음란물을 금지한다 |
 | 프리미엄 모델 | 일단 연동 | 코드 있음(`services/ai/app/services/premium.py`), 기본은 닫힘. 키가 없어 실제 호출 미확인 |
 | 저장소 | 비공개로 전환(2026-11-03) | 아직 공개 상태. `gh`가 로그인돼 있지 않아 소유자가 전환한다. 공개였던 동안 받아 간 사본은 되돌릴 수 없다 |
 | 결제 | 실제 결제 없이 눌러서 프로 30일(`PRO_CLICK`), 정식 서비스 전 임시 | 완료. 토스 코드는 남겨 두었고 켜면 클릭이 닫힌다 |
@@ -112,21 +117,13 @@ node --test scripts/record-commit.test.mjs
 
 [../SECURITY.md](../SECURITY.md) "공개 전 필수" 체크리스트가 정본이다. 2026-11-03 기준 남은 것: 운영 비밀값 발급 · 성인 확인 법률 검토 · 모델 사용 정책 · 처리방침 법률 검토와 보관 기간 · GitHub 설정(`gh` 로그인 필요) · 실제 도메인의 인증서 · 서드파티 라이선스 전체 검토. 배포 전 체크: [web_management/pre-deploy.md](web_management/pre-deploy.md).
 
-### 6-3. 기능·품질 후속 (결정 없이 할 수 있음, 대략 우선순위 순)
+### 6-3. 기능·품질 후속
 
-1. **SDXL 속도**: 초상·컷 한 장 약 54~93초. 그림 뒤 검수 gemma와 그래픽 메모리를 번갈아 쓰는 탓으로 보인다. 원인을 재고 줄인다. 서버 GPU가 크면 달라질 수 있다.
-2. **evals에 편입**: 유지성 퀘스트(이세연은 `evals/quest_seyeon.py`로 들어갔다), 나레이션 `@:`, 성인 그림 가드, 웹툰 콘티.
-3. **이세연 보강**: 페르소나 지식 JSON(유지성처럼 → 대화 일관성). 보상 장면은 4번 중 2번만 지시대로 나왔다(갈래가 섞이지는 않았다).
-4. **공방**: 유저 캐릭터에 **추천 프로필**을 다는 칸, **AI 초상 미리보기·여러 장 뽑기**(지금은 만들면 바로 저장, 다시 만들면 25 코레딧). SD 1.5 초상은 세부 선택이 가끔 빠진다.
-5. **그림 신고를 브라우저로 시험**: 지금은 단위 시험만 있다.
-6. **스트리밍 응답**(없음) — 개인사 가드가 답 전체를 본 뒤 다시 쓰는 구조와 맞추는 설계가 필요.
-7. **퀘스트 여러 개**(캐릭터당 1개) · 여러 번의 정리에 걸친 달성(지금은 한 번의 배치 안 근거만).
-8. 웹툰 컷 사이 얼굴 일관성(실측에서 같은 인물의 머리 색이 컷마다 달랐다).
-9. 컨테이너 안 SDXL 그림, 서버 재부팅 복귀, 장시간 운전 시험(서버가 생긴 뒤). 백업의 서버 밖 복사. 병합 끝난 브랜치 정리.
+[TASKS.md](TASKS.md)로 옮겼다. 할 일은 거기서만 관리한다.
 
 ### 6-4. 문서
 
-- 기능을 바꾸면 [FEATURES.md](FEATURES.md)와 해당 문서를 같이 고친다. 스택·결정은 [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)가 먼저.
+- 기능을 바꾸면 [문서 정본 표](README.md#문서-정본-표)대로 고친다. 스택·결정은 [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)가 먼저.
 - `docs/branchs/commits`·`find_debug`·`trainings`는 기록용이라 지금 상태에 맞춰 고치지 않는다.
 
 ## 7. 서버 켜기와 점검
