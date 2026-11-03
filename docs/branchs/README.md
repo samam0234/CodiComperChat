@@ -277,5 +277,6 @@
 | 2026-11-03 | `fec9551` | feature/private-repo-decisions | 미병합 브랜치 순서와 e2e 결과 갱신 | [261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md](commits/261103_1957_fec9551_handover-e2e-108_feature-private-repo-decisions.md) |
 | 2026-11-03 | `ea6b788` | feature/docs-handoff | 코드와 어긋난 문서 수치와 결정을 맞춤 | [261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md](commits/261103_2327_ea6b788_docs-facts-sync_feature-docs-handoff.md) |
 | 2026-11-03 | `d41d032` | feature/docs-handoff | Cursor가 이어받을 작업 지시서와 규칙을 정리 | [261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md](commits/261103_2328_d41d032_docs-agent-handoff_feature-docs-handoff.md) |
+| 2026-11-04 | `07561f1` | feature/docs-handoff | 서버를 끈 전체 e2e 결과를 기록 | [261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md](commits/261104_0013_07561f1_e2e-servers-off_feature-docs-handoff.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
