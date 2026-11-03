@@ -265,5 +265,6 @@
 | 2026-11-03 | `b81abc1` | develop (merge) | feature/portrait-fix into develop (no-ff) | [261103_1423_b81abc1_merge-portrait-fix_develop.md](commits/261103_1423_b81abc1_merge-portrait-fix_develop.md) |
 | 2026-11-03 | `850e52f` | develop (merge) | feature/license-public into develop (no-ff) | [261103_1423_850e52f_merge-license-public_develop.md](commits/261103_1423_850e52f_merge-license-public_develop.md) |
 | 2026-11-03 | `673ed98` | develop (merge) | feature/docs-launch-prep into develop (no-ff) | [261103_1423_673ed98_merge-docs-launch-prep_develop.md](commits/261103_1423_673ed98_merge-docs-launch-prep_develop.md) |
+| 2026-11-03 | `b471a60` | feature/premium-adapters | 프리미엄 모델 Claude·Grok 호출 연동 | [261103_1730_b471a60_premium-adapters_feature-premium-adapters.md](commits/261103_1730_b471a60_premium-adapters_feature-premium-adapters.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
