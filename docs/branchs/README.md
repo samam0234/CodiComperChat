@@ -307,5 +307,6 @@
 | 2026-11-06 | `595a4df` | develop (merge) | feature/readme-media into develop (no-ff) | [261106_0035_595a4df_merge-readme-media_develop.md](commits/261106_0035_595a4df_merge-readme-media_develop.md) |
 | 2026-11-06 | `8fb1138` | develop (merge) | feature/license-security into develop (no-ff) | [261106_0035_8fb1138_merge-license-security_develop.md](commits/261106_0035_8fb1138_merge-license-security_develop.md) |
 | 2026-11-06 | `93194a7` | develop (merge) | feature/readme-apps into develop (no-ff) | [261106_0035_93194a7_merge-readme-apps_develop.md](commits/261106_0035_93194a7_merge-readme-apps_develop.md) |
+| 2026-11-06 | `6930a8f` | develop (merge) | feature/readme-root into develop (no-ff) | [261106_0035_6930a8f_merge-readme-root_develop.md](commits/261106_0035_6930a8f_merge-readme-root_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
