@@ -305,5 +305,6 @@
 | 2026-11-06 | `08661ff` | feature/docs-overall-3 | 전체 문서를 이번 실측과 상태에 맞게 갱신 | [261106_0035_08661ff_docs-overall-3_feature-docs-overall-3.md](commits/261106_0035_08661ff_docs-overall-3_feature-docs-overall-3.md) |
 | 2026-11-06 | `da14224` | feature/agents-docs | 에이전트 규칙과 인수인계에 실측과 함정을 반영 | [261106_0035_da14224_agents-docs_feature-agents-docs.md](commits/261106_0035_da14224_agents-docs_feature-agents-docs.md) |
 | 2026-11-06 | `595a4df` | develop (merge) | feature/readme-media into develop (no-ff) | [261106_0035_595a4df_merge-readme-media_develop.md](commits/261106_0035_595a4df_merge-readme-media_develop.md) |
+| 2026-11-06 | `8fb1138` | develop (merge) | feature/license-security into develop (no-ff) | [261106_0035_8fb1138_merge-license-security_develop.md](commits/261106_0035_8fb1138_merge-license-security_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
