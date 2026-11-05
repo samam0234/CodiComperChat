@@ -103,6 +103,26 @@ export const caption = (text) => `<style>body{background:transparent}</style>
   <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:30px;max-width:1120px;padding:12px 24px;border-radius:14px;background:rgba(13,10,26,.86);color:#fff;font-size:26px;font-weight:600;white-space:nowrap">${text}</div>
 </div>`;
 
+const chip = (text, tone) => `<span style="display:inline-block;margin:4px 6px 0 0;padding:6px 12px;border-radius:999px;background:${tone}14;border:1.5px solid ${tone};color:${tone};font-size:16px;font-weight:700">${text}</span>`;
+const row = (title, sub, tone, chips) => `
+  <div style="display:grid;grid-template-columns:230px 1fr;gap:18px;align-items:center;border:2px solid ${tone}33;border-radius:16px;padding:12px 20px;background:#fff">
+    <div><div style="font-size:21px;font-weight:800;color:${tone}">${title}</div><div style="font-size:14px;color:#7a7296;margin-top:3px">${sub}</div></div>
+    <div>${chips.map((c) => chip(c, tone)).join("")}</div>
+  </div>`;
+
+const stack = `
+<div style="width:1280px;height:640px;padding:34px 44px;background:#fbfaff">
+  <div style="font-size:30px;font-weight:800">기술 스택</div>
+  <div style="font-size:16px;color:#6b6388;margin-top:4px">버전은 package.json과 requirements.txt에 고정된 값이다. 자체 모델을 학습하지 않고 공개 모델을 쓴다.</div>
+  <div style="display:grid;gap:12px;margin-top:20px">
+    ${row("화면", "apps/web · console", "#6d4dff", ["Next.js 16.4", "React 19.2", "TypeScript 6", "CSS Modules", "nonce CSP"])}
+    ${row("도메인 API", "apps/api · 신뢰 경계", "#d6336f", ["Nest.js 12 (ESM)", "Prisma 7.10", "PostgreSQL 16", "Vitest 4", "Redis 없음"])}
+    ${row("AI 서비스", "services/ai · 내부망", "#2b6fd6", ["FastAPI 0.141", "Python 3.12", "Ollama", "gemma4 e4b / 12b", "diffusers 0.42", "PyTorch 2.10 + CUDA 12.8", "Animagine XL 4.0 · SD 1.5"])}
+    ${row("시험", "e2e · evals · bench", "#1c8a5a", ["Playwright 1.64", "unittest", "가짜 LLM e2e", "실제 모델 평가", "부하 측정"])}
+    ${row("배포·운영", "deploy · scripts", "#8a6d00", ["Docker Compose", "Caddy", "NVIDIA GPU 한 대", "GitHub Actions", "로컬 CI 12단계"])}
+  </div>
+</div>`;
+
 const isMain = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
 if (isMain) {
   mkdirSync(OUT, { recursive: true });
@@ -110,6 +130,7 @@ if (isMain) {
   const browser = await chromium.launch({ channel: "chrome" });
   await render(browser, banner, join(OUT, "banner.png"), { height: 380 });
   await render(browser, architecture, join(OUT, "architecture.png"), { height: 700 });
+  await render(browser, stack, join(OUT, "stack.png"), { height: 640 });
   await render(browser, turn, join(OUT, "chat-turn.png"), { height: 540 });
   await render(browser, card("코디컴퍼챗", "어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인", "실제로 띄운 앱의 화면입니다"), join(TMP, "card-intro.png"));
   await render(browser, card("끝까지 기억하는 동행", "기억 · 관계 · 복선 · 비밀 퀘스트 · 장면 그림 · 웹툰 · 공방", "개발 단계이며 아직 공개 서비스가 아닙니다"), join(TMP, "card-outro.png"));
