@@ -319,5 +319,6 @@
 | 2026-11-06 | `d4dcf74` | main (merge) | develop into main (no-ff) | [261106_0041_d4dcf74_merge-develop-into-main-3_main.md](commits/261106_0041_d4dcf74_merge-develop-into-main-3_main.md) |
 | 2026-11-06 | `b724f46` | feature/readme-stack-image | 기술 스택 그림 추가 | [261106_0416_b724f46_readme-stack-image_feature-readme-stack-image.md](commits/261106_0416_b724f46_readme-stack-image_feature-readme-stack-image.md) |
 | 2026-11-06 | `8ba8f7e` | main (merge) | develop into main | [261106_0416_8ba8f7e_merge-develop-into-main-4_main.md](commits/261106_0416_8ba8f7e_merge-develop-into-main-4_main.md) |
+| 2026-11-06 | `f01355e` | feature/readme-badges | 링크 달린 로고 배지와 그림 확대 링크 추가 | [261106_0419_f01355e_readme-badges_feature-readme-badges.md](commits/261106_0419_f01355e_readme-badges_feature-readme-badges.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
