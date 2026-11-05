@@ -2,7 +2,7 @@
 
 > 시험 수의 정본은 이 문서다. 다른 문서에는 수를 적지 않고 여기를 가리킨다.
 >
-> 상태(2026-11-06): **`apps/api` vitest 211개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 5개), `services/ai` unittest 36개(파일 5개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가는 2026-11-06에 나레이션·보상 장면을 고친 뒤 모두 기준을 넘었다(아래 "실제 모델 평가").
+> 상태(2026-11-06): **`apps/api` vitest 211개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 6개), `services/ai` unittest 45개(파일 6개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가는 2026-11-06에 나레이션·보상 장면을 고친 뒤 모두 기준을 넘었다(아래 "실제 모델 평가").
 
 ## 앱별 도구
 
@@ -10,8 +10,8 @@
 |----|------|------|------|
 | `apps/api` (Nest.js) | **vitest** (`vitest.config.ts` / `vitest.config.e2e.ts`), 린트는 **oxlint** | 실재 — 211개 통과 | 순수 로직(카드 검증·성인 나이·퀘스트 진행·모델 조건·요청 한도·결제 상품 등)·DB가 필요한 저장소. 흐름은 e2e가 본다 |
 | `apps/web` (Next.js) | **Playwright e2e** (`e2e/`, 가짜 LLM·가짜 그림 엔진, 별도 포트·DB) | 실재 — 117건 + 성인 끔 1건 통과 | 화면과 API 흐름 회귀(가입·대화·공방·신고·결제·코레딧·모델·오퍼레이션·코디포토넷·웹툰·성인 가드·비밀 퀘스트·테마·글 꾸미기). 사용법: [e2e/README.md](../../e2e/README.md) |
-| `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 11묶음 + 별도 5개 | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성·나레이션·웹툰 콘티(`tone` 포함 11묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
-| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 36개 | 그림 검수 규칙, 초상, 프리미엄 요청 모양, 장면 지시 나레이션, 보상 갈래 나누기·고르기. 라우트 시험은 없다 |
+| `services/ai` 품질 | **evals** (`python -m evals.run`, 실제 모델) | 실재 — 11묶음 + 별도 6개(`adult_chat` 2026-11-06) | 말투·설정 덮어쓰기·메타 발언·강의식·개인사 단정·판정 안정성·초상 검수 규칙·정상 그림·검수 안정성·나레이션·웹툰 콘티(`tone` 포함 11묶음). 사용법: [services/ai/README.md](../../services/ai/README.md) |
+| `services/ai` (FastAPI) | **unittest** (`python -m unittest discover tests`) | 실재 — 45개 | 그림 검수 규칙, 초상, 프리미엄 요청 모양, 장면 지시 나레이션, 보상 갈래 나누기·고르기, 대화 수위(성인·미성년자·강제 단서). 라우트 시험은 없다 |
 
 > Nest 12는 Jest가 아니라 **vitest**로 스캐폴드된다. 이전 판 문서에 "Nest 기본 Jest"라고 적혀 있었으나 실제와 달라 바로잡았다.
 

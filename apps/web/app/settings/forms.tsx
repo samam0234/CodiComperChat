@@ -224,7 +224,7 @@ export function AdultForm({ adult, emailVerified }: { adult: boolean; emailVerif
       <form action={revokeAction} className={form.form}>
         <p className={styles.adultState}>
           <span className={styles.adultBadge} aria-hidden="true">19</span>
-          성인 확인을 마쳤어요. 코디포토넷에서 성인 모드를 고를 수 있어요.
+          성인 확인을 마쳤어요. 대화가 성인 수위로 바뀌고, 코디포토넷에서 성인 모드를 고를 수 있어요.
         </p>
         <Status state={revokeState} />
         <button type="submit" className={form.secondary} disabled={revoking}>

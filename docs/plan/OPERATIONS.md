@@ -109,6 +109,7 @@
 - 서버가 매번 DB에서 성인 확인을 다시 본다: 동의를 거두면 성인 그림은 목록·본문 모두에서 곧바로 사라지고(404) 성인 모드 만들기는 403
 - 만든 사람은 그림·웹툰을 신고할 수 있다. 운영 콘솔 「그림 신고」에서 보고 접근을 막거나(만든 사람에게도 안 보임) 계정을 정지한다
 - 체크포인트는 그대로(Animagine XL 4.0·SD 1.5). WebUI 폴더의 다른 성인용 모델은 쓰지 않는다
+- **대화 수위(2026-11-06 사용자 결정: 계정 설정 하나로, 성인끼리 합의한 노골적 묘사까지, 학습하지 않음)**: 성인 확인·동의를 마친 계정은 모든 대화가 성인 수위다. Nest가 매 턴 DB로 다시 보고 `context.adult`를 붙인다. 성인 수위는 로컬 모델에서만 열고 프리미엄 공급자는 각자 정책을 따른다. 카드·프로필·대화에 미성년자 단서가 있거나 이번·직전 유저 말에 강제 단서가 있으면 그 턴은 성적 진행을 막는다. 출력 검사는 없다. 측정: [../trainings/adult-chat.md](../trainings/adult-chat.md)
 
 - API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio, rating?, messageId? }` → `{ image, balance, cast }`), `POST|DELETE /auth/me/adult` (성인 확인·끄기), `GET .../photonet/:imageId` (그림 본문), `POST /characters/:id/content-reports` (그림·웹툰 신고), `GET|POST /admin/content-reports` (운영자 검토·차단)
 - AI: `GET /photonet/status`, `POST /photonet`

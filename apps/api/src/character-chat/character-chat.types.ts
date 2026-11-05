@@ -47,6 +47,9 @@ export type ContextSlicePayload = {
   // 이번 말이 건드렸지만 설정에 근거가 없는 개인사 주제 (모델이 지어내지 못하게 프롬프트 끝에 못 박는다)
   ungroundedTopics: string[];
   sceneNote: string | null;
+  // 성인 대화(2026-11-06): 서비스 성인 모드가 켜져 있고, 이 계정이 성인 확인·동의를 마쳤을 때만 true.
+  // 서버가 매 턴 DB로 다시 본다. AI는 로컬 모델일 때만 성인 묘사를 허용한다
+  adult?: boolean;
 };
 
 export type ExtraPayload = {

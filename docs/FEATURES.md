@@ -121,6 +121,8 @@
 | 미성년자 설정 원천 차단 | 〃 | ai/services/photonet.py(`minor_hint`) | operations, webtoon · 그리기 전에 400·환불 |
 | 실사 금지·그림 검수(어려 보임·강제·실존 인물·실사·혐오·자해) | 〃 | ai/services/photonet_moderation.py | evals 밖(실측만) |
 | 거짓 정보 책임 고지 | 동의 문구·약관 | web/app/terms | security |
+| 대화 수위 (2026-11-06): 성인 확인한 계정은 모든 대화가 성인 수위, 로컬 모델에서만 | 설정 → 콘텐츠 수위 | api/character-chat(`adultChat`), ai/services/inference.py(`rating_rule`) | ai tests/test_rating.py, evals.adult_chat · [trainings/adult-chat.md](trainings/adult-chat.md) |
+| 대화의 미성년자·강제 단서 → 그 턴은 성적 진행 금지 | 〃 | ai/services/minors.py, inference.py(`coercion_in`) | 〃 · 강제 장면 거부 16/16 |
 
 공개 전 필수 점검은 [../SECURITY.md](../SECURITY.md)와 [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). 신고·검토·접근 차단·계정 정지는 13장 「그림 신고」에 있다. 성인 그림에서는 실사 유사도 90 이상도 막는다.
 
