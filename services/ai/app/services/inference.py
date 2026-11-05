@@ -31,7 +31,8 @@ GROUNDING_RULES = """답할 때 반드시 지킬 것:
      답:
      @: 해가 저물고, 도서관 앞 가로등이 하나둘 켜진다.
      *가방끈을 고쳐 메며* "벌써 이렇게 됐네요."
-   - 평범하게 말을 주고받는 중이면 나레이션을 쓰지 않는다. 나레이션은 한두 줄로 짧게 쓰고, 유저(주인공)의 말·행동·속마음을 대신 정하지 않는다."""
+   - 장면이 바뀌지 않고 말을 주고받는 중이면(주문, 질문, 잡담) "@:" 줄을 한 줄도 쓰지 않는다. 그때 소리·향·분위기는 캐릭터의 행동 묘사(*별표*) 안에 녹인다.
+   - 나레이션은 한두 줄로 짧게 쓰고, 유저(주인공)의 말·행동·속마음을 대신 정하지 않는다."""
 
 
 def _extras_block(context: ContextSlice) -> str:
@@ -221,11 +222,35 @@ def _fill_user(text: str, name: str) -> str:
     return _USER_TOKEN.sub(lambda _: name, text)
 
 
+# 유저의 장면 지시: (괄호) 안이 이만큼은 돼야 한다 — "(웃음)", "(ㅋㅋ)" 같은 짧은 추임새는 장면 지시로 보지 않는다
+_SCENE_DIRECTION = re.compile(r"[(（]([^()（）]{6,200})[)）]")
+
+
+def scene_directions(user_turn: str) -> list[str]:
+    """유저 말 속 장면 지시(괄호). 별표 안의 괄호는 유저 행동 묘사의 일부라 뺀다."""
+    outside = re.sub(r"\*[^*]*\*", " ", user_turn)
+    return [m.strip() for m in _SCENE_DIRECTION.findall(outside) if len(re.sub(r"\s", "", m)) >= 6]
+
+
+def _narration_directive(directions: list[str]) -> str:
+    """장면 지시가 있는 턴에만 붙인다 (2026-11-06).
+    규칙 8만으로는 정전·날씨처럼 시간·장소가 아닌 전환에서 나레이션을 자주 빼먹었다(평가 7/12).
+    작은 모델은 맨 끝의 구체적인 지시를 잘 따르므로, 이번 턴의 지시 문장을 그대로 보여 주며 첫 줄을 정해 준다."""
+    quoted = " / ".join(f"({d})" for d in directions)
+    return (
+        f"이번 답의 형식: 유저가 장면 지시 {quoted}로 장면을 바꿨다. "
+        "답의 첫 줄은 반드시 '@: '로 시작하는 3인칭 나레이션 한 줄로, 그 지시로 바뀐 시간·장소·날씨·주변 상황을 보여 준다. "
+        "둘째 줄부터 캐릭터의 행동(*별표*)과 대사를 쓴다. 나레이션에 유저(주인공)의 말이나 속마음을 지어 넣지 않는다."
+    )
+
+
 def run(request: InferRequest) -> InferResponse:
     user_name = request.context.user_persona.name if request.context.user_persona else "유저"
     system = _fill_user(_build_system_prompt(request.context), user_name)
     if request.channel == "message":
         system += "\n\n" + MESSAGE_STYLE
+    elif directions := scene_directions(request.user_turn):
+        system += "\n\n" + _narration_directive(directions)
     if request.context.scene_note:
         system += "\n\n이번 답에서 꼭 할 일: " + _fill_user(request.context.scene_note, user_name)
     if request.retry_note:
