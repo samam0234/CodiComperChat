@@ -2,7 +2,7 @@
 
 > 시험 수의 정본은 이 문서다. 다른 문서에는 수를 적지 않고 여기를 가리킨다.
 >
-> 상태(2026-11-04): **`apps/api` vitest 210개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 5개), `services/ai` unittest 26개(파일 4개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가에는 기준에 못 미치는 항목이 있다(아래 "실제 모델 평가").
+> 상태(2026-11-06): **`apps/api` vitest 210개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 5개), `services/ai` unittest 26개(파일 4개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가에는 기준에 못 미치는 항목이 있다(아래 "실제 모델 평가").
 
 ## 앱별 도구
 
@@ -39,21 +39,13 @@ AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬
 | 요청 한도, 로그인 무차별 대입 방어, 토큰 세대(비밀번호 변경 시 이전 토큰 무효) | e2e `security`, `auth`, API 단위 |
 | CSP·보안 헤더 | e2e `security` |
 
-## 실제 모델 평가 (2026-11-04, gemma4:e4b, RTX 4070 SUPER)
+## 실제 모델 평가
 
-가짜 LLM·가짜 그림 엔진은 흐름만 본다. 모델이나 프롬프트를 바꾸면 아래를 다시 돌린다. 기준을 낮춰 통과시키지 않는다.
+가짜 LLM·가짜 그림 엔진은 흐름만 본다. 모델이나 프롬프트를 바꾸면 평가를 다시 돌린다. 기준을 낮춰 통과시키지 않는다.
 
-| 명령 | 결과 | 상태 |
-|------|------|------|
-| `python -m evals.quest_seyeon` | 장면 10개 모두 맞음 (2026-11-03) | 통과 |
-| `python -m evals.quest_yujiseong --repeat 1` | 7/8, 잘못 통과 0 | 잘못 통과 없음, 놓침 1건 |
-| `python -m evals.quest_reward --repeat 4` | 4/8. 혼인 4/4, 기혼의 충돌 0/4 | **기준 75% 미달** |
-| `python -m evals.run --suite narration --repeat 1` | 4/6 | **기준 80% 미달**, 표본 작음 |
-| `python -m evals.run --suite webtoon_plan --repeat 1` | 2/2 | 통과 |
-| `python -m evals.photonet_guard` | 2번 돌려 실사풍은 모두 막음. 애니메이션은 1번 통과, 1번 잘못 막음 | **잘못 막는 경우 있음**, 막는 쪽은 코레딧을 돌려준다 |
-| `python -m evals.image_speed` | [../guidance/photonet-engine.md](../guidance/photonet-engine.md) | 메모리가 모자라 수치가 흔들림 |
+최근 결과(2026-11-06, `gemma4:e4b`): `evals.run` 11묶음 중 10묶음 통과(나레이션 7/12 미달), 이세연 판정 20/20, 유지성 판정 15/16, 잘못 통과 0건, 보상 장면 2/8 미달. 그림 가드는 2026-11-04에 2번 돌려 애니메이션을 1번 잘못 막았다.
 
-미달 항목의 할 일: [../TASKS.md](../TASKS.md) 3장. 평가에 없는 손 확인은 서버 안 그림 엔진의 화풍별 품질이다.
+표 전체, 실패 항목, 이전 결과 비교: [../trainings/eval-2026-11-06.md](../trainings/eval-2026-11-06.md). 미달 항목의 할 일: [../TASKS.md](../TASKS.md) 3장. 평가에 없는 손 확인은 서버 안 그림 엔진의 화풍별 품질이다.
 
 ## 자동 테스트보다 먼저 확인해야 하는 것 — 플레이테스트 시트 (계획서 §14)
 
@@ -87,7 +79,7 @@ AI 품질은 `cd services/ai && ./.venv/Scripts/python.exe -m evals.run` (로컬
 AI 호출은 `apps/api/src/ai/ai-queue.ts` 대기열을 지난다. 동시 호출 수는 `AI_CONCURRENCY`(기본 2, API 서버 한 대 기준 — 서버가 여러 대면 모델이 받는 동시 호출은 대수 × 이 값이므로 대수로 나눠 정한다), 기다리는 답이 배경 작업(기억·이야기 요약)보다 먼저 처리되고,
 기다리는 답은 60초 넘게 줄서면 503, 모델 응답은 130초(배경 150초)가 넘으면 504로 끊는다. 현재 상태는 `GET /health`의 `ai`.
 
-측정(사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 33.0초 → 12.0초, 읽기 927 req/s(p95 13ms), 이야기 정리는 평균 약 20초 지연되나 끝까지 완료된다.
+최근 측정(2026-11-06, 사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 12.0초(대기열 넣기 전 33.0초), 읽기 2300 req/s(p95 5ms), 이야기 정리 완료 p50 19.8초·p95 24.3초, 오류 0건. 이전 값과 비교: [../trainings/test-infrastructure.md](../trainings/test-infrastructure.md).
 
 ## CI (`.github/workflows/ci.yml`)
 
