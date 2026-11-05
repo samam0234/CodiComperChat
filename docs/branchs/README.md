@@ -316,5 +316,6 @@
 | 2026-11-06 | `aadbd42` | develop (merge) | feature/docs-trainings into develop (no-ff) | [261106_0035_aadbd42_merge-docs-trainings_develop.md](commits/261106_0035_aadbd42_merge-docs-trainings_develop.md) |
 | 2026-11-06 | `7db0639` | develop (merge) | feature/docs-overall-3 into develop (no-ff) | [261106_0035_7db0639_merge-docs-overall-3_develop.md](commits/261106_0035_7db0639_merge-docs-overall-3_develop.md) |
 | 2026-11-06 | `b4d2ea9` | develop (merge) | feature/agents-docs into develop (no-ff) | [261106_0035_b4d2ea9_merge-agents-docs_develop.md](commits/261106_0035_b4d2ea9_merge-agents-docs_develop.md) |
+| 2026-11-06 | `d4dcf74` | main (merge) | develop into main (no-ff) | [261106_0041_d4dcf74_merge-develop-into-main-3_main.md](commits/261106_0041_d4dcf74_merge-develop-into-main-3_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
