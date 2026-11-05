@@ -1,75 +1,164 @@
 CodiComperChat — Proprietary License / 독점 라이선스
+Version 2.0 (2026-11-06)
 
 Copyright (c) 2026 CodiComperChat project. All rights reserved.
 Copyright (c) 2026 코디컴퍼챗 프로젝트. 모든 권리 보유.
 
-This repository and everything in it (source code, documentation, designs,
-character cards, prompts, database schemas, and other materials created for
-the CodiComperChat project) are PROPRIETARY. This is NOT open-source software.
-No license or permission is granted except as stated below or in a separate
-written agreement with the rights holder.
+This is NOT open-source software. The Korean and English texts below have the same
+intent. If they differ, the Korean text controls.
+이 소프트웨어는 오픈소스가 아닙니다. 아래 한국어와 영어는 같은 뜻을 담으며, 서로 다르면
+한국어가 우선합니다.
 
-이 저장소와 그 안의 모든 것(소스 코드, 문서, 디자인, 캐릭터 카드, 프롬프트,
-데이터베이스 스키마 등 코디컴퍼챗 프로젝트를 위해 만든 자료)은 독점 자산입니다.
-오픈소스가 아닙니다. 아래에 적은 경우나 권리자와 맺은 별도의 서면 계약이 없는 한
-어떤 허락도 주어지지 않습니다.
 
-1. Public visibility is not permission / 공개되어 있어도 허락이 아닙니다
-   This repository may be publicly visible on GitHub only so that the service can
-   be deployed. Being able to see it does not give you any right to use it.
-   이 저장소가 GitHub에 공개되어 있는 것은 서비스 배포를 위해서입니다.
-   볼 수 있다는 것이 사용할 권리를 주지는 않습니다.
+1. Definitions / 용어
 
-2. What you may do / 허용되는 것
-   - Rights holders and people they have authorized in writing may use, modify,
-     clone, and run this software for developing and operating the CodiComperChat
-     service, including the deployment systems they operate.
-   - Anyone may view this repository on GitHub, and may use the forking feature
-     only to the extent GitHub's Terms of Service require for public repositories.
-     That does not permit anything in section 3 outside GitHub.
-   - Anyone may read the code to report a security problem as described in SECURITY.md.
-   - 권리자와, 권리자가 서면으로 허락한 사람은 코디컴퍼챗 서비스를 개발·운영하는 목적으로
-     이 소프트웨어를 사용·수정·복제(clone)·실행할 수 있고, 그들이 운영하는 배포 시스템도 같습니다.
-   - 누구나 GitHub에서 이 저장소를 볼 수 있고, 포크 기능은 GitHub 서비스 약관이 공개 저장소에
-     요구하는 범위에서만 쓸 수 있습니다. GitHub 밖에서 3항의 일을 하도록 허락하는 것이 아닙니다.
-   - 누구나 SECURITY.md에 따라 보안 문제를 신고하려고 코드를 읽을 수 있습니다.
+   "Rights Holder" means the owner of the CodiComperChat project.
+   "Authorized Person" means a person the Rights Holder has authorized in writing.
+   "Materials" means everything in this repository and its history that was created
+   for the project: source code, documentation, designs, images, videos, character
+   cards, prompts, evaluation data, database schemas, and configuration.
 
-3. What you may not do without written permission / 서면 허락 없이는 안 되는 것
-   - Clone, download, mirror, or otherwise copy this repository or any part of it,
-     except as section 2 allows.
-   - Run, deploy, or host this software or anything derived from it.
-   - Publish, redistribute, sublicense, sell, or rent this repository or any part of it.
-   - Use it, or anything derived from it, to build or train a competing product or model,
-     or to train any machine-learning model.
-   - Remove or alter copyright, license, or notice files.
-   - 2항에서 허용한 경우 말고 저장소나 그 일부를 clone·다운로드·미러링 등으로 복제하는 것
-   - 이 소프트웨어나 이를 바탕으로 만든 것을 실행·배포·호스팅하는 것
-   - 저장소나 그 일부를 공개·재배포·재라이선스·판매·대여하는 것
-   - 이를 이용해 경쟁 제품이나 모델을 만들거나, 기계 학습 모델을 학습시키는 것
-   - 저작권·라이선스·고지 문서를 지우거나 고치는 것
+   "권리자"는 코디컴퍼챗 프로젝트의 소유자입니다.
+   "허락받은 사람"은 권리자가 서면으로 허락한 사람입니다.
+   "자료"는 이 저장소와 그 이력에 있는, 프로젝트를 위해 만든 모든 것입니다. 소스 코드, 문서,
+   디자인, 그림, 영상, 캐릭터 카드, 프롬프트, 평가 자료, 데이터베이스 스키마, 설정을 포함합니다.
 
-4. Third-party components / 제3자 구성요소
-   This repository depends on open-source software and uses third-party AI models.
-   They are NOT covered by this license; each keeps its own license and terms.
+
+2. Ownership / 권리
+
+   The Materials are proprietary and all rights are reserved. No right or license is
+   granted by implication, by access, or by any other means, except as stated in
+   section 4 or in a separate written agreement with the Rights Holder.
+
+   자료는 독점 자산이며 모든 권리를 보유합니다. 4항과 권리자와 맺은 별도의 서면 계약에 적은
+   경우 말고는, 묵시적으로든 접근했다는 이유로든 어떤 권리나 허락도 주어지지 않습니다.
+
+
+3. Access is not permission / 볼 수 있어도 허락이 아닙니다
+
+   This applies whether this repository is public or private at any given time.
+   Being able to see, fetch, or receive the Materials does not give you any right to
+   use them. A copy obtained while the repository was public carries no permission.
+
+   저장소가 그때 공개 상태이든 비공개 상태이든 똑같이 적용됩니다. 자료를 보거나 받을 수 있다는
+   것이 사용할 권리를 주지는 않습니다. 저장소가 공개였던 동안 받은 사본에도 허락은 따르지 않습니다.
+
+
+4. What is allowed / 허용되는 것
+
+   (a) The Rights Holder and Authorized Persons may use, modify, clone, build, run, and
+       host the Materials to develop and operate the CodiComperChat service, including
+       the deployment systems and automated tools they operate.
+   (b) While the repository is public, anyone may view it on GitHub, and may use the
+       forking feature only to the extent GitHub's Terms of Service require. This does
+       not permit anything in section 5 outside GitHub.
+   (c) Anyone who can lawfully see the code may read it to report a security problem as
+       described in SECURITY.md.
+
+   (a) 권리자와 허락받은 사람은 코디컴퍼챗 서비스를 개발·운영하는 목적으로 자료를 사용·수정·
+       복제(clone)·빌드·실행·호스팅할 수 있습니다. 그들이 운영하는 배포 시스템과 자동화 도구도
+       같습니다.
+   (b) 저장소가 공개인 동안 누구나 GitHub에서 볼 수 있고, 포크 기능은 GitHub 서비스 약관이 요구하는
+       범위에서만 쓸 수 있습니다. GitHub 밖에서 5항의 일을 하도록 허락하는 것이 아닙니다.
+   (c) 코드를 적법하게 볼 수 있는 사람은 SECURITY.md에 따라 보안 문제를 신고하려고 코드를 읽을 수
+       있습니다.
+
+
+5. What is not allowed without written permission / 서면 허락 없이는 안 되는 것
+
+   (a) Clone, download, mirror, or otherwise copy the Materials, except as section 4 allows.
+   (b) Run, deploy, or host the Materials or anything derived from them.
+   (c) Modify the Materials or create derivative works.
+   (d) Publish, redistribute, sublicense, sell, rent, or lend the Materials.
+   (e) Use the Materials to build a competing product, or to train, fine-tune, or evaluate
+       any machine-learning model, or include them in a dataset.
+   (f) Use the character cards, prompts, or images outside the service.
+   (g) Remove or alter copyright, license, or notice files.
+   (h) Probe or attack a running service beyond what SECURITY.md allows.
+
+   (a) 4항에서 허용한 경우 말고 자료를 clone·다운로드·미러링 등으로 복제하는 것
+   (b) 자료나 이를 바탕으로 만든 것을 실행·배포·호스팅하는 것
+   (c) 자료를 고치거나 2차 저작물을 만드는 것
+   (d) 자료를 공개·재배포·재라이선스·판매·대여하는 것
+   (e) 자료로 경쟁 제품을 만들거나, 기계 학습 모델을 학습·미세 조정·평가하거나, 데이터셋에 넣는 것
+   (f) 캐릭터 카드·프롬프트·그림을 서비스 밖에서 쓰는 것
+   (g) 저작권·라이선스·고지 문서를 지우거나 고치는 것
+   (h) SECURITY.md가 허용하는 범위를 넘어 운영 중인 서비스를 시험하거나 공격하는 것
+
+
+6. Third-party components / 제3자 구성요소
+
+   This repository depends on open-source software and uses third-party AI models and
+   services. They are NOT covered by this license; each keeps its own license and terms.
    See THIRD_PARTY_NOTICES.md. Model weights are not included in this repository.
-   이 저장소는 오픈소스 소프트웨어에 의존하고 제3자 AI 모델을 사용합니다. 이들은 이 라이선스의
-   대상이 아니며 각자의 라이선스와 약관을 따릅니다. THIRD_PARTY_NOTICES.md를 보세요.
+
+   이 저장소는 오픈소스 소프트웨어에 의존하고 제3자 AI 모델과 서비스를 사용합니다. 이들은 이
+   라이선스의 대상이 아니며 각자의 라이선스와 약관을 따릅니다. THIRD_PARTY_NOTICES.md를 보세요.
    모델 가중치 파일은 이 저장소에 들어 있지 않습니다.
 
-5. User-generated content / 이용자가 만든 콘텐츠
+
+7. User content / 이용자가 만든 콘텐츠
+
    Characters, personas, conversations, and images created by users of the running
-   service belong to those users as described in the service's Terms of Use
-   (apps/web/app/terms). They are not part of this repository.
-   서비스 이용자가 만든 캐릭터·프로필·대화·그림의 권리는 서비스 이용약관(apps/web/app/terms)에
-   따라 만든 사람에게 있으며 이 저장소의 일부가 아닙니다.
+   service are governed by the service's Terms of Use (apps/web/app/terms). They are
+   not part of the Materials.
 
-6. No warranty / 보증 없음
-   THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR
-   PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE RIGHTS HOLDER BE LIABLE
-   FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
-   이 소프트웨어는 어떤 보증도 없이 "있는 그대로" 제공됩니다.
+   서비스 이용자가 만든 캐릭터·프로필·대화·그림은 서비스 이용약관(apps/web/app/terms)을 따르며
+   자료에 포함되지 않습니다.
 
-(Package metadata: apps/api/package.json declares "license": "UNLICENSED", which
-matches this file. Replace the rights-holder line above with the legal name of the
-owner before public launch. / 공개 출시 전에 위 권리자 줄을 실제 권리자의 법적 이름으로 바꿉니다.)
+
+8. Security reports and feedback / 보안 신고와 의견
+
+   You may report security problems as described in SECURITY.md. The Rights Holder may
+   use any report or suggestion you send, without obligation to you, to improve the
+   project. Sending one does not give you any right in the Materials.
+
+   SECURITY.md에 따라 보안 문제를 신고할 수 있습니다. 권리자는 보내 주신 신고나 제안을 프로젝트를
+   고치는 데 의무 없이 쓸 수 있습니다. 보냈다고 자료에 대한 권리가 생기지는 않습니다.
+
+
+9. Termination / 허락의 종료
+
+   Any permission ends automatically if you break this license, or when the Rights Holder
+   withdraws it in writing. You must then stop using the Materials and delete your copies,
+   except copies the law requires you to keep.
+
+   이 라이선스를 어기거나 권리자가 서면으로 거두면 허락은 자동으로 끝납니다. 그때는 자료 사용을
+   멈추고 사본을 지워야 합니다. 법이 보관을 요구하는 사본은 예외입니다.
+
+
+10. No warranty / 보증 없음
+
+    THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+    INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+    NON-INFRINGEMENT.
+
+    자료는 어떤 보증도 없이 "있는 그대로" 제공됩니다.
+
+
+11. Limitation of liability / 책임의 제한
+
+    TO THE EXTENT PERMITTED BY LAW, THE RIGHTS HOLDER IS NOT LIABLE FOR ANY CLAIM, DAMAGES,
+    OR OTHER LIABILITY ARISING FROM THE MATERIALS OR THEIR USE. This section does not apply
+    to the service's obligations to its users under its Terms of Use.
+
+    법이 허용하는 범위에서, 권리자는 자료나 그 사용으로 생긴 청구·손해·그 밖의 책임을 지지
+    않습니다. 서비스가 이용약관에 따라 이용자에게 지는 의무에는 이 항을 적용하지 않습니다.
+
+
+12. Contact / 연락
+
+    To request permission, or to report a security problem, use the service's support page
+    (/support) as described in SECURITY.md.
+
+    허락을 요청하거나 보안 문제를 신고하려면 SECURITY.md에 적은 대로 서비스의 고객센터(/support)를
+    이용하세요.
+
+
+Maintainer notes (not license terms) / 관리자 메모 (라이선스 조항이 아닙니다)
+- apps/api/package.json declares "license": "UNLICENSED", which matches this file.
+- The rights-holder line above still uses the project name. Replacing it with the legal
+  name of the owner, and adding a governing-law clause, are open items for legal review.
+- 위 권리자 줄은 아직 프로젝트 이름입니다. 소유자의 법적 이름으로 바꾸는 일과 준거법 조항을
+  넣는 일은 법률 검토 항목으로 남아 있습니다.
+- This text has not been reviewed by a lawyer. / 이 문안은 변호사 검토를 받지 않았습니다.
