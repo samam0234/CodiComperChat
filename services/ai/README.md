@@ -36,6 +36,49 @@ cp .env.example .env
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
 
+## 아키텍처
+
+```mermaid
+flowchart TD
+  nest["apps/api (Nest)<br/>맥락을 조립해 넘긴다"] -->|"x-ai-token 또는 루프백"| route["app/routes<br/>스키마 검증"]
+  route --> svc["app/services<br/>프롬프트 조립·판정"]
+  svc --> llm["llm.py"]
+  llm --> ollama["Ollama<br/>gemma4:e4b · 12b"]
+  llm --> premium["premium.py<br/>Anthropic · xAI (기본 닫힘)"]
+  svc --> engine["image_engine.py"]
+  engine --> local["image_local.py<br/>diffusers, 같은 프로세스"]
+  engine --> webui["WebUI API (개발 PC 선택)"]
+  svc --> check["photonet_moderation<br/>image_moderation"]
+  check --> ollama
+```
+
+### 이렇게 나눈 이유
+
+| 결정 | 이유 |
+|------|------|
+| DB를 보지 않는다 | 상태의 주인은 Nest다. 필요한 조각만 받으면 권한 판단이 한곳에 모인다 |
+| 비밀은 받지 않는다 | 모델이 모르면 흘릴 수도 없다 |
+| 긴 작업을 단계로 나눈다 | 작은 모델은 한 번에 다 못 따른다. 웹툰은 외모를 먼저 정하고, 컷은 그다음 쓴다 |
+| 판정은 코드로 마무리한다 | 모델의 확신도를 믿지 않는다. 항목 판정과 규칙, 인용 근거 대조로 결론 낸다 |
+| 꼭 지켜야 할 지시는 프롬프트 맨 끝에 | 보상 장면과 개인사 지시는 끝에 둘 때 더 잘 따랐다 |
+| 그래픽 메모리를 번갈아 쓴다 | 장면 설계와 그림 검수 뒤 모델을 내린다(`keep_alive 0`). 12GB에서 함께 두면 몇 배 느려진다 |
+
+### 한 번의 호출
+
+| 경로 | 프롬프트 | 후처리 |
+|------|----------|--------|
+| `/infer` | `inference.py`: 말투·역할 규칙 + 카드 핵심 + 상태 + 지식 + 기억 + 끝에 `sceneNote` | 프리미엄은 외부 전달 규칙을 덧붙인다 |
+| `/summarize` | `summarization.py`: JSON 스키마, 고정 시드 | 퀘스트 후보를 전용 판정으로 다시 보고 인용을 실제 대사와 대조 |
+| `/ground-check` | `grounding.py`: 설정에 없는 개인사를 단정했나 | Nest가 다시 쓰기를 결정한다 |
+| `/photonet` | `photonet.py`: 장면 설계표(JSON) → 코드가 프롬프트 조립 | 그림 검수, 막히면 422 |
+| `/webtoon/plan` | `webtoon.py`: 외모 → 컷별 구도·해설·대사 | 이름을 enum으로 강제 |
+| `/webtoon/panel` | 설계표를 그대로 조립, 웹툰 id에서 만든 시드 | 그림 검수 |
+| `/portrait` | `portrait.py`: 고른 항목을 태그로 | Nest가 초상 검수를 부른다 |
+
+### 모델 없이 도는 방법
+
+`LLM_FAKE=1`이면 `fake_llm.py`가 고정된 답과 작은 그림을 돌려준다. e2e와 CI가 이 경로를 쓴다. 운영(`APP_ENV=production`)에서 켜져 있으면 시작하지 않는다.
+
 ## AI 품질 평가
 
 프롬프트나 모델을 바꿀 때마다 돌려 "좋아졌는지"를 숫자로 본다. 로컬 Ollama가 필요하고, 소형 모델은 회차마다 흔들려 질문마다 여러 번 돌린다.
@@ -52,6 +95,8 @@ cd services/ai
 ./.venv/Scripts/python.exe -m evals.image_speed              # 그림 단계별 시간 (그림 엔진 필요)
 ./.venv/Scripts/python.exe -m unittest discover tests        # 모델 없이 도는 규칙 시험
 ```
+
+최근 결과와 해석: [../../docs/trainings/](../../docs/trainings/README.md)
 
 | 묶음 | 보는 것 | 기준 |
 |------|---------|------|

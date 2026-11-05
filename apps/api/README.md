@@ -12,6 +12,62 @@ npm run typecheck:api  # 개발 서버가 켜져 있을 땐 build:api 말고 이
 npm run test:api       # vitest (DB·SMTP가 있으면 통합 시험 포함)
 ```
 
+## 아키텍처
+
+```mermaid
+flowchart TD
+  web["apps/web · console<br/>서버 컴포넌트·서버 액션"] -->|"Authorization: Bearer<br/>X-Forwarded-For"| guard
+  subgraph nest["apps/api"]
+    guard["RateLimitGuard (전역)<br/>AuthGuard · AdminGuard"] --> ctrl["Controller<br/>입력 꺼내기·파서 호출"]
+    ctrl --> svc["Service<br/>도메인 규칙"]
+    svc --> prisma["PrismaService"]
+    svc --> queue["AI 대기열 ai-queue.ts<br/>기다리는 답 우선"]
+    svc --> mail["MailService"]
+    svc --> pay["PaymentProvider<br/>mock · toss"]
+  end
+  prisma --> db[("PostgreSQL 16")]
+  queue -->|"x-ai-token"| ai["services/ai (FastAPI)"]
+```
+
+### 이 앱이 맡는 것
+
+이 앱은 **신뢰 경계**다. 웹과 콘솔의 화면 거름망은 편의일 뿐이고, 아래는 모두 여기서 다시 판단한다.
+
+| 판단 | 어떻게 | 어디 |
+|------|--------|------|
+| 누구인가 | JWT 서명 + 매 요청 DB로 계정·세대(`sessionVersion`)·정지 확인 | `auth/session.ts` |
+| 운영자인가 | 토큰이 아니라 DB의 역할을 매번 읽는다 | `auth/admin.guard.ts` |
+| 너무 많이 부르나 | `@RateLimit('이름')`이 붙은 라우트만 사람·IP별 고정 창으로 센다 | `security/rate-limit.ts` |
+| 볼 수 있는 캐릭터인가 | 공개 범위·내려감·주인 확인. 공개 필드 목록으로만 읽어 비밀이 응답에 섞이지 않는다 | `characters/` |
+| 이 모델을 써도 되나 | 준비 → 나이 → 월 상한 → 코레딧 순으로 잠금을 판단한다 | `models/models.ts` |
+| 돈이 맞나 | 코레딧 잔액 확인과 차감을 한 문장으로, 실패하면 환불 | `credits/` |
+| 운영 설정이 안전한가 | 개발용 스위치가 켜져 있으면 시작하지 않는다 | `security/production.ts` |
+
+### 대화 한 턴 (`POST /characters/:id/chat`)
+
+| 순서 | 일 | 코드 |
+|------|-----|------|
+| 1 | 요청 한도(1분 20번), 로그인, 볼 수 있는 캐릭터, 고정된 프로필 확인 | `character-chat.controller.ts`, `character-chat.service.ts` |
+| 2 | 맥락 조립: 카드 핵심, 지식 조각, 기억, 엑스트라, 상태, 최근 30턴. 비밀은 넣지 않는다 | `character-chat.context.ts`, `persona-rag/` |
+| 3 | 모델을 고르고 횟수나 코레딧을 잡는다 | `models/models.service.ts` |
+| 4 | 대기열을 지나 `/infer` 호출 | `ai/ai-client.ts`, `ai/ai-queue.ts` |
+| 5 | 설정에 없는 개인사를 물은 턴이면 `/ground-check`, 지어냈으면 최대 2번 다시 쓴다 | `character-chat/grounding.ts` |
+| 6 | 답을 받은 뒤에만 유저 말과 답을 저장한다. 못 받으면 잡은 것을 돌려준다 | `character-chat.service.ts` |
+| 7 | 메시지 6개마다 뒤에서 기억·요약·친밀도·복선·퀘스트를 정리한다 | `memories/`, `campaign-state/`, `quests/` |
+
+### 실패할 때
+
+| 상황 | 응답 | 데이터 |
+|------|------|--------|
+| 요청 한도 초과 | 429, `Retry-After` | 변화 없음 |
+| 기다리는 답이 대기열에서 60초 초과 | 503 | 저장 안 함, 코레딧 환불 |
+| 모델 응답이 130초 초과 (배경 150초) | 504 | 저장 안 함, 코레딧 환불 |
+| 그림 엔진 꺼짐 | 503 | 코레딧을 빼기 전에 막는다 |
+| 그림 검수에서 막힘 | 422 | 코레딧 환불, 그림 저장 안 함 |
+| 배경 정리 실패 | 응답에 영향 없음 | 다음 기회에 다시 |
+
+데이터 모델은 [../../docs/plan/DATABASE.md](../../docs/plan/DATABASE.md), 상태의 흐름은 [../../docs/Architecture/data-flow.md](../../docs/Architecture/data-flow.md).
+
 ## 모듈 (`src/`)
 
 | 모듈 | 하는 일 |
@@ -22,8 +78,8 @@ npm run test:api       # vitest (DB·SMTP가 있으면 통합 시험 포함)
 | `studio` | 공방: 초안·AI 초안·퀘스트 AI 제작·3턴 테스트·발행·초상·검수 |
 | `quests` | 비밀 퀘스트: 진행·판정 반영·코레딧 보상 |
 | `operations` | 오퍼레이션(심리 탐구·일기·메시지·커뮤니티), **코디포토넷**, **웹툰** |
-| `credits` `models` `plan` `billing` | 코레딧(출석·차감·환불), 대화 모델 조건(강화 무료 하루 한도), 요금 등급, 결제(보류) |
-| `reports` `admin` | 신고, 운영 콘솔용 통계·검수·관리 |
+| `credits` `models` `plan` `billing` | 코레딧(출석·차감·환불), 대화 모델 조건(강화 무료 하루 한도, 프리미엄 나이·월 상한), 요금 등급, 눌러서 프로로, 결제(보류) |
+| `reports` `content-reports` `admin` | 캐릭터 신고, 그림 신고(접근 차단·계정 정지), 운영 콘솔용 통계·검수·관리 |
 | `ai` `security` `mail` `agent-chat` `health` `prisma` | FastAPI 호출·대기열, 요청 한도, 메일, 안내 챗봇, 상태 확인, DB |
 | `campaigns` | 계획서 §13.1 경로 자리(501). 실제 대화는 `character-chat` |
 
