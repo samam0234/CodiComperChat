@@ -7,14 +7,17 @@
 | `env.mjs` | 포트·경로·출력 폴더 |
 | `servers.mjs` | 데모 전용 DB를 새로 만들고 AI·API·웹·콘솔을 데모 포트로 띄운다 |
 | `art.mjs` | 배너·구조도·제목 카드를 HTML에서 PNG로 만든다 |
-| `capture.mjs` | 데모 계정으로 화면을 돌며 스크린샷과 녹화를 남긴다 |
+| `capture.mjs` | 데모 계정으로 화면을 돌며 스크린샷을 남긴다 |
+| `tour.mjs` | 앞에서 만든 데이터로 소개 영상을 녹화한다 |
 | `build.mjs` | 녹화에 자막을 입혀 MP4·GIF를 만든다 |
 
 ```bash
 # 사전: PostgreSQL, Ollama(gemma4:e4b), 그림 엔진, npm run test:e2e가 만든 .next-e2e·dist-verify 빌드
 node scripts/readme-media/servers.mjs      # 켜 둔다 (3201·3202·4201·8201)
 node scripts/readme-media/art.mjs
-node scripts/readme-media/capture.mjs      # 그림을 실제로 그려 수십 분 걸린다
+node scripts/readme-media/capture.mjs      # 그림을 실제로 그린다. 2026-11-06에 약 10분
+npx playwright install ffmpeg              # 녹화 도구, 처음 한 번
+node scripts/readme-media/tour.mjs
 FFMPEG=<H.264 인코더가 있는 ffmpeg 경로> node scripts/readme-media/build.mjs
 ```
 

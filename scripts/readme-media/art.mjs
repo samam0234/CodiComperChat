@@ -98,7 +98,7 @@ export const CAPTIONS = {
   pricing: "정식 서비스 전까지는 눌러서 프로로 바꾼다. 실제 결제는 보류 중이다",
 };
 
-export const caption = (text) => `
+export const caption = (text) => `<style>body{background:transparent}</style>
 <div style="width:1280px;height:720px;position:relative;font-family:${FONT}">
   <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:30px;max-width:1120px;padding:12px 24px;border-radius:14px;background:rgba(13,10,26,.86);color:#fff;font-size:26px;font-weight:600;white-space:nowrap">${text}</div>
 </div>`;
