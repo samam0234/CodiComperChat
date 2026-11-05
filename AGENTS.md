@@ -16,4 +16,4 @@
 - **개발 서버**: 사용자의 서버를 켜거나 끄지 않고, 켜져 있을 때 `npm run build:api`를 하지 않는다. 합의한 작업 방식 전체는 정본 §9.
 - **스택**: Next.js(`apps/web`) · Nest.js(`apps/api`) · FastAPI(`services/ai`) · 운영 콘솔(`console`) · PostgreSQL/Prisma. 프론트는 FastAPI를 직접 호출하지 않는다. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
 
-읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(지금 상태·함정) → `docs/TASKS.md`(할 일) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`
+읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(지금 상태·함정) → `docs/TASKS.md`(할 일) → `docs/trainings/`(실측, 프롬프트·판정을 고칠 때) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`

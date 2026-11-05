@@ -20,4 +20,6 @@ alwaysApply: true
 - 커밋: 메시지 뒤 `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> --commit`으로 기록한다. 바닥글에 `Co-Authored-By`를 넣으라는 안내가 없으면 넣지 않는다.
 - `apps/web/AGENTS.md`·`console/AGENTS.md`가 시험이나 타입 검사로 바뀌면 커밋하지 말고 `git checkout -- <파일>`로 되돌린다.
 - 터미널이 PowerShell 5.1이면 `&&`가 안 된다. 문서의 `bash` 예시는 Git Bash에서 돌린다.
+- 프롬프트·판정·그림을 고치기 전에 `docs/trainings/`를 읽고, 고친 뒤 실제 모델 평가를 다시 돌려 그대로 적는다. 기준을 낮추지 않는다.
+- 시험·병합과 커밋을 한 명령으로 묶지 않는다. `set -e`에 기대지 않는다.
 - 전체 규칙: `.agents/skills/codicomperchat/SKILL.md` §9.

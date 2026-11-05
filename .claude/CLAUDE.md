@@ -9,6 +9,7 @@
 4. 브랜치: `feature/*`에서 작업, `develop`/`main` 병합은 `--no-ff`만 (`docs/guidance/branch-merge.md`)
 5. 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`), 프론트→FastAPI 직접 호출 금지, v1 범위 임의 확장 금지 (`docs/plan/CURRENT_STACK.md`)
 6. 병합은 사용자가 말할 때만, 푸시는 요청할 때만. 사용자의 개발 서버를 켜거나 끄지 않는다 (정본 §9)
-7. 할 일은 `docs/TASKS.md`
+7. 할 일은 `docs/TASKS.md`, 실측과 판단은 `docs/trainings/`
+8. 시험·병합과 커밋을 한 명령으로 묶지 않는다 (`set -e`가 멈추지 않을 수 있다)
 
 전체 규칙은 `.agents/skills/codicomperchat/SKILL.md` 하나를 읽으면 충분하다.

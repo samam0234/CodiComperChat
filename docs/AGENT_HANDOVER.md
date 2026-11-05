@@ -1,6 +1,6 @@
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-04.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-06.
 
 ## 1. 한 줄 요약
 
@@ -9,11 +9,11 @@
 | 항목 | 지금 |
 |------|------|
 | 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: Hetzner GEX45 한 대, 24시간, 성인 모드는 끈 채로. 계약 전 |
-| 병합 | 2026-11-04까지의 작업을 `develop`과 `main`에 병합했다. 미병합 브랜치는 없다. 병합 전후로 전체 e2e를 통과했다 |
-| 원격(GitHub) | **이번 병합은 로컬에만 있고 푸시하지 않았다.** 저장소는 2026-11-04 마지막 확인에서 공개 상태였고, 비공개 전환은 사용자가 한다. `origin/develop`은 `8fddd79`, `origin/main`은 `eec38bf`(2026-10-25)다 |
+| 병합 | 2026-11-06까지의 작업을 `develop`과 `main`에 병합했다. 미병합 브랜치는 없다 |
+| 원격(GitHub) | `develop`과 `main`을 2026-11-06에 푸시했다. 저장소는 그날 확인에서 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
 | DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
-| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md). 코드 시험은 모두 통과한다. 실제 모델 평가에 기준 미달 항목이 있다([TASKS.md](TASKS.md) 3장) |
+| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 코드 시험은 모두 통과한다. 실제 모델 평가에 기준 미달 항목이 있다([TASKS.md](TASKS.md) 3장) |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
@@ -24,8 +24,9 @@
 3. [TASKS.md](TASKS.md) — **다음에 할 일**(선행 조건·끝난 기준)
 4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험)
 5. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
-6. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
-7. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
+6. 프롬프트·판정·그림을 고치려면: [trainings/](trainings/README.md)
+7. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
+8. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
 
 ## 3. 작업 약속 (사용자와 합의된 것)
 
@@ -159,6 +160,8 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | 화면 | `apps/web/app/`, [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md) |
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 운영 구성·배포 | `deploy/`, [DEPLOYMENT.md](DEPLOYMENT.md) |
+| 왜 이렇게 정했나, 실제로 재 본 수치 | [trainings/](trainings/README.md) |
+| README 그림·영상 다시 만들기 | [`scripts/readme-media/`](../scripts/readme-media/README.md) |
 | 그림 신고·계정 정지 | `apps/api/src/content-reports/`, `console/app/content/` |
 | 소유자가 직접 할 일 | [guidance/owner-checklist.md](guidance/owner-checklist.md) |
 
@@ -170,4 +173,6 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 - **그래픽 메모리는 LLM과 그림 엔진이 나눠 쓴다.** 그림 직전에 LLM을 내린다(`keep_alive 0`).
 - **실측 없이 "된다"고 쓰지 않는다.** 확인 못 한 것은 문서에 "미확인"으로 적는다.
 - **라이선스는 쓰는 판의 원문을 본다.** "Gemma 금지 정책이 성인 모드를 막는다"고 한동안 적어 두었는데, 그 약관은 Gemma 3n까지만 적용되고 Gemma 4는 Apache 2.0이었다. `ollama show <모델> --license`로 바로 볼 수 있었다.
+- **시험이 무작위로 실패하면 시간 제한을 늘리기 전에 원인을 찾는다.** e2e 무작위 실패의 원인은 `next dev`의 첫 컴파일이었고, 운영 빌드로 바꾸니 전부 통과하고 시간도 줄었다([trainings/test-infrastructure.md](trainings/test-infrastructure.md)).
+- **모델 평가 8번으로는 개선을 말할 수 없다.** 같은 코드로 보상 장면이 4/8과 2/8이 나왔다. 판정은 시드를 고정해 안정적이고, 연기 쪽 지시가 약하다.
 - **실제로 띄워 봐야 나오는 결함이 있다.** `REQUIRE_HTTPS`는 단위 시험을 통과했지만 내부 호출을 막고 있었고, AI 초상은 시험이 통과하는데 뒷모습이 나왔다. 그림은 눈으로 본다.
