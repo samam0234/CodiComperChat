@@ -19,6 +19,62 @@ npm run build:web
 - 글은 HTML로 넣지 않는다. `lib/chat-format.ts`가 표기를 읽고 `components/chat-text.tsx`가 React 요소로만 그린다.
 - 디자인 토큰은 `app/globals.css`(라이트·다크, 한국 시각 자동 전환). 색·그림자·둥글기는 토큰만 쓴다.
 
+## 아키텍처
+
+```mermaid
+flowchart LR
+  browser["브라우저"] --> proxy["proxy.ts<br/>요청마다 nonce CSP<br/>회원 전용 1차 거름"]
+  proxy --> page["서버 컴포넌트 page.tsx"]
+  page --> lib["lib/*.ts (server-only)<br/>읽기"]
+  browser --> client["클라이언트 컴포넌트"]
+  client --> actions["app/actions/*.ts<br/>쓰기"]
+  client --> relay["app/api/*<br/>대화·그림 중계"]
+  lib --> nest["apps/api"]
+  actions --> nest
+  relay --> nest
+```
+
+브라우저는 Nest 주소도 토큰도 모른다. 로그인 토큰은 httpOnly `session` 쿠키에 있고, 서버 쪽 코드가 꺼내 `Authorization`으로 붙인다. 그래서 CORS를 열지 않았다.
+
+### 화면 지도
+
+| 묶음 | 경로 |
+|------|------|
+| 둘러보기 | `/` `/popular` `/characters/:id` `/agents` |
+| 대화 | `/characters/:id/chat`, `…/saved` `…/memories` `…/settings` |
+| 오퍼레이션 | `…/chat/mind` `…/diary` `…/messages` `…/community` `…/webtoon` |
+| 공방 | `/studio` `/studio/:id` |
+| 내 것 | `/library` `/me` `/settings` |
+| 계정 | `/login` `/signup` `/verify-email` `/forgot-password` `/reset-password` |
+| 요금 | `/pricing` `/billing/mock` `/billing/success` `/billing/fail` |
+| 안내 | `/terms` `/privacy` `/business` `/support` |
+
+코디포토넷, 비밀 퀘스트, 성인 확인은 화면이 아니라 대화 화면의 열림 상자다. `/library`, `/studio`, `/me`, `/billing`, 대화 화면은 로그인 전용이다.
+
+### 중계 라우트 (`app/api/`)
+
+| 경로 | 왜 필요한가 |
+|------|-------------|
+| `characters/[id]/chat`, `chat/[action]`, `chat/suggestions` | 클라이언트 컴포넌트가 답을 기다리는 동안 대기 표시를 그리려고. 쿠키의 토큰을 붙여 넘기기만 한다 |
+| `characters/[id]/portrait`, `photonet/[imageId]`, `webtoon/[webtoonId]/[index]`, `studio/[id]/portrait` | `<img>`는 토큰을 못 붙인다. 서버가 붙여 받고 `no-store`로 돌려준다 |
+| `agent-chat` | 비로그인도 쓰는 안내 챗봇 |
+| `csp-report` | CSP 위반 보고를 받아 로그로 남긴다 |
+
+무거운 추론은 여기 넣지 않는다.
+
+### 지키는 규칙
+
+| 규칙 | 이유 |
+|------|------|
+| 글을 HTML로 넣지 않는다 | 사용자·모델이 쓴 글에 `<script>`가 섞여도 실행되지 않게. `lib/chat-format.ts` → `components/chat-text.tsx` |
+| 외부 자원을 붙이지 않는다 | CSP. 외부 스크립트는 요금 화면의 토스 결제창뿐이다 |
+| 날짜는 `lib/format-time.ts`로 그린다 | `toLocaleString`은 하이드레이션 불일치가 난다 |
+| 실제 IP를 `X-Forwarded-For`로 넘긴다 | 안 넘기면 Nest가 모든 이용자를 웹 서버 한 명으로 세어 사이트 전체가 막힌다. `lib/client-ip.ts` |
+| 색·그림자·둥글기는 토큰만 쓴다 | 라이트·다크 두 벌을 유지하려고. `app/globals.css` |
+| 버튼 이름과 역할을 바꾸면 `e2e/tests`도 고친다 | 시험이 접근성 이름으로 화면을 찾는다 |
+
+Next.js 16은 예전 판과 다르다. 코드를 고치기 전에 `AGENTS.md`의 안내대로 `node_modules/next/dist/docs/`를 읽는다.
+
 ## 문서
 
 - 라우트·내비게이션 구조: [../../docs/plan/NAVIGATION_IA.md](../../docs/plan/NAVIGATION_IA.md)
@@ -27,4 +83,4 @@ npm run build:web
 - 실행 가이드: [../../docs/guidance/getting-started.md](../../docs/guidance/getting-started.md)
 - 보안: [../../SECURITY.md](../../SECURITY.md)
 
-`AGENTS.md`와 `CLAUDE.md`는 `next dev`가 자동 생성·갱신한다. 손으로 고치지 않는다.
+`AGENTS.md`와 `CLAUDE.md`는 Next가 자동 생성·갱신한다. 손으로 고치지 않고, 바뀌면 커밋하지 말고 되돌린다.
