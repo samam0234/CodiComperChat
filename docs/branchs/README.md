@@ -301,5 +301,6 @@
 | 2026-11-06 | `9858ad7` | feature/license-security | LICENSE와 SECURITY를 고도화하고 전체 이력을 검사 | [261106_0004_9858ad7_license-security_feature-license-security.md](commits/261106_0004_9858ad7_license-security_feature-license-security.md) |
 | 2026-11-06 | `5ca5852` | feature/readme-apps | 앱별 README에 구조와 동작 설명을 넣음 | [261106_0006_5ca5852_readme-apps_feature-readme-apps.md](commits/261106_0006_5ca5852_readme-apps_feature-readme-apps.md) |
 | 2026-11-06 | `2b243f7` | feature/readme-root | 루트 README를 영상과 실제 화면 중심으로 다시 씀 | [261106_0029_2b243f7_readme-root_feature-readme-root.md](commits/261106_0029_2b243f7_readme-root_feature-readme-root.md) |
+| 2026-11-06 | `debc70d` | feature/docs-trainings | trainings에 실제로 돌려 본 결과 노트를 작성 | [261106_0033_debc70d_docs-trainings_feature-docs-trainings.md](commits/261106_0033_debc70d_docs-trainings_feature-docs-trainings.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
