@@ -12,6 +12,32 @@
   <a href="#문서-지도">문서</a>
 </p>
 
+<p align="center">
+  <a href="./LICENSE"><img alt="라이선스: 독점, 오픈소스 아님" src="https://img.shields.io/badge/License-독점_·_오픈소스_아님-b91c1c?style=for-the-badge&logo=opensourceinitiative&logoColor=white" /></a>
+  <a href="./SECURITY.md"><img alt="보안 정책" src="https://img.shields.io/badge/Security-정책_보기-111827?style=for-the-badge&logo=hackerone&logoColor=white" /></a>
+  <a href="./docs/README.md"><img alt="문서 허브" src="https://img.shields.io/badge/Docs-문서_허브-6d4dff?style=for-the-badge&logo=readthedocs&logoColor=white" /></a>
+  <a href="#소개-영상"><img alt="개발 단계, 공개 서비스 전" src="https://img.shields.io/badge/Status-개발_단계-f59e0b?style=for-the-badge&logo=statuspage&logoColor=white" /></a>
+</p>
+
+<p align="center">
+  <a href="https://nextjs.org"><img alt="Next.js 16" src="https://img.shields.io/badge/Next.js_16-000000?logo=nextdotjs&logoColor=white" /></a>
+  <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB" /></a>
+  <a href="https://www.typescriptlang.org"><img alt="TypeScript 6" src="https://img.shields.io/badge/TypeScript_6-3178C6?logo=typescript&logoColor=white" /></a>
+  <a href="https://nestjs.com"><img alt="Nest.js 12" src="https://img.shields.io/badge/Nest.js_12-E0234E?logo=nestjs&logoColor=white" /></a>
+  <a href="https://www.prisma.io"><img alt="Prisma 7" src="https://img.shields.io/badge/Prisma_7-2D3748?logo=prisma&logoColor=white" /></a>
+  <a href="https://www.postgresql.org"><img alt="PostgreSQL 16" src="https://img.shields.io/badge/PostgreSQL_16-4169E1?logo=postgresql&logoColor=white" /></a>
+  <a href="https://fastapi.tiangolo.com"><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" /></a>
+  <a href="https://www.python.org"><img alt="Python 3.12" src="https://img.shields.io/badge/Python_3.12-3776AB?logo=python&logoColor=white" /></a>
+  <a href="https://ollama.com"><img alt="Ollama" src="https://img.shields.io/badge/Ollama-000000?logo=ollama&logoColor=white" /></a>
+  <a href="https://pytorch.org"><img alt="PyTorch 2.10" src="https://img.shields.io/badge/PyTorch_2.10-EE4C2C?logo=pytorch&logoColor=white" /></a>
+  <a href="https://huggingface.co/docs/diffusers"><img alt="Hugging Face diffusers" src="https://img.shields.io/badge/diffusers-FFD21E?logo=huggingface&logoColor=000" /></a>
+  <a href="https://playwright.dev"><img alt="Playwright" src="https://img.shields.io/badge/Playwright-2EAD33?logo=playwright&logoColor=white" /></a>
+  <a href="https://vitest.dev"><img alt="Vitest" src="https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white" /></a>
+  <a href="https://www.docker.com"><img alt="Docker Compose" src="https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white" /></a>
+  <a href="https://caddyserver.com"><img alt="Caddy" src="https://img.shields.io/badge/Caddy-1F88C0?logo=caddy&logoColor=white" /></a>
+  <a href="https://github.com/features/actions"><img alt="GitHub Actions" src="https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white" /></a>
+</p>
+
 # 코디컴퍼챗 (CodiComperChat)
 
 **유저가 주인공인 이야기를, 성격이 흔들리지 않는 AI 캐릭터가 함께 이어 가는 서비스입니다.** 대화를 닫았다 다시 열어도 캐릭터가 지난 일을 자기 입으로 꺼내고, 관계가 쌓이고, 숨겨 둔 비밀과 부탁이 때가 되면 드러납니다.
@@ -42,8 +68,8 @@
     <th>대화 장면이 그림과 웹툰이 된다</th>
   </tr>
   <tr>
-    <td><img src="docs/assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></td>
-    <td><img src="docs/assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></td>
+    <td><a href="docs/assets/readme/demo-chat.gif"><img src="docs/assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></a></td>
+    <td><a href="docs/assets/readme/demo-image.gif"><img src="docs/assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></a></td>
   </tr>
 </table>
 
@@ -55,16 +81,16 @@
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></td>
-    <td width="50%"><img src="docs/assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></td>
+    <td width="50%"><a href="docs/assets/readme/chat.jpg"><img src="docs/assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></a></td>
+    <td width="50%"><a href="docs/assets/readme/story.jpg"><img src="docs/assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
   </tr>
   <tr>
     <td><b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다.</td>
     <td><b>지난 이야기.</b> 대화 3번마다 뒤에서 요약하고 친밀도와 복선을 갱신합니다. 잘못 잡힌 복선은 유저가 지울 수 있습니다.</td>
   </tr>
   <tr>
-    <td><img src="docs/assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></td>
-    <td><img src="docs/assets/readme/memories.jpg" alt="장기 기억 목록"></td>
+    <td><a href="docs/assets/readme/chat-recommend.jpg"><img src="docs/assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></a></td>
+    <td><a href="docs/assets/readme/memories.jpg"><img src="docs/assets/readme/memories.jpg" alt="장기 기억 목록"></a></td>
   </tr>
   <tr>
     <td><b>추천 프로필.</b> 캐릭터에 어울리는 주인공을 눌러서 바로 시작합니다.</td>
@@ -76,9 +102,9 @@
 
 <table>
   <tr>
-    <td width="33%"><img src="docs/assets/readme/ops-mind.jpg" alt="심리 탐구"></td>
-    <td width="33%"><img src="docs/assets/readme/ops-diary.jpg" alt="일기"></td>
-    <td width="33%"><img src="docs/assets/readme/ops-community.jpg" alt="커뮤니티"></td>
+    <td width="33%"><a href="docs/assets/readme/ops-mind.jpg"><img src="docs/assets/readme/ops-mind.jpg" alt="심리 탐구"></a></td>
+    <td width="33%"><a href="docs/assets/readme/ops-diary.jpg"><img src="docs/assets/readme/ops-diary.jpg" alt="일기"></a></td>
+    <td width="33%"><a href="docs/assets/readme/ops-community.jpg"><img src="docs/assets/readme/ops-community.jpg" alt="커뮤니티"></a></td>
   </tr>
   <tr>
     <td><b>심리 탐구.</b> 겉으로 하지 않은 속마음을 엿봅니다. 설정의 비밀은 드러나지 않습니다.</td>
@@ -93,8 +119,8 @@
 
 <table>
   <tr>
-    <td width="60%"><img src="docs/assets/readme/photonet.jpg" alt="코디포토넷 창"></td>
-    <td width="40%" rowspan="2"><img src="docs/assets/readme/webtoon.jpg" alt="웹툰 3컷"></td>
+    <td width="60%"><a href="docs/assets/readme/photonet.jpg"><img src="docs/assets/readme/photonet.jpg" alt="코디포토넷 창"></a></td>
+    <td width="40%" rowspan="2"><a href="docs/assets/readme/webtoon.jpg"><img src="docs/assets/readme/webtoon.jpg" alt="웹툰 3컷"></a></td>
   </tr>
   <tr>
     <td>
@@ -108,8 +134,8 @@
 
 <table>
   <tr>
-    <td width="70%"><img src="docs/assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></td>
-    <td width="30%"><img src="docs/assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></td>
+    <td width="70%"><a href="docs/assets/readme/studio.jpg"><img src="docs/assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></a></td>
+    <td width="30%"><a href="docs/assets/readme/studio-portrait.jpg"><img src="docs/assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></a></td>
   </tr>
   <tr>
     <td>정체성부터 말투, 비밀, 첫인사, 로어북, 비밀 퀘스트까지 8단계 카드로 씁니다. 칸마다 AI 초안을 받을 수 있고, 3턴 테스트에서 말투 붕괴, 강의식 답, 메타 발언, 비밀 누설을 판정합니다.</td>
@@ -125,9 +151,9 @@
 
 <table>
   <tr>
-    <td width="25%"><img src="docs/assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></td>
-    <td width="37%"><img src="docs/assets/readme/home-light.jpg" alt="밝은 테마 홈"><br><br><img src="docs/assets/readme/home-dark.jpg" alt="어두운 테마 홈"></td>
-    <td width="38%"><img src="docs/assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"><br><br><img src="docs/assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></td>
+    <td width="25%"><a href="docs/assets/readme/mobile-chat.jpg"><img src="docs/assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></a></td>
+    <td width="37%"><a href="docs/assets/readme/home-light.jpg"><img src="docs/assets/readme/home-light.jpg" alt="밝은 테마 홈"></a><br><br><a href="docs/assets/readme/home-dark.jpg"><img src="docs/assets/readme/home-dark.jpg" alt="어두운 테마 홈"></a></td>
+    <td width="38%"><a href="docs/assets/readme/console-dashboard.jpg"><img src="docs/assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"></a><br><br><a href="docs/assets/readme/console-content.jpg"><img src="docs/assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></a></td>
   </tr>
   <tr>
     <td>좁은 화면</td>
@@ -160,15 +186,15 @@
 
 ### 기술 스택
 
-<img src="docs/assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%">
+<a href="docs/assets/readme/stack.png"><img src="docs/assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%"></a>
 
 ### 시스템 구조
 
-<img src="docs/assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%">
+<a href="docs/assets/readme/architecture.png"><img src="docs/assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%"></a>
 
 **웹은 FastAPI를 직접 부르지 않습니다.** 인증, 권한, 코레딧, 맥락 조립은 모두 Nest에서 합니다. FastAPI는 DB를 보지 않고 Nest가 조립해 넘긴 조각만 씁니다. Redis와 벡터 DB는 쓰지 않습니다.
 
-<img src="docs/assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%">
+<a href="docs/assets/readme/chat-turn.png"><img src="docs/assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
 
 ### 저장소 구성
 
