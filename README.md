@@ -158,6 +158,12 @@
 
 ## 구조
 
+### 기술 스택
+
+<img src="docs/assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%">
+
+### 시스템 구조
+
 <img src="docs/assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%">
 
 **웹은 FastAPI를 직접 부르지 않습니다.** 인증, 권한, 코레딧, 맥락 조립은 모두 Nest에서 합니다. FastAPI는 DB를 보지 않고 Nest가 조립해 넘긴 조각만 씁니다. Redis와 벡터 DB는 쓰지 않습니다.
