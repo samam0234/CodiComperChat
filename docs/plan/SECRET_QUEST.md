@@ -59,11 +59,14 @@
 - 판정은 작은 로컬 모델이 하므로 가끔 어긋난다(불확실하면 "아님"으로 두어 억울한 달성보다 늦은 달성이 낫다). 달성 조건을 구체적인 행동·말로 쓸수록 정확하다.
 - 퀘스트는 캐릭터당 하나다. 대화마다 따로 진행되고(새로하기·저장한 대화는 각자), 코레딧만 계정당 한 번이다.
 
-## 평가 (실제 gemma4:e4b, 2026-11-04)
+## 평가 (실제 gemma4:e4b, 2026-11-06)
 
 | 명령 | 결과 |
 |------|------|
-| `python -m evals.quest_yujiseong --repeat 1` | 7/8, 잘못 통과 0. "끝까지 풀기"를 달성으로 보지 않았다 |
-| `python -m evals.quest_reward --repeat 4` | 4/8. 혼인 4/4, 기혼의 충돌 0/4. 지시를 프롬프트 맨 끝으로 옮기기 전에는 0/8이었다 |
+| `python -m evals.quest_seyeon --repeat 2` | 20/20, 잘못 통과 0 |
+| `python -m evals.quest_yujiseong --repeat 2` | 15/16, 잘못 통과 0. "끝까지 풀기"를 1번 달성으로 보지 않았다 |
+| `python -m evals.quest_reward --repeat 4` | 2/8. 혼인 2/4, 기혼의 충돌 0/4. 2026-11-04에는 4/8이었다 |
+
+판단 과정: [../trainings/quest-judging.md](../trainings/quest-judging.md).
 
 기준에 못 미친 항목은 [../TASKS.md](../TASKS.md) Q01, Q03.

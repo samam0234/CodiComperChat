@@ -1,6 +1,6 @@
 # 웹(유저 프론트) 가이드
 
-정본: `CodiComperChat_project_plan.md` §5. 최종 갱신 2026-10-24 — 계획서의 흐름과 지금 구현. 화면 목록은 [../plan/NAVIGATION_IA.md](../plan/NAVIGATION_IA.md), 디자인 규칙은 [../plan/DESIGN.md](../plan/DESIGN.md).
+정본: `CodiComperChat_project_plan.md` §5. 최종 갱신 2026-11-06 — 계획서의 흐름과 지금 구현. 화면 목록은 [../plan/NAVIGATION_IA.md](../plan/NAVIGATION_IA.md), 디자인 규칙은 [../plan/DESIGN.md](../plan/DESIGN.md).
 
 ## 첫 방문 (계획서 §5.1)
 

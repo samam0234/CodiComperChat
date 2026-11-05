@@ -2,7 +2,7 @@
 
 코디컴퍼챗 자체 코드는 [LICENSE](LICENSE)(독점)를 따른다. 이 문서는 **그 밖의 것** — 의존하는 오픈소스 소프트웨어, 쓰는 AI 모델, 함께 쓰는 도구 — 의 라이선스를 정리한다. 이들은 각자의 조건을 따른다.
 
-- 기준 시점: 2026-11-03(운영 이미지 추가, Next.js 16.4.4·Nodemailer 10.3). 아래 소프트웨어 버전과 라이선스 표기는 이 저장소에 설치된 패키지의 메타데이터에서 읽은 값이다.
+- 기준 시점: 2026-11-06(운영 이미지 추가, Next.js 16.4.4·Nodemailer 10.3). 아래 소프트웨어 버전과 라이선스 표기는 이 저장소에 설치된 패키지의 메타데이터에서 읽은 값이다.
 - 전체 목록(의존하는 의존성까지)은 이 문서에 다 적지 않았다. 배포 전에 도구로 전체를 뽑아 검토한다: Node `npx license-checker --production --summary`, Python `pip-licenses`(설치 필요).
 - **모델 가중치는 저장소에 없다.** 개발 PC에서 각자 받아 `services/ai/models/`(git 제외)에 둔다.
 
@@ -76,6 +76,10 @@
 | numpy | 2.5.4 | BSD-3-Clause 외(복합) | 〃 |
 
 그림 엔진 의존성(torch 등)은 NVIDIA CUDA 런타임 라이브러리를 함께 받는다 — NVIDIA의 배포 조건이 따로 있다. 배포 이미지를 만들 때 확인한다.
+
+## 4-1. README 그림과 영상
+
+`docs/assets/readme/`의 스크린샷, GIF, MP4는 이 프로젝트의 앱을 띄워 찍었다(`scripts/readme-media/`). 그 안의 대화는 Gemma 4, 그림은 Animagine XL 4.0·Stable Diffusion 1.5가 만들었다. 인코딩에는 `imageio-ffmpeg`의 ffmpeg를 개발 PC에서만 썼고 저장소와 배포물에 넣지 않는다.
 
 ## 5. 이 저장소가 지키는 것
 

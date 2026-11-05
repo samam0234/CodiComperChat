@@ -302,5 +302,19 @@
 | 2026-11-04 | `d117ce7` | develop (merge) | feature/merge-record-union into develop (no-ff) | [261104_0623_d117ce7_merge-merge-record-union_develop.md](commits/261104_0623_d117ce7_merge-merge-record-union_develop.md) |
 | 2026-11-04 | `3900baa` | main (merge) | develop into main (no-ff) | [261104_0623_3900baa_merge-develop-into-main_main.md](commits/261104_0623_3900baa_merge-develop-into-main_main.md) |
 | 2026-11-04 | `de6b74c` | main (merge) | develop into main (no-ff) | [261104_0623_de6b74c_merge-develop-into-main-2_main.md](commits/261104_0623_de6b74c_merge-develop-into-main-2_main.md) |
+| 2026-11-06 | `3cc85d7` | feature/readme-media | README 그림과 영상을 실제 앱에서 만드는 도구를 추가 | [261106_0003_3cc85d7_readme-media-tools_feature-readme-media.md](commits/261106_0003_3cc85d7_readme-media-tools_feature-readme-media.md) |
+| 2026-11-06 | `9858ad7` | feature/license-security | LICENSE와 SECURITY를 고도화하고 전체 이력을 검사 | [261106_0004_9858ad7_license-security_feature-license-security.md](commits/261106_0004_9858ad7_license-security_feature-license-security.md) |
+| 2026-11-06 | `5ca5852` | feature/readme-apps | 앱별 README에 구조와 동작 설명을 넣음 | [261106_0006_5ca5852_readme-apps_feature-readme-apps.md](commits/261106_0006_5ca5852_readme-apps_feature-readme-apps.md) |
+| 2026-11-06 | `2b243f7` | feature/readme-root | 루트 README를 영상과 실제 화면 중심으로 다시 씀 | [261106_0029_2b243f7_readme-root_feature-readme-root.md](commits/261106_0029_2b243f7_readme-root_feature-readme-root.md) |
+| 2026-11-06 | `debc70d` | feature/docs-trainings | trainings에 실제로 돌려 본 결과 노트를 작성 | [261106_0033_debc70d_docs-trainings_feature-docs-trainings.md](commits/261106_0033_debc70d_docs-trainings_feature-docs-trainings.md) |
+| 2026-11-06 | `08661ff` | feature/docs-overall-3 | 전체 문서를 이번 실측과 상태에 맞게 갱신 | [261106_0035_08661ff_docs-overall-3_feature-docs-overall-3.md](commits/261106_0035_08661ff_docs-overall-3_feature-docs-overall-3.md) |
+| 2026-11-06 | `da14224` | feature/agents-docs | 에이전트 규칙과 인수인계에 실측과 함정을 반영 | [261106_0035_da14224_agents-docs_feature-agents-docs.md](commits/261106_0035_da14224_agents-docs_feature-agents-docs.md) |
+| 2026-11-06 | `595a4df` | develop (merge) | feature/readme-media into develop (no-ff) | [261106_0035_595a4df_merge-readme-media_develop.md](commits/261106_0035_595a4df_merge-readme-media_develop.md) |
+| 2026-11-06 | `8fb1138` | develop (merge) | feature/license-security into develop (no-ff) | [261106_0035_8fb1138_merge-license-security_develop.md](commits/261106_0035_8fb1138_merge-license-security_develop.md) |
+| 2026-11-06 | `93194a7` | develop (merge) | feature/readme-apps into develop (no-ff) | [261106_0035_93194a7_merge-readme-apps_develop.md](commits/261106_0035_93194a7_merge-readme-apps_develop.md) |
+| 2026-11-06 | `6930a8f` | develop (merge) | feature/readme-root into develop (no-ff) | [261106_0035_6930a8f_merge-readme-root_develop.md](commits/261106_0035_6930a8f_merge-readme-root_develop.md) |
+| 2026-11-06 | `aadbd42` | develop (merge) | feature/docs-trainings into develop (no-ff) | [261106_0035_aadbd42_merge-docs-trainings_develop.md](commits/261106_0035_aadbd42_merge-docs-trainings_develop.md) |
+| 2026-11-06 | `7db0639` | develop (merge) | feature/docs-overall-3 into develop (no-ff) | [261106_0035_7db0639_merge-docs-overall-3_develop.md](commits/261106_0035_7db0639_merge-docs-overall-3_develop.md) |
+| 2026-11-06 | `b4d2ea9` | develop (merge) | feature/agents-docs into develop (no-ff) | [261106_0035_b4d2ea9_merge-agents-docs_develop.md](commits/261106_0035_b4d2ea9_merge-agents-docs_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

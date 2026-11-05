@@ -13,6 +13,28 @@ npx playwright show-trace e2e/.tmp/test-results/<실패한 테스트>/trace.zip 
 
 필요한 것: 로컬 PostgreSQL(개발 DB와 같은 서버), 설치된 Chrome, `services/ai/.venv`(FastAPI 의존성). 포트와 DB는 개발 환경과 겹치지 않아 개발 서버를 켜 둬도 된다. 그림 엔진은 메모리를 많이 쓰니 끈다.
 
+## 구조
+
+```mermaid
+flowchart LR
+  prepare["prepare.mjs<br/>DB 만들기·비우기·시드<br/>API·웹·콘솔 빌드"] --> servers
+  subgraph servers["servers/*.mjs"]
+    ai["ai.mjs :8101<br/>LLM_FAKE=1"]
+    api["api.mjs :4101<br/>dist-verify"]
+    web["web.mjs :3101<br/>next start"]
+    console["console.mjs :3102<br/>next start"]
+  end
+  tests["tests/*.spec.ts<br/>Playwright + Chrome"] --> web
+  tests --> console
+  tests -->|"helpers.ts api()"| api
+  web --> api
+  console --> api
+  api --> ai
+  api --> db[("codicomperchat_e2e")]
+```
+
+`npm run test:e2e:adult-off`는 `run-adult-off.mjs`가 `ADULT_MODE=off`로 서버를 다시 띄워 `adult-off.spec.ts`만 돌린다. 이 시험은 보통 실행에서 `testIgnore`로 빠진다.
+
 ## 개발 환경과 겹치지 않는 구조
 
 | | 개발 | e2e |
