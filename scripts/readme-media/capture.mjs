@@ -1,6 +1,6 @@
 // 데모 계정으로 실제 앱을 돌며 스크린샷과 녹화를 남긴다. 대답과 그림은 실제 모델이 만든다
 import { chromium } from "@playwright/test";
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
 import { OUT, TMP, URLS, databaseUrl } from "./env.mjs";
@@ -74,10 +74,12 @@ const say = async (page, text) => {
 // ── 첫 화면과 대화 ──
 const { page } = await open();
 await go(page, "/");
-await shot(page, "home-light");
+// 첫 화면의 밝기는 한국 시각에 따라 다르다 (오전 7시~오후 10시가 밝음)
+const startsDark = (await page.locator("html").getAttribute("data-theme")) === "dark";
+await shot(page, startsDark ? "home-dark" : "home-light");
 await page.getByRole("banner").getByRole("button", { name: /모드로 바꾸기/ }).click();
 await page.waitForTimeout(500);
-await shot(page, "home-dark");
+await shot(page, startsDark ? "home-light" : "home-dark");
 await page.getByRole("banner").getByRole("button", { name: /모드로 바꾸기/ }).click();
 await go(page, `/characters/${seyeon}`);
 await shot(page, "character");
@@ -175,8 +177,8 @@ await ai.getByLabel("옷차림").selectOption("casual");
 await ai.getByLabel("표정").selectOption("calm");
 await ai.getByRole("button", { name: "만들기 · 25 코레딧" }).click();
 await ai.getByRole("list", { name: "만든 후보" }).getByRole("img").first().waitFor();
-await ai.scrollIntoViewIfNeeded();
-await shot(page, "studio-portrait");
+await ai.getByRole("list", { name: "만든 후보" }).screenshot({ path: join(OUT, "studio-portrait.jpg"), type: "jpeg", quality: 88 });
+log("찍음 studio-portrait");
 
 // ── 요금·설정 ──
 await go(page, "/pricing");
@@ -204,69 +206,6 @@ await shot(phone.page, "mobile-chat");
 await phone.context.close();
 await page.context().close();
 
-// ── 소개 영상용 녹화 (앞에서 만든 데이터를 그대로 쓴다) ──
-log("녹화");
-const steps = [];
-const rec = await browser.newContext({ viewport: { width: 1280, height: 720 }, locale: "ko-KR", recordVideo: { dir: TMP, size: { width: 1280, height: 720 } } });
-await rec.addCookies(cookieFor(user.token));
-rec.setDefaultTimeout(SLOW);
-const video = await rec.newPage();
-const start = Date.now();
-const mark = (id) => steps.push({ id, at: (Date.now() - start) / 1000 });
-const smooth = async (px, ms = 1500) => {
-  await video.mouse.move(640, 400);
-  const n = Math.ceil(ms / 50);
-  for (let i = 0; i < n; i += 1) {
-    await video.mouse.wheel(0, px / n);
-    await video.waitForTimeout(50);
-  }
-};
-mark("home");
-await go(video, "/");
-await video.waitForTimeout(2500);
-await smooth(450);
-await video.waitForTimeout(1200);
-mark("character");
-await go(video, `/characters/${seyeon}`);
-await video.waitForTimeout(2800);
-mark("chat");
-await go(video, CHAT);
-await video.waitForTimeout(1200);
-await video.getByPlaceholder(/에게 말 걸기/).pressSequentially("회의 전에 커피 한 잔 부탁해요.", { delay: 45 });
-await video.waitForTimeout(500);
-await video.getByRole("button", { name: "보내기" }).click();
-await video.getByText(/가 답하는 중/).waitFor({ state: "hidden" });
-await video.waitForTimeout(3500);
-mark("ops");
-await video.getByRole("button", { name: "오퍼레이션" }).click();
-await video.waitForTimeout(1800);
-await go(video, `${CHAT}/mind`);
-await video.waitForTimeout(3000);
-mark("photonet");
-await go(video, CHAT);
-await video.getByRole("button", { name: "코디포토넷" }).click();
-await video.getByRole("dialog", { name: "코디포토넷" }).getByRole("region", { name: "만든 그림" }).scrollIntoViewIfNeeded();
-await video.waitForTimeout(3000);
-await video.keyboard.press("Escape");
-mark("webtoon");
-await go(video, `${CHAT}/webtoon`);
-await video.getByRole("list", { name: "만든 웹툰" }).scrollIntoViewIfNeeded();
-await video.waitForTimeout(1500);
-await smooth(700, 2500);
-await video.waitForTimeout(1200);
-mark("studio");
-await go(video, `/studio/${draft.id}`);
-await video.waitForTimeout(2500);
-await smooth(400);
-await video.waitForTimeout(800);
-mark("pricing");
-await go(video, "/pricing");
-await video.waitForTimeout(2800);
-mark("end");
-const handle = video.video();
-await rec.close();
-renameSync(await handle.path(), join(TMP, "tour.webm"));
-writeFileSync(join(TMP, "tour.json"), JSON.stringify(steps, null, 2));
 await browser.close();
 await sql.end();
 log("끝");
