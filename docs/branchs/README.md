@@ -341,5 +341,6 @@
 | 2026-11-06 | `6651b8f` | develop (merge) | feature/agent-adapters into develop | [261106_1551_6651b8f_merge-agent-adapters_develop.md](commits/261106_1551_6651b8f_merge-agent-adapters_develop.md) |
 | 2026-11-06 | `bc7793a` | develop (merge) | feature/world-core into develop | [261106_1551_bc7793a_merge-world-core_develop.md](commits/261106_1551_bc7793a_merge-world-core_develop.md) |
 | 2026-11-06 | `dfdffd4` | develop (merge) | feature/docs-assets-rename into develop | [261106_1551_dfdffd4_merge-docs-assets-rename_develop.md](commits/261106_1551_dfdffd4_merge-docs-assets-rename_develop.md) |
+| 2026-11-06 | `835019c` | develop (merge) | feature/readme-world into develop | [261106_1551_835019c_merge-readme-world_develop.md](commits/261106_1551_835019c_merge-readme-world_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
