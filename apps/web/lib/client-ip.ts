@@ -9,5 +9,10 @@ import { headers } from "next/headers";
 export async function forwardedFor(): Promise<Record<string, string>> {
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim();
-  return ip ? { "X-Forwarded-For": ip } : {};
+  if (!ip) return {};
+  // 웹과 API가 다른 기계일 때(웹은 Vercel, API는 Oracle 서버) API 앞의 Caddy는 바깥에서 온 X-Forwarded-For를 덮어쓴다.
+  // 공유 비밀(WEB_PROXY_TOKEN)을 함께 보내면 Caddy가 "우리 웹 서버가 보낸 것"으로 보고 이 IP를 그대로 넘긴다
+  // (deploy/oracle/Caddyfile). 같은 기계·사설망 구성에서는 비워 둔다
+  const token = process.env.WEB_PROXY_TOKEN;
+  return token ? { "X-Forwarded-For": ip, "X-Web-Proxy-Token": token } : { "X-Forwarded-For": ip };
 }

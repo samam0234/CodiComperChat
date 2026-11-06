@@ -1,0 +1,67 @@
+# AI 노드: GPU가 있는 기계 한 대에서 services/ai(FastAPI) + Ollama를 돌린다 (2026-11-06).
+# 지금 쓰는 개발 PC(Windows + Docker Desktop + NVIDIA)나, 나중의 GPU 서버(Hetzner GEX45 등) 어디든 같다.
+# 백엔드(Oracle VM)와는 Tailscale 사설망으로만 잇는다. 공인 인터넷에 8000을 열지 않는다.
+#
+#   cp deploy/ai-node/.env.example deploy/ai-node/.env   # 값 채우기
+#   docker compose --env-file deploy/ai-node/.env -f deploy/ai-node/docker-compose.yml up -d --build
+#   docker compose -f deploy/ai-node/docker-compose.yml exec ollama ollama pull gemma4:12b
+#
+# Cloudflare Tunnel을 쓰지 않는 이유: 프록시가 응답을 100초에 끊는다(524). Tailscale은 HTTP 시간 제한이 없다.
+name: codicomperchat-ai
+
+x-always: &always
+  restart: always
+  logging:
+    driver: json-file
+    options: { max-size: 20m, max-file: '5' }
+
+services:
+  ai:
+    <<: *always
+    build:
+      context: ../..
+      dockerfile: deploy/ai.Dockerfile
+    gpus: all
+    depends_on: [ollama]
+    ports:
+      # 호스트의 8000. Tailscale 주소로만 닿게 방화벽에서 100.64.0.0/10만 허용한다(안내 HTML 3단계)
+      - '${AI_BIND:-0.0.0.0}:8000:8000'
+    environment:
+      APP_ENV: production
+      # 이 값이 있으면 모든 요청에 X-AI-Token이 있어야 한다. Oracle의 AI_SERVICE_TOKEN과 같아야 한다
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:12b}
+      # 토큰 사이 공백 제한(초). 모델 읽기·긴 프롬프트를 감안. 0이면 제한 없음
+      OLLAMA_READ_TIMEOUT_SECONDS: ${OLLAMA_READ_TIMEOUT_SECONDS:-600}
+      # 기동하면 대화 모델을 미리 올려 첫 답이 늦지 않게 한다
+      OLLAMA_WARMUP: '1'
+      OLLAMA_WARMUP_MODELS: ${OLLAMA_WARMUP_MODELS:-}
+      IMAGE_ENGINE: local
+      SD_OFFLOAD: ${SD_OFFLOAD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+    volumes:
+      - ${SD_MODEL_HOST_DIR:?}:/models:ro
+      - hf_cache:/cache/huggingface
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  ollama:
+    <<: *always
+    image: ollama/ollama:0.40.13
+    gpus: all
+    environment:
+      # 대화 모델을 오래 둔다. 그림을 그릴 때는 services/ai가 먼저 내린다(keep_alive=0)
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-1}
+    volumes:
+      - ollama_models:/root/.ollama
+
+volumes:
+  hf_cache:
+  ollama_models:

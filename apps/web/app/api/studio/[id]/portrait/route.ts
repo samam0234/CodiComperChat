@@ -1,5 +1,8 @@
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
+// AI 답을 기다리는 중계라 함수 시간을 최대로 둔다 (app/layout.tsx의 maxDuration과 같은 이유)
+export const maxDuration = 300;
+
 // 공방 초안의 초상 미리보기 중계 (만든 사람만). 아직 발행하지 않은 초안의 그림도 볼 수 있어야 해서 따로 둔다
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

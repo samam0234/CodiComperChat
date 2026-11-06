@@ -42,6 +42,9 @@ flowchart LR
 | `REQUIRE_HTTPS` | 운영 필수 | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 https 응답에 HSTS를 붙인다. `NODE_ENV=production`인데 이 값이 없고 공개 호스트면 API가 시작되지 않거나 503 |
 | `REQUIRE_HTTPS_EXEMPT_HOSTS` | 내부망 배포 | — | 쉼표로 구분한 내부 호스트 이름(운영 compose는 `api`). 이 호스트의 http는 https로 돌려보내지 않는다. 공개 도메인을 넣지 않는다 |
 | `AI_CONCURRENCY` | | 2 | AI 동시 호출 수(**서버 한 대 기준**. 서버 N대면 모델이 받는 동시 호출은 N × 이 값) |
+| `AI_TIMEOUT_MS` | | 280000 | 화면에서 기다리는 AI 답의 제한(ms). 웹 함수 상한(Vercel Hobby 300초)보다 짧게 둔다. `node:http`로 보내 Node fetch의 300초 벽이 없다 |
+| `AI_BACKGROUND_TIMEOUT_MS` | | 600000 | 기억·요약 같은 배경 AI 작업의 제한(ms) |
+| `AI_QUEUE_WAIT_MS` | | 60000 | 기다리는 답이 AI 대기열에서 기다리는 최대 시간(ms). 느린 서버면 늘린다 |
 | `PERSONA_RAG` | | 켜짐 | `off`면 지식 JSON을 무시하고 카드 원문 전부를 넣는다(효과 비교용) |
 | `PERSONA_DATA_DIR` | | `apps/api/data/personas` | 페르소나 지식 JSON 폴더 |
 | `RATE_LIMIT` | | 켜짐 | `off`면 요청 한도를 끈다(개발 중 막힐 때만) |
@@ -74,6 +77,10 @@ flowchart LR
 |----|--------|------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | 로컬 Ollama |
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
+| `OLLAMA_READ_TIMEOUT_SECONDS` | 600 | Ollama를 스트리밍으로 부르며 **토큰 사이 공백**에만 거는 제한(초). 모델이 계속 쓰는 동안은 끊지 않는다. 0이면 제한 없음 |
+| `OLLAMA_CONNECT_TIMEOUT_SECONDS` | 10 | Ollama 연결 제한(초) |
+| `OLLAMA_TOTAL_TIMEOUT_SECONDS` | 0(없음) | 답 하나 전체의 상한(초, 선택) |
+| `OLLAMA_WARMUP` | 꺼짐 | `1`이면 기동 때 대화 모델을 미리 올린다(첫 답 지연 방지). 모델은 `OLLAMA_WARMUP_MODELS`(쉼표) 또는 `OLLAMA_MODEL` |
 | `AI_SERVICE_TOKEN` | 비움 | Nest와 같은 값. 있으면 `X-AI-Token`이 맞는 요청만 받는다. 비우면 루프백만 |
 | `APP_ENV` | 꺼짐 | `production`이면 토큰 32자 이상이 필요하고 `LLM_FAKE`·`IMAGE_FAKE`가 켜져 있으면 시작하지 않는다 |
 | `LLM_FAKE` | 꺼짐 | **시험용.** `1`이면 모델 없이 고정된 가짜 답. e2e가 자동으로 켠다 (코디포토넷의 가짜 그림 엔진도 함께 켜진다) |

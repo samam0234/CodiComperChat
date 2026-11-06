@@ -1,6 +1,8 @@
 """로컬 Ollama 호출 공통부. 서버 상태 확인·오류 변환을 한곳에서 한다."""
 
+import json
 import os
+import time
 
 import httpx
 from fastapi import HTTPException
@@ -71,7 +73,9 @@ def generate(
     payload: dict[str, object] = {
         "model": model,
         "messages": messages,
-        "stream": False,
+        # 스트리밍으로 받는다. 한 번에 받으면 답이 다 만들어질 때까지 아무것도 오지 않아, 느린 서버(CPU·큰 모델)에서는
+        # "아직 쓰는 중"인 답이 고정 시간 제한에 걸려 끊긴다. 스트리밍이면 제한은 "토큰 사이의 공백"에만 걸린다
+        "stream": True,
         # gemma4는 thinking 모델이라 꺼 두지 않으면 num_predict를 생각 과정이 다 먹어
         # 본문이 빈 채로 잘린다("done_reason": "length")
         "think": False,
@@ -82,28 +86,98 @@ def generate(
     if keep_alive is not None:
         payload["keep_alive"] = keep_alive
 
-    try:
-        response = httpx.post(f"{base_url}/api/chat", json=payload, timeout=120.0)
-        response.raise_for_status()
-    except httpx.ConnectError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=f"로컬 Ollama 서버({base_url})에 연결할 수 없다. `ollama serve`가 실행 중인지, "
-            f"`ollama list`에 '{model}' 모델이 있는지 확인한다.",
-        ) from exc
-    except httpx.HTTPStatusError as exc:
-        detail = exc.response.text
-        if exc.response.status_code == 404:
-            raise HTTPException(
-                status_code=502,
-                detail=f"모델 '{model}'을 찾을 수 없다. `ollama pull {model}`로 먼저 받는다.",
-            ) from exc
-        raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {detail}") from exc
-
-    text = response.json().get("message", {}).get("content", "")
+    text = _stream_chat(base_url, model, payload)
     if not text:
         raise HTTPException(
             status_code=502,
             detail="LLM이 빈 응답을 돌려줬다 (출력 토큰 한도 초과일 수 있다).",
         )
     return text
+
+
+def _seconds(name: str, default: float) -> float | None:
+    """환경변수의 초 값. 0이나 음수는 '제한 없음'(None)."""
+    raw = os.environ.get(name, "").strip()
+    try:
+        value = float(raw) if raw else default
+    except ValueError:
+        value = default
+    return value if value > 0 else None
+
+
+def ollama_timeout() -> httpx.Timeout:
+    """Ollama 호출의 시간 제한.
+
+    - 연결: 짧게(서버가 꺼져 있으면 바로 안내한다)
+    - 읽기: 다음 조각이 올 때까지 기다리는 최대 시간. 첫 토큰 전에는 모델을 메모리에 올리고 프롬프트를 읽느라
+      가장 오래 걸린다(CPU에서 큰 모델이면 몇 분). 기본 600초. 0이면 제한 없음
+    """
+    return httpx.Timeout(
+        connect=_seconds("OLLAMA_CONNECT_TIMEOUT_SECONDS", 10.0),
+        read=_seconds("OLLAMA_READ_TIMEOUT_SECONDS", 600.0),
+        write=60.0,
+        pool=60.0,
+    )
+
+
+def _stream_chat(base_url: str, model: str, payload: dict[str, object]) -> str:
+    parts: list[str] = []
+    # 답 전체에 거는 상한(선택). 기본은 없음: 토큰이 계속 나오면 끝까지 기다린다
+    total_limit = _seconds("OLLAMA_TOTAL_TIMEOUT_SECONDS", 0)
+    started = time.monotonic()
+    try:
+        with httpx.stream("POST", f"{base_url}/api/chat", json=payload, timeout=ollama_timeout()) as response:
+            if response.status_code >= 400:
+                detail = response.read().decode("utf-8", "replace")
+                if response.status_code == 404:
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"모델 '{model}'을 찾을 수 없다. `ollama pull {model}`로 먼저 받는다.",
+                    )
+                raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {detail}")
+            for line in response.iter_lines():
+                if not line.strip():
+                    continue
+                try:
+                    chunk = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if chunk.get("error"):
+                    raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {chunk['error']}")
+                piece = (chunk.get("message") or {}).get("content")
+                if piece:
+                    parts.append(piece)
+                if chunk.get("done"):
+                    break
+                if total_limit is not None and time.monotonic() - started > total_limit:
+                    raise HTTPException(status_code=504, detail="LLM 답이 상한 시간을 넘어 멈췄다.")
+    except httpx.ConnectError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"로컬 Ollama 서버({base_url})에 연결할 수 없다. `ollama serve`가 실행 중인지, "
+            f"`ollama list`에 '{model}' 모델이 있는지 확인한다.",
+        ) from exc
+    except httpx.TimeoutException as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="Ollama가 오래 아무 토큰도 보내지 않아 멈췄다. 모델이 메모리에 올라와 있는지(`ollama ps`), "
+            "OLLAMA_READ_TIMEOUT_SECONDS가 너무 짧지 않은지 확인한다.",
+        ) from exc
+    return "".join(parts)
+
+
+def warm_up() -> None:
+    """기동할 때 기본 대화 모델을 메모리에 올려 둔다(첫 답이 모델 읽기로 늦어지는 것을 막는다).
+
+    OLLAMA_WARMUP=1일 때만. 실패해도 서비스 기동은 막지 않는다. keep_alive는 Ollama 서버의 OLLAMA_KEEP_ALIVE를 따른다
+    """
+    if os.environ.get("OLLAMA_WARMUP") != "1" or os.environ.get("LLM_FAKE") == "1":
+        return
+    base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
+    models = os.environ.get("OLLAMA_WARMUP_MODELS") or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
+    for model in [m.strip() for m in models.split(",") if m.strip()]:
+        try:
+            # 빈 prompt로 부르면 Ollama는 모델만 올리고 바로 답한다
+            httpx.post(f"{base_url}/api/generate", json={"model": model}, timeout=ollama_timeout())
+        except httpx.HTTPError:
+            pass

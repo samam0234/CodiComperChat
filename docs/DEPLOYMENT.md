@@ -1,9 +1,12 @@
 # 배포 (짧은 진입)
 
 > 상태(2026-11-06): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "Hetzner GEX45에서 24시간, 성인 모드는 끈 채로"이고 계약은 아직이다.
+>
+> 2026-11-06 늦게 무료로 먼저 여는 길을 더했다: 웹·콘솔은 Vercel, 백엔드는 Oracle Cloud Always Free ARM VM, AI는 GPU 기계(지금 PC → 나중에 GEX45)를 Tailscale로 붙인다. 안내는 [web_management/deploy-guide.html](web_management/deploy-guide.html). 이 구성도 실제 서버에서 아직 돌려 보지 않았다.
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
+| **나눠 올리기 (Vercel + Oracle 무료 + GPU AI 노드), 한눈에 보는 안내** | [web_management/deploy-guide.html](web_management/deploy-guide.html) (브라우저로 연다), 구성 `deploy/oracle/`, `deploy/ai-node/` |
 | 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |
 | 서버에 올리기 (절차·서버 조건·실측) | [web_management/docker-deploy.md](web_management/docker-deploy.md) |
 | 올리기 전 체크 | [web_management/pre-deploy.md](web_management/pre-deploy.md) |

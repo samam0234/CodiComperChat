@@ -1,0 +1,26 @@
+# API 앞단 (Oracle VM). 인증서를 자동으로 받고 갱신한다.
+# 웹(Vercel)이 서버에서 API를 부르므로, Caddy가 보는 주소는 늘 Vercel의 주소다. 그래서:
+#  - 공유 비밀(X-Web-Proxy-Token)이 맞는 요청은 웹이 넘긴 실제 이용자 IP(X-Forwarded-For)를 그대로 넘긴다
+#  - 나머지는 Caddy가 본 주소로 덮어쓴다(바깥에서 IP를 꾸며 요청 한도를 피하지 못하게)
+# 응답 대기 시간에는 제한을 두지 않는다(Caddy 기본). 긴 AI 답은 API의 AI_TIMEOUT_MS가 끊는다
+{
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	encode gzip
+
+	@web header X-Web-Proxy-Token {$WEB_PROXY_TOKEN}
+	handle @web {
+		reverse_proxy api:4000 {
+			header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+			header_up -X-Web-Proxy-Token
+		}
+	}
+
+	handle {
+		reverse_proxy api:4000 {
+			header_up -X-Web-Proxy-Token
+		}
+	}
+}
