@@ -40,6 +40,15 @@ class ControlLineTest(unittest.TestCase):
         self.assertIsNone(result.image)
         self.assertEqual(result.moves, [])
 
+    def test_strips_loose_control_lines(self) -> None:
+        # 실제로 나온 변형: "[장소 이동: …]", 괄호 없는 "장소 이동: -", "[장면 그림: …]"
+        raw = "본문\n[장소 이동: 관리소 → 부두]\n장소 이동: -\n[장면 그림: 밤의 부두]\n[장소 이동: 도윤 → 부두]"
+        result = world.parse_controls(raw, request())
+        self.assertEqual(result.reply, "본문")
+        self.assertEqual([(m.name, m.place) for m in result.moves], [("도윤", "부두")])
+        # 대사 속 "그림:"이나 "이동:"은 지우지 않는다
+        self.assertEqual(world.parse_controls('한서린: "그림: 저건 뭐죠?"', request()).reply, '한서린: "그림: 저건 뭐죠?"')
+
     def test_turn_fills_empty_reply(self) -> None:
         with mock.patch.object(world.llm, "generate", return_value="[그림: 부두의 밤]"):
             result = world.turn(request())

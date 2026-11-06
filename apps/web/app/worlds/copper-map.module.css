@@ -6,7 +6,9 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  overflow: hidden;
+  /* 위쪽 핀의 이름표가 잘리지 않게 넘침을 보인다 (그림·격자는 모서리를 따로 둥글린다) */
+  overflow: visible;
+  margin-top: 28px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-2);
@@ -19,6 +21,7 @@
 .image {
   width: 100%;
   height: 100%;
+  border-radius: inherit;
   object-fit: cover;
   user-select: none;
 }
@@ -26,6 +29,7 @@
 .grid {
   width: 100%;
   height: 100%;
+  border-radius: inherit;
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px),
