@@ -31,11 +31,13 @@
 ## 올리기 · 다시 올리기
 
 ```bash
-git archive --format=tar HEAD | ssh codicomper-oci "mkdir -p ~/codicomperchat && tar -x -C ~/codicomperchat"
+git -c core.autocrlf=false archive --format=tar HEAD | ssh codicomper-oci "mkdir -p ~/codicomperchat && tar -x -C ~/codicomperchat"
 ssh codicomper-oci "sudo bash ~/codicomperchat/deploy/oracle/server-setup.sh"
 ssh codicomper-oci "cd ~/codicomperchat && sudo docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml up -d --build"
 curl https://api.168-110-61-178.sslip.io/health
 ```
+
+Windows(`core.autocrlf=true`)에서 그냥 `git archive`를 하면 파일이 CRLF로 나가 `.env` 값 끝에 `\r`이 붙는다. 그래서 `-c core.autocrlf=false`를 준다.
 
 `deploy/oracle/.env`는 서버에서 처음 한 번 만들어지고 다시 덮어쓰지 않는다. 비밀값은 서버에만 있다.
 
