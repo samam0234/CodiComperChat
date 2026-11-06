@@ -22,7 +22,8 @@ export const QUEST_TITLE_MAX = 30;
 // 공식 캐릭터에서 달성하면 주는 코레딧 (계정×캐릭터당 한 번). 유저가 만든 캐릭터는 보상 장면만 있다 — 직접 만들어 깨는 방식의 코레딧 파밍을 막는다
 export const QUEST_REWARD_CREDITS = 100;
 
-export type QuestState = { status: 'offered' | 'done'; at: string; staged?: boolean } | null;
+// scene: 달성 판정 때 보상 장면에서 고른 갈래(원문의 일부). 없으면 보상 장면 전체를 쓴다
+export type QuestState = { status: 'offered' | 'done'; at: string; staged?: boolean; scene?: string } | null;
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
@@ -54,7 +55,13 @@ export function parseQuestState(raw: unknown): QuestState {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
   const o = raw as Record<string, unknown>;
   if (o.status !== 'offered' && o.status !== 'done') return null;
-  return { status: o.status, at: typeof o.at === 'string' ? o.at : '', ...(o.staged === true ? { staged: true } : {}) };
+  const scene = o.status === 'done' ? str(o.scene, 4000) : '';
+  return {
+    status: o.status,
+    at: typeof o.at === 'string' ? o.at : '',
+    ...(o.staged === true ? { staged: true } : {}),
+    ...(scene ? { scene } : {}),
+  };
 }
 
 // 이 대화에서 퀘스트가 열렸나 (친밀도가 문턱 이상)
@@ -69,9 +76,12 @@ export function questNote(q: Quest, value: number, state: QuestState): string | 
   if (state?.status === 'done') {
     // 달성한 직후 첫 답에서만 보상 장면을 보여 준다 (그 뒤에는 이미 일어난 일로 자연스럽게)
     if (state.staged || q.reward === '') return null;
+    // 갈래가 여럿인 보상 장면을 연기 모델에게 고르게 하면 다른 갈래의 대사를 섞었다(2026-11-06 평가 2/8).
+    // 달성 판정 때 고른 갈래(state.scene)가 있으면 그 장면 하나만 넘긴다. 없으면 전체를 넘기고 고르게 한다
     return [
-      `${REWARD_HEAD} 유저가 네 부탁에 제대로 응했다. 이번 답은 아래 장면을 그대로 펼치는 답이다. 지금 일어난 일에 맞는 장면을 고르고, 적힌 행동과 대사를 빠뜨리지 않고 모두 넣는다. 호칭이 바뀌라고 적혀 있으면 이번 답에서는 호칭 규칙보다 이 장면이 먼저다:`,
-      q.reward,
+      `${REWARD_HEAD} 유저가 네 부탁에 제대로 응했다. 이번 답은 아래 장면을 그대로 펼치는 답이다. 적힌 행동과 대사를 빠뜨리지 않고 모두 넣고, 대사는 적힌 글자 그대로 쓴다. 호칭이 바뀌라고 적혀 있으면 이번 답에서는 호칭 규칙보다 이 장면이 먼저다:`,
+      state.scene || q.reward,
+      ...(state.scene ? [] : ['- 장면이 여러 갈래로 적혀 있으면 지금 일어난 일에 맞는 갈래 하나만 펼치고, 다른 갈래의 행동·대사는 섞지 않는다']),
       '- 게임·퀘스트·보상 같은 말은 쓰지 않는다. 이야기 속 마음의 변화로만 드러낸다',
     ].join('\n');
   }
@@ -93,7 +103,7 @@ export function questNote(q: Quest, value: number, state: QuestState): string | 
 }
 
 // 이야기 정리 때 판정 모델에게 보여 줄 것. 건네기 전에는 "건넸는지"만, 건넨 뒤에는 달성 조건도 함께 본다
-export type QuestCheck = { offered: boolean; done: boolean };
+export type QuestCheck = { offered: boolean; done: boolean; scene?: string };
 
 // 판정 결과 → 다음 상태.
 //  - 친밀도가 문턱 아래였으면 판정을 무시한다 (그때는 부탁이 꺼내질 수 없었다)
@@ -111,7 +121,10 @@ export function nextQuestState(
   if (!unlocked(q, valueBefore)) return { state, completedNow: false };
   const offered = state?.status === 'offered' || check.offered;
   if (!offered) return { state, completedNow: false };
-  if (check.done) return { state: { status: 'done', at: now.toISOString() }, completedNow: true };
+  if (check.done) {
+    const scene = (check.scene ?? '').trim().slice(0, 4000);
+    return { state: { status: 'done', at: now.toISOString(), ...(scene ? { scene } : {}) }, completedNow: true };
+  }
   if (state?.status === 'offered') return { state, completedNow: false };
   return { state: { status: 'offered', at: now.toISOString() }, completedNow: false };
 }

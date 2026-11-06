@@ -1,10 +1,11 @@
 <p align="center">
-  <img src="docs/assets/readme/banner.png" alt="코디컴퍼챗: 어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인" width="100%">
+  <img src="docs/.assets/readme/banner.png" alt="코디컴퍼챗: 어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인" width="100%">
 </p>
 
 <p align="center">
   <b>개발 단계 · 공개 서비스 전</b> ·
   <a href="#소개-영상">소개 영상</a> ·
+  <a href="#월드코퍼챗">월드코퍼챗</a> ·
   <a href="#둘러보기">둘러보기</a> ·
   <a href="#구조">구조</a> ·
   <a href="#품질을-어떻게-재나">품질</a> ·
@@ -51,6 +52,7 @@
 | 비밀 설정을 유도하면 털어놓는다 | 비밀을 모델에 아예 보내지 않는다 |
 | 대화 말고는 할 게 적다 | 속마음, 일기, 문자, 게시판, 장면 그림, 웹툰으로 이야기가 넓어진다 |
 | 캐릭터는 프롬프트 한 덩어리다 | 8단계 카드와 3턴 테스트를 통과해야 발행된다 |
+| 한 번에 한 캐릭터와만 이야기한다 | **월드코퍼챗**: 한 세계관 안의 여러 인물과 파트·코퍼맵·미니게임으로 이어 간다 |
 
 > **이 저장소는 오픈소스가 아닙니다.** 허락 없는 clone, 다운로드, 복제, 실행, 호스팅, 모델 학습을 허용하지 않습니다. 저장소는 비공개로 전환할 예정입니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
 
@@ -58,9 +60,9 @@
 
 약 55초입니다. 실제로 띄운 앱을 녹화했고, 답은 실제 `gemma4:e4b`가 썼습니다. 그림은 미리 그려 둔 것을 보여 줍니다. 그리는 데 분 단위로 걸려 영상에서 뺐습니다.
 
-[![소개 영상 재생 (MP4)](docs/assets/readme/intro-poster.jpg)](docs/assets/readme/intro.mp4)
+[![소개 영상 재생 (MP4)](docs/.assets/readme/intro-poster.jpg)](docs/.assets/readme/intro.mp4)
 
-[**▶ 소개 영상 열기 (MP4, 1.7MB)**](docs/assets/readme/intro.mp4)
+[**▶ 소개 영상 열기 (MP4, 1.7MB)**](docs/.assets/readme/intro.mp4)
 
 <table>
   <tr>
@@ -68,12 +70,65 @@
     <th>대화 장면이 그림과 웹툰이 된다</th>
   </tr>
   <tr>
-    <td><a href="docs/assets/readme/demo-chat.gif"><img src="docs/assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></a></td>
-    <td><a href="docs/assets/readme/demo-image.gif"><img src="docs/assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></a></td>
+    <td><a href="docs/.assets/readme/demo-chat.gif"><img src="docs/.assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></a></td>
+    <td><a href="docs/.assets/readme/demo-image.gif"><img src="docs/.assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></a></td>
   </tr>
 </table>
 
+## 월드코퍼챗
+
+**1:1 대화가 아니라, 한 세계관 안에서 여러 인물과 이어 가는 이야기입니다.** 누구나 세계관을 만들고(설명·규칙·첫 장면·등장인물·장소·파트·장면 그림), 진행자 모델이 등장인물을 번갈아 연기합니다. 소설·영화·게임처럼 1부, 2부로 줄거리가 흐르고, 대화 중에 갑자기 미니게임이 열립니다.
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/.assets/readme/world-play-chat.jpg"><img src="docs/.assets/readme/world-play-chat.jpg" alt="기본 채팅형: 인물별 말풍선과 상황에 맞게 고른 장면 그림"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/world-play-visual-novel.jpg"><img src="docs/.assets/readme/world-play-visual-novel.jpg" alt="비주얼노벨형: 장면 그림 배경, 서 있는 인물, 한 줄씩 넘기는 대사 상자"></a></td>
+  </tr>
+  <tr>
+    <td><b>기본 채팅형.</b> 인물마다 말풍선이 따로 있고, 제작자가 이름표를 붙여 올린 장면 그림 중 지금 장면에 맞는 것을 진행자가 골라 함께 보여 줍니다.</td>
+    <td><b>비주얼노벨형.</b> 장면 그림이 배경이 되고, 말하는 인물의 그림이 서 있고, 대사 상자를 눌러 한 줄씩 넘깁니다.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/.assets/readme/world-play-novel.jpg"><img src="docs/.assets/readme/world-play-novel.jpg" alt="소설형: 세리프 산문 문단과 삽화"></a></td>
+    <td><a href="docs/.assets/readme/world-play-messenger.jpg"><img src="docs/.assets/readme/world-play-messenger.jpg" alt="메신저형: 카톡처럼 짧은 메시지가 오가는 단체 대화방"></a></td>
+  </tr>
+  <tr>
+    <td><b>소설형.</b> 3인칭 산문 문단으로 이어지고, 내 말은 인용처럼 끼어듭니다.</td>
+    <td><b>메신저형.</b> 단체 대화방처럼 짧은 메시지가 오갑니다. 장면 서술과 행동 묘사는 쓰지 않습니다.</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="58%"><a href="docs/.assets/readme/world-play-map.jpg"><img src="docs/.assets/readme/world-play-map.jpg" alt="코퍼맵: 지도 위 장소 핀과 지금 인물이 있는 곳"></a></td>
+    <td width="42%"><a href="docs/.assets/readme/world-event.jpg"><img src="docs/.assets/readme/world-event.jpg" alt="대화 중 갑자기 열린 미로 찾기 이벤트"></a><br><br><a href="docs/.assets/readme/world-event-result.jpg"><img src="docs/.assets/readme/world-event-result.jpg" alt="이벤트 결과와 코레딧 보상"></a></td>
+  </tr>
+  <tr>
+    <td><b>코퍼맵.</b> 제작자가 올린 지도 위에 장소 핀이 있고, 인물이 지금 있는 곳의 핀이 분홍색으로 표시됩니다.</td>
+    <td><b>이벤트 미니게임.</b> 사다리·주사위·미니 볼링·제비뽑기·미로 찾기. 결과는 서버가 정하고, 이기면 20~50, 져도 5~10 코레딧(하루 3번까지).</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="34%"><a href="docs/.assets/readme/world-editor-cast.jpg"><img src="docs/.assets/readme/world-editor-cast.jpg" alt="세계관 편집기: 등장인물을 데려오거나 직접 쓴다"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/world-editor-map.jpg"><img src="docs/.assets/readme/world-editor-map.jpg" alt="세계관 편집기: 지도를 눌러 장소 핀을 놓는다"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/world-editor-parts.jpg"><img src="docs/.assets/readme/world-editor-parts.jpg" alt="세계관 편집기: 파트와 끝나는 조건"></a></td>
+  </tr>
+  <tr>
+    <td colspan="3"><b>세계관 편집기.</b> 기본(설명·규칙·첫 장면·대화 방식) · 등장인물(공개 캐릭터를 데려오거나 직접 쓰기) · 장소·코퍼맵 · 파트 · 장면 그림(자동 검수) · 발행(공개 범위). 파트의 끝나는 조건은 플레이어에게 보이지 않고, 판정 모델이 3턴마다 근거 인용으로 확인합니다.</td>
+  </tr>
+</table>
+
+<a href="docs/.assets/readme/world-flow.png"><img src="docs/.assets/readme/world-flow.png" alt="월드코퍼챗 한 턴의 처리 순서" width="100%"></a>
+
+**모델은 고르기만 하고, 확인과 돈이 걸린 일은 코드가 합니다.** 진행자가 없는 그림 이름표·인물·장소를 지어내도 화면에 나가지 않고, 미니게임의 당첨 위치·볼링 커브·미로 판정은 서버에만 있습니다. 실측(진행자 형식 23/24)과 한계(인물의 장소 이동을 거의 쓰지 않음)는 [docs/trainings/world-copperchat.md](docs/trainings/world-copperchat.md), 설계는 [docs/plan/WORLD_COPPERCHAT.md](docs/plan/WORLD_COPPERCHAT.md).
+
+> 위 화면의 진행자 답은 실제 `gemma4:e4b`가 썼습니다. 지도·장면 그림·인물 그림은 그림 엔진이 아니라 HTML로 그린 데모 그림입니다(`scripts/readme-media/art.mjs`).
+
 ## 둘러보기
+
+<a href="docs/.assets/readme/features.png"><img src="docs/.assets/readme/features.png" alt="기능 지도: 대화·퀘스트·오퍼레이션·그림·월드코퍼챗·공방·코레딧·수위·운영" width="100%"></a>
 
 아래 화면은 모두 데모 계정으로 실제 앱에서 찍었습니다. 대사와 그림은 모델이 만든 그대로이고, 고르거나 다듬지 않았습니다.
 
@@ -81,16 +136,16 @@
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/chat.jpg"><img src="docs/assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></a></td>
-    <td width="50%"><a href="docs/assets/readme/story.jpg"><img src="docs/assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/chat.jpg"><img src="docs/.assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/story.jpg"><img src="docs/.assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
   </tr>
   <tr>
     <td><b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다.</td>
     <td><b>지난 이야기.</b> 대화 3번마다 뒤에서 요약하고 친밀도와 복선을 갱신합니다. 잘못 잡힌 복선은 유저가 지울 수 있습니다.</td>
   </tr>
   <tr>
-    <td><a href="docs/assets/readme/chat-recommend.jpg"><img src="docs/assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></a></td>
-    <td><a href="docs/assets/readme/memories.jpg"><img src="docs/assets/readme/memories.jpg" alt="장기 기억 목록"></a></td>
+    <td><a href="docs/.assets/readme/chat-recommend.jpg"><img src="docs/.assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></a></td>
+    <td><a href="docs/.assets/readme/memories.jpg"><img src="docs/.assets/readme/memories.jpg" alt="장기 기억 목록"></a></td>
   </tr>
   <tr>
     <td><b>추천 프로필.</b> 캐릭터에 어울리는 주인공을 눌러서 바로 시작합니다.</td>
@@ -102,9 +157,9 @@
 
 <table>
   <tr>
-    <td width="33%"><a href="docs/assets/readme/ops-mind.jpg"><img src="docs/assets/readme/ops-mind.jpg" alt="심리 탐구"></a></td>
-    <td width="33%"><a href="docs/assets/readme/ops-diary.jpg"><img src="docs/assets/readme/ops-diary.jpg" alt="일기"></a></td>
-    <td width="33%"><a href="docs/assets/readme/ops-community.jpg"><img src="docs/assets/readme/ops-community.jpg" alt="커뮤니티"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-mind.jpg"><img src="docs/.assets/readme/ops-mind.jpg" alt="심리 탐구"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-diary.jpg"><img src="docs/.assets/readme/ops-diary.jpg" alt="일기"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-community.jpg"><img src="docs/.assets/readme/ops-community.jpg" alt="커뮤니티"></a></td>
   </tr>
   <tr>
     <td><b>심리 탐구.</b> 겉으로 하지 않은 속마음을 엿봅니다. 설정의 비밀은 드러나지 않습니다.</td>
@@ -119,8 +174,8 @@
 
 <table>
   <tr>
-    <td width="60%"><a href="docs/assets/readme/photonet.jpg"><img src="docs/assets/readme/photonet.jpg" alt="코디포토넷 창"></a></td>
-    <td width="40%" rowspan="2"><a href="docs/assets/readme/webtoon.jpg"><img src="docs/assets/readme/webtoon.jpg" alt="웹툰 3컷"></a></td>
+    <td width="60%"><a href="docs/.assets/readme/photonet.jpg"><img src="docs/.assets/readme/photonet.jpg" alt="코디포토넷 창"></a></td>
+    <td width="40%" rowspan="2"><a href="docs/.assets/readme/webtoon.jpg"><img src="docs/.assets/readme/webtoon.jpg" alt="웹툰 3컷"></a></td>
   </tr>
   <tr>
     <td>
@@ -134,8 +189,8 @@
 
 <table>
   <tr>
-    <td width="70%"><a href="docs/assets/readme/studio.jpg"><img src="docs/assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></a></td>
-    <td width="30%"><a href="docs/assets/readme/studio-portrait.jpg"><img src="docs/assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></a></td>
+    <td width="70%"><a href="docs/.assets/readme/studio.jpg"><img src="docs/.assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></a></td>
+    <td width="30%"><a href="docs/.assets/readme/studio-portrait.jpg"><img src="docs/.assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></a></td>
   </tr>
   <tr>
     <td>정체성부터 말투, 비밀, 첫인사, 로어북, 비밀 퀘스트까지 8단계 카드로 씁니다. 칸마다 AI 초안을 받을 수 있고, 3턴 테스트에서 말투 붕괴, 강의식 답, 메타 발언, 비밀 누설을 판정합니다.</td>
@@ -151,14 +206,27 @@
 
 <table>
   <tr>
-    <td width="25%"><a href="docs/assets/readme/mobile-chat.jpg"><img src="docs/assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></a></td>
-    <td width="37%"><a href="docs/assets/readme/home-light.jpg"><img src="docs/assets/readme/home-light.jpg" alt="밝은 테마 홈"></a><br><br><a href="docs/assets/readme/home-dark.jpg"><img src="docs/assets/readme/home-dark.jpg" alt="어두운 테마 홈"></a></td>
-    <td width="38%"><a href="docs/assets/readme/console-dashboard.jpg"><img src="docs/assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"></a><br><br><a href="docs/assets/readme/console-content.jpg"><img src="docs/assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></a></td>
+    <td width="25%"><a href="docs/.assets/readme/mobile-chat.jpg"><img src="docs/.assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></a></td>
+    <td width="37%"><a href="docs/.assets/readme/home-light.jpg"><img src="docs/.assets/readme/home-light.jpg" alt="밝은 테마 홈"></a><br><br><a href="docs/.assets/readme/home-dark.jpg"><img src="docs/.assets/readme/home-dark.jpg" alt="어두운 테마 홈"></a></td>
+    <td width="38%"><a href="docs/.assets/readme/console-dashboard.jpg"><img src="docs/.assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"></a><br><br><a href="docs/.assets/readme/console-content.jpg"><img src="docs/.assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></a></td>
   </tr>
   <tr>
     <td>좁은 화면</td>
     <td>라이트·다크. 한국 시각에 따라 자동으로 바뀝니다.</td>
     <td>운영 콘솔. 신고, 초상 검수, 그림 신고, 계정 정지, 생년월일 정정을 처리합니다.</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="22%"><a href="docs/.assets/readme/world-mobile.jpg"><img src="docs/.assets/readme/world-mobile.jpg" alt="모바일 메신저형 월드 플레이"></a></td>
+    <td width="39%"><a href="docs/.assets/readme/console-worlds.jpg"><img src="docs/.assets/readme/console-worlds.jpg" alt="운영 콘솔 월드코퍼챗 목록과 숫자"></a><br><br><a href="docs/.assets/readme/console-world-detail.jpg"><img src="docs/.assets/readme/console-world-detail.jpg" alt="운영 콘솔 세계관 상세: 파트 목표와 그림 검수"></a></td>
+    <td width="39%"><a href="docs/.assets/readme/console-world-events.jpg"><img src="docs/.assets/readme/console-world-events.jpg" alt="운영 콘솔 이벤트 기록"></a><br><br><a href="docs/.assets/readme/console-world-settings.jpg"><img src="docs/.assets/readme/console-world-settings.jpg" alt="운영 콘솔 월드 운영 설정"></a></td>
+  </tr>
+  <tr>
+    <td>좁은 화면의 메신저형</td>
+    <td>콘솔의 월드코퍼챗: 숫자 줄, 찾기·거르기, 내리기(사유 필수). 상세에서는 플레이어에게 숨긴 파트 목표와 그림 검수를 봅니다.</td>
+    <td>이벤트 기록(결과·보상·한도 초과)과 운영 설정(하루 보상 횟수·이벤트 확률·간격). 플레이 대화 내용은 콘솔에 보이지 않습니다.</td>
   </tr>
 </table>
 
@@ -171,12 +239,13 @@
 | 캐릭터 공방 | 8단계 카드, AI 초안, 3턴 테스트, 초상(파일·AI), 공개 범위, 추천 프로필 | 동작 |
 | 공식 캐릭터 | 유지성(과외 선생님), 이세연(회장 비서), 각자 비밀 퀘스트 | 동작 |
 | 오퍼레이션 | 심리 탐구, 일기, 메시지, 커뮤니티, 웹툰 | 동작 |
+| 월드코퍼챗 | 세계관 만들기·발행, 등장인물 데려오기, 대화 방식 4가지, 파트, 코퍼맵, 장면 그림, 이벤트 미니게임 5종과 보상 | 동작 (2026-11-06) |
 | 코디포토넷 | 대화 장면 그림, 화풍 4가지 | 동작. NVIDIA GPU 필요 |
 | 코레딧 | 출석, 차감, 실패 시 환불 | 동작 |
 | 프로 등급 | 눌러서 30일 프로로 바꾸기 | 정식 서비스 전 임시 |
-| 운영 | 운영 콘솔, 요청 한도, CSP, 신고, 백업 | 동작 |
+| 운영 | 운영 콘솔(세계관 검수·내리기·이벤트 기록·운영 설정 포함), 요청 한도, CSP, 신고, 백업 | 동작 |
 | 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다 |
-| 성인 모드 | 수위 분리, 성인 확인, 그림 가드, 신고 | 코드 있음, 공개 서버에서는 끈다 |
+| 성인 모드 | 수위 분리(그림·대화), 성인 확인, 미성년자·강제 단서 차단, 그림 가드, 신고. 성인 대화는 로컬 모델에서만 | 코드 있음, 공개 서버에서는 끈다 |
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
 | 스트리밍 응답, 본인인증 | | 없음 |
 
@@ -186,15 +255,15 @@
 
 ### 기술 스택
 
-<a href="docs/assets/readme/stack.png"><img src="docs/assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%"></a>
+<a href="docs/.assets/readme/stack.png"><img src="docs/.assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%"></a>
 
 ### 시스템 구조
 
-<a href="docs/assets/readme/architecture.png"><img src="docs/assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%"></a>
+<a href="docs/.assets/readme/architecture.png"><img src="docs/.assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%"></a>
 
 **웹은 FastAPI를 직접 부르지 않습니다.** 인증, 권한, 코레딧, 맥락 조립은 모두 Nest에서 합니다. FastAPI는 DB를 보지 않고 Nest가 조립해 넘긴 조각만 씁니다. Redis와 벡터 DB는 쓰지 않습니다.
 
-<a href="docs/assets/readme/chat-turn.png"><img src="docs/assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
+<a href="docs/.assets/readme/chat-turn.png"><img src="docs/.assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
 
 ### 저장소 구성
 
@@ -211,7 +280,7 @@ CodiComperChat/
 ├── scripts/          로컬 CI·커밋 기록·DB 백업·비밀값 생성·README 그림 만들기
 ├── docs/             문서 허브 (기획·아키텍처·Git 기록·가이드·실측 노트)
 ├── .agents/          AI 에이전트 공통 규칙 정본
-├── .claude/ .cursor/ .codex/ .grok/ .antigravity/   도구별 어댑터
+├── .claude/ .cursor/ .codex/ .grok/ .antigravity/ .gemini/ .manus/ .kimi/ .ollama/ .opencode/ .qwen/ .windsurf/   도구별 어댑터
 ├── docker-compose.yml   개발용 (선택) PostgreSQL·Mailpit
 ├── LICENSE  SECURITY.md  THIRD_PARTY_NOTICES.md
 └── CodiComperChat_project_plan.md   기획 원본
@@ -242,8 +311,10 @@ CodiComperChat/
 | 판정·검수 안정성, 정상 그림 통과 | 전부 통과 | | ✅ |
 | 웹툰 콘티 | 3/4 | 75% | ✅ |
 | 비밀 퀘스트 판정 (이세연 / 유지성) | 20/20, 15/16 | 잘못 통과 0 | ✅ 잘못 통과 0건 |
-| 장면 전환 나레이션 | 7/12 | 80% | ❌ 미달 |
-| 퀘스트 보상 장면 | 2/8 | 75% | ❌ 미달 |
+| 장면 전환 나레이션 | 48/48 (고치기 전 7/12) | 80% | ✅ |
+| 퀘스트 보상 장면 | 20/20, 갈래 고르기 6/6 (고치기 전 2/8) | 75% | ✅ |
+| 월드 진행자 형식 (방식 4가지) | 23/24 | 80% | ✅ |
+| 성인 수위에서도 강제 장면 거부 | 16/16 | 100% | ✅ |
 
 분석과 이전 결과 비교: [docs/trainings/](docs/trainings/README.md). 코드 시험 수와 방법: [docs/plan/TESTING.md](docs/plan/TESTING.md).
 
@@ -280,9 +351,9 @@ cp .env.example .env
 ### 시험
 
 ```bash
-npm run test:api             # API 단위·통합 (vitest, 실제 PostgreSQL)
+npm run test:api             # API 단위·통합 226개 (vitest, 실제 PostgreSQL)
 npm run typecheck:api
-npm run test:e2e             # 웹 화면 자동 테스트 (운영 빌드, 가짜 LLM·가짜 그림 엔진). 개발 서버를 켜 둬도 된다
+npm run test:e2e             # 웹 화면 자동 테스트 123개 (운영 빌드, 가짜 LLM·가짜 그림 엔진). 개발 서버를 켜 둬도 된다
 npm run test:e2e:adult-off   # 성인 모드를 끈 서버의 화면
 npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클론에서
 ```
@@ -296,6 +367,8 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 | 다음에 할 일 | [TASKS](docs/TASKS.md) |
 | 소유자가 직접 할 일 | [owner-checklist](docs/guidance/owner-checklist.md) |
 | 구현된 기능 전체 | [FEATURES](docs/FEATURES.md) |
+| 월드코퍼챗 설계·쓰는 법·실측 | [WORLD_COPPERCHAT](docs/plan/WORLD_COPPERCHAT.md) · [world-copperchat](docs/guidance/world-copperchat.md) · [trainings](docs/trainings/world-copperchat.md) |
+| README 그림과 영상, 다시 만드는 법 | [docs/.assets](docs/.assets/README.md) |
 | 스택과 결정 | [CURRENT_STACK](docs/plan/CURRENT_STACK.md) |
 | API | [API_DOCUMENTATION](docs/API_DOCUMENTATION.md) |
 | 구조와 데이터 흐름 | [Architecture](docs/Architecture/overview.md) · [WORKFLOW](docs/WORKFLOW.md) |

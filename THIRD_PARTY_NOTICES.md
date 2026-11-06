@@ -79,7 +79,7 @@
 
 ## 4-1. README 그림과 영상
 
-`docs/assets/readme/`의 스크린샷, GIF, MP4는 이 프로젝트의 앱을 띄워 찍었다(`scripts/readme-media/`). 그 안의 대화는 Gemma 4, 그림은 Animagine XL 4.0·Stable Diffusion 1.5가 만들었다. 인코딩에는 `imageio-ffmpeg`의 ffmpeg를 개발 PC에서만 썼고 저장소와 배포물에 넣지 않는다.
+`docs/.assets/readme/`의 스크린샷, GIF, MP4는 이 프로젝트의 앱을 띄워 찍었다(`scripts/readme-media/`). 그 안의 대화는 Gemma 4, 그림은 Animagine XL 4.0·Stable Diffusion 1.5가 만들었다. 인코딩에는 `imageio-ffmpeg`의 ffmpeg를 개발 PC에서만 썼고 저장소와 배포물에 넣지 않는다.
 
 ## 5. 이 저장소가 지키는 것
 

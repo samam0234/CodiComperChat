@@ -2,6 +2,7 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { adultBlock } from '../account/adult.js';
 import { CampaignStoryService } from '../campaign-state/campaign-story.service.js';
 import { QuestsService } from '../quests/quests.service.js';
 import { ChatStateService } from '../chat-state/chat-state.service.js';
@@ -53,6 +54,15 @@ export class CharacterChatService {
     return userId;
   }
 
+  // 성인 대화를 열 수 있나. 매번 DB에서 다시 본다 — 설정에서 성인 콘텐츠를 끄면 다음 턴부터 곧바로 닫힌다
+  async adultChat(userId: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { birthDate: true, adultConsentAt: true, emailVerifiedAt: true },
+    });
+    return user !== null && adultBlock(user) === null;
+  }
+
   // 대화 맥락은 브라우저가 보낸 기록이 아니라 서버에 저장된 기록으로 만든다 (조작·유실 방지)
   private async prepare(characterId: string, options: PersonaOptions) {
     const userId = await this.resolveUser(options.authorization);
@@ -79,7 +89,8 @@ export class CharacterChatService {
       : [{ role: 'character', text: character.openingScene }];
     const chatState = conversation ? await this.chatState.get(conversation.campaignId) : null;
     const story = conversation ? await this.story.get(conversation.campaignId) : null;
-    return { character, userId, persona, conversation, history, chatState, story };
+    const adult = await this.adultChat(userId);
+    return { character, userId, persona, conversation, history, chatState, story, adult };
   }
 
   async history(characterId: string, authorization?: string) {
@@ -126,6 +137,7 @@ export class CharacterChatService {
     ]);
     const rag = this.personaRag.assemble(character.name, turns);
     const context = buildContextSlice(character, turns, conversation.persona, rag, memories, chatState, [], [], story);
+    context.adult = await this.adultChat(userId);
     return { userId, character, conversation, persona: conversation.persona, context };
   }
 
@@ -184,7 +196,7 @@ export class CharacterChatService {
   // 캐릭터 답 한 번: 모델 고르기 → 횟수·코레딧 잡기 → 답 만들기 (못 만들면 잡은 것을 돌려준다).
   // 보내기·다시 쓰기(/다시)·이어 가기(/계속)가 같이 쓴다. 저장은 부르는 쪽이 한다
   private async compose(prep: Prepared, userTurn: string, requested: string | undefined) {
-    const { character, userId, persona, conversation: existing, history, chatState, story } = prep;
+    const { character, userId, persona, conversation: existing, history, chatState, story, adult } = prep;
     const rag = this.personaRag.assemble(character.name, history, userTurn);
     const memories = await this.memoriesFor(existing, history, userTurn);
     const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
@@ -204,6 +216,7 @@ export class CharacterChatService {
       story,
       questNote,
     );
+    context.adult = adult;
     // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(한도 소진·코레딧 부족·준비 중) 이유와 함께 거절한다
     const model = requested
       ? await this.models.authorize(userId, requested)
@@ -271,13 +284,13 @@ export class CharacterChatService {
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {
-    const { character, persona, conversation, history, chatState, story } = await this.prepare(characterId, options);
+    const { character, persona, conversation, history, chatState, story, adult } = await this.prepare(characterId, options);
     const rag = this.personaRag.assemble(character.name, history);
     const memories = await this.memoriesFor(conversation, history);
     // 대답 추천은 직전 캐릭터 말을 기준으로 엑스트라를 고른다
     const extras = await this.extras.activeFor(conversation, history.slice(0, -1), history.at(-1)?.text ?? '', character.name);
     return postToAi<{ suggestions: string[] }>('/suggest-replies', {
-      context: buildContextSlice(character, history, persona, rag, memories, chatState, extras, [], story),
+      context: { ...buildContextSlice(character, history, persona, rag, memories, chatState, extras, [], story), adult },
       avoid,
     });
   }

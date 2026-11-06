@@ -102,3 +102,7 @@ WebUI 모델 폴더(`models\Stable-diffusion`)에 다른 체크포인트가 있�
 - 실제 엔진 확인은 WebUI를 켜고 대화 화면에서 코디포토넷으로 그려 본다
 - 평가: `python -m evals.photonet_guard`(성인 모드 가드), `python -m evals.image_speed`(단계별 시간). 둘 다 실제 엔진이 필요하고 옷 입은 성인만 그린다
 - 엔진 없이 그리기만 따로 해 볼 때는 먼저 Ollama 모델을 내린다(`keep_alive: 0`). 검수로 올라온 gemma4가 남아 있으면 SDXL이 290초 안에 끝나지 않는다
+
+## 월드코퍼챗 그림과의 관계 (2026-11-06)
+
+월드코퍼챗의 장면 그림·지도는 **제작자가 올리는 그림**이고 그림 엔진으로 그리지 않는다. 같은 자동 검수(`/moderate-image`)만 거친다. README의 월드 화면 그림도 그림 엔진이 아니라 HTML 데모 그림이다.

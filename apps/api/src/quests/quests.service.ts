@@ -64,7 +64,7 @@ export class QuestsService {
     if (!quest) return null;
     const state = await this.stateOf(campaignId);
     if (state?.status === 'done' || !unlocked(quest, valueBefore)) return null;
-    return { offer: quest.offer, objective: quest.objective, offered: state?.status === 'offered' };
+    return { offer: quest.offer, objective: quest.objective, reward: quest.reward, offered: state?.status === 'offered' };
   }
 
   // 판정 결과를 반영한다. 처음 달성했고 공식 캐릭터면 코레딧 보상(계정×캐릭터당 한 번)

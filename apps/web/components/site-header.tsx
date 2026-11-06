@@ -12,6 +12,7 @@ import styles from "./site-header.module.css";
 const HEADER_NAV = [
   { href: "/", label: "홈" },
   { href: "/popular", label: "인기" },
+  { href: "/worlds", label: "월드" },
   { href: "/agents", label: "에이전트" },
 ];
 

@@ -61,6 +61,23 @@ describe('비밀 퀘스트', () => {
     expect(nextQuestState(quest, null, 60, { offered: true, done: true }, now).completedNow).toBe(true);
   });
 
+  it('달성 때 고른 보상 갈래를 상태에 남기고, 그 장면 하나만 지시한다', () => {
+    const offered = { status: 'offered' as const, at: 'a' };
+    const next = nextQuestState(quest, offered, 60, { offered: false, done: true, scene: ' 사직서를 올려 둔다. ' }, now);
+    expect(next.state).toEqual({ status: 'done', at: now.toISOString(), scene: '사직서를 올려 둔다.' });
+    const note = questNote({ ...quest, reward: '혼인이라면: 이름을 부른다. 충돌이라면: 사직서를 올려 둔다.' }, 90, next.state) ?? '';
+    expect(note).toContain('사직서를 올려 둔다.');
+    expect(note).not.toContain('이름을 부른다');
+    expect(note).not.toContain('갈래 하나만');
+    // 고르지 못했으면 전체를 넘기고 고르라고 한다
+    expect(questNote(quest, 90, { status: 'done', at: '' })).toContain('갈래 하나만');
+    // 빈 갈래는 남기지 않는다
+    expect(nextQuestState(quest, offered, 60, { offered: false, done: true, scene: '  ' }, now).state).toEqual({ status: 'done', at: now.toISOString() });
+    // 저장된 값에서도 읽고, 달성 전 상태의 갈래는 무시한다
+    expect(parseQuestState({ status: 'done', at: 'x', scene: '장면' })).toEqual({ status: 'done', at: 'x', scene: '장면' });
+    expect(parseQuestState({ status: 'offered', at: 'x', scene: '장면' })).toEqual({ status: 'offered', at: 'x' });
+  });
+
   it('이미 달성했으면 다시 보상하지 않는다', () => {
     const done = { status: 'done' as const, at: 'a' };
     expect(nextQuestState(quest, done, 90, { offered: true, done: true }, now)).toEqual({ state: done, completedNow: false });

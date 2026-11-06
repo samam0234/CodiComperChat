@@ -11,7 +11,7 @@ export const URLS = {
   api: `http://localhost:${PORTS.api}`,
   ai: `http://127.0.0.1:${PORTS.ai}`,
 };
-export const OUT = join(ROOT, "docs", "assets", "readme");
+export const OUT = join(ROOT, "docs", ".assets", "readme");
 export const TMP = join(ROOT, "e2e", ".tmp", "readme-media");
 export const AUTH_SECRET = "readme-media-only-secret-readme-media-only-secret-1234";
 export const DB_NAME = "codicomperchat_readme";

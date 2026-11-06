@@ -11,7 +11,7 @@ Next.js  apps/web :3000          Next.js  console :3001 (운영자 전용, 따�
   │  proxy.ts: 요청마다 CSP(nonce) · 회원 전용 화면 1차 거름망
   │  서버 컴포넌트·서버 액션만 Nest를 부른다 (API_BASE_URL, Authorization: Bearer)
   ▼
-Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 28개)
+Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 37개)
   │  인증·계정·캐릭터·대화·기억·        ├──▶ 페르소나 지식 JSON (apps/api/data/personas, 파일)
   │  공방·신고·검수·결제·코레딧·        ├──▶ SMTP (메일 발송, MAIL_SMTP_URL)
   │  모델·오퍼레이션·퀘스트·요청 한도   └──▶ 토스페이먼츠 API (결제 승인·취소, 보류)
@@ -28,6 +28,10 @@ Ollama :11434  (gemma4:e4b, 글·그림 읽기)
 
 브라우저 ──▶ 토스 결제창 (js.tosspayments.com) ──▶ /billing/success ──▶ Nest가 승인
 ```
+
+![시스템 구조](../.assets/readme/architecture.png)
+
+2026-11-06부터 1:1 캐릭터 대화와 함께 **월드코퍼챗**(한 세계관 안의 여러 인물)이 같은 네 앱 위에서 돈다. 새 서비스는 없고, Nest `worlds` 모듈과 FastAPI `/world/*` 두 경로가 더해졌다 → [data-flow.md](data-flow.md) "월드코퍼챗".
 
 ## 원칙
 

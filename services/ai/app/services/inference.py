@@ -3,6 +3,7 @@ import re
 from app.schemas.context import ContextSlice
 from app.schemas.infer import InferRequest, InferResponse
 from app.services import llm
+from app.services.minors import minor_in
 
 MAX_OUTPUT_TOKENS = 1200
 
@@ -13,6 +14,72 @@ MESSAGE_STYLE = """지금은 장면 속 대화가 아니라 휴대폰 메신저�
 - 얼굴을 보고 있지 않으므로 지금 같은 장소에 있는 것처럼 말하지 않는다."""
 # 외부 공급자의 사용 정책(Anthropic은 성적 콘텐츠 생성 금지)에 맞춘다. 로컬 모델 대화에는 붙이지 않는다
 EXTERNAL_PROVIDER_RULE = "성적으로 노골적인 묘사는 쓰지 않는다. 장면이 그쪽으로 흐르면 캐릭터답게 분위기를 돌리거나 시간을 건너뛴다."
+
+# 수위 (2026-11-06 사용자 결정: 계정 설정 하나로 켜고, 성인끼리 합의한 노골적 묘사까지 허용).
+# 전체 이용가가 기본이다. 성인 대화는 로컬 모델에서만 연다 — 외부 공급자는 각자 정책(EXTERNAL_PROVIDER_RULE)을 따른다.
+# 실측(gemma4:e4b, 운영자 허용 문구 없이도 성인 장면 요청 거절 0/12)이라 학습 없이 지시로 연다.
+ALL_AGES_RULE = "수위: 전체 이용가. 성적인 묘사는 쓰지 않는다. 장면이 그쪽으로 흐르면 캐릭터답게 분위기를 돌리거나 시간을 건너뛴다."
+ADULT_RULE = """수위: 성인. 이 대화는 성인 확인(생년월일·동의·이메일 인증)을 마친 이용자가 직접 켠 성인 전용 창작 롤플레이다.
+- 성인끼리 서로 원해서 하는 연애·성적 장면은 이야기의 흐름에 따라 캐릭터답게, 필요하면 노골적으로 묘사해도 된다. 장면을 갑자기 건너뛰거나 거절하거나 AI라고 말하며 이야기를 끊지 않는다.
+- 수위는 유저가 이끄는 만큼만 올린다. 유저가 원하지 않은 성적 전개를 먼저 밀어붙이지 않는다.
+- 캐릭터의 말투와 성격은 성인 장면에서도 그대로다.
+- 두 사람이 연인이거나 관계가 아주 가까운데 유저가 다가오면, 캐릭터는 자기 성격대로(수줍게, 무뚝뚝하게, 장난스럽게) 받아들이며 장면을 이어 간다. "곤란하다", "안 된다"로 장면을 막는 것은 지금 이야기에 분명한 이유(다툼, 위험, 들킬 상황)가 있을 때만이다.
+- 받아들일 때는 말로만 망설이고 끝내지 말고, 캐릭터가 실제로 무엇을 하고 어떻게 느끼는지(행동·감각·숨결·표정)를 *별표*로 구체적으로 써서 장면을 한 걸음 진행한다. 이런 장면에서는 위의 "2~4문장" 대신 4~8문장까지 써도 된다.
+- 어떤 경우에도 쓰지 않는 것: 미성년자이거나 어려 보이는 인물, 강제·협박·의식이 없거나 거부하는 상대, 성과 폭력을 결합한 장면, 실존 인물, 동물. 유저가 이쪽으로 이끌면 캐릭터답게 단호히 거절하고 장면을 돌린다."""
+
+
+def _minor_hint(context: ContextSlice, user_turn: str) -> str | None:
+    """성인 대화에서도 미성년자 단서가 보이면 성인 수위를 열지 않는다. 카드·프로필·최근 대화·이번 말을 본다."""
+    persona = context.user_persona
+    texts = [
+        context.character.summary,
+        context.director_note,
+        persona.description if persona else None,
+        user_turn,
+        *(t.text for t in context.recent_turns[-6:]),
+    ]
+    for text in texts:
+        if hit := minor_in(text):
+            return hit
+    return None
+
+
+# 상대가 원하지 않는다는 단서. 성인 장면을 진행하라는 지시를 넣자 "저항하다 결국 받아들이는" 답이 나왔다(2026-11-06 실측) —
+# 모델 판단에 맡기지 않고 코드가 찾아, 그 턴은 성적 진행을 막고 분명히 거부하게 한다. 넓게 잡는다
+COERCION = re.compile(
+    r"(억지로|강제로|강제|강간|겁탈|덮치|성폭|협박|싫다(는|며|고|잖)|싫어하는데|거부하는|그만하라(는|고)|하지 말라(는|고)|"
+    r"안 된다(는데|고 하는데)|원하지 않는데|밀어내|뿌리치|저항하|반항하|발버둥|"
+    r"(손|손목|팔|발|몸)(을|를|이|가)?\s?([가-힣]+로\s?)?묶|결박|재갈|기절|정신을 잃|의식(이|을) 잃|잠든|잠들어 있|술에 취해|취한 (틈|채)|약을 (먹|타)|수면제|"
+    r"\b(force[ds]?|rape\w*|non-?con\w*|unconscious|drugged)\b)",
+    re.I,
+)
+
+
+def coercion_in(text: str | None) -> str | None:
+    if text and (m := COERCION.search(text)):
+        return m.group(0).strip()
+    return None
+
+
+def rating_rule(context: ContextSlice, user_turn: str, provider: str) -> str:
+    """이번 답의 수위 규칙. 외부 공급자는 성인이어도 EXTERNAL_PROVIDER_RULE(run에서 붙인다)을 따른다.
+    강제 단서는 수위와 상관없이 먼저 본다 — 이번 말과 직전 유저 말 두 개."""
+    recent_user = [t.text for t in context.recent_turns if t.role == "user"][-2:]
+    for text in (user_turn, *recent_user):
+        if hit := coercion_in(text):
+            return (
+                f"수위: 이번 장면에는 상대가 원하지 않는다는 단서('{hit}')가 있다. 성적인 장면으로 진행하지 않는다. "
+                "캐릭터는 말과 행동으로 분명히 거부하고(뿌리치기, 물러서기, 그만하라고 말하기) 장면을 멈춘다. "
+                "저항하다가 결국 받아들이거나 힘이 빠져 몸을 맡기는 식으로 쓰지 않는다."
+            )
+    if not context.adult or provider != "ollama":
+        return ALL_AGES_RULE
+    if hit := _minor_hint(context, user_turn):
+        return (
+            f"수위: 이 대화에는 미성년자로 볼 수 있는 단서('{hit}')가 있어 성적인 묘사를 하지 않는다. "
+            "장면이 그쪽으로 흐르면 캐릭터답게 단호히 선을 긋고 분위기를 돌린다."
+        )
+    return ADULT_RULE
 # 낮출수록 설정에서 덜 벗어난다. 캐릭터 연기의 생기를 잃지 않는 선에서 기본값(0.8)보다 살짝 낮춘다
 TEMPERATURE = 0.7
 
@@ -31,7 +98,8 @@ GROUNDING_RULES = """답할 때 반드시 지킬 것:
      답:
      @: 해가 저물고, 도서관 앞 가로등이 하나둘 켜진다.
      *가방끈을 고쳐 메며* "벌써 이렇게 됐네요."
-   - 평범하게 말을 주고받는 중이면 나레이션을 쓰지 않는다. 나레이션은 한두 줄로 짧게 쓰고, 유저(주인공)의 말·행동·속마음을 대신 정하지 않는다."""
+   - 장면이 바뀌지 않고 말을 주고받는 중이면(주문, 질문, 잡담) "@:" 줄을 한 줄도 쓰지 않는다. 그때 소리·향·분위기는 캐릭터의 행동 묘사(*별표*) 안에 녹인다.
+   - 나레이션은 한두 줄로 짧게 쓰고, 유저(주인공)의 말·행동·속마음을 대신 정하지 않는다."""
 
 
 def _extras_block(context: ContextSlice) -> str:
@@ -221,11 +289,37 @@ def _fill_user(text: str, name: str) -> str:
     return _USER_TOKEN.sub(lambda _: name, text)
 
 
+# 유저의 장면 지시: (괄호) 안이 이만큼은 돼야 한다 — "(웃음)", "(ㅋㅋ)" 같은 짧은 추임새는 장면 지시로 보지 않는다
+_SCENE_DIRECTION = re.compile(r"[(（]([^()（）]{6,200})[)）]")
+
+
+def scene_directions(user_turn: str) -> list[str]:
+    """유저 말 속 장면 지시(괄호). 별표 안의 괄호는 유저 행동 묘사의 일부라 뺀다."""
+    outside = re.sub(r"\*[^*]*\*", " ", user_turn)
+    return [m.strip() for m in _SCENE_DIRECTION.findall(outside) if len(re.sub(r"\s", "", m)) >= 6]
+
+
+def _narration_directive(directions: list[str]) -> str:
+    """장면 지시가 있는 턴에만 붙인다 (2026-11-06).
+    규칙 8만으로는 정전·날씨처럼 시간·장소가 아닌 전환에서 나레이션을 자주 빼먹었다(평가 7/12).
+    작은 모델은 맨 끝의 구체적인 지시를 잘 따르므로, 이번 턴의 지시 문장을 그대로 보여 주며 첫 줄을 정해 준다."""
+    quoted = " / ".join(f"({d})" for d in directions)
+    return (
+        f"이번 답의 형식: 유저가 장면 지시 {quoted}로 장면을 바꿨다. "
+        "답의 첫 줄은 반드시 '@: '로 시작하는 3인칭 나레이션 한 줄로, 그 지시로 바뀐 시간·장소·날씨·주변 상황을 보여 준다. "
+        "둘째 줄부터 캐릭터의 행동(*별표*)과 대사를 쓴다. 나레이션에 유저(주인공)의 말이나 속마음을 지어 넣지 않는다."
+    )
+
+
 def run(request: InferRequest) -> InferResponse:
     user_name = request.context.user_persona.name if request.context.user_persona else "유저"
     system = _fill_user(_build_system_prompt(request.context), user_name)
+    # 수위는 대화 규칙 뒤, 이번 턴 지시(나레이션·보상 장면) 앞에 둔다
+    system += "\n\n" + rating_rule(request.context, request.user_turn, request.provider)
     if request.channel == "message":
         system += "\n\n" + MESSAGE_STYLE
+    elif directions := scene_directions(request.user_turn):
+        system += "\n\n" + _narration_directive(directions)
     if request.context.scene_note:
         system += "\n\n이번 답에서 꼭 할 일: " + _fill_user(request.context.scene_note, user_name)
     if request.retry_note:

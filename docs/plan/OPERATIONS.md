@@ -22,6 +22,10 @@
 | 공방 AI 초상 한 장 | 25 (2026-10-25 사용자 결정, 오퍼레이션은 아니지만 같은 코레딧) |
 | 메시지 | 받지 않음(대화와 같다) |
 
+### 월드코퍼챗 이벤트 보상 (2026-11-06 사용자 결정)
+
+오퍼레이션처럼 코레딧을 **쓰는** 것이 아니라 **받는** 것이다. 승리 20~50, 패배 5~10, 계정당 한국 시각 하루 3번까지(콘솔에서 0~20). 장부 사유 `EVENT`, `modelId = event:종류`. 월드 진행 자체는 기본 모델 사용량을 쓴다(코레딧 차감 없음, 기본 모델 하루 한도 규칙을 따름). 정본 [WORLD_COPPERCHAT.md](WORLD_COPPERCHAT.md) 3.6.
+
 ## 심리 탐구 (`/characters/:id/chat/mind`)
 
 상대가 생각하는 머릿속을 본다. 지금 대화 장면을 바탕으로 캐릭터의 **1인칭 속마음 독백**(3~5문장, 겉으로 한 말과 달라도 된다), **지금 감정**(짧은 말), **나(주인공)에 대해 드는 생각** 한 문장을 쓴다. 엿본 것은 `mind_readings`에 쌓이고 최근 것부터 보인다.
@@ -109,6 +113,7 @@
 - 서버가 매번 DB에서 성인 확인을 다시 본다: 동의를 거두면 성인 그림은 목록·본문 모두에서 곧바로 사라지고(404) 성인 모드 만들기는 403
 - 만든 사람은 그림·웹툰을 신고할 수 있다. 운영 콘솔 「그림 신고」에서 보고 접근을 막거나(만든 사람에게도 안 보임) 계정을 정지한다
 - 체크포인트는 그대로(Animagine XL 4.0·SD 1.5). WebUI 폴더의 다른 성인용 모델은 쓰지 않는다
+- **대화 수위(2026-11-06 사용자 결정: 계정 설정 하나로, 성인끼리 합의한 노골적 묘사까지, 학습하지 않음)**: 성인 확인·동의를 마친 계정은 모든 대화가 성인 수위다. Nest가 매 턴 DB로 다시 보고 `context.adult`를 붙인다. 성인 수위는 로컬 모델에서만 열고 프리미엄 공급자는 각자 정책을 따른다. 카드·프로필·대화에 미성년자 단서가 있거나 이번·직전 유저 말에 강제 단서가 있으면 그 턴은 성적 진행을 막는다. 출력 검사는 없다. 측정: [../trainings/adult-chat.md](../trainings/adult-chat.md)
 
 - API: `GET /characters/:id/chat/ops/photonet` (`{ ready, cost, balance, styles, ratios, images }`), `POST .../photonet` (`{ prompt, style, ratio, rating?, messageId? }` → `{ image, balance, cast }`), `POST|DELETE /auth/me/adult` (성인 확인·끄기), `GET .../photonet/:imageId` (그림 본문), `POST /characters/:id/content-reports` (그림·웹툰 신고), `GET|POST /admin/content-reports` (운영자 검토·차단)
 - AI: `GET /photonet/status`, `POST /photonet`

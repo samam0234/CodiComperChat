@@ -38,12 +38,24 @@ type(scope): 한국어 한 줄 요약
 
 새 scope가 필요하면 실제 코드 구조(`apps/`, `services/`)에 맞춰 추가하고, 이 표에도 반영한다.
 
+### 2026-11-06에 더 쓴 scope
+
+`worlds`(Nest 월드코퍼챗), `world`(여러 앱에 걸친 월드 고침), `web`·`console`·`ai`(앱 단위 기능), `assets`(docs/.assets), `agents`(에이전트 어댑터), `trainings`(실측 문서), `readme`, `quests`.
+
 ## 예시
 
 ✅ `feat(ai): 세션 요약 스트리밍 응답 추가`
 ✅ `fix(api): 캠페인 상태 머지 시 훅 중복 저장 수정`
 ❌ `feat(api): add campaign endpoint` — 요약이 영어라 금지
 ❌ `작업함` — type/scope 없음, 요약 없음
+
+### 2026-11-06 예시
+
+```text
+feat(worlds): 월드코퍼챗 DB와 세계관·플레이·이벤트 API 추가
+fix(world): 변형 제어 줄 버리기와 코퍼맵 핀 잘림 고침
+docs(assets): docs/assets를 docs/.assets로 옮김
+```
 
 ## 바닥글의 `Co-Authored-By`
 

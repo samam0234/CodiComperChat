@@ -12,7 +12,7 @@
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
-| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 28개·마이그레이션 33개 · [DATABASE.md](DATABASE.md) |
+| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 37개·마이그레이션 34개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
@@ -52,6 +52,14 @@
 | 화면 디자인 | "밤하늘 아래 이어지는 이야기" — 보라·분홍 그라데이션, 라이트·다크 두 벌 | [DESIGN.md](DESIGN.md) |
 | 테스트 | API vitest(단위·통합, 실제 PostgreSQL·SMTP 포함), 웹 Playwright e2e(운영 빌드, 가짜 LLM·가짜 결제·가짜 그림 엔진), AI unittest, AI 품질 평가(`services/ai/evals`, 실제 모델) | [TESTING.md](TESTING.md) |
 | CI | GitHub Actions(`.github/workflows/ci.yml`), 내 PC에서 같은 단계 재현 `npm run ci:local` | [TESTING.md](TESTING.md) "CI" |
+
+### 2026-11-06에 정한 것
+
+| 항목 | 결정 | 정본 |
+|------|------|------|
+| 월드코퍼챗 | 기획 원본 밖의 새 기능(사용자 요청). 누구나 만들고 공개 범위 선택, 이벤트는 서버가 확률로, 보상 하루 3회 | [WORLD_COPPERCHAT.md](WORLD_COPPERCHAT.md) |
+| 대화 수위 | 계정 설정 하나로 성인 수위, 노골적 묘사까지, 학습하지 않음, 성인 수위는 로컬 모델에서만 | [../trainings/adult-chat.md](../trainings/adult-chat.md) |
+| 운영 설정 저장 | 환경변수가 아니라 DB `app_settings`(콘솔에서 바꿈) | [DATABASE.md](DATABASE.md) |
 
 ## 아직 열린 항목 (계획서 §15 "아직 열린 것")
 

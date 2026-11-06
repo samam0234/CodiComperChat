@@ -321,5 +321,27 @@
 | 2026-11-06 | `8ba8f7e` | main (merge) | develop into main | [261106_0416_8ba8f7e_merge-develop-into-main-4_main.md](commits/261106_0416_8ba8f7e_merge-develop-into-main-4_main.md) |
 | 2026-11-06 | `f01355e` | feature/readme-badges | 링크 달린 로고 배지와 그림 확대 링크 추가 | [261106_0419_f01355e_readme-badges_feature-readme-badges.md](commits/261106_0419_f01355e_readme-badges_feature-readme-badges.md) |
 | 2026-11-06 | `e756cf1` | main (merge) | develop into main | [261106_0420_e756cf1_merge-develop-into-main-5_main.md](commits/261106_0420_e756cf1_merge-develop-into-main-5_main.md) |
+| 2026-11-06 | `569a63d` | feature/narration-reward-scene | 장면 지시가 있는 턴에 나레이션 형식 지시 추가 | [261106_0526_569a63d_narration-directive_feature-narration-reward-scene.md](commits/261106_0526_569a63d_narration-directive_feature-narration-reward-scene.md) |
+| 2026-11-06 | `c9b6243` | feature/narration-reward-scene | 달성 판정 때 보상 장면 갈래를 골라 그 장면만 넘김 | [261106_0526_c9b6243_reward-scene-branch_feature-narration-reward-scene.md](commits/261106_0526_c9b6243_reward-scene-branch_feature-narration-reward-scene.md) |
+| 2026-11-06 | `398928b` | feature/narration-reward-scene | 나레이션·보상 장면 고친 과정과 실측 기록 | [261106_0526_398928b_docs-narration-reward_feature-narration-reward-scene.md](commits/261106_0526_398928b_docs-narration-reward_feature-narration-reward-scene.md) |
+| 2026-11-06 | `8da2cd7` | feature/adult-chat | 대화 수위와 성인 대화 추가 | [261106_0626_8da2cd7_adult-chat_feature-adult-chat.md](commits/261106_0626_8da2cd7_adult-chat_feature-adult-chat.md) |
+| 2026-11-06 | `884c239` | feature/agent-adapters | 공동 작업자용 에이전트 어댑터 폴더 7개 추가 | [261106_0647_884c239_agent-adapters_feature-agent-adapters.md](commits/261106_0647_884c239_agent-adapters_feature-agent-adapters.md) |
+| 2026-11-06 | `9a2781c` | feature/world-core | 월드코퍼챗 진행자와 파트 판정 추가 | [261106_1457_9a2781c_world-ai_feature-world-core.md](commits/261106_1457_9a2781c_world-ai_feature-world-core.md) |
+| 2026-11-06 | `411afb5` | feature/world-core | 월드코퍼챗 DB와 세계관·플레이·이벤트 API 추가 | [261106_1458_411afb5_world-api_feature-world-core.md](commits/261106_1458_411afb5_world-api_feature-world-core.md) |
+| 2026-11-06 | `49a788e` | feature/world-core | 월드코퍼챗 목록·소개·편집기·플레이 화면 추가 | [261106_1518_49a788e_world-web_feature-world-core.md](commits/261106_1518_49a788e_world-web_feature-world-core.md) |
+| 2026-11-06 | `348391e` | feature/world-core | 월드코퍼챗 운영 화면과 e2e 시험 추가 | [261106_1518_348391e_world-console_feature-world-core.md](commits/261106_1518_348391e_world-console_feature-world-core.md) |
+| 2026-11-06 | `e273715` | feature/docs-assets-rename | docs/assets를 docs/.assets로 옮김 | [261106_1522_e273715_assets-rename_feature-docs-assets-rename.md](commits/261106_1522_e273715_assets-rename_feature-docs-assets-rename.md) |
+| 2026-11-06 | `7fe2ed3` | feature/readme-world | 변형 제어 줄 버리기와 코퍼맵 핀 잘림 고침 | [261106_1536_7fe2ed3_world-control-fix_feature-readme-world.md](commits/261106_1536_7fe2ed3_world-control-fix_feature-readme-world.md) |
+| 2026-11-06 | `4fe8b75` | feature/readme-world | 월드코퍼챗 화면·도표와 그림 폴더 안내 추가 | [261106_1536_4fe8b75_readme-world-media_feature-readme-world.md](commits/261106_1536_4fe8b75_readme-world-media_feature-readme-world.md) |
+| 2026-11-06 | `cda9e88` | feature/docs-overhaul-world | 월드코퍼챗 정본·사용 안내·실측 문서 추가 | [261106_1543_cda9e88_docs-world-core_feature-docs-overhaul-world.md](commits/261106_1543_cda9e88_docs-world-core_feature-docs-overhaul-world.md) |
+| 2026-11-06 | `5881260` | feature/docs-overhaul-world | 월드코퍼챗과 2026-11-06 변경을 docs 전체에 반영 | [261106_1543_5881260_docs-overhaul-world_feature-docs-overhaul-world.md](commits/261106_1543_5881260_docs-overhaul-world_feature-docs-overhaul-world.md) |
+| 2026-11-06 | `a3d5554` | feature/docs-overhaul-world | 앱별 README와 보안·에이전트 문서에 월드코퍼챗 추가 | [261106_1543_a3d5554_docs-apps-world_feature-docs-overhaul-world.md](commits/261106_1543_a3d5554_docs-apps-world_feature-docs-overhaul-world.md) |
+| 2026-11-06 | `6202461` | develop (merge) | feature/narration-reward-scene into develop | [261106_1551_6202461_merge-narration-reward-scene_develop.md](commits/261106_1551_6202461_merge-narration-reward-scene_develop.md) |
+| 2026-11-06 | `dfaff58` | develop (merge) | feature/adult-chat into develop | [261106_1551_dfaff58_merge-adult-chat_develop.md](commits/261106_1551_dfaff58_merge-adult-chat_develop.md) |
+| 2026-11-06 | `6651b8f` | develop (merge) | feature/agent-adapters into develop | [261106_1551_6651b8f_merge-agent-adapters_develop.md](commits/261106_1551_6651b8f_merge-agent-adapters_develop.md) |
+| 2026-11-06 | `bc7793a` | develop (merge) | feature/world-core into develop | [261106_1551_bc7793a_merge-world-core_develop.md](commits/261106_1551_bc7793a_merge-world-core_develop.md) |
+| 2026-11-06 | `dfdffd4` | develop (merge) | feature/docs-assets-rename into develop | [261106_1551_dfdffd4_merge-docs-assets-rename_develop.md](commits/261106_1551_dfdffd4_merge-docs-assets-rename_develop.md) |
+| 2026-11-06 | `835019c` | develop (merge) | feature/readme-world into develop | [261106_1551_835019c_merge-readme-world_develop.md](commits/261106_1551_835019c_merge-readme-world_develop.md) |
+| 2026-11-06 | `4a0b4a4` | develop (merge) | feature/docs-overhaul-world into develop | [261106_1551_4a0b4a4_merge-docs-overhaul-world_develop.md](commits/261106_1551_4a0b4a4_merge-docs-overhaul-world_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

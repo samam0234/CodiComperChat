@@ -90,6 +90,27 @@ flowchart TD
 - 환경변수: [../../docs/guidance/environment.md](../../docs/guidance/environment.md)
 - 보안 장치와 공개 전 필수: [../../SECURITY.md](../../SECURITY.md)
 
+## 월드코퍼챗 모듈 (`src/worlds`, 2026-11-06)
+
+```mermaid
+flowchart TB
+  C1[WorldsController /worlds] --> S1[WorldsService 만들기·보기·그림]
+  C1 --> S2[WorldPlayService 시작·턴·파트·이벤트]
+  C2[AdminWorldsController /admin/world*] --> S3[AdminWorldsService]
+  S2 --> S4[WorldSettingsService app_settings]
+  S3 --> S4
+  S1 --> PR[PortraitReviewService 자동 검수]
+  S2 --> MS[ModelsService 기본 모델 사용량]
+  S2 --> AI[(FastAPI /world/turn · /world/part-check)]
+  S1 & S2 & S3 --> DB[(Prisma: worlds·world_*·app_settings)]
+  W[world.ts 순수 함수] -.-> S1 & S2
+```
+
+- **결과는 서버가 정한다.** 미니게임 판정(`resolveEvent`), 보상 금액(`rewardFor`, `crypto.randomInt`), 숨긴 값은 `setup` JSON에만 두고 `publicView`로 화면에 보낼 것만 고른다.
+- **보상 한도**는 `pg_advisory_xact_lock(hashtext('world-event:'+userId))` 안에서 센다. `status = OPEN`인 행만 바꿔 같은 이벤트 두 번 받기를 막는다.
+- 시험: `world.spec.ts` 15개 + e2e `worlds.spec.ts` 6개. API 전체 226개(파일 30개).
+- 정본 [../../docs/plan/WORLD_COPPERCHAT.md](../../docs/plan/WORLD_COPPERCHAT.md).
+
 ## 도구
 
 `apps/api/scripts/`(루트에서 `npm run <이름> --workspace api -- …`): `user:role`(운영자 지정) · `user:plan`(등급) · `persona:build`·`persona:search`(캐릭터 지식) · `billing:check`(토스 연결) · `mail:check`(메일). `prisma:seed`는 공식 캐릭터(유지성, 비밀 퀘스트 포함)를 맞춘다.

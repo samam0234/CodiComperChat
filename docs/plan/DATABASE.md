@@ -13,7 +13,7 @@
 
 ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추론에 필요한 슬라이스만 Nest가 조립해 넘긴다.
 
-## 테이블 (28개)
+## 테이블 (37개)
 
 공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.
 
@@ -64,6 +64,22 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 ### 파일로 두는 것 (DB 밖)
 
 - 페르소나 지식 JSON: `apps/api/data/personas/*.json` (git 제외, 발행하면 공방이 만든다) · [`apps/api/data/personas/README.md`](../../apps/api/data/personas/README.md)
+
+### 월드코퍼챗 (2026-11-06, 9개)
+
+| 테이블 | 무엇 | 지울 때 |
+|--------|------|---------|
+| `worlds` | 세계관. 지도 그림(`map` bytea), 공개 범위, 내린 기록 | 만든 사람 계정이 지워지면 `ownerId`만 비운다 |
+| `world_cast` | 등장인물. `characterId`(데려온 캐릭터, 지우면 비움) | 세계관과 함께 |
+| `world_places` | 코퍼맵 장소 핀(x·y 0~100) | 〃 |
+| `world_parts` | 파트(제목·목표·시작 글) | 〃 |
+| `world_images` | 장면 그림(bytea), 이름표 고유, 검수 상태, 막힘 | 〃 |
+| `world_plays` | 계정×세계관 하나. 파트 위치, 인물 위치(JSON), 턴 수, 이벤트 결과 한 줄 | 계정·세계관과 함께 |
+| `world_messages` | 플레이 메시지(USER·CHARACTER·SYSTEM), 장면 그림 id | 플레이와 함께 |
+| `world_events` | 미니게임. `setup`(숨긴 값), `outcome`, 보상, `rewardDay`(한국 시각) | 〃 |
+| `app_settings` | 운영 설정 키·값(JSON). 지금은 `world` 하나 | — |
+
+열거형: `WorldMode`, `WorldEventKind`, `WorldEventStatus` 새로, `CreditReason`에 `EVENT`, `ContentTarget`에 `WORLD`. 마이그레이션은 DB 없이 스키마 차이(`prisma migrate diff`)로 만들었다.
 
 ## 마이그레이션
 

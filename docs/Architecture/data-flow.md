@@ -52,7 +52,7 @@ Nest가 CampaignState에 델타 머지 — 자유 산문으로 덮어쓰지 않�
 열림      정리 전 친밀도 ≥ unlockAt 일 때만 판정을 받는다 (그 아래의 판정은 무시)
 건넴      캐릭터가 부탁을 실제로 꺼냈나 (후보 → 전용 판정: 인용 근거가 캐릭터 대사에 그대로 있고 확신 85 이상)
 달성      건넨 뒤 유저가 달성 조건을 해냈나 (같은 방식, 근거는 유저 대사)
-보상      달성 직후 첫 답에 보상 장면 한 번(staged). 공식 캐릭터는 100 코레딧 — quest_rewards(계정×캐릭터) 기본키로 한 번만
+보상      달성 직후 첫 답에 보상 장면 한 번(staged). 갈래가 여럿이면 달성 판정 때 고른 갈래(questState.scene)만. 공식 캐릭터는 100 코레딧 — quest_rewards(계정×캐릭터) 기본키로 한 번만
 공개      GET /characters/:id/chat/quest: 건네기 전(locked)엔 제목·내용을 주지 않는다. 공개 캐릭터 응답에는 quest가 없다
 ```
 
@@ -132,6 +132,30 @@ AI 초안       칸 하나씩 /draft-field, 비밀 퀘스트는 /draft-quest로 
       PENDING→PAID로 바꾼 쪽만 프로 기간 연장 (새로고침·동시 요청에도 한 번)
 환불: 운영 콘솔 /users → 토스 cancel 성공 뒤에만 REFUNDED + 기간 되돌림
 ```
+
+## 월드코퍼챗 (2026-11-06)
+
+![월드코퍼챗 한 턴](../.assets/readme/world-flow.png)
+
+```text
+시작   POST /worlds/:id/play {personaId}
+       → world_plays(계정×세계관 하나, 프로필 이름·소개를 복사), locations = 인물별 처음 있는 곳
+       → world_messages: 첫 장면(CHARACTER) · "1부 · 제목"(SYSTEM) · 파트 시작 글(@:)
+턴     POST …/play/turn {text}
+       → 열린 world_events는 EXPIRED
+       → /world/turn (최근 16개, storySoFar, 지금 파트, 성인 여부, eventNote)
+       → 제어 줄 검사 → imageId, locations 갱신
+       → world_messages에 USER·CHARACTER 두 줄 (createdAt 1ms 차이로 순서 고정)
+       → turns % 3 == 0 이면 /world/part-check → partIndex+1, SYSTEM 메시지, storySoFar에 근거
+       → shouldStartEvent면 world_events(OPEN, setup에 숨긴 값) 만들고 turnsSinceEvent = 0
+이벤트 POST …/play/events/:id {입력}
+       → 10분 지났으면 EXPIRED + 409
+       → resolveEvent(setup, 입력)로 승패 · rewardFor로 금액
+       → 트랜잭션: 계정 잠금 → OPEN인 행만 WON/LOST → 오늘 받은 수 < 한도면 rewarded, users.credits 증가, credit_ledger(EVENT)
+       → world_plays.eventNote = "이안이(가) … 이겼다 (보상 35 코레딧)" → 다음 턴 진행자 프롬프트 끝
+```
+
+그림과 지도는 올릴 때 `/moderate-image` 자동 검수를 거친다. 통과 → 바로 보임, 애매 → `PENDING`(만든 사람만 봄, 콘솔 검수), 막힘 → 400. 진행자에게는 `APPROVED`이고 막히지 않은 그림의 이름표만 간다.
 
 ## 왜 원문 전체를 매번 안 넣는가
 

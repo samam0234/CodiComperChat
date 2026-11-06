@@ -1,0 +1,115 @@
+.figure {
+  margin: 0;
+}
+
+.map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  /* 위쪽 핀의 이름표가 잘리지 않게 넘침을 보인다 (그림·격자는 모서리를 따로 둥글린다) */
+  overflow: visible;
+  margin-top: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.pickable {
+  cursor: crosshair;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  user-select: none;
+}
+
+.grid {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px),
+    var(--gradient-soft);
+  background-size: 10% 10%, 10% 10%, cover;
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--accent);
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-45deg);
+  order: 3;
+}
+
+.occupied .dot {
+  background: var(--pink);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.selected .dot {
+  outline: 3px solid var(--accent-soft);
+}
+
+.label {
+  order: 1;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.people {
+  order: 2;
+  max-width: 140px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--pink-soft);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caption {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+    transform: rotate(-45deg) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .occupied .dot {
+    animation: none;
+  }
+}

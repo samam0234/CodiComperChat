@@ -22,6 +22,10 @@ Guard(요청 한도 → AuthGuard → AdminGuard) → Controller → Service →
 
 통신은 camelCase. Nest가 보내는 모양과 `services/ai/app/schemas/`의 Pydantic 계약이 같아야 한다(계획서 §7.5 "세 곳에서 다른 필드명" 경고). 새 필드를 만들 때는 ai 스키마의 이름을 그대로 따른다.
 
+### 월드코퍼챗 (Nest, 2026-11-06)
+
+`src/worlds/`: 컨트롤러 둘(이용자·운영자) → 서비스 넷(`WorldsService` 만들기·보기, `WorldPlayService` 플레이·이벤트, `WorldSettingsService` 운영 설정, `AdminWorldsService`) → Prisma. 판단이 필요한 순수 로직(문서 검사, 공개 범위, 미니게임 판정, 보상 금액, 이벤트 조건, 답 조각 나누기)은 `world.ts` 한 파일에 모아 DB 없이 시험한다. 그림 검수는 공방의 `PortraitReviewService`를 그대로 쓴다.
+
 ## FastAPI (`services/ai`)
 
 ```text
@@ -45,6 +49,10 @@ Route (app/routes) → Service (app/services) → llm.generate → Ollama /api/c
 
 서비스 토큰: `AI_SERVICE_TOKEN`이 있으면 그 헤더(`x-ai-token`)가 맞는 요청만, 없으면 루프백만 받는다(`services/ai/app/internal_auth.py`). 단위 시험은 `services/ai/tests`(unittest), 모델 품질은 `evals`가 실제 모델로 잰다.
 
+### 월드코퍼챗 (FastAPI, 2026-11-06)
+
+`app/services/world.py`: `build_system`(진행자 프롬프트), `parse_controls`(제어 줄 검사), `turn`, `part_check`(근거 인용 확인). 수위 규칙은 `inference.py`의 `ADULT_RULE`·`ALL_AGES_RULE`·`coercion_in`과 `minors.py`를 같이 쓴다. DB를 보지 않는다.
+
 ## Next.js (`apps/web`)
 
 ```text
@@ -54,6 +62,10 @@ proxy.ts (CSP·1차 거름망) → 서버 컴포넌트(page.tsx) ── lib/*.ts
 
 - `lib/*`는 `server-only`. 브라우저 코드는 Nest 주소도 토큰도 모른다
 - 권한 확인은 세 겹: `proxy.ts`(쿠키 유무) → `requireUser()`(Nest에 토큰 검증) → Nest `AuthGuard`
+
+### 월드코퍼챗 (Next, 2026-11-06)
+
+`app/worlds/`: 서버 컴포넌트가 `lib/worlds.ts`로 Nest를 읽고, 편집기·플레이·이벤트 창은 클라이언트 컴포넌트가 `/api/worlds/*` 중계를 부른다. 코퍼맵(`copper-map.tsx`)은 소개·편집기·플레이가 같이 쓴다. 그림은 올리기 전에 브라우저에서 줄인다(`shrink-image.ts`).
 
 ## 공통 원칙
 

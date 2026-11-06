@@ -42,6 +42,18 @@ git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
 
 브랜치를 쌓아 작업했으면 아래 브랜치부터 순서대로 병합한다.
 
+## 쌓인 브랜치 병합 (2026-11-06에 쓴 방식)
+
+작업이 이어질 때는 다음 브랜치를 앞 브랜치 위에서 만들었다(예: `feature/world-core` 위의 `feature/docs-assets-rename`). 병합은 **쌓인 순서대로** 하나씩 `develop`에 `--no-ff`로 한다. 앞 브랜치를 먼저 병합하면 뒤 브랜치의 병합 커밋에는 그 브랜치에서만 생긴 커밋이 들어간다.
+
+```bash
+git checkout develop
+for b in feature/a feature/b feature/c; do git merge --no-ff "$b" -m "merge: $b into develop" || break; done
+# 병합 커밋을 다 만든 뒤 기록을 남긴다 (병합과 기록 커밋을 한 명령으로 묶지 않는다)
+```
+
+`git checkout -b`가 `couldn't set 'HEAD'`로 실패하면 브랜치만 만들어지고 HEAD는 그대로일 수 있다. 커밋 전에 `git branch --show-current`로 확인한다(2026-11-06에 한 번 겪었다).
+
 ## 이 프로젝트가 아직 git 저장소가 아닐 때
 
 `git init` → 초기 커밋 → `develop` 브랜치 생성까지는 사용자 승인 후 진행한다. 저장소를 새로 만드는 것은 되돌리기 쉬운 작업이지만, 브랜치 전략을 실제로 적용하는 시점(첫 feature 브랜치 생성 등)은 사용자와 먼저 맞춘다.

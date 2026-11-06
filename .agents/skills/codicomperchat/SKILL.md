@@ -1,7 +1,7 @@
 # 코디컴퍼챗(CodiComperChat) 에이전트 협업 스킬 — 정본
 
 이 문서는 모든 AI 에이전트(Claude, Grok, Cursor, Codex, Antigravity 등)가 이 저장소에서 작업할 때 따라야 하는 **정본 규칙**이다.
-도구별 어댑터(`.claude/`, `.cursor/`, `.codex/`, `.grok/`, `.antigravity/` 등)는 이 문서를 요약·복제한 것이며, 내용이 어긋나면 **이 문서가 이긴다.**
+도구별 어댑터(`.claude/`, `.cursor/`, `.codex/`, `.grok/`, `.antigravity/`, `.gemini/`, `.manus/`, `.kimi/`, `.ollama/`, `.opencode/`, `.qwen/`, `.windsurf/` 등)는 이 문서를 요약·복제한 것이며, 내용이 어긋나면 **이 문서가 이긴다.**
 
 ---
 
@@ -25,7 +25,7 @@
 4. `docs/guidance/commit-message.md` ← 커밋 메시지 상세
 5. `docs/guidance/branch-merge.md` ← 브랜치·병합 상세
 6. `docs/branchs/TEMPLATE.md` ← 커밋 기록 md 템플릿
-7. 도구별 어댑터 (`.grok/`, `.claude/`, `.cursor/`, `.codex/`, `.antigravity/` …) ← 정본을 가리키는 복제
+7. 도구별 어댑터 (`.grok/`, `.claude/`, `.cursor/`, `.codex/`, `.antigravity/`, `.gemini/`, `.manus/`, `.kimi/`, `.ollama/`, `.opencode/`, `.qwen/`, `.windsurf/` …) ← 정본을 가리키는 복제
 
 ---
 
@@ -43,6 +43,8 @@
 | `docs/TASKS.md` | 작업 지시서(다음에 할 일, 선행 조건, 끝난 기준) |
 | `docs/FEATURES.md` | 전체 기능 카탈로그 |
 | `docs/trainings/` | 실제로 돌려 본 결과와 판단. 프롬프트·판정·그림을 고치기 전에 읽는다 |
+| `docs/plan/WORLD_COPPERCHAT.md` | 월드코퍼챗(세계관·여러 인물·파트·코퍼맵·미니게임) 정본. 기획 원본 밖의 사용자 요청 기능 |
+| `docs/.assets/README.md` | README·문서 그림과 영상, 다시 만드는 스크립트 |
 | `docs/guidance/owner-checklist.md` | 소유자만 할 수 있는 일과 하는 법 |
 
 **주의:** 스킬 파일은 반드시 `.agents/skills/codicomperchat/SKILL.md` 경로에 둔다. `.agents/SKILL.md`처럼 루트에 바로 두면 일부 도구가 찾지 못한다.
@@ -54,6 +56,8 @@
 - `.cursor/rules/codicomperchat.mdc`, `.cursor/skills/codicomperchat/SKILL.md`
 - `.codex/AGENTS.md`, `.codex/skills/codicomperchat/SKILL.md`
 - `.antigravity/AGENTS.md`
+- `.gemini/GEMINI.md`, `.qwen/QWEN.md`, `.windsurf/rules/codicomperchat.md`, `.manus/AGENTS.md`, `.kimi/AGENTS.md`, `.ollama/AGENTS.md`, `.opencode/AGENTS.md` (2026-11-06, 공동 작업자 대비. 각각 `skills/codicomperchat/SKILL.md` 포인터도 있다. 도구가 파일을 자동으로 읽는지는 확인하지 않았다)
+- 어댑터가 어긋나지 않았는지는 `node --test scripts/adapters.test.mjs`로 본다. 규칙을 바꾸면 `.codex/AGENTS.md`의 목록을 기준으로 어댑터를 같이 고친다
 
 ### 도구가 자동 생성하는 파일 (우리 규칙 아님, 손대지 말 것)
 

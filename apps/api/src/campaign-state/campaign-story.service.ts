@@ -153,7 +153,7 @@ export class CampaignStoryService {
           // 뒤에서 하는 정리라 사용자가 기다리는 답에 양보한다 (ai-queue)
           // 비밀 퀘스트: 열려 있고 아직 달성 전이면 "건넸나·해냈나"도 함께 판정시킨다 (친밀도는 이 정리 전의 값 기준)
           const quest = await this.quests.checkInput(names.character.id, conversation.campaignId, row.relationshipValue);
-          const result = await postToAi<DigestResult & { questOffered?: boolean; questDone?: boolean }>(
+          const result = await postToAi<DigestResult & { questOffered?: boolean; questDone?: boolean; questScene?: string }>(
             '/summarize',
             { context, sessionTurns: turns, ...(quest ? { quest } : {}) },
             { priority: 'background' },
@@ -183,7 +183,7 @@ export class CampaignStoryService {
             },
           });
           if (quest) {
-            const check: QuestCheck = { offered: result.questOffered === true, done: result.questDone === true };
+            const check: QuestCheck = { offered: result.questOffered === true, done: result.questDone === true, scene: typeof result.questScene === 'string' ? result.questScene : undefined };
             await this.quests.apply(names.character.id, conversation.campaignId, row.relationshipValue, check);
           }
         } else {

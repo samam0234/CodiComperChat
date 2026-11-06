@@ -48,6 +48,25 @@
 | 웹툰 컷 수·한도 | 2~6컷, 콘티 10분 6번·컷 10분 14번 | `operations/webtoon.service.ts`, `security/rate-limit.ts` | GPU 처리량 |
 | 그림 크기·단계 | 애니 1216×832 28스텝 / SD1.5 768×512 | `services/ai/app/services/image_engine.py` (`SDXL_ANIME`·`SD15`) | 모델·화질 |
 
+### 월드코퍼챗 (2026-11-06)
+
+| 값 | 어디 | 지금 |
+|----|------|------|
+| 글자·개수 한도 | `apps/api/src/worlds/world.ts` `WORLD_LIMITS` | 제목 40, 설명 4000, 규칙 2000, 첫 장면 1000, 인물 12, 장소 30, 파트 12, 그림 40 |
+| 그림 크기 | 〃 `WORLD_IMAGE_MAX_BYTES` | 290KB (본문 파서 한도 300kb 안) |
+| 보상 | 〃 `WIN_REWARD`·`LOSS_REWARD` | 승리 20~50, 패배 5~10 |
+| 운영 설정 기본값 | 〃 `DEFAULT_WORLD_SETTINGS` | 하루 3회, 35%, 6턴 (콘솔에서 바꿈) |
+| 이벤트 유효 시간 | 〃 `EVENT_TTL_MS` | 10분 |
+| 미로 | 〃 `MAZE_SIZE`·`MAZE_TIME_LIMIT_S` | 7×7, 90초(+5초 여유) |
+| 사다리 | 〃 `LADDER_LANES`·`LADDER_ROWS` | 4줄 10단, 칸마다 가로줄 45% |
+| 진행자에게 주는 최근 메시지 | `world-play.service.ts` `RECENT` | 16개 |
+| 파트 판정 주기·창 | 〃 `PART_CHECK_EVERY`·`PART_WINDOW` | 3턴마다, 최근 12개 |
+| 플레이 화면 기록 | 〃 `HISTORY` | 80개 |
+| 지난 이야기 길이 | 〃 `STORY_MAX` | 1200자 |
+| 한 턴 글자 | 〃 `WORLD_TURN_MAX` | 1000자 |
+| 세계관 수 | `worlds.service.ts` | 계정당 30개 |
+| 진행자 온도·출력 | `services/ai/app/services/world.py` | 0.75, 1200 토큰 |
+
 ## 검색 팁
 
 ```bash
