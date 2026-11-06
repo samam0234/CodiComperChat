@@ -375,5 +375,6 @@ flowchart LR
 | 2026-11-06 | `0e55f44` | main (merge) | develop into main | [261106_1608_0e55f44_merge-develop-into-main-7_main.md](commits/261106_1608_0e55f44_merge-develop-into-main-7_main.md) |
 | 2026-11-06 | `c6c8e03` | feature/docs-mermaid | README·에이전트 문서에 mermaid 그림과 문법 검사기 추가 | [261106_1627_c6c8e03_mermaid-readmes_feature-docs-mermaid.md](commits/261106_1627_c6c8e03_mermaid-readmes_feature-docs-mermaid.md) |
 | 2026-11-06 | `2580756` | feature/docs-mermaid | docs 전체 문서에 mermaid 그림 추가 | [261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md](commits/261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md) |
+| 2026-11-06 | `d7fc373` | develop (merge) | feature/docs-mermaid into develop | [261106_1627_d7fc373_merge-docs-mermaid_develop.md](commits/261106_1627_d7fc373_merge-docs-mermaid_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
