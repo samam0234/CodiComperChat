@@ -13,6 +13,43 @@ main ◀──(--no-ff)── develop ◀──(--no-ff)── feature/a ◀─�
 금지: fast-forward 병합 · force-push · .env 커밋
 ```
 
+<!-- logic-mermaid -->
+
+### 브랜치와 병합
+
+```mermaid
+gitGraph
+  commit id: "main"
+  branch develop
+  checkout develop
+  commit id: "develop"
+  branch feature-a
+  checkout feature-a
+  commit id: "기능 커밋"
+  commit id: "기록 커밋"
+  branch feature-b
+  checkout feature-b
+  commit id: "이어지는 작업"
+  checkout develop
+  merge feature-a id: "merge a (--no-ff)"
+  merge feature-b id: "merge b (--no-ff)"
+  checkout main
+  merge develop id: "merge develop (--no-ff)"
+```
+
+### 병합 절차
+
+```mermaid
+flowchart TD
+  A["사용자: 병합"] --> B["맨 위 브랜치에서 전체 검증"]
+  B --> C["develop 체크아웃"]
+  C --> D["쌓인 순서대로 merge --no-ff"]
+  D --> E["병합 기록 커밋 (따로)"]
+  E --> F["main 에 develop --no-ff"]
+  F --> G["main 병합 기록"]
+  G --> H["develop을 main에 맞춤 (ff-only)"]
+```
+
 ## 브랜치 구조
 
 ```text

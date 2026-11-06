@@ -13,6 +13,21 @@ POST /auth/signup 또는 /auth/login ─▶ { token }
 오류: 401 로그인 · 403 권한·코레딧 · 404 못 봄 · 409 상태 충돌 · 429 너무 자주
 ```
 
+<!-- logic-mermaid -->
+
+### 토큰을 받아 쓰는 순서
+
+```mermaid
+sequenceDiagram
+  participant C as curl
+  participant N as Nest
+  C->>N: POST /auth/login
+  N-->>C: token
+  C->>N: POST /me/personas (Bearer)
+  C->>N: POST /characters/{id}/chat
+  C->>N: POST /worlds/{id}/play/turn
+```
+
 ## 전제
 
 - api(4000)·ai(8000)·Ollama가 떠 있다 ([getting-started.md](getting-started.md))

@@ -14,6 +14,22 @@ Cannot find module dist/main ─▶ 증분 기록이 dist 밖에 있어 다시 �
 교훈: 서버가 켜져 있으면 build:api 대신 typecheck:api
 ```
 
+<!-- logic-mermaid -->
+
+### 죽고 안 살아나는 과정
+
+```mermaid
+sequenceDiagram
+  participant D as dev 서버 (watch)
+  participant B as 다른 빌드
+  participant F as dist
+  B->>F: build:api가 dist 지우고 다시 씀
+  D->>F: dist/main 찾기
+  F-->>D: 없음 → 죽음
+  D->>D: 증분 기록이 dist 밖이라 다시 안 씀
+  Note over D,F: 고침 - 기록을 출력 폴더 안으로 · 검증은 dist-verify
+```
+
 ## 1. 환경
 
 local — `npm run dev:api`(`nest start --watch`) 실행 중, Windows

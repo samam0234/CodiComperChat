@@ -32,6 +32,19 @@ e2e:  web 3101 · console 3102 · api 4101 · ai 8101
 데모: web 3201 · console 3202 · api 4201 · ai 8201
 ```
 
+<!-- logic-mermaid -->
+
+### 포트
+
+```mermaid
+flowchart LR
+  OUT["바깥 80 · 443"] --> CAD["Caddy"]
+  DEV["개발 3000 · 3001 · 4000 · 8000"]
+  E2E["e2e 3101 · 3102 · 4101 · 8101"]
+  DEMO["데모 3201 · 3202 · 4201 · 8201"]
+  DEV & E2E & DEMO --> PG[("5432")]
+```
+
 ## README 그림 데모 포트 (2026-11-06)
 
 | 포트 | 무엇 | 언제 |

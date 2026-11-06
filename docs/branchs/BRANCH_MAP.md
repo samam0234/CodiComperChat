@@ -25,6 +25,30 @@ bugfix/* ───┼──(--no-ff)──▶ develop ──(--no-ff, 사용자�
 experimental/*┘
 ```
 
+<!-- logic-mermaid -->
+
+### 브랜치 맵
+
+```mermaid
+gitGraph
+  commit id: "main"
+  branch develop
+  checkout develop
+  commit id: "develop"
+  branch feature-a
+  checkout feature-a
+  commit id: "기능 커밋"
+  commit id: "기록 커밋"
+  branch feature-b
+  checkout feature-b
+  commit id: "이어지는 작업"
+  checkout develop
+  merge feature-a id: "merge a (--no-ff)"
+  merge feature-b id: "merge b (--no-ff)"
+  checkout main
+  merge develop id: "merge develop (--no-ff)"
+```
+
 ## 현재 상태 (2026-11-03)
 
 - 원격: `origin` (GitHub). `develop`이 개발 통합, `main`은 사용자가 지시할 때 `develop`을 병합한다(마지막: 2026-10-25). `release/*`는 아직 쓴 적이 없다

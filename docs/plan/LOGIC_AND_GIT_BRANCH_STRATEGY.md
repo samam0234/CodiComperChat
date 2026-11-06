@@ -12,6 +12,30 @@
                      사용자가 병합이라고 하면: 쌓인 순서대로 develop --no-ff → 기록 → main --no-ff → 기록
 ```
 
+<!-- logic-mermaid -->
+
+### 브랜치 쌓기와 병합
+
+```mermaid
+gitGraph
+  commit id: "main"
+  branch develop
+  checkout develop
+  commit id: "develop"
+  branch feature-a
+  checkout feature-a
+  commit id: "기능 커밋"
+  commit id: "기록 커밋"
+  branch feature-b
+  checkout feature-b
+  commit id: "이어지는 작업"
+  checkout develop
+  merge feature-a id: "merge a (--no-ff)"
+  merge feature-b id: "merge b (--no-ff)"
+  checkout main
+  merge develop id: "merge develop (--no-ff)"
+```
+
 ## 로직 순서 (계획서 §10)
 
 ```text

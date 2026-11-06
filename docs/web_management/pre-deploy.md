@@ -36,6 +36,15 @@
 비밀값 생성 · 도메인 · 메일 · 약관 · ADULT_MODE=off · 월드 보상 정책 ─▶ 전부 체크 ─▶ docker-deploy
 ```
 
+<!-- logic-mermaid -->
+
+### 올리기 전 확인
+
+```mermaid
+flowchart LR
+  S["비밀값"] --> D["도메인"] --> M["메일"] --> T["약관"] --> A["ADULT_MODE=off"] --> W["월드 보상 정책"] --> GO["docker-deploy"]
+```
+
 ## 월드코퍼챗 (2026-11-06)
 
 - [ ] 이벤트 보상 정책 법률 검토([../guidance/owner-checklist.md](../guidance/owner-checklist.md) 10장)

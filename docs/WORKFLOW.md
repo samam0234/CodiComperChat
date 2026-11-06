@@ -24,6 +24,89 @@ POST /characters/:id/chat {message, personaId, model?}
 AI 대기열: 기다리는 답(foreground) 먼저, 뒤에서 하는 정리(background)는 양보
 ```
 
+<!-- logic-mermaid -->
+
+### 1:1 대화 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant B as 브라우저
+  participant W as web (Next)
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  participant A as ai (FastAPI)
+  B->>W: 메시지 보내기
+  W->>N: POST /characters/{id}/chat (Bearer)
+  N->>D: 캐릭터·프로필·대화·상태 읽기
+  N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
+  N->>A: POST /infer
+  A-->>N: reply
+  opt 설정에 없는 개인사를 물은 턴
+    N->>A: POST /ground-check
+    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+  end
+  N->>D: 유저 말 + 답 저장
+  N-->>W: 답 · 사용량
+  W-->>B: 화면에 그리기
+  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+```
+
+### 월드 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/turn
+  N->>D: 열린 이벤트를 EXPIRED로
+  N->>N: 기본 모델 reserve, 맥락 조립
+  N->>A: POST /world/turn
+  A-->>N: reply · image · moves (제어 줄은 떼어 냄)
+  N->>D: USER·CHARACTER 메시지, 위치 저장
+  alt 3턴마다
+    N->>A: POST /world/part-check
+    A-->>N: done · evidence
+    N->>D: 다음 파트 · SYSTEM 메시지
+  end
+  opt 간격과 확률을 넘김
+    N->>D: WorldEvent 만들기 (숨긴 setup)
+  end
+  N-->>P: 플레이 상태
+```
+
+### 그림 한 장
+
+```mermaid
+sequenceDiagram
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant O as Ollama
+  participant G as diffusers
+  N->>N: 코레딧 차감 · 성인 확인 · 미성년 단서
+  N->>A: POST /photonet
+  A->>O: 장면 설계 (인물 명단 → 설계표)
+  A->>O: keep_alive 0 (그래픽 메모리 비우기)
+  A->>G: 그리기 (SDXL 또는 SD 1.5)
+  A->>O: 그림 검수 (항목 판정)
+  A-->>N: 그림 또는 막힘
+  alt 막힘·실패
+    N->>N: 환불
+  end
+```
+
+### AI 대기열
+
+```mermaid
+flowchart LR
+  F["기다리는 답<br/>foreground"] --> Q["ai-queue<br/>동시 수 제한"]
+  BG["뒤에서 정리<br/>background"] --> Q
+  Q -->|"foreground 먼저"| A["FastAPI"]
+```
+
 ## 한 번의 유저 메시지 처리
 
 ```text

@@ -11,6 +11,17 @@ Bash heredoc ─▶ 파이썬 소스 ─▶ 파이썬 문자열 ─▶ 결과 �
 이스케이프가 든 편집은 Write·Edit 도구로 → 바로 node --check / python import / tsc
 ```
 
+<!-- logic-mermaid -->
+
+### 이스케이프가 풀리는 겹
+
+```mermaid
+flowchart LR
+  B["Bash heredoc"] --> P["파이썬 소스"] --> S["파이썬 문자열"] --> F["결과 파일"]
+  F --> X["역슬래시-n 이 실제 줄바꿈"]
+  X --> W["Write · Edit 도구 + 바로 문법 확인"]
+```
+
 ## 1. 환경
 
 Windows 11, Git Bash(에이전트의 Bash 도구), `python - <<'EOF' … EOF`나 `python 파일.py`로 다른 파일을 고치는 스크립트.

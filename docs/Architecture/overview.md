@@ -46,6 +46,30 @@ Ollama :11434  (gemma4:e4b, 글·그림 읽기)
 원칙: 호출은 한 방향 · 판단은 Nest · 모델 출력은 코드가 검사 · 비밀은 모델에 보내지 않는다
 ```
 
+<!-- logic-mermaid -->
+
+### 시스템 구조
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
+### 왜 세 프레임워크인가
+
+```mermaid
+flowchart LR
+  NX["Next.js<br/>화면 · SSR · CSP"] --> NS["Nest.js<br/>권한 · 상태 · 돈"]
+  NS --> FA["FastAPI<br/>모델 · 그림 (Python 생태계)"]
+```
+
 ## 원칙
 
 - 프론트는 FastAPI를 직접 호출하지 않는다 (Nest만 부른다)

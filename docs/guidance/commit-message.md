@@ -17,6 +17,19 @@ node scripts/record-commit.mjs --name <kebab> --notes <본문> --commit
    → docs/branchs/commits/<날짜>_<sha>_<이름>_<브랜치>.md + README 목록 한 줄 (별도 커밋)
 ```
 
+<!-- logic-mermaid -->
+
+### 커밋에서 기록까지
+
+```mermaid
+flowchart LR
+  W["작업"] --> CM["git commit<br/>type(scope): 한국어 요약"]
+  CM --> RC["record-commit.mjs"]
+  RC --> MD["commits/날짜_sha_이름_브랜치.md"]
+  RC --> IX["README 목록 한 줄"]
+  MD & IX --> RCC["기록 커밋 (따로)"]
+```
+
 ## 언어 규칙
 
 | 구간 | 언어 | 비고 |

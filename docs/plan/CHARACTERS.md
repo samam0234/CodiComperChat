@@ -18,6 +18,37 @@
 월드:    공개 캐릭터라 등장인물로 데려갈 수 있다 (이름·소개·말투만)
 ```
 
+<!-- logic-mermaid -->
+
+### 카드가 쓰이는 곳
+
+```mermaid
+flowchart LR
+  CD["카드 원문 (이 문서)"] --> SE["seed.mjs → Character"]
+  CD --> PJ["personas/이름.json"]
+  SE --> CH["대화 (비밀 제외)"]
+  PJ --> CH
+  SE --> QS["비밀 퀘스트"]
+  SE --> WC["월드 등장인물로 데려가기"]
+```
+
+### 퀘스트 상태
+
+```mermaid
+stateDiagram-v2
+  state "잠김" as locked
+  state "때가 됨" as ready
+  state "건넴 (offered)" as offered
+  state "달성 (done)" as done
+  state "보상 장면 보임 (staged)" as staged
+  [*] --> locked
+  locked --> ready: 친밀도 ≥ 문턱
+  ready --> offered: 판정 - 캐릭터 대사에 부탁 인용
+  offered --> done: 판정 - 유저 대사에 근거 인용, 확신 85+
+  done --> staged: 다음 첫 답 한 번 (sceneNote)
+  staged --> [*]
+```
+
 ## 유지성
 
 ### 1. 한 줄
