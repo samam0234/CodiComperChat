@@ -382,5 +382,6 @@ flowchart LR
 | 2026-11-07 | `b8c2a1e` | feature/oracle-backend-deploy | Oracle 배포 명령에 core.eol=lf 추가 | [261107_0118_b8c2a1e_oracle-archive-eol_feature-oracle-backend-deploy.md](commits/261107_0118_b8c2a1e_oracle-archive-eol_feature-oracle-backend-deploy.md) |
 | 2026-11-07 | `96d01e6` | develop (merge) | feature/oracle-backend-deploy into develop | [261107_0213_96d01e6_merge-oracle-backend-deploy_develop.md](commits/261107_0213_96d01e6_merge-oracle-backend-deploy_develop.md) |
 | 2026-11-07 | `1f7be86` | main (merge) | develop into main | [261107_0213_1f7be86_merge-develop-main-oracle_main.md](commits/261107_0213_1f7be86_merge-develop-main-oracle_main.md) |
+| 2026-11-06 | `5b59b63` | claude/project-thread-pz0x5f | Oracle VM에 CPU AI 서버를 더하는 구성과 안내 | [261106_2249_5b59b63_oracle-cpu-ai-server_claude-project-thread-pz0x5f.md](commits/261106_2249_5b59b63_oracle-cpu-ai-server_claude-project-thread-pz0x5f.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
