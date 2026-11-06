@@ -73,8 +73,8 @@ jobs:
       - name: API 단위 테스트
         run: npm run test:api
 
-      - name: 커밋 기록 작성기 시험
-        run: node --test scripts/record-commit.test.mjs
+      - name: 커밋 기록 작성기·에이전트 어댑터 시험
+        run: node --test scripts/record-commit.test.mjs scripts/adapters.test.mjs
 
       - uses: actions/setup-python@v5
         with:

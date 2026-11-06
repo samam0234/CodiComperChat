@@ -211,7 +211,7 @@ CodiComperChat/
 ├── scripts/          로컬 CI·커밋 기록·DB 백업·비밀값 생성·README 그림 만들기
 ├── docs/             문서 허브 (기획·아키텍처·Git 기록·가이드·실측 노트)
 ├── .agents/          AI 에이전트 공통 규칙 정본
-├── .claude/ .cursor/ .codex/ .grok/ .antigravity/   도구별 어댑터
+├── .claude/ .cursor/ .codex/ .grok/ .antigravity/ .gemini/ .manus/ .kimi/ .ollama/ .opencode/ .qwen/ .windsurf/   도구별 어댑터
 ├── docker-compose.yml   개발용 (선택) PostgreSQL·Mailpit
 ├── LICENSE  SECURITY.md  THIRD_PARTY_NOTICES.md
 └── CodiComperChat_project_plan.md   기획 원본

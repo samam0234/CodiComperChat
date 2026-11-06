@@ -2,7 +2,7 @@
 
 > 시험 수의 정본은 이 문서다. 다른 문서에는 수를 적지 않고 여기를 가리킨다.
 >
-> 상태(2026-11-06): **`apps/api` vitest 211개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 6개), `services/ai` unittest 45개(파일 6개), 기록 작성기 시험 6개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가는 2026-11-06에 나레이션·보상 장면을 고친 뒤 모두 기준을 넘었다(아래 "실제 모델 평가").
+> 상태(2026-11-06): **`apps/api` vitest 211개(파일 29개), 웹 화면 Playwright e2e 117개(파일 25개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 6개), `services/ai` unittest 45개(파일 6개), 기록 작성기 시험 6개, 에이전트 어댑터 시험 30개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가는 2026-11-06에 나레이션·보상 장면을 고친 뒤 모두 기준을 넘었다(아래 "실제 모델 평가").
 
 ## 앱별 도구
 
@@ -87,7 +87,7 @@ develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈
 
 | 단계 | 내용 |
 |---|---|
-| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → 기록 작성기 시험 → AI 서비스 불러오기(`compileall`, `import app.main`) → AI unittest |
+| checks | `npm ci` → Prisma 생성·마이그레이션(PostgreSQL 16 서비스) → `oxlint --deny-warnings`(경고도 실패) → 타입 검사(api, web, console) → API 단위 테스트(DB 한도 저장소 시험 포함) → 기록 작성기·에이전트 어댑터 시험 → AI 서비스 불러오기(`compileall`, `import app.main`) → AI unittest |
 | e2e | checks가 통과하면. PostgreSQL 서비스에 `codicomperchat_e2e`를 만들어 `npm run test:e2e`. 실패하면 화면·추적을 `e2e-results`로 올린다(7일 보관) |
 
 AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣지 않았다. 모델을 바꾸거나 프롬프트를 고치면 로컬에서 돌린다.
