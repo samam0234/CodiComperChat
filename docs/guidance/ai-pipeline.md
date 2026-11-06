@@ -2,6 +2,14 @@
 
 정본: `CodiComperChat_project_plan.md` §7.6, §7.7. 요약 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md), 모델 전략은 [../plan/AI_MODEL_STRATEGY.md](../plan/AI_MODEL_STRATEGY.md).
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+Nest ─▶ FastAPI 경로 ─▶ services ─▶ llm (Ollama / 가짜 / 프리미엄)
+확인 순서: uvicorn 켜기 → curl /health → LLM_FAKE=1로 형식 확인 → 실제 모델로 evals
+```
+
 ## v1 요지
 
 - 자체 학습 없음. LLM + 시스템 프롬프트 + 상태 RAG

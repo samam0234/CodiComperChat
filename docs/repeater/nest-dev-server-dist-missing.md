@@ -1,5 +1,19 @@
 # Nest dev 서버가 `Cannot find module …/dist/main`으로 죽고 다시 안 살아남
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+dev 서버(nest start --watch) 켜짐
+   │ 다른 곳에서 npm run build:api → 같은 dist를 지움
+   ▼
+Cannot find module dist/main ─▶ 증분 기록이 dist 밖에 있어 다시 안 씀 ─▶ 안 살아남
+   │ 고침
+   ▼
+증분 기록을 출력 폴더 안으로 · 검증 빌드는 dist-verify (npm run build:verify)
+교훈: 서버가 켜져 있으면 build:api 대신 typecheck:api
+```
+
 ## 1. 환경
 
 local — `npm run dev:api`(`nest start --watch`) 실행 중, Windows

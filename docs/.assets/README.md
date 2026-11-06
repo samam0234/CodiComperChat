@@ -4,6 +4,18 @@
 
 **전부 다시 만들 수 있다.** 손으로 그린 것은 없고, 실제로 띄운 앱을 찍거나(`capture.mjs`·`tour.mjs`·`world.mjs`) HTML로 그렸다(`art.mjs`). 만드는 법은 [../../scripts/readme-media/README.md](../../scripts/readme-media/README.md).
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+scripts/readme-media/*.mjs ─▶ docs/.assets/readme/*.png|jpg|gif|mp4
+                                   │
+            ┌──────────────────────┼─────────────────────────┐
+            ▼                      ▼                         ▼
+     루트 README.md          docs/*.md (구조 그림)     앱별 README (링크)
+(손으로 그린 그림은 두지 않는다 — 전부 다시 만들 수 있다)
+```
+
 ## 폴더
 
 ```text
@@ -25,6 +37,17 @@ docs/.assets/
 | `world-flow.png` | 월드코퍼챗 한 턴의 처리 순서 (2026-11-06) | README 월드코퍼챗, [../plan/WORLD_COPPERCHAT.md](../plan/WORLD_COPPERCHAT.md), [../Architecture/data-flow.md](../Architecture/data-flow.md) |
 | `features.png` | 기능 지도 12칸 (2026-11-06) | README 둘러보기, [../FEATURES.md](../FEATURES.md) |
 | `intro-poster.jpg` | 소개 영상 포스터 | README 소개 영상 |
+
+구조 그림 (`node scripts/readme-media/diagrams.mjs`, 2026-11-06):
+
+| 파일 | 내용 | 쓰는 곳 |
+|------|------|---------|
+| `layers.png` | 계층 구조(Next · Nest · FastAPI) | docs/README, Architecture/overview·layers, PROJECT_STRUCTURE, AI_MODEL_STRATEGY, AGENT_HANDOVER, README |
+| `deploy-topology.png` | 운영 배포(Caddy·web·console·api·postgres·migrate·ai·ollama, 망·볼륨) | Architecture/docker-topology, DEPLOYMENT, web_management/docker-deploy, README |
+| `dev-environments.png` | 개발·e2e·README 데모 포트와 DB | Architecture/docker-topology, guidance/getting-started, web_management/ports-inventory |
+| `data-map.png` | 테이블 37개 영역별 지도 | plan/DATABASE, Architecture/data-flow, AGENT_HANDOVER, README |
+| `screen-map.png` | 이용자 화면 35개·콘솔 12개 | Architecture/apps, plan/NAVIGATION_IA |
+| `ci-pipeline.png` | CI 두 잡의 단계 | plan/TESTING |
 
 ### 실제 앱을 찍은 것
 

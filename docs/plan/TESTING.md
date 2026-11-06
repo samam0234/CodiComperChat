@@ -4,6 +4,20 @@
 >
 > 상태(2026-11-06): **`apps/api` vitest 226개(파일 30개), 웹 화면 Playwright e2e 123개(파일 26개) + 성인 모드를 끈 서버 전용 1개, AI 품질 평가(`services/ai/evals`, 11묶음 + 별도 평가 7개), `services/ai` unittest 54개(파일 7개), 기록 작성기 시험 6개, 에이전트 어댑터 시험 30개가 실재.** 전체 e2e는 운영 빌드로 돌려 통과한다. 실제 모델 평가는 2026-11-06에 나레이션·보상 장면을 고친 뒤 모두 기준을 넘었다(아래 "실제 모델 평가").
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+코드를 고침
+  ├─ 순수 함수 ─▶ *.spec.ts (vitest, DB 없음)        ┐
+  ├─ DB가 걸린 것 ─▶ *.db.spec.ts (실제 PostgreSQL)   ├─ npm run test:api (226)
+  ├─ AI 규칙 ─▶ services/ai/tests (unittest, 모델 없음) (54)
+  ├─ 화면 흐름 ─▶ e2e (운영 빌드 + 가짜 LLM) (123 + 성인 끔 1)
+  └─ 프롬프트·판정 ─▶ evals.* (실제 모델, CI 밖, 사람이 돌림)
+                         │
+병합 전: typecheck · lint · 위 전부 ─▶ CI(GitHub Actions) / npm run ci:local
+```
+
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
@@ -91,6 +105,8 @@ AI 호출은 `apps/api/src/ai/ai-queue.ts` 대기열을 지난다. 동시 호출
 기다리는 답은 60초 넘게 줄서면 503, 모델 응답은 130초(배경 150초)가 넘으면 504로 끊는다. 현재 상태는 `GET /health`의 `ai`.
 
 최근 측정(2026-11-06, 사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 12.0초(대기열 넣기 전 33.0초), 읽기 2300 req/s(p95 5ms), 이야기 정리 완료 p50 19.8초·p95 24.3초, 오류 0건. 이전 값과 비교: [../trainings/test-infrastructure.md](../trainings/test-infrastructure.md).
+
+![CI 단계](../.assets/readme/ci-pipeline.png)
 
 ## CI (`.github/workflows/ci.yml`)
 

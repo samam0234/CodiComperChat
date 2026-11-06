@@ -26,6 +26,13 @@
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 재확인
 - [ ] 새로 발견된 이슈는 [../find_debug/](../find_debug/)에 당일 일지로 기록
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+올림 ─▶ /health (api·ai) ─▶ 가입·메일 ─▶ 대화 한 턴 ─▶ 그림 ─▶ 콘솔 ─▶ 월드 ─▶ 백업 한 번 ─▶ 재부팅 복귀
+```
+
 ## 월드코퍼챗 확인 (2026-11-06)
 
 - [ ] `/worlds`가 열리고 공개 목록이 보인다

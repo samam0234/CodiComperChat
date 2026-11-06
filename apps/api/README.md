@@ -12,6 +12,32 @@ npm run typecheck:api  # 개발 서버가 켜져 있을 땐 build:api 말고 이
 npm run test:api       # vitest (DB·SMTP가 있으면 통합 시험 포함)
 ```
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+main.ts ─ 본문 파서(json · raw 그림 300kb) · CORS · 보안 헤더
+   │
+app.module.ts ─ 모듈 30여 개를 묶는다
+   │
+요청 ─▶ Controller ─▶ Guard (AuthGuard · AdminGuard · RateLimitGuard)
+            │
+            ▼
+        Service ───────────────┬──────────────────────┬──────────────────────┐
+            │                  │                      │                      │
+            ▼                  ▼                      ▼                      ▼
+     순수 함수 *.ts       PrismaService          ai-client.ts           CreditsService
+     (*.spec.ts로 시험)   (PostgreSQL)           (AI 대기열 → FastAPI)  (차감·환불·보상)
+
+대표 모듈
+  character-chat ─ 대화 한 턴 (맥락 조립 → /infer → 개인사 검사 → 저장)
+  campaign-state ─ 뒤에서 정리 (/summarize → 친밀도·복선·요약·퀘스트 판정 반영)
+  quests         ─ 비밀 퀘스트 상태 (건넴 → 달성 → 보상 장면 한 번)
+  worlds         ─ 월드코퍼챗 (세계관·플레이·파트·이벤트·보상)
+  studio         ─ 공방 초안 → 3턴 테스트 → 발행
+  operations     ─ 심리 탐구·일기·메시지·커뮤니티·코디포토넷·웹툰
+```
+
 ## 아키텍처
 
 ```mermaid

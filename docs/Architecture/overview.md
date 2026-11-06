@@ -33,6 +33,19 @@ Ollama :11434  (gemma4:e4b, 글·그림 읽기)
 
 2026-11-06부터 1:1 캐릭터 대화와 함께 **월드코퍼챗**(한 세계관 안의 여러 인물)이 같은 네 앱 위에서 돈다. 새 서비스는 없고, Nest `worlds` 모듈과 FastAPI `/world/*` 두 경로가 더해졌다 → [data-flow.md](data-flow.md) "월드코퍼챗".
 
+![계층 구조](../.assets/readme/layers.png)
+
+<sub>각 앱 안의 계층은 [layers.md](layers.md), 운영 배포는 [docker-topology.md](docker-topology.md)</sub>
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+[브라우저] ─▶ web/console (Next) ─▶ Nest (신뢰 경계) ─┬─▶ PostgreSQL (상태의 정본)
+                                                     └─▶ FastAPI (계산만, DB 없음) ─▶ Ollama · diffusers
+원칙: 호출은 한 방향 · 판단은 Nest · 모델 출력은 코드가 검사 · 비밀은 모델에 보내지 않는다
+```
+
 ## 원칙
 
 - 프론트는 FastAPI를 직접 호출하지 않는다 (Nest만 부른다)

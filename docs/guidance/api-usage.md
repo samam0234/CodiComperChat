@@ -2,6 +2,17 @@
 
 개발 중 Nest를 직접 불러 확인하는 법. 전체 목록·응답은 [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md). 최종 갱신 2026-11-04.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+POST /auth/signup 또는 /auth/login ─▶ { token }
+        │ Authorization: Bearer <token>
+        ▼
+/me/personas (주인공) ─▶ /characters/:id/chat ─▶ /characters/:id/chat/ops/* ─▶ /worlds/*
+오류: 401 로그인 · 403 권한·코레딧 · 404 못 봄 · 409 상태 충돌 · 429 너무 자주
+```
+
 ## 전제
 
 - api(4000)·ai(8000)·Ollama가 떠 있다 ([getting-started.md](getting-started.md))

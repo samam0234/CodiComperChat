@@ -2,6 +2,20 @@
 
 정본: `CodiComperChat_project_plan.md` §7.7. 이 문서에서 벤더/모델명을 새로 정하지 않는다 — 계획서에 없는 값은 §15 "아직 열려 있는 것"으로 남겨 둔다. 예외: 사용자가 직접 정한 **대화 모델 목록**(2026-10-21)은 아래 "대화 모델 선택"에 적는다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+학습하지 않는다 (/train 403)
+        │ 대신
+        ▼
+프롬프트 ─▶ 실제 모델로 평가 (evals.*) ─▶ 기준 미달이면 프롬프트·코드 검사를 고친다 ─▶ 다시 평가
+        │
+모델 고르기:  기본 gemma4:e4b (Ollama, 로컬) ─ 강화 gemma4:12b (하루 한도) ─ 프리미엄 Claude·Grok (코레딧, 키·월 상한)
+역할 나누기:  연기(온도 0.7) · 월드 진행자(0.75) · 판정·요약·검수(온도 0, 시드 고정)
+안전:         모델이 판단하지 않게 — 비밀은 안 보냄, 인용 근거 대조, 수위 단서는 코드가 찾음
+```
+
 ## v1: 학습하지 않는다
 
 v1은 **외부 LLM(또는 호스티드 오픈모델) + 단단한 시스템 프롬프트 + 상태 RAG**다. 자체 가중치 학습은 하지 않는다.
@@ -79,6 +93,8 @@ v1은 **외부 LLM(또는 호스티드 오픈모델) + 단단한 시스템 프�
 ## 그림 모델 (코디포토넷, 2026-10-24 사용자 결정)
 
 `services/ai` 안에서 diffusers로 직접 그린다(`IMAGE_ENGINE=local`, 개발 PC 대안은 WebUI). 서비스에 쓰는 체크포인트는 둘뿐이다 — 애니메이션·웹툰은 **Animagine XL 4.0 Opt**(SDXL, CreativeML Open RAIL++-M), 수채화·실사풍은 **Stable Diffusion 1.5 기본 모델**(CreativeML OpenRAIL-M). 결과는 기존 그림 검수(gemma4)를 통과해야 돌려준다. 자세히 [../guidance/photonet-engine.md](../guidance/photonet-engine.md)
+
+![계층 구조 — FastAPI는 오른쪽 열](../.assets/readme/layers.png)
 
 ## FastAPI의 역할 (v1)
 

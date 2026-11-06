@@ -5,6 +5,29 @@
 
 ---
 
+<!-- logic-structure -->
+## 로직 구조 (규칙이 흐르는 순서)
+
+```text
+이 도구가 읽는 파일 (어댑터)
+        │ 가리킨다
+        ▼
+.agents/skills/codicomperchat/SKILL.md   ← 정본. 어긋나면 정본이 이긴다
+        │ 읽는 순서
+        ├─▶ docs/AGENT_HANDOVER.md        지금 상태 · 함정 · 약속
+        ├─▶ docs/TASKS.md                 할 일 (사용자 몫은 대신 하지 않는다)
+        ├─▶ docs/trainings/               실측 (프롬프트·판정·그림을 고치기 전에)
+        └─▶ CodiComperChat_project_plan.md  기획 원본 (승인 없이 수정 금지)
+
+작업 흐름
+  feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
+        │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
+        ▼  사용자가 "병합"이라고 할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+
+충돌할 때 (1장): 기획 원본 > 이 정본 > 루트 AGENTS.md > commit-message > branch-merge > TEMPLATE > 도구별 어댑터
+```
+
 ## 0. 원본 보존 원칙 (최상위, 예외 없음)
 
 - 루트의 `CodiComperChat_project_plan.md`는 이 프로젝트의 **기획 원본**이다. 대화로 합의된 제품 정의·차별점·컨텐츠 구조·기술 구조·v1 범위가 여기 담겨 있다.

@@ -1,5 +1,7 @@
 # 포트 인벤토리
 
+![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
+
 기준 문서: [../plan/CURRENT_STACK.md](../plan/CURRENT_STACK.md). **여기 값이 그 문서와 다르면 CURRENT_STACK이 맞고 이 문서를 고친다.**
 
 | 서비스 | 개발 | e2e(자동 테스트) | 확정 여부 |
@@ -19,6 +21,16 @@ e2e 포트는 개발 서버와 겹치지 않게 따로 둬서 같이 켜 둬도 
 운영은 포트가 다르다: 바깥에는 Caddy의 80·443만 열고, 나머지는 컨테이너 내부망에서 위 개발 포트 번호(web 3000, console 3001, api 4000, ai 8000)로 통신한다([docker-deploy.md](docker-deploy.md)).
 
 FastAPI 포트는 외부에 노출하지 않는다 — Nest만 내부망에서 접근 (계획서 §7.1).
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+바깥: 80 · 443 (Caddy만)
+개발: web 3000 · console 3001 · api 4000 · ai 8000 · DB 5432
+e2e:  web 3101 · console 3102 · api 4101 · ai 8101
+데모: web 3201 · console 3202 · api 4201 · ai 8201
+```
 
 ## README 그림 데모 포트 (2026-11-06)
 

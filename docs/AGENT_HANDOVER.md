@@ -2,6 +2,22 @@
 
 이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-06.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+세션 시작
+  ├─▶ 1. 정본 SKILL.md (§0 원본 보존, §9 약속)
+  ├─▶ 2. 이 문서: 지금 상태 · 함정 · 검증 명령
+  ├─▶ 3. TASKS.md (사용자 몫은 대신 하지 않는다)
+  └─▶ 4. 고칠 곳의 trainings/ (프롬프트·판정을 건드리면)
+        │
+작업 ───┤ feature/* 에서 → 커밋마다 기록 → 시험 (병합·커밋과 한 명령으로 묶지 않는다)
+        │
+끝 ─────┴─▶ 사용자가 "병합"이라고 할 때만 develop(--no-ff) → main · 푸시는 요청할 때만
+            개발 서버를 켜거나 끄지 않는다 · 켜져 있으면 build:api 금지
+```
+
 ## 1. 한 줄 요약
 
 캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **실제 서버 배포는 하지 않았다.** 서버 계약(Hetzner GEX45)을 기다린다.
@@ -171,6 +187,12 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | README 그림·영상 다시 만들기 | [`scripts/readme-media/`](../scripts/readme-media/README.md) |
 | 그림 신고·계정 정지 | `apps/api/src/content-reports/`, `console/app/content/` |
 | 소유자가 직접 할 일 | [guidance/owner-checklist.md](guidance/owner-checklist.md) |
+
+![시스템 구조](.assets/readme/architecture.png)
+
+![계층 구조](.assets/readme/layers.png)
+
+![데이터 지도](.assets/readme/data-map.png)
 
 ## 9. 이 프로젝트에서 반복해서 맞은 교훈
 

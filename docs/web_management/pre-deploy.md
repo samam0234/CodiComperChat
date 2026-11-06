@@ -29,6 +29,13 @@
 - [ ] 정식 서비스로 바꿀 때: `PRO_CLICK=off`, 토스 결제, 프로 안내 문구
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 통과
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+비밀값 생성 · 도메인 · 메일 · 약관 · ADULT_MODE=off · 월드 보상 정책 ─▶ 전부 체크 ─▶ docker-deploy
+```
+
 ## 월드코퍼챗 (2026-11-06)
 
 - [ ] 이벤트 보상 정책 법률 검토([../guidance/owner-checklist.md](../guidance/owner-checklist.md) 10장)

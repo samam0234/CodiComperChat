@@ -2,6 +2,23 @@
 
 정본: `CodiComperChat_project_plan.md` §7.4, §7.5. 스키마 정본은 코드 `apps/api/prisma/schema.prisma`(각 칸의 의미는 거기 주석에 있다), 바뀐 이력은 `apps/api/prisma/migrations/`. 최종 갱신 2026-10-24.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+User ─┬─ UserPersona · EmailToken · CreditLedger · Attendance · ModelUsage · PaymentOrder
+      ├─ Campaign (User × Character) ─┬─ CampaignState (친밀도·복선·요약·퀘스트 상태)
+      │                               ├─ Session ─ Message
+      │                               ├─ MemoryChunk · CampaignExtra
+      │                               └─ MindReading · DiaryEntry · DirectMessage · BoardPost
+      │                                  · PhotonetImage · Webtoon ─ WebtoonPanel
+      ├─ CharacterDraft ─ (발행) ─▶ Character ─ CharacterReport
+      └─ WorldPlay (User × World) ─┬─ WorldMessage
+                                   └─ WorldEvent
+World ─ WorldCast · WorldPlace · WorldPart · WorldImage          AppSetting (운영 설정)
+바꾸는 순서: schema.prisma → migrate diff로 SQL → migrations/ → generate → 시험
+```
+
 ## 데이터스토어 (계획서 §7.4 → 실제)
 
 | 용도 | 계획서 추천 | 지금 | 비고 |
@@ -12,6 +29,8 @@
 | 에셋 | 오브젝트 스토리지 | **DB `bytea`** | 초상(150KB 이하)을 `characters.portrait`·`character_drafts.portrait`에. 커지면 스토리지로 옮긴다 |
 
 ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추론에 필요한 슬라이스만 Nest가 조립해 넘긴다.
+
+![데이터 지도 — 테이블 37개](../.assets/readme/data-map.png)
 
 ## 테이블 (37개)
 

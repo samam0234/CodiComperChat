@@ -6,6 +6,21 @@
 - 전체 목록(의존하는 의존성까지)은 이 문서에 다 적지 않았다. 배포 전에 도구로 전체를 뽑아 검토한다: Node `npx license-checker --production --summary`, Python `pip-licenses`(설치 필요).
 - **모델 가중치는 저장소에 없다.** 개발 PC에서 각자 받아 `services/ai/models/`(git 제외)에 둔다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+코디컴퍼챗 배포물
+  ├─ npm 의존성 (Next.js · React · Nest.js · Prisma …) ─▶ 각 패키지 라이선스, 고지 유지
+  ├─ Python 의존성 (FastAPI · diffusers · torch …)     ─▶ 각 패키지 라이선스
+  ├─ 모델 (배포물에 넣지 않음, 서버에 따로 둔다)
+  │    ├─ Gemma 4 (Ollama)            ─▶ Apache 2.0
+  │    ├─ Animagine XL 4.0            ─▶ 모델 라이선스 조건을 따른다
+  │    └─ Stable Diffusion 1.5        ─▶ 모델 라이선스 조건을 따른다
+  ├─ 외부 API (키가 있을 때만): Anthropic Claude · xAI Grok ─▶ 각 사용 정책
+  └─ 쓰지 않는 것: Stable Diffusion WebUI(AGPL) — 배포물에 넣지 않는다
+```
+
 ## 1. 쓰는 AI 모델 — 배포 전에 반드시 원문을 확인할 것
 
 모델은 일반 소프트웨어 라이선스보다 **사용 제한**이 붙는 일이 많다. 이 서비스는 성인 모드(성적 장면·폭력 묘사 그림)가 있어서 특히 중요하다.

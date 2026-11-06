@@ -2,6 +2,17 @@
 
 정본: `.agents/skills/codicomperchat/SKILL.md` §5. 이 문서는 그 상세판이다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+main ◀──(--no-ff)── develop ◀──(--no-ff)── feature/a ◀── feature/b (쌓기)
+  ▲ 사용자가 말할 때만        ▲ 쌓인 순서대로                 │
+  │                           │                              └ 커밋마다 docs/branchs/commits 기록
+  └ 병합 커밋마다 기록 ───────┘ (병합과 기록 커밋을 한 명령으로 묶지 않는다)
+금지: fast-forward 병합 · force-push · .env 커밋
+```
+
 ## 브랜치 구조
 
 ```text

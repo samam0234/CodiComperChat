@@ -2,6 +2,19 @@
 
 > 개발용 메일 서버(Mailpit)는 Docker로 띄운다: `docker compose up -d mailpit` → SMTP `127.0.0.1:1025`, 받은 메일 `http://127.0.0.1:8025`. 이때 `postgres` 컨테이너는 띄우지 않는다(설치형 PostgreSQL과 5432가 겹친다) — 서비스 이름을 꼭 붙인다. 설정은 [getting-started.md](getting-started.md) "환경변수".
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+설치형 PostgreSQL 16 (기본, :5432)          Docker (선택)
+   └─ DB codicomperchat (개발)                  └─ docker compose up -d postgres · mailpit
+      codicomperchat_e2e (e2e가 만든다)
+      codicomperchat_readme (README 데모가 만든다)
+        │
+        ▼
+apps/api: npx prisma migrate deploy (34개) → npm run prisma:seed
+```
+
 ## 로컬 PostgreSQL (현재 개발 환경)
 
 로컬 개발 DB는 Docker가 아니라 **Windows에 설치한 PostgreSQL 16**을 쓴다. 프로그램과 데이터 모두 D드라이브다.

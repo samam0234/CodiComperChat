@@ -2,6 +2,25 @@
 
 정본: `CodiComperChat_project_plan.md` §7.3. 최종 갱신 2026-11-06 — 실제 폴더 기준.
 
+![시스템 구조](../.assets/readme/architecture.png)
+
+![계층 구조](../.assets/readme/layers.png)
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+CodiComperChat/
+├── apps/web ─────┐
+├── console ──────┼──▶ apps/api ──▶ services/ai
+│                 │         └──▶ PostgreSQL (prisma/)
+├── e2e ── 위 넷을 운영 빌드로 띄워 시험
+├── deploy ── 운영 compose · Caddy · Dockerfile
+├── scripts ── ci-local · record-commit · readme-media · db-backup
+├── docs ── 이 문서들 (.assets = 그림)
+└── .agents + 도구별 어댑터 ── 에이전트 규칙
+```
+
 ## 모노레포 최상위
 
 ```text

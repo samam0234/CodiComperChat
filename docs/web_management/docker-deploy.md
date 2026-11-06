@@ -11,6 +11,23 @@
 
 바깥에 열리는 포트는 caddy의 80·443뿐이다. 나머지는 내부망에만 있다.
 
+![운영 배포 구성](../.assets/readme/deploy-topology.png)
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+서버 준비 (GPU 드라이버 · Docker) ─▶ deploy/server-setup.sh
+   ▼
+배포 키로 git clone ─▶ deploy/.env (도메인 · 비밀값 · 모델 폴더)
+   ▼
+docker compose -f deploy/docker-compose.prod.yml up -d
+   ├─ migrate → api → web/console → caddy (HTTPS 발급)
+   └─ ai ↔ ollama (모델 내려받기)
+   ▼
+24시간 유지: restart always · healthcheck · cron 백업 · 로그 크기 제한
+```
+
 ## 서버 조건
 
 | 항목 | 기준 | 근거 |

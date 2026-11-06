@@ -5,6 +5,7 @@
 <p align="center">
   <b>개발 단계 · 공개 서비스 전</b> ·
   <a href="#소개-영상">소개 영상</a> ·
+  <a href="#로직-구조">로직 구조</a> ·
   <a href="#월드코퍼챗">월드코퍼챗</a> ·
   <a href="#둘러보기">둘러보기</a> ·
   <a href="#구조">구조</a> ·
@@ -55,6 +56,36 @@
 | 한 번에 한 캐릭터와만 이야기한다 | **월드코퍼챗**: 한 세계관 안의 여러 인물과 파트·코퍼맵·미니게임으로 이어 간다 |
 
 > **이 저장소는 오픈소스가 아닙니다.** 허락 없는 clone, 다운로드, 복제, 실행, 호스팅, 모델 학습을 허용하지 않습니다. 저장소는 비공개로 전환할 예정입니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+┌─────────────── 브라우저 ───────────────┐      ┌──── 운영자 브라우저 ────┐
+│ apps/web (Next.js :3000)               │      │ console (Next.js :3001) │
+│ 서버 컴포넌트·서버 액션·/api 중계만    │      │ 서버 액션·그림 중계     │
+└───────────────┬────────────────────────┘      └───────────┬─────────────┘
+                │ Authorization: Bearer (httpOnly 쿠키 → 서버가 붙임)
+                ▼                                           ▼
+┌──────────────────────── apps/api (Nest.js :4000) — 신뢰 경계 ─────────────────────────┐
+│ Guard(로그인·운영자·요청 한도) → Service(권한·소유·코레딧·모델 조건·맥락 조립)       │
+│ → 순수 함수(quest.ts·world.ts·card.ts·adult.ts …) → Prisma                           │
+└───────┬───────────────────────────────────────────────────┬─────────────────────────┘
+        │ Prisma                                            │ AI 대기열 + AI_SERVICE_TOKEN
+        ▼                                                   ▼
+┌─ PostgreSQL 16 ─┐                      ┌──── services/ai (FastAPI :8000, 내부망) ────┐
+│ 테이블 37개     │                      │ /infer /summarize /remember /ground-check  │
+│ 그림도 bytea    │                      │ /world/turn /world/part-check /photonet …   │
+└─────────────────┘                      │ DB를 보지 않고 Nest가 조립한 맥락만 쓴다    │
+                                         └──────┬───────────────────────┬──────────────┘
+                                                ▼                       ▼
+                                      Ollama gemma4:e4b       diffusers (Animagine·SD 1.5, GPU)
+
+한 턴(1:1 대화):  확인 → 맥락 조립(카드 핵심·지식 조각·기억·이야기 상태) → /infer
+                 → (개인사 질문이면 /ground-check, 지어냈으면 다시) → 저장 → 6개마다 뒤에서 정리
+한 턴(월드):     확인 → 맥락(세계관·인물·장소·그림 이름표·파트) → /world/turn → 제어 줄 검사
+                 → 저장 → 3턴마다 파트 판정 → 확률로 이벤트 → 서버가 결과·보상
+```
 
 ## 소개 영상
 
@@ -264,6 +295,29 @@
 **웹은 FastAPI를 직접 부르지 않습니다.** 인증, 권한, 코레딧, 맥락 조립은 모두 Nest에서 합니다. FastAPI는 DB를 보지 않고 Nest가 조립해 넘긴 조각만 씁니다. Redis와 벡터 DB는 쓰지 않습니다.
 
 <a href="docs/.assets/readme/chat-turn.png"><img src="docs/.assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
+
+### 더 자세한 구조 그림
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/.assets/readme/layers.png"><img src="docs/.assets/readme/layers.png" alt="계층 구조: Next → Nest → FastAPI"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/deploy-topology.png"><img src="docs/.assets/readme/deploy-topology.png" alt="운영 배포 구성: Caddy, web, console, api, postgres, ai, ollama"></a></td>
+  </tr>
+  <tr>
+    <td><b>계층.</b> 웹은 FastAPI를 모르고, FastAPI는 DB를 모릅니다. 판단은 Nest의 순수 함수에 모아 DB 없이 시험합니다.</td>
+    <td><b>운영 배포.</b> GPU 서버 한 대, 바깥에는 Caddy의 80·443만 열립니다.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/.assets/readme/data-map.png"><img src="docs/.assets/readme/data-map.png" alt="데이터 지도: 테이블 37개"></a></td>
+    <td><a href="docs/.assets/readme/screen-map.png"><img src="docs/.assets/readme/screen-map.png" alt="화면 지도: 이용자 35개, 콘솔 12개"></a></td>
+  </tr>
+  <tr>
+    <td><b>데이터.</b> 테이블 37개를 영역별로. 돈과 횟수는 DB 한 문장으로 셉니다.</td>
+    <td><b>화면.</b> 이용자 사이트 35개, 운영 콘솔 12개.</td>
+  </tr>
+</table>
+
+모든 구조 그림과 설명: [docs/README.md#구조-그림-한눈에](docs/README.md#구조-그림-한눈에)
 
 ### 저장소 구성
 

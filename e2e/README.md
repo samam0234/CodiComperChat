@@ -13,6 +13,28 @@ npx playwright show-trace e2e/.tmp/test-results/<실패한 테스트>/trace.zip 
 
 필요한 것: 로컬 PostgreSQL(개발 DB와 같은 서버), 설치된 Chrome, `services/ai/.venv`(FastAPI 의존성). 포트와 DB는 개발 환경과 겹치지 않아 개발 서버를 켜 둬도 된다. 그림 엔진은 메모리를 많이 쓰니 끈다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+npm run test:e2e
+   │
+   ▼
+prepare.mjs ─ e2e DB(codicomperchat_e2e) 새로 만들기 → migrate deploy → seed
+   │          운영 빌드 (.next-e2e · dist-verify), E2E_SKIP_BUILD=1이면 건너뜀
+   ▼
+playwright.config.ts webServer
+   ├─ servers/ai.mjs      :8101  LLM_FAKE=1 · 가짜 그림 엔진
+   ├─ servers/api.mjs     :4101  RATE_LIMIT_SCALE 크게 · 메일은 파일로
+   ├─ servers/web.mjs     :3101  next start
+   └─ servers/console.mjs :3102
+   ▼
+tests/*.spec.ts (워커 1개, 순서대로)
+   준비는 helpers.ts의 api()로 Nest 직접 → 확인할 것만 브라우저로
+   ▼
+실패 → e2e/.tmp/test-results (화면·추적)
+```
+
 ## 구조
 
 ```mermaid

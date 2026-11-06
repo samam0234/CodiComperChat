@@ -2,6 +2,21 @@
 
 정본: `.agents/skills/codicomperchat/SKILL.md` §3. 이 문서는 그 상세판이다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+type(scope): 한국어 요약          ← type·scope는 영어
+                                   예: feat(worlds): 월드코퍼챗 … 추가
+본문 (한국어, 무엇을·왜)
+
+바닥글 (Co-Authored-By는 안내가 있을 때만)
+   │
+   ▼
+node scripts/record-commit.mjs --name <kebab> --notes <본문> --commit
+   → docs/branchs/commits/<날짜>_<sha>_<이름>_<브랜치>.md + README 목록 한 줄 (별도 커밋)
+```
+
 ## 언어 규칙
 
 | 구간 | 언어 | 비고 |
