@@ -26,6 +26,50 @@
 FastAPI: 내부망 + AI_SERVICE_TOKEN만 통과(루프백 /health 예외), 운영 시작 때 안전 설정 확인
 ```
 
+<!-- logic-mermaid -->
+
+### 신뢰 경계와 검사 순서
+
+```mermaid
+flowchart LR
+  R["요청"] --> CA["Caddy<br/>HTTPS · 콘솔 IP 허용"]
+  CA --> NX["web / console<br/>nonce CSP"]
+  NX --> G["Nest Guard<br/>토큰→DB 세션 · role · 요청 한도"]
+  G --> SV["Service<br/>소유 · 공개 범위 · 성인 확인 · 코레딧"]
+  SV --> DB[("PostgreSQL")]
+  SV --> AI["FastAPI<br/>내부 토큰만"]
+  AI --> CK["모델 출력 검사<br/>인용 대조 · 제어 줄 · 단서"]
+  CK --> SV
+```
+
+### 수위 판단
+
+```mermaid
+flowchart TD
+  T["이번 턴"] --> C{"이번·직전 유저 말에<br/>강제 단서?"}
+  C -- "예" --> R1["거부하고 장면을 멈춘다<br/>(수위와 상관없이)"]
+  C -- "아니오" --> A{"성인 확인 계정이고<br/>로컬 모델?"}
+  A -- "아니오" --> R2["전체 이용가"]
+  A -- "예" --> M{"카드·프로필·대화에<br/>미성년자 단서?"}
+  M -- "예" --> R3["성적 묘사 금지"]
+  M -- "아니오" --> R4["성인 수위"]
+```
+
+### 그림이 올라올 때
+
+```mermaid
+flowchart TD
+  U["그림 올리기"] --> MB{"매직 바이트가<br/>형식과 맞나"}
+  MB -- "아니오" --> X1["400"]
+  MB -- "예" --> MD["자동 검수 /moderate-image"]
+  MD -->|"block"| X2["400 거절"]
+  MD -->|"review 또는 검수 호출 실패"| P["PENDING<br/>만든 사람만 봄"]
+  MD -->|"ok"| OK["APPROVED<br/>공개"]
+  P --> AD["운영자 검수"]
+  AD --> OK
+  AD --> RJ["REJECTED"]
+```
+
 ## 취약점 신고
 
 보안 문제를 발견하면 **공개 이슈로 올리지 말고** 비공개로 알려 주세요.

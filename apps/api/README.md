@@ -38,6 +38,38 @@ app.module.ts ─ 모듈 30여 개를 묶는다
   operations     ─ 심리 탐구·일기·메시지·커뮤니티·코디포토넷·웹툰
 ```
 
+<!-- logic-mermaid -->
+
+### 요청이 지나가는 층
+
+```mermaid
+flowchart TD
+  RQ["HTTP 요청"] --> CT["Controller"]
+  CT --> GD{"Guard<br/>Auth · Admin · RateLimit"}
+  GD -- "막힘" --> E["401 · 403 · 429"]
+  GD -- "통과" --> SV["Service"]
+  SV --> PF["순수 함수 *.ts"]
+  SV --> PR["PrismaService"]
+  SV --> AC["ai-client<br/>대기열"]
+  SV --> CR["CreditsService"]
+  PR --> DB[("PostgreSQL")]
+  AC --> AI["FastAPI"]
+```
+
+### 뒤에서 하는 이야기 정리
+
+```mermaid
+sequenceDiagram
+  participant N as CampaignStoryService
+  participant A as FastAPI
+  participant Q as QuestsService
+  N->>N: 정리 안 된 메시지가 6개 이상?
+  N->>A: POST /summarize (background 우선순위)
+  A-->>N: brief · 친밀도 변화 · 복선 · questOffered/Done/Scene
+  N->>N: applyDigest (변화량 자르기)
+  N->>Q: apply (판정 → 상태 → 보상)
+```
+
 ## 아키텍처
 
 ```mermaid

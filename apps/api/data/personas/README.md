@@ -23,6 +23,19 @@ PersonaRagService
 비밀·해금 조건은 파일에 넣지 않는다
 ```
 
+<!-- logic-mermaid -->
+
+### 지식 조각이 대화에 들어가는 길
+
+```mermaid
+flowchart LR
+  J["이름.json<br/>core + chunks"] --> R["PersonaRagService<br/>2-gram BM25 + 키워드"]
+  Q["이번 말 + 직전 두 턴"] --> R
+  R --> K["조각 최대 3개 · 700자"]
+  K --> CTX["맥락 directorNote"]
+  CTX --> INF["/infer"]
+```
+
 ## 만드는 법
 
 ```bash

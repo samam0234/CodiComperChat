@@ -35,6 +35,20 @@ tests/*.spec.ts (워커 1개, 순서대로)
 실패 → e2e/.tmp/test-results (화면·추적)
 ```
 
+<!-- logic-mermaid -->
+
+### 실행 순서
+
+```mermaid
+flowchart TD
+  S["npm run test:e2e"] --> P["prepare.mjs<br/>e2e DB 새로 · migrate · seed · 운영 빌드"]
+  P --> W["webServer 넷<br/>ai 8101 · api 4101 · web 3101 · console 3102"]
+  W --> T["tests/*.spec.ts<br/>워커 1개"]
+  T --> H["helpers.api()로 준비"]
+  T --> BR["브라우저로 확인"]
+  T -->|"실패"| R["e2e/.tmp/test-results"]
+```
+
 ## 구조
 
 ```mermaid

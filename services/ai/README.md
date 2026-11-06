@@ -60,6 +60,38 @@ Nest ─▶ internal_auth 미들웨어 (AI_SERVICE_TOKEN, 루프백 /health만 �
    image_engine.py ─ diffusers (서버 안) 또는 WebUI
 ```
 
+<!-- logic-mermaid -->
+
+### 경로 지도
+
+```mermaid
+flowchart LR
+  N["Nest"] --> IA["internal_auth"]
+  IA --> R1["/infer · /suggest-replies · /ground-check"]
+  IA --> R2["/summarize · /remember"]
+  IA --> R3["/critique-test · /draft-*"]
+  IA --> R4["/mind · /diary · /board-*"]
+  IA --> R5["/photonet · /webtoon/* · /moderate-image · /portrait"]
+  IA --> R6["/world/turn · /world/part-check"]
+  R1 & R2 & R3 & R4 & R6 --> L["llm.py"]
+  R5 --> IE["image_engine"]
+  L --> O["Ollama"]
+  L --> F["fake_llm"]
+  L --> P["premium (Claude · Grok)"]
+```
+
+### 1:1 연기 프롬프트 순서
+
+```mermaid
+flowchart TD
+  A["캐릭터 카드 · 지식 조각"] --> B["프로필 · 기억 · 이야기 상태"]
+  B --> C["대화 규칙 (GROUNDING_RULES)"]
+  C --> D["수위 규칙"]
+  D --> E["이번 턴 형식 (나레이션)"]
+  E --> F["이번 답에서 꼭 할 일 (보상 장면)"]
+  F --> G["다시 쓰기 지시 (있을 때)"]
+```
+
 ## 아키텍처
 
 ```mermaid
