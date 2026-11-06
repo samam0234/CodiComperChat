@@ -339,5 +339,6 @@
 | 2026-11-06 | `6202461` | develop (merge) | feature/narration-reward-scene into develop | [261106_1551_6202461_merge-narration-reward-scene_develop.md](commits/261106_1551_6202461_merge-narration-reward-scene_develop.md) |
 | 2026-11-06 | `dfaff58` | develop (merge) | feature/adult-chat into develop | [261106_1551_dfaff58_merge-adult-chat_develop.md](commits/261106_1551_dfaff58_merge-adult-chat_develop.md) |
 | 2026-11-06 | `6651b8f` | develop (merge) | feature/agent-adapters into develop | [261106_1551_6651b8f_merge-agent-adapters_develop.md](commits/261106_1551_6651b8f_merge-agent-adapters_develop.md) |
+| 2026-11-06 | `bc7793a` | develop (merge) | feature/world-core into develop | [261106_1551_bc7793a_merge-world-core_develop.md](commits/261106_1551_bc7793a_merge-world-core_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
