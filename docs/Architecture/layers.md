@@ -2,6 +2,8 @@
 
 최종 갱신 2026-11-06.
 
+![계층 구조](../.assets/readme/layers.png)
+
 ## Nest.js (`apps/api`)
 
 ```text

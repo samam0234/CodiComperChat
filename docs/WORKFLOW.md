@@ -2,6 +2,8 @@
 
 정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-04 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md).
 
+![1:1 대화 한 턴의 처리 순서](.assets/readme/chat-turn.png)
+
 ## 한 번의 유저 메시지 처리
 
 ```text

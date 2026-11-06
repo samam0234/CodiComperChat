@@ -1,5 +1,7 @@
 # 포트 인벤토리
 
+![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
+
 기준 문서: [../plan/CURRENT_STACK.md](../plan/CURRENT_STACK.md). **여기 값이 그 문서와 다르면 CURRENT_STACK이 맞고 이 문서를 고친다.**
 
 | 서비스 | 개발 | e2e(자동 테스트) | 확정 여부 |

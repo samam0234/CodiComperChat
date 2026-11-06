@@ -13,6 +13,8 @@
 
 ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추론에 필요한 슬라이스만 Nest가 조립해 넘긴다.
 
+![데이터 지도 — 테이블 37개](../.assets/readme/data-map.png)
+
 ## 테이블 (37개)
 
 공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.

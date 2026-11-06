@@ -26,6 +26,17 @@ docs/.assets/
 | `features.png` | 기능 지도 12칸 (2026-11-06) | README 둘러보기, [../FEATURES.md](../FEATURES.md) |
 | `intro-poster.jpg` | 소개 영상 포스터 | README 소개 영상 |
 
+구조 그림 (`node scripts/readme-media/diagrams.mjs`, 2026-11-06):
+
+| 파일 | 내용 | 쓰는 곳 |
+|------|------|---------|
+| `layers.png` | 계층 구조(Next · Nest · FastAPI) | docs/README, Architecture/overview·layers, PROJECT_STRUCTURE, AI_MODEL_STRATEGY, AGENT_HANDOVER, README |
+| `deploy-topology.png` | 운영 배포(Caddy·web·console·api·postgres·migrate·ai·ollama, 망·볼륨) | Architecture/docker-topology, DEPLOYMENT, web_management/docker-deploy, README |
+| `dev-environments.png` | 개발·e2e·README 데모 포트와 DB | Architecture/docker-topology, guidance/getting-started, web_management/ports-inventory |
+| `data-map.png` | 테이블 37개 영역별 지도 | plan/DATABASE, Architecture/data-flow, AGENT_HANDOVER, README |
+| `screen-map.png` | 이용자 화면 35개·콘솔 12개 | Architecture/apps, plan/NAVIGATION_IA |
+| `ci-pipeline.png` | CI 두 잡의 단계 | plan/TESTING |
+
 ### 실제 앱을 찍은 것
 
 데모 환경(`servers.mjs`: 데모 전용 DB `codicomperchat_readme`, 포트 3201·3202·4201·8201, `ADULT_MODE=off`, `example.com` 가짜 계정)에서 실제 모델로 찍었다.

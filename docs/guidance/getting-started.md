@@ -2,6 +2,8 @@
 
 새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-11-04.
 
+![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
+
 ## 전제 조건
 
 | 항목 | 값 | 확인 |

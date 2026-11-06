@@ -2,6 +2,10 @@
 
 정본: `CodiComperChat_project_plan.md` §7.3. 최종 갱신 2026-11-06 — 실제 폴더 기준.
 
+![시스템 구조](../.assets/readme/architecture.png)
+
+![계층 구조](../.assets/readme/layers.png)
+
 ## 모노레포 최상위
 
 ```text

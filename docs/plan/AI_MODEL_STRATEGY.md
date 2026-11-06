@@ -80,6 +80,8 @@ v1은 **외부 LLM(또는 호스티드 오픈모델) + 단단한 시스템 프�
 
 `services/ai` 안에서 diffusers로 직접 그린다(`IMAGE_ENGINE=local`, 개발 PC 대안은 WebUI). 서비스에 쓰는 체크포인트는 둘뿐이다 — 애니메이션·웹툰은 **Animagine XL 4.0 Opt**(SDXL, CreativeML Open RAIL++-M), 수채화·실사풍은 **Stable Diffusion 1.5 기본 모델**(CreativeML OpenRAIL-M). 결과는 기존 그림 검수(gemma4)를 통과해야 돌려준다. 자세히 [../guidance/photonet-engine.md](../guidance/photonet-engine.md)
 
+![계층 구조 — FastAPI는 오른쪽 열](../.assets/readme/layers.png)
+
 ## FastAPI의 역할 (v1)
 
 "학습 공장"이 아니라 **연기·요약 엔진**이다 (최종 갱신 2026-10-24):

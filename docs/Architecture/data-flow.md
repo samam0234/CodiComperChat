@@ -2,6 +2,12 @@
 
 정본: `CodiComperChat_project_plan.md` §7.6, §13.4. 최종 갱신 2026-10-24. 요청/응답 흐름 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md)에 있다 — 이 문서는 상태(State) 관점에서 같은 흐름을 본다.
 
+![1:1 대화 한 턴](../.assets/readme/chat-turn.png)
+
+![데이터 지도](../.assets/readme/data-map.png)
+
+<sub>상태가 어느 테이블에 남는지</sub>
+
 ## 메시지 한 번 보낼 때 상태가 움직이는 순서 (`POST /characters/:id/chat`)
 
 ```text
