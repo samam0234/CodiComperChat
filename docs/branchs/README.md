@@ -337,5 +337,6 @@
 | 2026-11-06 | `5881260` | feature/docs-overhaul-world | 월드코퍼챗과 2026-11-06 변경을 docs 전체에 반영 | [261106_1543_5881260_docs-overhaul-world_feature-docs-overhaul-world.md](commits/261106_1543_5881260_docs-overhaul-world_feature-docs-overhaul-world.md) |
 | 2026-11-06 | `a3d5554` | feature/docs-overhaul-world | 앱별 README와 보안·에이전트 문서에 월드코퍼챗 추가 | [261106_1543_a3d5554_docs-apps-world_feature-docs-overhaul-world.md](commits/261106_1543_a3d5554_docs-apps-world_feature-docs-overhaul-world.md) |
 | 2026-11-06 | `6202461` | develop (merge) | feature/narration-reward-scene into develop | [261106_1551_6202461_merge-narration-reward-scene_develop.md](commits/261106_1551_6202461_merge-narration-reward-scene_develop.md) |
+| 2026-11-06 | `dfaff58` | develop (merge) | feature/adult-chat into develop | [261106_1551_dfaff58_merge-adult-chat_develop.md](commits/261106_1551_dfaff58_merge-adult-chat_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
