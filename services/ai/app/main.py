@@ -21,6 +21,7 @@ from app.routes import (
     summarize,
     train,
     webtoon,
+    world,
 )
 
 # 실행 위치·--env-file 유무와 상관없이 services/ai/.env를 읽는다. 이미 설정된 환경변수는 덮어쓰지 않는다
@@ -52,4 +53,5 @@ app.include_router(operations.router)
 app.include_router(photonet.router)
 app.include_router(portrait.router)
 app.include_router(webtoon.router)
+app.include_router(world.router)
 app.include_router(train.router)
