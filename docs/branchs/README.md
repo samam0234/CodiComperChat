@@ -333,5 +333,6 @@
 | 2026-11-06 | `e273715` | feature/docs-assets-rename | docs/assets를 docs/.assets로 옮김 | [261106_1522_e273715_assets-rename_feature-docs-assets-rename.md](commits/261106_1522_e273715_assets-rename_feature-docs-assets-rename.md) |
 | 2026-11-06 | `7fe2ed3` | feature/readme-world | 변형 제어 줄 버리기와 코퍼맵 핀 잘림 고침 | [261106_1536_7fe2ed3_world-control-fix_feature-readme-world.md](commits/261106_1536_7fe2ed3_world-control-fix_feature-readme-world.md) |
 | 2026-11-06 | `4fe8b75` | feature/readme-world | 월드코퍼챗 화면·도표와 그림 폴더 안내 추가 | [261106_1536_4fe8b75_readme-world-media_feature-readme-world.md](commits/261106_1536_4fe8b75_readme-world-media_feature-readme-world.md) |
+| 2026-11-06 | `cda9e88` | feature/docs-overhaul-world | 월드코퍼챗 정본·사용 안내·실측 문서 추가 | [261106_1543_cda9e88_docs-world-core_feature-docs-overhaul-world.md](commits/261106_1543_cda9e88_docs-world-core_feature-docs-overhaul-world.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
