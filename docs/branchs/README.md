@@ -329,5 +329,6 @@
 | 2026-11-06 | `9a2781c` | feature/world-core | 월드코퍼챗 진행자와 파트 판정 추가 | [261106_1457_9a2781c_world-ai_feature-world-core.md](commits/261106_1457_9a2781c_world-ai_feature-world-core.md) |
 | 2026-11-06 | `411afb5` | feature/world-core | 월드코퍼챗 DB와 세계관·플레이·이벤트 API 추가 | [261106_1458_411afb5_world-api_feature-world-core.md](commits/261106_1458_411afb5_world-api_feature-world-core.md) |
 | 2026-11-06 | `49a788e` | feature/world-core | 월드코퍼챗 목록·소개·편집기·플레이 화면 추가 | [261106_1518_49a788e_world-web_feature-world-core.md](commits/261106_1518_49a788e_world-web_feature-world-core.md) |
+| 2026-11-06 | `348391e` | feature/world-core | 월드코퍼챗 운영 화면과 e2e 시험 추가 | [261106_1518_348391e_world-console_feature-world-core.md](commits/261106_1518_348391e_world-console_feature-world-core.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
