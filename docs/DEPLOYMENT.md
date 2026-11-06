@@ -8,6 +8,7 @@
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
+| **Oracle VM 한 번에 올리기** | `deploy/oracle/bootstrap.sh` (VM에서 실행: 준비·레포·값 입력·기동·확인) |
 | **Oracle 콘솔 화면 따라 하기** | [web_management/oracle-console-guide.html](web_management/oracle-console-guide.html) (콘솔 화면을 다시 그린 모형, 실제와 100% 같지 않음) |
 | **나눠 올리기 (Vercel + Oracle 무료 + GPU AI 노드), 한눈에 보는 안내** | [web_management/deploy-guide.html](web_management/deploy-guide.html) (브라우저로 연다), 구성 `deploy/oracle/`, `deploy/ai-node/` |
 | 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |

@@ -324,6 +324,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><
 <details class="step" data-step="3">
   <summary><span class="num">3</span><span class="title">VM 준비 스크립트</span><span class="where">Oracle VM</span></summary>
   <div class="body">
+    <div class="callout ok"><strong>한 번에 하려면:</strong> VM에 SSH로 들어가 <code>deploy/oracle/bootstrap.sh</code>를 실행한다. 3~5단계(준비 스크립트, 값 입력·비밀값 생성, 백엔드 올리기)를 묻는 대로 답하며 이어서 한다. 도메인이 없으면 공인 IP로 만든 무료 주소(<code>x-x-x-x.sslip.io</code>)를 쓴다. 실제 VM에서 돌려 본 적은 없다.<pre style="margin:6px 0 0;overflow-x:auto"><code>curl -fsSL https://raw.githubusercontent.com/samam0234/CodiComperChat/claude/project-thread-po3i10/deploy/oracle/bootstrap.sh | sudo -E bash</code></pre></div>
     <p>저장소는 비공개 전환 예정이라 읽기 전용 배포 키로 받는다(<a href="docker-deploy.md">docker-deploy.md</a> "처음 설치"와 같음).</p>
     <div class="code"><pre><code>git clone git@github.com:samam0234/CodiComperChat.git ~/CodiComperChat
 cd ~/CodiComperChat
