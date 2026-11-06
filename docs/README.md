@@ -27,7 +27,7 @@ docs/
 ├── guidance/                 ← "따라 하기" 실행 가이드
 ├── find_debug/               ← 날짜별 디버그 일지
 ├── trainings/                ← 실제로 돌려 본 결과와 판단 (모델 학습 기록이 아님)
-├── assets/readme/            ← 루트 README의 그림·영상 (scripts/readme-media가 만든다)
+├── .assets/readme/           ← 루트 README의 그림·영상 (scripts/readme-media가 만든다)
 ├── repeater/                 ← 인프라 장애·해결 지식
 ├── vaildates/                ← 검증 체크리스트 (철자 의도적 유지)
 └── web_management/           ← 배포·포트·운영 기록

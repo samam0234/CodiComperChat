@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/readme/banner.png" alt="코디컴퍼챗: 어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인" width="100%">
+  <img src="docs/.assets/readme/banner.png" alt="코디컴퍼챗: 어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인" width="100%">
 </p>
 
 <p align="center">
@@ -58,9 +58,9 @@
 
 약 55초입니다. 실제로 띄운 앱을 녹화했고, 답은 실제 `gemma4:e4b`가 썼습니다. 그림은 미리 그려 둔 것을 보여 줍니다. 그리는 데 분 단위로 걸려 영상에서 뺐습니다.
 
-[![소개 영상 재생 (MP4)](docs/assets/readme/intro-poster.jpg)](docs/assets/readme/intro.mp4)
+[![소개 영상 재생 (MP4)](docs/.assets/readme/intro-poster.jpg)](docs/.assets/readme/intro.mp4)
 
-[**▶ 소개 영상 열기 (MP4, 1.7MB)**](docs/assets/readme/intro.mp4)
+[**▶ 소개 영상 열기 (MP4, 1.7MB)**](docs/.assets/readme/intro.mp4)
 
 <table>
   <tr>
@@ -68,8 +68,8 @@
     <th>대화 장면이 그림과 웹툰이 된다</th>
   </tr>
   <tr>
-    <td><a href="docs/assets/readme/demo-chat.gif"><img src="docs/assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></a></td>
-    <td><a href="docs/assets/readme/demo-image.gif"><img src="docs/assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></a></td>
+    <td><a href="docs/.assets/readme/demo-chat.gif"><img src="docs/.assets/readme/demo-chat.gif" alt="이세연에게 말을 걸고 답을 받는 화면"></a></td>
+    <td><a href="docs/.assets/readme/demo-image.gif"><img src="docs/.assets/readme/demo-image.gif" alt="코디포토넷 그림과 웹툰 화면"></a></td>
   </tr>
 </table>
 
@@ -81,16 +81,16 @@
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/assets/readme/chat.jpg"><img src="docs/assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></a></td>
-    <td width="50%"><a href="docs/assets/readme/story.jpg"><img src="docs/assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/chat.jpg"><img src="docs/.assets/readme/chat.jpg" alt="캐릭터와의 대화 화면"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/story.jpg"><img src="docs/.assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
   </tr>
   <tr>
     <td><b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다.</td>
     <td><b>지난 이야기.</b> 대화 3번마다 뒤에서 요약하고 친밀도와 복선을 갱신합니다. 잘못 잡힌 복선은 유저가 지울 수 있습니다.</td>
   </tr>
   <tr>
-    <td><a href="docs/assets/readme/chat-recommend.jpg"><img src="docs/assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></a></td>
-    <td><a href="docs/assets/readme/memories.jpg"><img src="docs/assets/readme/memories.jpg" alt="장기 기억 목록"></a></td>
+    <td><a href="docs/.assets/readme/chat-recommend.jpg"><img src="docs/.assets/readme/chat-recommend.jpg" alt="추천 프로필 카드"></a></td>
+    <td><a href="docs/.assets/readme/memories.jpg"><img src="docs/.assets/readme/memories.jpg" alt="장기 기억 목록"></a></td>
   </tr>
   <tr>
     <td><b>추천 프로필.</b> 캐릭터에 어울리는 주인공을 눌러서 바로 시작합니다.</td>
@@ -102,9 +102,9 @@
 
 <table>
   <tr>
-    <td width="33%"><a href="docs/assets/readme/ops-mind.jpg"><img src="docs/assets/readme/ops-mind.jpg" alt="심리 탐구"></a></td>
-    <td width="33%"><a href="docs/assets/readme/ops-diary.jpg"><img src="docs/assets/readme/ops-diary.jpg" alt="일기"></a></td>
-    <td width="33%"><a href="docs/assets/readme/ops-community.jpg"><img src="docs/assets/readme/ops-community.jpg" alt="커뮤니티"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-mind.jpg"><img src="docs/.assets/readme/ops-mind.jpg" alt="심리 탐구"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-diary.jpg"><img src="docs/.assets/readme/ops-diary.jpg" alt="일기"></a></td>
+    <td width="33%"><a href="docs/.assets/readme/ops-community.jpg"><img src="docs/.assets/readme/ops-community.jpg" alt="커뮤니티"></a></td>
   </tr>
   <tr>
     <td><b>심리 탐구.</b> 겉으로 하지 않은 속마음을 엿봅니다. 설정의 비밀은 드러나지 않습니다.</td>
@@ -119,8 +119,8 @@
 
 <table>
   <tr>
-    <td width="60%"><a href="docs/assets/readme/photonet.jpg"><img src="docs/assets/readme/photonet.jpg" alt="코디포토넷 창"></a></td>
-    <td width="40%" rowspan="2"><a href="docs/assets/readme/webtoon.jpg"><img src="docs/assets/readme/webtoon.jpg" alt="웹툰 3컷"></a></td>
+    <td width="60%"><a href="docs/.assets/readme/photonet.jpg"><img src="docs/.assets/readme/photonet.jpg" alt="코디포토넷 창"></a></td>
+    <td width="40%" rowspan="2"><a href="docs/.assets/readme/webtoon.jpg"><img src="docs/.assets/readme/webtoon.jpg" alt="웹툰 3컷"></a></td>
   </tr>
   <tr>
     <td>
@@ -134,8 +134,8 @@
 
 <table>
   <tr>
-    <td width="70%"><a href="docs/assets/readme/studio.jpg"><img src="docs/assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></a></td>
-    <td width="30%"><a href="docs/assets/readme/studio-portrait.jpg"><img src="docs/assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></a></td>
+    <td width="70%"><a href="docs/.assets/readme/studio.jpg"><img src="docs/.assets/readme/studio.jpg" alt="캐릭터 공방 편집기"></a></td>
+    <td width="30%"><a href="docs/.assets/readme/studio-portrait.jpg"><img src="docs/.assets/readme/studio-portrait.jpg" alt="AI 초상 후보"></a></td>
   </tr>
   <tr>
     <td>정체성부터 말투, 비밀, 첫인사, 로어북, 비밀 퀘스트까지 8단계 카드로 씁니다. 칸마다 AI 초안을 받을 수 있고, 3턴 테스트에서 말투 붕괴, 강의식 답, 메타 발언, 비밀 누설을 판정합니다.</td>
@@ -151,9 +151,9 @@
 
 <table>
   <tr>
-    <td width="25%"><a href="docs/assets/readme/mobile-chat.jpg"><img src="docs/assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></a></td>
-    <td width="37%"><a href="docs/assets/readme/home-light.jpg"><img src="docs/assets/readme/home-light.jpg" alt="밝은 테마 홈"></a><br><br><a href="docs/assets/readme/home-dark.jpg"><img src="docs/assets/readme/home-dark.jpg" alt="어두운 테마 홈"></a></td>
-    <td width="38%"><a href="docs/assets/readme/console-dashboard.jpg"><img src="docs/assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"></a><br><br><a href="docs/assets/readme/console-content.jpg"><img src="docs/assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></a></td>
+    <td width="25%"><a href="docs/.assets/readme/mobile-chat.jpg"><img src="docs/.assets/readme/mobile-chat.jpg" alt="모바일 대화 화면"></a></td>
+    <td width="37%"><a href="docs/.assets/readme/home-light.jpg"><img src="docs/.assets/readme/home-light.jpg" alt="밝은 테마 홈"></a><br><br><a href="docs/.assets/readme/home-dark.jpg"><img src="docs/.assets/readme/home-dark.jpg" alt="어두운 테마 홈"></a></td>
+    <td width="38%"><a href="docs/.assets/readme/console-dashboard.jpg"><img src="docs/.assets/readme/console-dashboard.jpg" alt="운영 콘솔 대시보드"></a><br><br><a href="docs/.assets/readme/console-content.jpg"><img src="docs/.assets/readme/console-content.jpg" alt="운영 콘솔 그림 신고"></a></td>
   </tr>
   <tr>
     <td>좁은 화면</td>
@@ -186,15 +186,15 @@
 
 ### 기술 스택
 
-<a href="docs/assets/readme/stack.png"><img src="docs/assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%"></a>
+<a href="docs/.assets/readme/stack.png"><img src="docs/.assets/readme/stack.png" alt="기술 스택: Next.js 16, Nest.js 12, Prisma 7, PostgreSQL 16, FastAPI, Ollama, diffusers, Playwright, Docker Compose" width="100%"></a>
 
 ### 시스템 구조
 
-<a href="docs/assets/readme/architecture.png"><img src="docs/assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%"></a>
+<a href="docs/.assets/readme/architecture.png"><img src="docs/.assets/readme/architecture.png" alt="시스템 구조도: 웹과 콘솔이 Nest를 부르고, Nest가 PostgreSQL과 FastAPI를 부르며, FastAPI가 Ollama와 그림 엔진을 쓴다" width="100%"></a>
 
 **웹은 FastAPI를 직접 부르지 않습니다.** 인증, 권한, 코레딧, 맥락 조립은 모두 Nest에서 합니다. FastAPI는 DB를 보지 않고 Nest가 조립해 넘긴 조각만 씁니다. Redis와 벡터 DB는 쓰지 않습니다.
 
-<a href="docs/assets/readme/chat-turn.png"><img src="docs/assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
+<a href="docs/.assets/readme/chat-turn.png"><img src="docs/.assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
 
 ### 저장소 구성
 
