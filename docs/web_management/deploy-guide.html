@@ -296,6 +296,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><
 <details class="step" data-step="1">
   <summary><span class="num">1</span><span class="title">Oracle 계정과 무료 ARM VM 만들기</span><span class="where">Oracle 콘솔</span></summary>
   <div class="body">
+    <div class="callout ok">화면을 보면서 따라 하려면 <a href="oracle-console-guide.html"><strong>Oracle 콘솔 화면 안내(oracle-console-guide.html)</strong></a>를 연다. 콘솔 화면을 다시 그린 모형에 눌러야 할 곳을 번호로 표시했다(실제 화면과 100% 같지는 않다).</div>
     <ol>
       <li><a href="https://signup.cloud.oracle.com/">cloud.oracle.com</a>에서 가입. <strong>홈 리전</strong>은 나중에 못 바꾼다: 한국 이용자면 Seoul 또는 Chuncheon(무료 ARM 자리가 없으면 Tokyo·Osaka)</li>
       <li>Compute → Instances → Create instance</li>
@@ -312,7 +313,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><
   <summary><span class="num">2</span><span class="title">80·443 열기 + DNS</span><span class="where">Oracle 콘솔 · DNS</span></summary>
   <div class="body">
     <ol>
-      <li>Networking → Virtual Cloud Networks → (VM의 VCN) → Security Lists → Default → Add Ingress Rules<br>Source <code>0.0.0.0/0</code>, TCP, 포트 <code>80</code>와 <code>443</code></li>
+      <li>Networking → Virtual Cloud Networks → (VM의 VCN) → Security Lists → Default → Add Ingress Rules<br>Source <code>0.0.0.0/0</code>, TCP, 포트 <code>80</code> 규칙 하나, 같은 방식으로 <code>443</code> 규칙 하나(두 개를 따로 만든다). 화면은 <a href="oracle-console-guide.html">콘솔 화면 안내</a> 참고</li>
       <li>DNS: <code>API_DOMAIN</code>의 A 레코드를 VM 공인 IP로. Cloudflare DNS를 쓰면 <strong>프록시(주황 구름)를 끈다</strong>(회색, DNS only). 켜 두면 100초에 끊긴다</li>
     </ol>
     <label class="check"><input type="checkbox"> Security List에 80·443 규칙을 넣었다</label>
