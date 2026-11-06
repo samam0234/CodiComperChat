@@ -324,5 +324,6 @@
 | 2026-11-06 | `569a63d` | feature/narration-reward-scene | 장면 지시가 있는 턴에 나레이션 형식 지시 추가 | [261106_0526_569a63d_narration-directive_feature-narration-reward-scene.md](commits/261106_0526_569a63d_narration-directive_feature-narration-reward-scene.md) |
 | 2026-11-06 | `c9b6243` | feature/narration-reward-scene | 달성 판정 때 보상 장면 갈래를 골라 그 장면만 넘김 | [261106_0526_c9b6243_reward-scene-branch_feature-narration-reward-scene.md](commits/261106_0526_c9b6243_reward-scene-branch_feature-narration-reward-scene.md) |
 | 2026-11-06 | `398928b` | feature/narration-reward-scene | 나레이션·보상 장면 고친 과정과 실측 기록 | [261106_0526_398928b_docs-narration-reward_feature-narration-reward-scene.md](commits/261106_0526_398928b_docs-narration-reward_feature-narration-reward-scene.md) |
+| 2026-11-06 | `8da2cd7` | feature/adult-chat | 대화 수위와 성인 대화 추가 | [261106_0626_8da2cd7_adult-chat_feature-adult-chat.md](commits/261106_0626_8da2cd7_adult-chat_feature-adult-chat.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

@@ -10,6 +10,7 @@
 |------|------|
 | [eval-2026-11-06.md](eval-2026-11-06.md) | 전체 평가를 새로 돌린 결과, 실패 항목, 이전 결과와 비교 |
 | [small-model-prompting.md](small-model-prompting.md) | 작은 모델이 지시를 따르게 만든 시행착오 (말투, 나레이션, 호칭, 끝 지시, 단계 나누기) |
+| [adult-chat.md](adult-chat.md) | 대화 수위: 학습 없이 성인 대화를 연 판단, 강제 장면이 뚫린 일과 코드로 막은 과정 (2026-11-06) |
 | [narration-and-reward.md](narration-and-reward.md) | 나레이션 7/12 → 48/48, 보상 장면 2/8 → 20/20으로 고친 과정 (2026-11-06) |
 | [memory-and-grounding.md](memory-and-grounding.md) | 페르소나 지식 검색, 개인사 환각 막기, 이야기 상태 정리 |
 | [quest-judging.md](quest-judging.md) | 비밀 퀘스트 판정: 코레딧이 나가는 판정을 어떻게 믿을 수 있게 했나 |

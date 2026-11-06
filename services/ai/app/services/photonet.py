@@ -25,6 +25,7 @@ from PIL import Image
 
 from app.schemas.photonet import CastMember, PhotonetRequest, PhotonetResponse, PhotonetStatus
 from app.services import image_engine, llm, photonet_moderation
+from app.services.minors import minor_in as _minor_in
 
 logger = logging.getLogger(__name__)
 
@@ -109,27 +110,7 @@ YOUNG = re.compile(
 
 NSFW_BLOCKED_STYLES = {"실사풍"}
 
-# 성인 모드에서 미성년자를 가리키는 설정. 등장인물 명단·장면 설명·고른 대사에서 찾는다 — 걸리면 그리지 않는다.
-# 넓게 잡는다(과거 이야기 "고등학생 때"도 걸린다): 성인 그림에서는 지나치게 막는 쪽이 낫다. "학생"·"대학생"만으로는 걸지 않는다
-MINOR_WORDS = re.compile(
-    r"(초등학생|중학생|고등학생|초등학교|중학교|고등학교|초딩|중딩|고딩|미성년|어린이|아동|유아|아기(?!자기)|청소년|소년|소녀|"
-    r"여고생|남고생|여중생|남중생|[초중고]\s?[1-6]학년|(?<![가-힣])[중고][1-3](?![0-9])|교복|"
-    r"\bteen\w*|\bhigh\s?school\w*|\bmiddle\s?school\w*|\bschool\s?(girl|boy)\w*|\bloli\w*|\bshota\w*|\bchild\w*|\bkids?\b|\bunderage|\bminor\b)",
-    re.I,
-)
-# "17살", "15세" (… 세기 제외), 영어 "17 years old"
-MINOR_AGE = re.compile(r"(?<![0-9])([0-9]{1,2})\s*(살|세(?!기)|years?\s*old|yo\b)", re.I)
-
-
-def _minor_in(text: str) -> str | None:
-    if not text:
-        return None
-    if m := MINOR_WORDS.search(text):
-        return m.group(0).strip()
-    for m in MINOR_AGE.finditer(text):
-        if int(m.group(1)) < 19:
-            return m.group(0).strip()
-    return None
+# 성인 모드에서 미성년자를 가리키는 설정은 등장인물 명단·장면 설명·고른 대사에서 찾는다 — 걸리면 그리지 않는다 (app/services/minors.py)
 
 
 def minor_hint(request: PhotonetRequest) -> str | None:

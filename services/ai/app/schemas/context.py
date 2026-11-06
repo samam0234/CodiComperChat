@@ -111,3 +111,5 @@ class ContextSlice(WireModel):
     ungrounded_topics: list[str] = Field(default_factory=list, max_length=4)
     # 이번 답에서 꼭 보여 줄 장면 (비밀 퀘스트 보상). 작은 모델이 놓치지 않게 프롬프트 맨 끝에 붙인다
     scene_note: str | None = None
+    # 성인 대화 (2026-11-06). Nest가 서비스 성인 모드·성인 확인·동의를 매 턴 DB로 보고 정한다
+    adult: bool = False
