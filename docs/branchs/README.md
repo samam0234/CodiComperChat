@@ -345,5 +345,6 @@
 | 2026-11-06 | `4a0b4a4` | develop (merge) | feature/docs-overhaul-world into develop | [261106_1551_4a0b4a4_merge-docs-overhaul-world_develop.md](commits/261106_1551_4a0b4a4_merge-docs-overhaul-world_develop.md) |
 | 2026-11-06 | `70a23cb` | main (merge) | develop into main | [261106_1551_70a23cb_merge-develop-into-main-6_main.md](commits/261106_1551_70a23cb_merge-develop-into-main-6_main.md) |
 | 2026-11-06 | `0212067` | feature/docs-diagrams | 문서용 구조 그림 6장과 그리는 스크립트 추가 | [261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md](commits/261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md) |
+| 2026-11-06 | `0cd8120` | feature/docs-diagrams | 문서 곳곳에 구조 그림 넣기 | [261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md](commits/261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
