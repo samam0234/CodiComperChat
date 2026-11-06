@@ -44,6 +44,18 @@ flowchart LR
 | `/users` | 계정 등급: 이메일로 찾아 프로/무료 변경, 결제 내역·환불, 사유를 남기고 생년월일 고치기 |
 | `/login` | 운영자 로그인 |
 
+## 월드코퍼챗 (2026-11-06)
+
+| 화면 | 경로 | Nest |
+|------|------|------|
+| 목록·숫자 | `/worlds` | `GET /admin/world-stats`, `GET /admin/worlds` |
+| 상세(파트 목표·그림·지도 결정, 내리기) | `/worlds/[id]` | `GET /admin/worlds/:id`, `POST …/takedown·restore·map-review`, `POST /admin/world-images/:id` |
+| 검수 | `/worlds/review` | `GET /admin/world-review` |
+| 이벤트 기록 | `/worlds/events` | `GET /admin/world-events` |
+| 운영 설정 | `/worlds/settings` | `GET·PUT /admin/world-settings` |
+
+그림은 `app/api/worlds/[id]/images/[imageId]`·`[id]/map`이 `lib/relay.ts`로 중계한다(검수 대기·막힌 그림까지, `no-store`). 처리는 `app/actions/admin.ts`의 서버 액션이 Nest에 넘기고, 권한은 Nest `AdminGuard`가 매번 DB로 판단한다. 플레이 대화 내용은 보여 주지 않는다.
+
 ## 보안
 
 - 로그인은 이용자와 같은 계정이지만 **운영자만** 들어온다. 쿠키는 `console_session`(httpOnly, SameSite=Strict, 12시간)이라 이용자 사이트의 `session`과 섞이지 않는다

@@ -43,6 +43,8 @@
 | `docs/TASKS.md` | 작업 지시서(다음에 할 일, 선행 조건, 끝난 기준) |
 | `docs/FEATURES.md` | 전체 기능 카탈로그 |
 | `docs/trainings/` | 실제로 돌려 본 결과와 판단. 프롬프트·판정·그림을 고치기 전에 읽는다 |
+| `docs/plan/WORLD_COPPERCHAT.md` | 월드코퍼챗(세계관·여러 인물·파트·코퍼맵·미니게임) 정본. 기획 원본 밖의 사용자 요청 기능 |
+| `docs/.assets/README.md` | README·문서 그림과 영상, 다시 만드는 스크립트 |
 | `docs/guidance/owner-checklist.md` | 소유자만 할 수 있는 일과 하는 법 |
 
 **주의:** 스킬 파일은 반드시 `.agents/skills/codicomperchat/SKILL.md` 경로에 둔다. `.agents/SKILL.md`처럼 루트에 바로 두면 일부 도구가 찾지 못한다.
