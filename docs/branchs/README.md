@@ -357,5 +357,6 @@
 | 2026-11-06 | `0212067` | feature/docs-diagrams | 문서용 구조 그림 6장과 그리는 스크립트 추가 | [261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md](commits/261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md) |
 | 2026-11-06 | `0cd8120` | feature/docs-diagrams | 문서 곳곳에 구조 그림 넣기 | [261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md](commits/261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md) |
 | 2026-11-06 | `92ea3a7` | feature/docs-logic-structure | README·에이전트 문서에 로직 구조 상자 그림 추가 | [261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md](commits/261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md) |
+| 2026-11-06 | `5211533` | feature/docs-logic-structure | docs 전체 문서에 로직 구조 상자 그림 추가 | [261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md](commits/261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
