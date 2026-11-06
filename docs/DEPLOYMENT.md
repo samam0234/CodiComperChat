@@ -3,6 +3,8 @@
 > 상태(2026-11-06): **배포 구성은 만들어 개발 PC에서 끝까지 띄워 봤고, 실제 서버 배포는 아직이다.** 사용자 결정은 "Hetzner GEX45에서 24시간, 성인 모드는 끈 채로"이고 계약은 아직이다.
 >
 > 2026-11-06 늦게 무료로 먼저 여는 길을 더했다: 웹·콘솔은 Vercel, 백엔드는 Oracle Cloud Always Free ARM VM, AI는 GPU 기계(지금 PC → 나중에 GEX45)를 Tailscale로 붙인다. 안내는 [web_management/deploy-guide.html](web_management/deploy-guide.html). 이 구성도 실제 서버에서 아직 돌려 보지 않았다.
+>
+> PC를 켜 두지 않으려면 AI를 **무료 호스팅 API의 Gemma 4 31B**(NVIDIA NIM·Google AI Studio)로 부르고 Oracle VM의 CPU Ollama를 예비로 둔다(`LLM_BACKEND=openai`, 프로필 `free-api`·`fallback`). 그림 기능은 무료 24시간 방법이 없어 잠긴다. 실제 API 호출은 키가 없어 아직 확인하지 못했다.
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|

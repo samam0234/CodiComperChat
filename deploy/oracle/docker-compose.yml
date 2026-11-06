@@ -1,11 +1,14 @@
 # 나눠 올리는 구성의 백엔드: Oracle Cloud Always Free ARM VM 한 대 (2026-11-06).
 #   웹·운영 콘솔 → Vercel (apps/web, console의 vercel.json)
-#   이 파일   → caddy(HTTPS) + api(Nest) + postgres + migrate
-#   AI        → GPU가 있는 기계(deploy/ai-node)를 Tailscale 사설망으로 붙인다. 없으면 --profile cpu-ai로 이 VM에서 CPU로 돈다(느림)
+#   이 파일   → caddy(HTTPS) + api(Nest) + postgres + migrate + ai(FastAPI)
+#   대화 모델  → 프로필로 고른다 (PC를 켜 두지 않아도 되는 순서)
+#     --profile free-api   무료 호스팅 API(NVIDIA NIM·Google AI Studio 등)의 Gemma 4 31B를 부른다. 0원, 추천 기본
+#     --profile fallback   위에 더해 이 VM에서 Ollama(gemma4:e4b, CPU)를 띄워 API가 막힐 때 대신 답한다 (느림, 램 약 6GB)
+#     --profile cpu-ai     API 없이 이 VM의 CPU Ollama만 (가장 느림)
+#     (프로필 없이)         GPU 기계(deploy/ai-node)를 Tailscale로 붙일 때. AI_BASE_URL을 그 주소로
 #
 #   cp deploy/oracle/.env.example deploy/oracle/.env   # 값 채우기
-#   docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml up -d --build
-#   # GPU 기계가 없을 때만: ... --profile cpu-ai up -d --build
+#   docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml --profile free-api up -d --build
 #
 # 바깥에는 caddy의 80·443만 열린다. 한눈에 보는 안내: docs/web_management/deploy-guide.html
 name: codicomperchat-oracle
@@ -49,8 +52,8 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
       AUTH_SECRET: ${AUTH_SECRET:?}
-      # GPU 기계의 Tailscale 주소(예: http://100.101.102.103:8000). cpu-ai 프로필이면 http://ai:8000
-      AI_BASE_URL: ${AI_BASE_URL:?}
+      # 이 VM의 ai(프로필 free-api·fallback·cpu-ai)면 기본값 그대로. GPU 기계를 붙이면 그 Tailscale 주소(예: http://100.101.102.103:8000)
+      AI_BASE_URL: ${AI_BASE_URL:-http://ai:8000}
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
       # 타임아웃 사슬: Vercel 함수 300초 > AI_TIMEOUT_MS(기본 280초) > Ollama 토큰 공백 제한. 느린 서버면 대기열도 길게
       AI_CONCURRENCY: ${AI_CONCURRENCY:-1}
@@ -108,25 +111,32 @@ services:
       retries: 10
     networks: [internal]
 
-  # ---- GPU 기계가 없을 때만 (--profile cpu-ai). 무료 VM(2 OCPU·12GB)에서 CPU로 돈다.
-  # gemma4:e4b는 쓸 만하지만 gemma4:12b는 답 하나에 몇 분 걸린다(추정). 그림 엔진은 빠진다
+  # ---- GPU 기계가 없을 때 이 VM에서 도는 AI 서비스. 그림 엔진(torch)은 빼서 이미지가 작다.
+  # 그림 엔진이 없으면 코디포토넷·웹툰·AI 초상은 "준비 중"으로 잠기고 나머지는 돈다
   ai:
     <<: *always
-    profiles: [cpu-ai]
+    profiles: [free-api, fallback, cpu-ai]
     build:
       context: ../..
       dockerfile: deploy/ai.Dockerfile
       args:
         WITH_IMAGE: '0'
-    depends_on: [ollama]
     environment:
       APP_ENV: production
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
+      # ollama(기본): 이 VM의 Ollama(cpu-ai) / openai: 무료 호스팅 API (free-api, fallback)
+      LLM_BACKEND: ${LLM_BACKEND:-ollama}
+      LLM_API_BASE: ${LLM_API_BASE:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_API_MODEL: ${LLM_API_MODEL:-}
+      # 1이면 API가 한도 초과·서버 오류·시간 초과일 때 Ollama로 대신 답한다 (fallback 프로필과 함께)
+      LLM_FALLBACK_OLLAMA: ${LLM_FALLBACK_OLLAMA:-}
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:e4b}
       # 토큰 사이 공백 제한(초). CPU에서는 첫 토큰 전 프롬프트 읽기가 길다. 0이면 제한 없음
       OLLAMA_READ_TIMEOUT_SECONDS: ${OLLAMA_READ_TIMEOUT_SECONDS:-900}
-      OLLAMA_WARMUP: '1'
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
     healthcheck:
       test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
       interval: 30s
@@ -137,7 +147,7 @@ services:
 
   ollama:
     <<: *always
-    profiles: [cpu-ai]
+    profiles: [fallback, cpu-ai]
     image: ollama/ollama:0.40.13
     environment:
       # 모델을 메모리에서 내리지 않는다(-1). CPU에서 다시 읽으면 첫 답이 크게 늦어진다

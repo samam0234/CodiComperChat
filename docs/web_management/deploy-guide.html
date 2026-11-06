@@ -100,12 +100,12 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
 <header class="top">
   <div>
     <h1>코디컴퍼챗 배포 안내</h1>
-    <p class="sub">웹·운영콘솔은 Vercel, 백엔드는 Oracle Cloud 무료 VM, AI는 GPU 기계를 Tailscale로 붙이는 구성 · 2026-11-06</p>
+    <p class="sub">웹·운영콘솔은 Vercel, 백엔드는 Oracle Cloud 무료 VM, AI는 무료 호스팅 API(PC를 켜 둘 필요 없음)로 부르는 구성 · 2026-11-06</p>
   </div>
   <button class="theme-btn" id="themeBtn" type="button">테마 전환</button>
 </header>
 <nav class="toc">
-  <a href="#pick">추천안</a><a href="#arch">구성도</a><a href="#timeout">타임아웃 대책</a><a href="#compare">후보 비교</a><a href="#steps">단계별 작업</a><a href="#env">환경변수</a><a href="#ops">운영 주의</a>
+  <a href="#pick">추천안</a><a href="#free-ai">무료 24시간 AI 조사</a><a href="#arch">구성도</a><a href="#timeout">타임아웃 대책</a><a href="#compare">후보 비교</a><a href="#steps">단계별 작업</a><a href="#env">환경변수</a><a href="#ops">운영 주의</a>
 </nav>
 
 <h2 id="pick">추천안 한눈에</h2>
@@ -134,23 +134,45 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
   </div>
   <div class="card pick" style="--c: var(--ai)">
     <span class="tag">AI 서버</span>
-    <h3>GPU 기계 + Tailscale</h3>
-    <p class="price">1단계 0원 · 2단계 월 약 €214</p>
+    <h3>무료 호스팅 API + 예비</h3>
+    <p class="price">0원 · PC 안 켜도 됨</p>
     <ul>
-      <li>1단계: 지금 쓰는 GPU PC (24시간 켜 둠)</li>
-      <li>2단계: Hetzner GEX45 (24GB GPU)</li>
-      <li>gemma4:12b + 그림 엔진</li>
-      <li>사설망이라 HTTP 시간 제한 없음</li>
+      <li>대화: NVIDIA NIM / Google AI Studio의 Gemma 4 31B</li>
+      <li>예비: Oracle VM의 Ollama gemma4:e4b (CPU)</li>
+      <li>그림 기능은 잠김 (무료 24시간 GPU 없음)</li>
+      <li>나중에: 선택으로 GPU PC, 정식 운영은 Hetzner</li>
     </ul>
   </div>
 </div>
+<h2 id="free-ai">PC 없이 무료로 24시간 AI: 조사 결과 (2026-11-06)</h2>
+<p><strong>결론: GPU를 24시간 무료로 빌려주는 곳은 지금 없다.</strong> 그래서 모델을 직접 돌리는 대신, 같은 계열의 큰 모델(Gemma 4 31B)을 무료로 불러 쓰게 해 주는 API를 쓰고, 막힐 때를 위해 Oracle 무료 VM의 CPU에 작은 모델을 예비로 둔다.</p>
+<div class="table-scroll"><table>
+  <thead><tr><th>방법</th><th>24시간</th><th>비용</th><th>걸림돌</th><th>판단</th></tr></thead>
+  <tbody>
+    <tr><td><strong>NVIDIA NIM</strong> (<code>google/gemma-4-31b-it</code>)</td><td class="yes">예</td><td>0원</td><td>분당 40 · 하루 1만 요청, 개발자 계정+전화 인증. 입력이 학습에 쓰일 수 있음</td><td><span class="yes">1순위</span></td></tr>
+    <tr><td><strong>Google AI Studio</strong> (<code>gemma-4-31b-it</code>)</td><td class="yes">예</td><td>0원</td><td>한도는 로그인해야 보임(비공개). 무료 티어 입력은 학습에 쓰일 수 있고 일부 국가 불가</td><td><span class="yes">2순위</span></td></tr>
+    <tr><td><strong>OpenRouter</strong> (<code>…:free</code>)</td><td class="mid">예</td><td>0원</td><td>하루 50요청(10달러 충전하면 1,000). 스스로 "프로덕션 부적합"이라 적음</td><td><span class="mid">예비 API</span></td></tr>
+    <tr><td><strong>Oracle 무료 VM의 CPU Ollama</strong> (gemma4:e4b)</td><td class="yes">예</td><td>0원</td><td>2 OCPU·12GB. 느림(초당 몇 토큰 추정, 미측정), 그림 불가, 7일 유휴 회수 규칙</td><td><span class="mid">최후 예비</span></td></tr>
+    <tr><td>Google Colab 무료</td><td class="no">아니오</td><td>0원</td><td>세션 최대 12시간, 화면 조작이 끊기면 종료, GPU 보장 없음, 웹 서버·SSH는 유료 잔액이 있어야 허용</td><td><span class="no">불가</span></td></tr>
+    <tr><td>Kaggle Notebooks</td><td class="no">아니오</td><td>0원</td><td>세션 12시간, 주 약 30 GPU시간, 유휴도 시간이 소모됨</td><td><span class="no">불가</span></td></tr>
+    <tr><td>Hugging Face ZeroGPU</td><td class="no">아니오</td><td>0원</td><td>무료 계정은 하루 GPU 5분. 데모용</td><td><span class="no">불가</span></td></tr>
+    <tr><td>Modal</td><td class="mid">부분</td><td>월 $30 크레딧</td><td>서버리스라 크레딧을 다 쓰면 과금. 상시 12b는 크레딧을 금방 소진(추정)</td><td><span class="mid">보류</span></td></tr>
+    <tr><td>RunPod · Lightning · Together</td><td class="no">아니오</td><td>—</td><td>자동 무료 크레딧 없음 / Lightning 무료 스튜디오는 4시간 / Together 무료 폐지</td><td><span class="no">불가</span></td></tr>
+    <tr><td>Cloudflare Workers AI</td><td class="mid">부분</td><td>하루 1만 Neurons</td><td>12b급 모델·긴 컨텍스트에 맞지 않음</td><td><span class="no">제외</span></td></tr>
+    <tr><td>AWS · GCP · Azure 신규 크레딧</td><td class="no">GPU 제외</td><td>$100~300</td><td>무료 체험에 GPU가 포함되지 않음(GCP는 명시), 기간 제한</td><td><span class="no">불가</span></td></tr>
+  </tbody>
+</table></div>
 <div class="callout warn">
-  <strong>왜 AI를 Oracle 무료에 두지 않나.</strong> Always Free에는 GPU가 없고, 2026년 6월부터 ARM 한도가 <strong>2 OCPU · 12GB</strong>로 절반이 됐다. 2코어 CPU에서 gemma4:12b는 초당 1~2토큰 수준으로 추정돼 답 하나에 몇 분이 걸리고, 그림 엔진(Stable Diffusion)은 돌지 않는다. 이번에 넣은 타임아웃 대책으로 끊기지는 않지만 쓸 만하지 않다. GPU 기계가 정말 없을 때만 <code>--profile cpu-ai</code>로 <code>gemma4:e4b</code>를 돌린다.
+  <strong>무료 API를 쓸 때 알아 둘 점.</strong> (1) 이용자 대화가 외부 회사 서버로 나가고 무료 티어는 학습에 쓰일 수 있다. 처리방침에 적고 법률 검토를 받는다. (2) 한도는 이용자 전체가 나눠 쓴다. 한도가 차면 예비(Oracle CPU 모델)로 넘어가거나 "지금 바빠요" 안내가 나간다. (3) 한도·약관은 바뀐다. 아래 숫자는 제3자 집계 사이트가 2026-11-05에 직접 호출해 본 값이고, 이 안내를 쓴 쪽에는 키가 없어 실제 호출은 확인하지 못했다. (4) 성인 모드는 계속 끈다(제공자 약관).
 </div>
+<div class="callout">
+  <strong>그림(코디포토넷·웹툰·AI 초상)은 어떻게 되나.</strong> 그림 엔진은 GPU가 있어야 돌아서 무료 24시간 방법이 없다. GPU가 없으면 그 기능은 "준비 중"으로 잠기고 나머지는 그대로 돈다(기존 동작). 그림이 꼭 필요해지면 (a) 필요한 시간에만 GPU PC를 Tailscale로 붙이거나(8단계, 선택) (b) 정식 운영 때 Hetzner GEX45로 옮긴다.
+</div>
+<p class="small">출처(2026-11-06 확인): <a href="https://mvalentsev.github.io/awesome-free-ai-coding/models/gemma-4-31b/">Gemma 4 31B 무료 제공처 집계</a> · <a href="https://mvalentsev.github.io/awesome-free-ai-coding/providers/google-ai-studio/">Google AI Studio 무료 티어</a> · <a href="https://gpuperhour.com/blog/free-cloud-gpus-and-credits">무료 클라우드 GPU 현황</a> · <a href="https://www.spheron.network/blog/free-gpu-cloud-credits-2026/">무료 GPU 크레딧 변경</a> · <a href="https://openrouter.ai/blog/tutorials/free-llm-apis-compared/">무료 LLM API 비교</a>.</p>
 
 <h2 id="arch">구성도</h2>
 <div class="card">
-<svg class="diagram" viewBox="0 0 900 360" role="img" aria-label="브라우저에서 Vercel의 웹과 콘솔, Oracle VM의 Caddy와 API와 PostgreSQL, Tailscale을 거쳐 GPU 기계의 FastAPI와 Ollama로 이어지는 구성">
+<svg class="diagram" viewBox="0 0 900 360" role="img" aria-label="브라우저에서 Vercel의 웹과 콘솔, Oracle VM의 Caddy와 API와 PostgreSQL, 그리고 AI 서비스에서 무료 호스팅 API와 예비 Ollama로 이어지는 구성">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
   </defs>
@@ -179,13 +201,14 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
   <text x="495" y="275" text-anchor="middle" font-size="14" font-weight="600">PostgreSQL 16</text>
   <!-- AI -->
   <rect x="660" y="40" width="230" height="280" rx="14" fill="none" stroke="var(--ai)" stroke-width="2" stroke-dasharray="6 4"/>
-  <text x="775" y="64" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ai)">GPU 기계 (PC → GEX45)</text>
+  <text x="775" y="64" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ai)">AI: 컨테이너 + 무료 API</text>
   <rect x="680" y="110" width="190" height="60" rx="10" fill="var(--panel)" stroke="var(--line)"/>
-  <text x="775" y="136" text-anchor="middle" font-size="14" font-weight="600">services/ai :8000</text>
-  <text x="775" y="155" text-anchor="middle" font-size="11" class="muted">X-AI-Token 필수</text>
+  <text x="775" y="136" text-anchor="middle" font-size="14" font-weight="600">services/ai (VM 안)</text>
+  <text x="775" y="155" text-anchor="middle" font-size="11" class="muted">토큰 필수 · 그림 엔진 없음</text>
   <rect x="680" y="210" width="190" height="70" rx="10" fill="var(--panel)" stroke="var(--line)"/>
-  <text x="775" y="238" text-anchor="middle" font-size="14" font-weight="600">Ollama gemma4:12b</text>
-  <text x="775" y="258" text-anchor="middle" font-size="11" class="muted">스트리밍 · 상주 · 예열</text>
+  <text x="775" y="234" text-anchor="middle" font-size="14" font-weight="600">무료 API Gemma 4 31B</text>
+  <text x="775" y="254" text-anchor="middle" font-size="11" class="muted">NIM / AI Studio</text>
+  <text x="775" y="270" text-anchor="middle" font-size="11" class="muted">막히면 VM의 Ollama e4b</text>
   <!-- arrows -->
   <line x1="120" y1="170" x2="178" y2="128" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>
   <line x1="120" y1="192" x2="178" y2="232" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>
@@ -195,10 +218,10 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
   <line x1="495" y1="140" x2="495" y2="163" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>
   <line x1="495" y1="220" x2="495" y2="243" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>
   <line x1="590" y1="192" x2="678" y2="142" stroke="var(--net)" stroke-width="2.4" marker-end="url(#arr)"/>
-  <text x="616" y="150" text-anchor="middle" font-size="11" font-weight="700" fill="var(--net)">Tailscale</text>
+  <text x="616" y="150" text-anchor="middle" font-size="11" font-weight="700" fill="var(--net)">내부망</text>
   <line x1="775" y1="170" x2="775" y2="208" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>
 </svg>
-<p class="small">프론트는 FastAPI를 직접 부르지 않는다(웹 → Nest → FastAPI, 기존 원칙 그대로). AI 노드의 8000은 공인 인터넷에 열지 않고 Tailscale 사설 주소로만 닿는다.</p>
+<p class="small">프론트는 FastAPI를 직접 부르지 않는다(웹 → Nest → FastAPI, 기존 원칙 그대로). AI 컨테이너는 VM 안 내부망에만 있고 바깥에 열지 않는다. 대화는 무료 호스팅 API(HTTPS, 키)로 나가고, 한도가 차면 VM의 Ollama(gemma4:e4b)가 대신 답한다. 선택: 그림이 필요하면 GPU PC를 Tailscale로 붙이고 <code>AI_BASE_URL</code>만 바꾼다(8단계).</p>
 </div>
 
 <h2 id="timeout">Ollama 타임아웃 대책 (이번 PR에서 코드로 바꾼 것)</h2>
@@ -208,6 +231,7 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
   <thead><tr><th>구간</th><th>예전</th><th>지금</th><th>바꾼 곳</th></tr></thead>
   <tbody>
     <tr><td>FastAPI → Ollama</td><td>답 전체 120초</td><td><span class="yes">스트리밍</span>: 토큰이 계속 오면 끝까지 기다림. 제한은 "토큰 사이 공백"에만(기본 600초, <code>OLLAMA_READ_TIMEOUT_SECONDS</code>, 0이면 없음)</td><td><code>services/ai/app/services/llm.py</code></td></tr>
+    <tr><td>FastAPI → 무료 호스팅 API</td><td>—</td><td>응답 최대 <code>LLM_API_TIMEOUT_SECONDS</code>(기본 120초). 한도 초과(429)·서버 오류·시간 초과면 <code>LLM_FALLBACK_OLLAMA=1</code>일 때 Ollama로 대신 답함. 키 오류(401)는 덮지 않고 드러냄</td><td><code>services/ai/app/services/llm.py</code></td></tr>
     <tr><td>모델 읽기 지연</td><td>첫 요청 때 모델을 읽느라 늦음</td><td>기동 때 예열(<code>OLLAMA_WARMUP=1</code>), 메모리에 오래 둠(<code>OLLAMA_KEEP_ALIVE</code> 24h, CPU는 -1)</td><td><code>services/ai/app/main.py</code>, compose</td></tr>
     <tr><td>Nest → FastAPI</td><td>130초 고정 + Node fetch 300초 벽</td><td><code>node:http</code>로 바꿔 300초 벽 제거. <code>AI_TIMEOUT_MS</code>(기본 280초), 배경 작업 <code>AI_BACKGROUND_TIMEOUT_MS</code>(기본 600초)</td><td><code>apps/api/src/ai/ai-client.ts</code></td></tr>
     <tr><td>AI 대기열</td><td>60초 기다리면 거절</td><td><code>AI_QUEUE_WAIT_MS</code>로 조정(배포 값 120초)</td><td><code>apps/api/src/ai/ai-queue.ts</code></td></tr>
@@ -238,14 +262,14 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
     <tr><td>Hetzner GEX45에 같이</td><td class="yes">예</td><td>AI 서버 값에 포함</td><td>2단계에서 한 대로 합치는 길(기존 <code>deploy/docker-compose.prod.yml</code>)</td></tr>
   </tbody>
 </table></div>
-<h3>AI 서버 (gemma4:12b + 그림 엔진)</h3>
+<h3>AI 서버</h3>
 <div class="table-scroll"><table>
-  <thead><tr><th>후보</th><th>GPU</th><th>값</th><th>판단</th></tr></thead>
+  <thead><tr><th>후보</th><th>PC 필요</th><th>값</th><th>판단</th></tr></thead>
   <tbody>
-    <tr><td><strong>지금 GPU PC + Tailscale</strong></td><td class="yes">있음</td><td>0원(전기료)</td><td><strong>1단계 추천.</strong> PC를 24시간 켜 둬야 하고, 꺼지면 대화가 "연결할 수 없음"이 된다</td></tr>
-    <tr><td><strong>Hetzner GEX45</strong></td><td class="yes">24GB</td><td>월 €214 + 설치 €209 (VAT 별도, 2026-11-03 확인)</td><td><strong>2단계 추천.</strong> 기존 결정. 성인 모드는 약관상 끔</td></tr>
-    <tr><td>Oracle GPU (A10 등)</td><td class="yes">있음</td><td>시간 과금, 24시간이면 월 수십만 원 이상</td><td>값 대비 비쌈</td></tr>
-    <tr><td>Oracle Always Free CPU</td><td class="no">없음</td><td>0원</td><td>e4b만 현실적. 12b는 답 하나에 몇 분(추정), 그림 불가</td></tr>
+    <tr><td><strong>무료 호스팅 API + Oracle CPU 예비</strong></td><td class="yes">없음</td><td>0원</td><td><strong>지금 추천.</strong> 위 "무료 24시간 AI 조사" 참고. 그림은 잠김</td></tr>
+    <tr><td>GPU PC + Tailscale</td><td class="no">24시간 켬</td><td>0원(전기료)</td><td>그림이 필요할 때만 선택. 꺼지면 해당 기능이 멈춤</td></tr>
+    <tr><td><strong>Hetzner GEX45</strong></td><td class="yes">없음</td><td>월 €214 + 설치 €209 (VAT 별도, 2026-11-03 확인)</td><td><strong>정식 운영 추천.</strong> 24GB GPU, 대화·그림 모두. 성인 모드는 약관상 끔</td></tr>
+    <tr><td>Oracle GPU (A10 등)</td><td class="yes">없음</td><td>시간 과금, 24시간이면 월 수십만 원 이상</td><td>값 대비 비쌈</td></tr>
   </tbody>
 </table></div>
 <p class="small">출처: <a href="https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm">Oracle Always Free 자원</a> · <a href="https://linuxiac.com/oracle-quietly-cuts-free-tier-ampere-a1-resources-in-half/">A1 한도 절반 축소 (2026-06)</a> · <a href="https://vercel.com/docs/functions/configuring-functions/duration">Vercel 함수 시간</a> · <a href="https://www.hetzner.com/dedicated-rootserver/matrix-gpu/">Hetzner GPU 서버</a>. 값은 바뀌니 가입 전에 다시 본다.</p>
@@ -297,50 +321,39 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><
 </details>
 
 <details class="step" data-step="3">
-  <summary><span class="num">3</span><span class="title">VM 준비 스크립트 + Tailscale</span><span class="where">Oracle VM</span></summary>
+  <summary><span class="num">3</span><span class="title">VM 준비 스크립트</span><span class="where">Oracle VM</span></summary>
   <div class="body">
     <p>저장소는 비공개 전환 예정이라 읽기 전용 배포 키로 받는다(<a href="docker-deploy.md">docker-deploy.md</a> "처음 설치"와 같음).</p>
     <div class="code"><pre><code>git clone git@github.com:samam0234/CodiComperChat.git ~/CodiComperChat
 cd ~/CodiComperChat
-sudo bash deploy/oracle/setup.sh   # 스왑·도커·Tailscale·iptables 80/443
-sudo tailscale up                  # 출력된 주소로 로그인
-tailscale ip -4                    # 이 VM의 100.x 주소</code></pre></div>
+sudo bash deploy/oracle/setup.sh   # 스왑·도커·Tailscale 설치·iptables 80/443
+# (선택, GPU PC를 붙일 때만) sudo tailscale up  → 출력된 주소로 로그인</code></pre></div>
     <div class="callout">Oracle Ubuntu 이미지에는 22번 말고 다 막는 iptables 규칙이 있다. <code>ufw</code>를 켜지 말고 스크립트가 넣은 규칙을 쓴다.</div>
     <label class="check"><input type="checkbox"> <code>docker run --rm hello-world</code>가 된다</label>
-    <label class="check"><input type="checkbox"> Tailscale 관리 화면에 VM이 보인다</label>
   </div>
 </details>
 
 <details class="step" data-step="4">
-  <summary><span class="num">4</span><span class="title">AI 노드 켜기 (GPU PC)</span><span class="where">GPU PC</span></summary>
+  <summary><span class="num">4</span><span class="title">무료 AI API 키 받기 (NVIDIA NIM 또는 Google AI Studio)</span><span class="where">브라우저</span></summary>
   <div class="body">
-    <p>먼저 <a href="https://tailscale.com/download">Tailscale</a>을 설치하고 같은 계정으로 로그인한다. <code>tailscale ip -4</code>로 PC의 100.x 주소를 적는다. 두 방법 중 하나를 고른다.</p>
-    <h3>A. 지금처럼 Windows에서 직접 (권장: 가장 단순하고, 8000을 Tailscale 주소에만 연다)</h3>
-    <div class="code"><pre><code># PowerShell. Ollama 설정 (한 번). 설정 뒤 Ollama 앱을 다시 켠다
-setx OLLAMA_KEEP_ALIVE 24h
-ollama pull gemma4:12b
-
-# services/ai/.env 에 더한다 (값은 0단계에서 만든 것)
-#   APP_ENV=production
-#   AI_SERVICE_TOKEN=...(Oracle과 같은 값)
-#   OLLAMA_MODEL=gemma4:12b
-#   OLLAMA_WARMUP=1
-#   OLLAMA_READ_TIMEOUT_SECONDS=600
-
-cd D:\vscode\CodiComperChat\services\ai
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 100.x.y.z --port 8000</code></pre></div>
-    <h3>B. Docker로 (Linux GPU 서버, 또는 Docker Desktop + NVIDIA)</h3>
-    <div class="code"><pre><code>cp deploy/ai-node/.env.example deploy/ai-node/.env   # 값 채우기
-docker compose --env-file deploy/ai-node/.env -f deploy/ai-node/docker-compose.yml up -d --build
-docker compose -f deploy/ai-node/docker-compose.yml exec ollama ollama pull gemma4:12b</code></pre></div>
-    <p>B를 Windows에서 쓰면 8000이 모든 주소에 열리니 방화벽에서 Tailscale 대역만 허용한다(관리자 PowerShell):</p>
-    <div class="code"><pre><code>New-NetFirewallRule -DisplayName "CodiComperChat AI (Tailscale only)" -Direction Inbound -Protocol TCP -LocalPort 8000 -RemoteAddress 100.64.0.0/10 -Action Allow</code></pre></div>
-    <p>Oracle VM에서 닿는지 확인:</p>
-    <div class="code"><pre><code>curl http://100.x.y.z:8000/health                  # 토큰 없이: 401이 정상(막혀 있다는 뜻)
-curl -H "X-AI-Token: $AI_SERVICE_TOKEN" http://100.x.y.z:8000/health   # ok</code></pre></div>
-    <div class="callout warn">PC가 절전·재부팅되면 대화가 멈춘다. Windows 전원 설정에서 절전을 끄고, 그림 엔진을 쓰지 않을 때는 그래픽 메모리를 Ollama가 계속 쓰게 둔다.</div>
-    <label class="check"><input type="checkbox"> <code>ollama ps</code>에 gemma4:12b가 올라와 있다</label>
-    <label class="check"><input type="checkbox"> VM에서 토큰을 붙인 <code>/health</code>가 ok다</label>
+    <h3>NVIDIA NIM (1순위)</h3>
+    <ol>
+      <li><a href="https://build.nvidia.com/">build.nvidia.com</a>에서 NVIDIA 계정으로 가입하고 Developer Program에 참여(전화번호 인증)</li>
+      <li><code>google/gemma-4-31b-it</code> 모델 페이지에서 <strong>Get API Key</strong> → <code>nvapi-…</code> 키</li>
+      <li><code>LLM_API_BASE=https://integrate.api.nvidia.com/v1</code>, <code>LLM_API_MODEL=google/gemma-4-31b-it</code></li>
+    </ol>
+    <h3>Google AI Studio (2순위, 바꿔 쓸 때)</h3>
+    <ol>
+      <li><a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a>에서 키 만들기. 한도는 로그인한 화면에서 확인</li>
+      <li><code>LLM_API_BASE=https://generativelanguage.googleapis.com/v1beta/openai</code>, <code>LLM_API_MODEL=gemma-4-31b-it</code></li>
+    </ol>
+    <p>키가 되는지 개발 PC에서 먼저 본다(키는 <code>$KEY</code>로만 넣고, 채팅·git에 붙여 넣지 않는다):</p>
+    <div class="code"><pre><code>curl https://integrate.api.nvidia.com/v1/chat/completions \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d '{"model":"google/gemma-4-31b-it","messages":[{"role":"user","content":"안녕하세요"}],"max_tokens":50}'</code></pre></div>
+    <div class="callout warn">모델 이름이 제공처 사정으로 바뀌었을 수 있다. 위 호출이 404면 제공처 모델 목록에서 Gemma 4를 다시 찾는다. 키는 5단계의 <code>deploy/oracle/.env</code>에만 적는다.</div>
+    <label class="check"><input type="checkbox"> 위 호출이 한국어 답을 돌려준다</label>
+    <label class="check"><input type="checkbox"> 키를 비밀번호 관리자에 적었다 (<code>LLM_API_KEY</code>)</label>
   </div>
 </details>
 
@@ -349,16 +362,20 @@ curl -H "X-AI-Token: $AI_SERVICE_TOKEN" http://100.x.y.z:8000/health   # ok</cod
   <div class="body">
     <div class="code"><pre><code>cd ~/CodiComperChat
 cp deploy/oracle/.env.example deploy/oracle/.env
-nano deploy/oracle/.env    # API_DOMAIN, WEB_BASE_URL, 비밀값, AI_BASE_URL=http://100.x.y.z:8000, 메일
-docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml up -d --build
-docker compose -f deploy/oracle/docker-compose.yml logs -f migrate api   # 마이그레이션·기동 확인
+nano deploy/oracle/.env    # API_DOMAIN, WEB_BASE_URL, 비밀값, LLM_API_KEY, 메일
+
+# 무료 API + VM의 Ollama 예비 (추천)
+docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml \
+  --profile free-api --profile fallback up -d --build
+docker compose -f deploy/oracle/docker-compose.yml exec ollama ollama pull gemma4:e4b
+# .env 에서 LLM_FALLBACK_OLLAMA=1 로 켜 둔다
+
+docker compose -f deploy/oracle/docker-compose.yml logs -f migrate api ai   # 마이그레이션·기동 확인
 curl https://api.도메인/health</code></pre></div>
-    <p>GPU 기계가 없을 때만(느림, 그림 없음):</p>
-    <div class="code"><pre><code># .env 에서 AI_BASE_URL=http://ai:8000, OLLAMA_MODEL=gemma4:e4b
-docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml --profile cpu-ai up -d --build
-docker compose -f deploy/oracle/docker-compose.yml exec ollama ollama pull gemma4:e4b</code></pre></div>
+    <p>예비 없이 API만 쓰려면 <code>--profile free-api</code>만, API 없이 VM CPU만 쓰려면 <code>--profile cpu-ai</code>와 <code>LLM_BACKEND=ollama</code>. 12GB 램에서 예비 Ollama(약 6GB)와 API·DB가 함께 도니 스왑(setup.sh가 4GB 만듦)이 켜져 있는지 본다.</p>
     <p>공식 캐릭터 데이터(<code>apps/api/data/personas/*.json</code>)는 git에 없으니 개발 PC에서 볼륨으로 옮긴다(<a href="../DEPLOYMENT.md">DEPLOYMENT.md</a> 메모 표).</p>
     <label class="check"><input type="checkbox"> <code>https://api.도메인/health</code>가 ok (인증서 정상)</label>
+    <label class="check"><input type="checkbox"> <code>docker compose ... logs ai</code>에 연결 오류가 없다</label>
     <label class="check"><input type="checkbox"> 운영자 계정을 만들었다 (<code>docker compose ... exec api npm run user:role -- 이메일 admin</code>)</label>
     <label class="check"><input type="checkbox"> 백업 cron을 걸었다 (<a href="backup-restore.md">backup-restore.md</a>)</label>
   </div>
@@ -388,10 +405,45 @@ docker compose -f deploy/oracle/docker-compose.yml exec ollama ollama pull gemma
   <summary><span class="num">7</span><span class="title">끝까지 확인</span><span class="where">브라우저</span></summary>
   <div class="body">
     <label class="check"><input type="checkbox"> 가입 → 인증 메일 → 로그인</label>
-    <label class="check"><input type="checkbox"> 캐릭터 대화에서 모델을 gemma4:12b로 골라 긴 답을 받는다 (첫 답 시간, 이후 답 시간을 적는다)</label>
+    <label class="check"><input type="checkbox"> 캐릭터 대화에서 한국어 답이 온다 (답 시간을 적는다)</label>
+    <label class="check"><input type="checkbox"> 요약·판정처럼 JSON을 쓰는 기능이 오류 없이 돈다 (퀘스트 판정, 이야기 요약). 모델이 형식을 어기면 <code>logs ai</code>에 남는다</label>
+    <label class="check"><input type="checkbox"> <code>LLM_API_KEY</code>를 일부러 틀리게 하면 폴백 없이 오류가 보이고, 한도(429)가 나는 상황에서는 예비 모델이 답한다 (키 오류는 덮지 않는 것이 맞다)</label>
     <label class="check"><input type="checkbox"> 로그인 시도를 여러 번 해도 <strong>다른 사람</strong>이 막히지 않는다 (IP 한도가 이용자별로 걸리는지. 막히면 Caddy의 X-Forwarded-For 전달을 본다: 이 부분은 실제 서버에서 아직 확인하지 못했다)</label>
-    <label class="check"><input type="checkbox"> 코디포토넷(그림)이 GPU 노드에서 그려진다</label>
+    <label class="check"><input type="checkbox"> 코디포토넷·웹툰·AI 초상이 "준비 중"으로 잠겨 있다(GPU가 없을 때의 정상 동작)</label>
     <label class="check"><input type="checkbox"> <a href="post-deploy.md">post-deploy.md</a> 항목</label>
+  </div>
+</details>
+
+<details class="step" data-step="8">
+  <summary><span class="num">8</span><span class="title">(선택) 그림이 필요할 때 GPU PC 붙이기</span><span class="where">GPU PC</span></summary>
+  <div class="body">
+    <p>그림 엔진은 GPU가 있어야 돈다. 먼저 VM에서 <code>sudo tailscale up</code>으로 로그인하고, GPU PC에도 <a href="https://tailscale.com/download">Tailscale</a>을 설치해 같은 계정으로 로그인한다. 5단계의 <code>AI_BASE_URL</code>을 PC 주소(<code>http://100.x.y.z:8000</code>)로 바꾸고 <code>ai</code> 컨테이너는 끈다. <code>tailscale ip -4</code>로 PC의 100.x 주소를 적는다. 두 방법 중 하나를 고른다.</p>
+    <h3>A. 지금처럼 Windows에서 직접 (권장: 가장 단순하고, 8000을 Tailscale 주소에만 연다)</h3>
+    <div class="code"><pre><code># PowerShell. Ollama 설정 (한 번). 설정 뒤 Ollama 앱을 다시 켠다
+setx OLLAMA_KEEP_ALIVE 24h
+ollama pull gemma4:12b
+
+# services/ai/.env 에 더한다 (값은 0단계에서 만든 것)
+#   APP_ENV=production
+#   AI_SERVICE_TOKEN=...(Oracle과 같은 값)
+#   OLLAMA_MODEL=gemma4:12b
+#   OLLAMA_WARMUP=1
+#   OLLAMA_READ_TIMEOUT_SECONDS=600
+
+cd D:\vscode\CodiComperChat\services\ai
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 100.x.y.z --port 8000</code></pre></div>
+    <h3>B. Docker로 (Linux GPU 서버, 또는 Docker Desktop + NVIDIA)</h3>
+    <div class="code"><pre><code>cp deploy/ai-node/.env.example deploy/ai-node/.env   # 값 채우기
+docker compose --env-file deploy/ai-node/.env -f deploy/ai-node/docker-compose.yml up -d --build
+docker compose -f deploy/ai-node/docker-compose.yml exec ollama ollama pull gemma4:12b</code></pre></div>
+    <p>B를 Windows에서 쓰면 8000이 모든 주소에 열리니 방화벽에서 Tailscale 대역만 허용한다(관리자 PowerShell):</p>
+    <div class="code"><pre><code>New-NetFirewallRule -DisplayName "CodiComperChat AI (Tailscale only)" -Direction Inbound -Protocol TCP -LocalPort 8000 -RemoteAddress 100.64.0.0/10 -Action Allow</code></pre></div>
+    <p>Oracle VM에서 닿는지 확인:</p>
+    <div class="code"><pre><code>curl http://100.x.y.z:8000/health                  # 토큰 없이: 401이 정상(막혀 있다는 뜻)
+curl -H "X-AI-Token: $AI_SERVICE_TOKEN" http://100.x.y.z:8000/health   # ok</code></pre></div>
+    <div class="callout warn">PC가 절전·재부팅되면 대화가 멈춘다. Windows 전원 설정에서 절전을 끄고, 그림 엔진을 쓰지 않을 때는 그래픽 메모리를 Ollama가 계속 쓰게 둔다.</div>
+    <label class="check"><input type="checkbox"> <code>ollama ps</code>에 gemma4:12b가 올라와 있다</label>
+    <label class="check"><input type="checkbox"> VM에서 토큰을 붙인 <code>/health</code>가 ok다</label>
   </div>
 </details>
 
@@ -401,6 +453,10 @@ docker compose -f deploy/oracle/docker-compose.yml exec ollama ollama pull gemma
 <div class="table-scroll"><table>
   <thead><tr><th>이름</th><th>어디</th><th>기본</th><th>뜻</th></tr></thead>
   <tbody>
+    <tr><td><code>LLM_BACKEND</code></td><td>services/ai</td><td>ollama</td><td><code>openai</code>면 대화를 무료 호스팅 API로 보낸다</td></tr>
+    <tr><td><code>LLM_API_BASE</code> · <code>LLM_API_MODEL</code> · <code>LLM_API_KEY</code></td><td>services/ai</td><td>없음</td><td>OpenAI 호환 주소·모델·키(비밀값)</td></tr>
+    <tr><td><code>LLM_FALLBACK_OLLAMA</code></td><td>services/ai</td><td>꺼짐</td><td><code>1</code>이면 API 한도 초과·서버 오류·시간 초과에 Ollama로 대신 답함</td></tr>
+    <tr><td><code>LLM_API_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>120</td><td>호스팅 API 응답 최대 시간</td></tr>
     <tr><td><code>OLLAMA_READ_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>600</td><td>Ollama 토큰 사이 공백 제한. 0이면 없음</td></tr>
     <tr><td><code>OLLAMA_CONNECT_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>10</td><td>Ollama 연결 제한</td></tr>
     <tr><td><code>OLLAMA_TOTAL_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>0(없음)</td><td>답 전체 상한(선택)</td></tr>
@@ -415,12 +471,13 @@ docker compose -f deploy/oracle/docker-compose.yml exec ollama ollama pull gemma
 <h2 id="ops">운영 주의</h2>
 <div class="callout warn"><strong>Oracle 유휴 회수:</strong> 7일 동안 CPU(95번째 백분위)·네트워크·메모리가 모두 20% 미만이면 무료 VM이 회수될 수 있다. 이용자가 적은 초기에는 해당될 수 있으니 PAYG 전환을 고려하고, 백업은 VM 바깥(개발 PC 등)에도 둔다.</div>
 <div class="callout warn"><strong>Vercel Hobby는 비상업용:</strong> 결제·프로 같은 유료 기능을 실제로 열면 Pro(월 $20)로 바꾼다.</div>
+<div class="callout warn"><strong>무료 API 한도:</strong> 이용자 전체가 한 키의 한도를 나눠 쓴다(NIM 분당 40·하루 1만). 이용자가 늘면 한도가 먼저 막히니 <code>AI_CONCURRENCY</code>를 낮게 두고, 막히는 일이 잦으면 유료 API 또는 Hetzner로 넘어간다. 개인정보 처리방침에 "대화 내용이 외부 AI 제공처로 전송된다"를 적는다.</div>
 <div class="callout bad"><strong>성인 모드:</strong> 기존 결정대로 <code>ADULT_MODE=off</code>. Vercel·Oracle·Hetzner 약관과 국내법 검토 전에는 켜지 않는다.</div>
-<div class="callout ok"><strong>2단계로 넘어갈 때:</strong> GEX45를 계약하면 AI 노드만 옮기고(B 방법) Oracle <code>.env</code>의 <code>AI_BASE_URL</code>을 새 Tailscale 주소로 바꾼다. 백엔드까지 한 대로 합치려면 기존 <code>deploy/docker-compose.prod.yml</code>을 쓴다.</div>
-<p class="small">커넥터로 할 수 있는 것: Vercel 커넥터는 연결돼 있어 6단계(프로젝트 만들기·환경변수·배포)를 대신할 수 있다. Oracle 커넥터는 로그인이 필요하고, VM 안의 작업(3·5단계)과 PC 작업(4단계)은 사람이 해야 한다.</p>
+<div class="callout ok"><strong>정식 운영으로 넘어갈 때:</strong> GEX45를 계약하면 AI 노드를 거기로 옮기고(8단계의 B 방법) Oracle <code>.env</code>의 <code>AI_BASE_URL</code>을 새 Tailscale 주소로 바꾼다. 백엔드까지 한 대로 합치려면 기존 <code>deploy/docker-compose.prod.yml</code>을 쓴다.</div>
+<p class="small">커넥터로 할 수 있는 것: Vercel 커넥터는 연결돼 있어 6단계(프로젝트 만들기·환경변수·배포)를 대신할 수 있다. Oracle 커넥터는 로그인이 필요하고, VM 안의 작업(3·5단계)과 API 키 발급(4단계)은 사람이 해야 한다.</p>
 
 <footer>
-  구성 파일: <code>deploy/oracle/</code> · <code>deploy/ai-node/</code> · <code>apps/web/vercel.json</code> · <code>console/vercel.json</code>. 실제 서버에서 아직 돌려 보지 않았다(2026-11-06). 처음 올릴 때 결과를 <code>docs/web_management/</code>에 남긴다.
+  구성 파일: <code>deploy/oracle/</code> · <code>deploy/ai-node/</code>(선택) · <code>services/ai/app/services/llm.py</code>(무료 API 백엔드) · <code>apps/web/vercel.json</code> · <code>console/vercel.json</code>. 실제 서버에서 아직 돌려 보지 않았다(2026-11-06). 처음 올릴 때 결과를 <code>docs/web_management/</code>에 남긴다.
 </footer>
 </div>
 

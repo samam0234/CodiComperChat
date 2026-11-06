@@ -1,4 +1,10 @@
-"""로컬 Ollama 호출 공통부. 서버 상태 확인·오류 변환을 한곳에서 한다."""
+"""대화 모델 호출 공통부. 서버 상태 확인·오류 변환을 한곳에서 한다.
+
+백엔드 두 가지 (LLM_BACKEND):
+- ollama(기본): 로컬 Ollama. GPU 기계나 CPU 서버에서 직접 돌린다
+- openai: OpenAI 호환 호스팅 API (NVIDIA NIM, Google AI Studio의 호환 주소, OpenRouter 등). 무료 티어로 24시간 PC 없이 쓴다.
+  LLM_FALLBACK_OLLAMA=1이면 한도 초과(429)·서버 오류·시간 초과 때 Ollama로 대신 답한다
+"""
 
 import json
 import os
@@ -60,6 +66,41 @@ def generate(
             )
         raise HTTPException(status_code=400, detail="알 수 없는 공급자다.")
 
+    if os.environ.get("LLM_BACKEND", "ollama").strip().lower() == "openai":
+        return _generate_openai_with_fallback(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            response_json_schema=response_json_schema,
+            seed=seed,
+            ollama_model=model,
+            keep_alive=keep_alive,
+        )
+
+    return _generate_ollama(
+        system=system,
+        contents=contents,
+        max_output_tokens=max_output_tokens,
+        temperature=temperature,
+        response_json_schema=response_json_schema,
+        seed=seed,
+        model=model,
+        keep_alive=keep_alive,
+    )
+
+
+def _generate_ollama(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None,
+    response_json_schema: dict | None,
+    seed: int | None,
+    model: str | None,
+    keep_alive: int | None,
+) -> str:
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
     model = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
 
@@ -181,3 +222,137 @@ def warm_up() -> None:
             httpx.post(f"{base_url}/api/generate", json={"model": model}, timeout=ollama_timeout())
         except httpx.HTTPError:
             pass
+
+
+# ---- 무료 호스팅 API (OpenAI 호환) ----------------------------------------------------------
+
+# 한도 초과·서버 오류·시간 초과·연결 불가: 폴백이 켜져 있으면 Ollama로 넘어갈 수 있는 실패
+_RETRYABLE_STATUS = {408, 425, 429, 500, 502, 503, 504}
+
+
+class _ApiUnavailable(Exception):
+    """호스팅 API가 지금 답하지 못한다(한도·서버·시간). 폴백 대상."""
+
+    def __init__(self, detail: str, status_code: int = 503):
+        super().__init__(detail)
+        self.detail = detail
+        self.status_code = status_code
+
+
+def _generate_openai_with_fallback(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None,
+    response_json_schema: dict | None,
+    seed: int | None,
+    ollama_model: str | None,
+    keep_alive: int | None,
+) -> str:
+    try:
+        return _generate_openai(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            response_json_schema=response_json_schema,
+            seed=seed,
+        )
+    except _ApiUnavailable as exc:
+        if os.environ.get("LLM_FALLBACK_OLLAMA") != "1":
+            raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+        # 예비 모델로 대신 답한다. 예비도 안 되면 그 오류(연결 불가 등)가 그대로 나간다
+        return _generate_ollama(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            response_json_schema=response_json_schema,
+            seed=seed,
+            model=ollama_model,
+            keep_alive=keep_alive,
+        )
+
+
+def _strip_fence(text: str) -> str:
+    """모델이 JSON을 ```json … ```로 감싸 보내면 벗긴다."""
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else ""
+        if t.rstrip().endswith("```"):
+            t = t.rstrip()[:-3]
+    return t.strip()
+
+
+def _generate_openai(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None,
+    response_json_schema: dict | None,
+    seed: int | None,
+) -> str:
+    base = os.environ.get("LLM_API_BASE", "").rstrip("/")
+    key = os.environ.get("LLM_API_KEY", "")
+    api_model = os.environ.get("LLM_API_MODEL", "")
+    if not base or not api_model:
+        raise HTTPException(status_code=500, detail="LLM_BACKEND=openai에는 LLM_API_BASE와 LLM_API_MODEL이 필요하다.")
+
+    if response_json_schema is not None:
+        # 모든 호환 API가 구조화 출력(json_schema)을 받는 것은 아니라서, 스키마를 지시문에도 적어 둔다
+        system = (
+            f"{system}\n\n[출력 형식] 아래 JSON 스키마를 따르는 JSON 객체 하나만 출력한다. 설명·코드블록 없이.\n"
+            f"{json.dumps(response_json_schema, ensure_ascii=False)}"
+        )
+    payload: dict[str, object] = {
+        "model": api_model,
+        "messages": [{"role": "system", "content": system}, *contents],
+        "max_tokens": max_output_tokens,
+        "stream": False,
+    }
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if seed is not None:
+        payload["seed"] = seed
+    with_format = dict(payload)
+    if response_json_schema is not None:
+        with_format["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {"name": "reply", "schema": response_json_schema, "strict": False},
+        }
+
+    headers = {"Content-Type": "application/json"}
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    timeout = _seconds("LLM_API_TIMEOUT_SECONDS", 120.0)
+
+    def post(body: dict[str, object]) -> httpx.Response:
+        try:
+            return httpx.post(f"{base}/chat/completions", json=body, headers=headers, timeout=timeout)
+        except httpx.TimeoutException as exc:
+            raise _ApiUnavailable("무료 AI API의 응답이 늦어 멈췄다.", 504) from exc
+        except httpx.HTTPError as exc:
+            raise _ApiUnavailable(f"무료 AI API({base})에 연결할 수 없다.", 503) from exc
+
+    response = post(with_format)
+    # 구조화 출력을 지원하지 않는 모델·API면 400이 온다: 지시문만으로 한 번 더
+    if response.status_code == 400 and "response_format" in with_format:
+        response = post(payload)
+
+    if response.status_code in _RETRYABLE_STATUS:
+        reason = "하루·분당 한도를 넘었다" if response.status_code == 429 else f"서버 오류({response.status_code})"
+        raise _ApiUnavailable(f"무료 AI API가 지금 답하지 못한다: {reason}.", 503 if response.status_code == 429 else 502)
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {response.text[:300]}")
+
+    try:
+        text = response.json()["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError, ValueError):
+        text = ""
+    if response_json_schema is not None:
+        text = _strip_fence(text)
+    if not text:
+        raise HTTPException(status_code=502, detail="LLM이 빈 응답을 돌려줬다 (출력 토큰 한도 초과일 수 있다).")
+    return text

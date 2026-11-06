@@ -77,6 +77,10 @@ flowchart LR
 |----|--------|------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | 로컬 Ollama |
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
+| `LLM_BACKEND` | `ollama` | `openai`면 대화 호출을 OpenAI 호환 호스팅 API(NVIDIA NIM, Google AI Studio 호환 주소, OpenRouter)로 보낸다. 무료 티어로 PC·GPU 없이 24시간 돌릴 때 |
+| `LLM_API_BASE` · `LLM_API_MODEL` · `LLM_API_KEY` | — | `LLM_BACKEND=openai`일 때 필수. 예: `https://integrate.api.nvidia.com/v1`, `google/gemma-4-31b-it`. 키는 비밀값(커밋 금지). Nest가 넘기는 Ollama 모델 태그(gemma4:12b 등)는 이때 무시하고 `LLM_API_MODEL`을 쓴다 |
+| `LLM_FALLBACK_OLLAMA` | 꺼짐 | `1`이면 API가 한도 초과(429)·서버 오류·시간 초과·연결 불가일 때 Ollama로 대신 답한다. 키 오류(401) 같은 설정 문제는 덮지 않고 드러낸다 |
+| `LLM_API_TIMEOUT_SECONDS` | 120 | 호스팅 API 응답 최대 시간(초) |
 | `OLLAMA_READ_TIMEOUT_SECONDS` | 600 | Ollama를 스트리밍으로 부르며 **토큰 사이 공백**에만 거는 제한(초). 모델이 계속 쓰는 동안은 끊지 않는다. 0이면 제한 없음 |
 | `OLLAMA_CONNECT_TIMEOUT_SECONDS` | 10 | Ollama 연결 제한(초) |
 | `OLLAMA_TOTAL_TIMEOUT_SECONDS` | 0(없음) | 답 하나 전체의 상한(초, 선택) |
