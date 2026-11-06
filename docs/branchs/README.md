@@ -379,5 +379,6 @@ flowchart LR
 | 2026-11-06 | `4e041d9` | main (merge) | develop into main | [261106_1627_4e041d9_merge-develop-into-main-8_main.md](commits/261106_1627_4e041d9_merge-develop-into-main-8_main.md) |
 | 2026-11-06 | `fae510e` | claude/project-thread-po3i10 | Ollama 타임아웃 방지와 Vercel·Oracle·GPU 노드 배포 구성 추가 | [261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md](commits/261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md) |
 | 2026-11-06 | `9f5eb22` | claude/project-thread-po3i10 | PC 없이 무료로 24시간 돌리는 무료 호스팅 API 백엔드와 예비 Ollama 추가 | [261106_1401_9f5eb22_free-api-ai-backend_claude-project-thread-po3i10.md](commits/261106_1401_9f5eb22_free-api-ai-backend_claude-project-thread-po3i10.md) |
+| 2026-11-06 | `cecff1a` | claude/project-thread-po3i10 | Oracle 콘솔 화면 안내 페이지 추가 | [261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md](commits/261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
