@@ -1,0 +1,108 @@
+# Oracle Cloud A1.Flex(ARM, GPU 없음)에 백엔드만 올리는 구성 (2026-11-07 사용자 결정).
+# 올리는 것: caddy(HTTPS) → api, postgres, migrate. 웹·콘솔은 다른 곳에 두고 API_DOMAIN으로 부른다.
+# AI(FastAPI·Ollama)는 올리지 않는다. 대화·그림 요청은 실패하고, 나머지(가입·로그인·목록·코레딧 등)는 돈다.
+#
+#   cp deploy/oracle/.env.example deploy/oracle/.env   # 값 채우기
+#   docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml up -d --build
+#
+# 전체 운영 구성(GPU 서버 한 대)은 deploy/docker-compose.prod.yml. 절차: docs/web_management/oracle-backend.md
+name: codicomperchat
+
+x-always: &always
+  restart: always
+  logging:
+    driver: json-file
+    options: { max-size: 20m, max-file: '5' }
+
+services:
+  caddy:
+    <<: *always
+    image: caddy:2.10-alpine
+    depends_on:
+      api: { condition: service_healthy }
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+
+  api:
+    <<: *always
+    build:
+      context: ../..
+      dockerfile: deploy/node.Dockerfile
+      target: api
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    environment:
+      NODE_ENV: production
+      REQUIRE_HTTPS: '1'
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      AUTH_SECRET: ${AUTH_SECRET:?}
+      # AI 서버는 이 구성에 없다. 값은 운영 안전 검사(32자 이상)를 위해 둔다
+      AI_BASE_URL: ${AI_BASE_URL:-http://ai:8000}
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
+      AI_CONCURRENCY: ${AI_CONCURRENCY:-2}
+      PREMIUM_PROVIDERS: ${PREMIUM_PROVIDERS:-}
+      PREMIUM_MONTHLY_CREDITS: ${PREMIUM_MONTHLY_CREDITS:-0}
+      ADULT_MODE: ${ADULT_MODE:-off}
+      WEB_BASE_URL: ${WEB_BASE_URL:-}
+      # 비어 있으면 인증·재설정 메일을 보내지 못하고 로그만 남긴다
+      MAIL_SMTP_URL: ${MAIL_SMTP_URL:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      PRO_CLICK: ${PRO_CLICK:-on}
+      PERSONA_DATA_DIR: /app/apps/api/data/personas
+    volumes:
+      - personas:/app/apps/api/data/personas
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks: [edge, internal]
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: deploy/node.Dockerfile
+      target: api
+    restart: 'no'
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: ['sh', '-c', 'npx prisma migrate deploy && npx prisma db seed']
+    networks: [internal]
+
+  postgres:
+    <<: *always
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  personas:
+
+networks:
+  edge:
+  internal:
