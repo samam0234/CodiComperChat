@@ -46,10 +46,10 @@ const architecture = `
     ${box("console · Next.js 16", ["운영자 전용, 따로 로그인", "신고·초상 검수·그림 신고·계정 관리"])}
   </div>
   ${arrow("Authorization: Bearer (httpOnly 쿠키의 토큰을 서버가 붙인다)")}
-  ${box("apps/api · Nest.js 12 + Prisma 7 — 신뢰 경계", ["인증·권한·소유 확인·요청 한도·코레딧·모델 조건·컨텍스트 조립·이야기 상태·퀘스트 판정 반영", "AI 호출 대기열: 동시 수 제한, 기다리는 답 우선"], "#d6336f")}
+  ${box("apps/api · Nest.js 12 + Prisma 7 — 신뢰 경계", ["인증·권한·소유 확인·요청 한도·코레딧·모델 조건·컨텍스트 조립·이야기 상태·퀘스트 판정 반영·월드코퍼챗(파트·이벤트 판정)", "AI 호출 대기열: 동시 수 제한, 기다리는 답 우선"], "#d6336f")}
   <div style="display:grid;grid-template-columns:1fr 1.25fr;gap:18px;margin-top:8px">
     <div>${arrow("Prisma")}${box("PostgreSQL 16", ["테이블 28개, 마이그레이션 33개", "Redis·벡터 DB 없음"], "#1c8a5a")}</div>
-    <div>${arrow("내부망, AI_SERVICE_TOKEN")}${box("services/ai · FastAPI (Python 3.12)", ["연기·요약·기억·판정·검수·장면 설계", "DB를 보지 않고 Nest가 조립한 맥락만 쓴다"], "#2b6fd6")}</div>
+    <div>${arrow("내부망, AI_SERVICE_TOKEN")}${box("services/ai · FastAPI (Python 3.12)", ["연기·요약·기억·판정·검수·장면 설계·월드 진행자", "DB를 보지 않고 Nest가 조립한 맥락만 쓴다"], "#2b6fd6")}</div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px">
     ${box("Ollama", ["gemma4:e4b · gemma4:12b", "대화·판정·그림 검수"], "#2b6fd6")}
@@ -123,6 +123,94 @@ const stack = `
   </div>
 </div>`;
 
+// 월드코퍼챗 (2026-11-06): 처리 흐름도와 기능 지도
+const worldFlow = `
+<div style="width:1280px;height:580px;padding:34px 44px;background:#fbfaff">
+  <div style="font-size:30px;font-weight:800">월드코퍼챗 한 턴은 이렇게 처리된다</div>
+  <div style="font-size:16px;color:#6b6388;margin-top:4px">진행자(GM) 모델이 여러 인물을 연기하고, 판단이 필요한 일(그림·장소·파트·이벤트 결과)은 코드가 확인한다</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px">
+    ${box("1. 확인", ["로그인 · 볼 수 있는 세계관", "열린 이벤트가 있으면 끝냄", "기본 모델 사용량 잡기", "성인 확인(매 턴 DB)"], "#d6336f")}
+    ${box("2. 맥락 조립", ["세계관 설명·규칙", "등장인물(지금 있는 곳)", "지금 파트의 방향(목표는 숨김)", "장소·그림 이름표·최근 16개"], "#d6336f")}
+    ${box("3. 진행자 답", ["FastAPI /world/turn", "대화 방식 4가지 형식", "수위 규칙(1:1 대화와 같음)", "끝에 [그림:] [이동:] 제어 줄"], "#2b6fd6")}
+    ${box("4. 제어 줄 검사", ["없는 그림 이름표는 버림", "명단 밖 인물·장소는 버림", "본문에서 떼어 냄", "장면 그림 · 인물 위치 반영"], "#2b6fd6")}
+  </div>
+  <div style="text-align:center;font-size:24px;color:#b45cff;margin:8px 0">↓</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+    ${box("5. 파트 판정 (3턴마다)", ["/world/part-check, 온도 0", "근거 인용이 대화에 그대로 있어야", "통과하면 다음 파트 · 시작 글"], "#6d4dff")}
+    ${box("6. 이벤트 (서버가 확률로)", ["간격 6턴 · 확률 35% (콘솔에서 바꿈)", "사다리·주사위·볼링·제비·미로", "결과는 서버가 정한다"], "#1c8a5a")}
+    ${box("7. 보상", ["승리 20~50 · 패배 5~10 코레딧", "계정당 하루 3번까지", "계정별 잠금으로 동시 요청도 한도 안"], "#1c8a5a")}
+  </div>
+  <div style="margin-top:18px;padding:14px 18px;border-radius:14px;background:#f1edff;font-size:17px">
+    <b>모델은 고르기만 하고, 확인과 돈이 걸린 일은 코드가 한다.</b> 진행자가 없는 그림·장소를 지어내도 화면에 나가지 않고, 미니게임의 당첨 위치는 화면에 보내지 않는다.
+  </div>
+</div>`;
+
+const feature = (icon, title, lines, tone) => `
+  <div style="border-radius:18px;padding:16px 18px;background:#fff;border:2px solid ${tone}33">
+    <div style="font-size:26px">${icon}</div>
+    <div style="font-size:19px;font-weight:800;color:${tone};margin-top:4px">${title}</div>
+    <div style="font-size:14px;line-height:1.55;color:#4a4266;margin-top:6px">${lines.join("<br>")}</div>
+  </div>`;
+const features = `
+<div style="width:1280px;height:690px;padding:32px 44px;background:#fbfaff">
+  <div style="font-size:30px;font-weight:800">기능 지도</div>
+  <div style="font-size:16px;color:#6b6388;margin-top:4px">1:1 캐릭터 대화를 중심으로 이야기를 넓히는 기능과, 한 세계관 안의 여러 인물과 이어 가는 월드코퍼챗</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px">
+    ${feature("💬", "캐릭터 대화", ["기억·지난 이야기·친밀도", "복선·엑스트라·대답 추천", "@: 나레이션 · /다시 /계속"], "#6d4dff")}
+    ${feature("🔐", "비밀 퀘스트", ["친밀도 문턱 → 부탁", "인용 근거로 달성 판정", "보상 장면 · 코레딧"], "#6d4dff")}
+    ${feature("🎭", "오퍼레이션", ["심리 탐구 · 일기", "메시지 · 커뮤니티", "웹툰"], "#6d4dff")}
+    ${feature("🖼️", "코디포토넷", ["대화 장면을 그림으로", "화풍 4가지", "수위별 그림 검수"], "#6d4dff")}
+    ${feature("🌍", "월드코퍼챗", ["한 세계관 · 여러 인물", "진행자가 번갈아 연기", "누구나 만들고 공개 범위 선택"], "#d6336f")}
+    ${feature("📖", "대화 방식 4가지", ["기본 채팅(장면 그림)", "비주얼노벨 · 소설", "메신저(카톡형)"], "#d6336f")}
+    ${feature("🗺️", "파트 · 코퍼맵", ["목표를 이루면 다음 파트", "지도 위 장소 핀", "인물이 지금 있는 곳"], "#d6336f")}
+    ${feature("🎲", "이벤트 미니게임", ["사다리·주사위·볼링·제비·미로", "승리 20~50 · 패배 5~10", "하루 3번까지 보상"], "#d6336f")}
+    ${feature("🛠️", "캐릭터 공방", ["8단계 카드 · AI 초안", "3턴 테스트 후 발행", "초상(파일·AI)"], "#2b6fd6")}
+    ${feature("🪙", "코레딧 · 모델", ["출석 · 차감 · 실패 시 환불", "기본·강화·프리미엄 모델", "프로 등급(임시)"], "#2b6fd6")}
+    ${feature("🔞", "수위", ["전체 이용가가 기본", "성인 확인 계정만 성인 수위", "미성년자·강제 단서는 코드가 막음"], "#2b6fd6")}
+    ${feature("🧭", "운영 콘솔", ["신고 · 초상·그림 검수", "세계관 내리기 · 이벤트 기록", "운영 설정 · 계정 등급"], "#1c8a5a")}
+  </div>
+</div>`;
+
+// 데모 세계관 그림 (실제 그림 엔진이 아니라 HTML로 그린 예시. README에 그렇게 적는다)
+const sea = "linear-gradient(180deg,#0b1d3a 0%,#123a66 55%,#1d5e8f 100%)";
+const demoMap = `
+<div style="width:1280px;height:800px;position:relative;overflow:hidden;background:${sea};font-family:${FONT}">
+  <div style="position:absolute;left:-80px;top:260px;width:900px;height:620px;border-radius:46% 54% 40% 60%;background:linear-gradient(160deg,#d9c79a,#b9a46f);box-shadow:0 0 0 18px rgba(255,255,255,.08)"></div>
+  <div style="position:absolute;left:640px;top:520px;width:520px;height:340px;border-radius:50% 40% 30% 60%;background:linear-gradient(160deg,#cdbb8c,#a8935f)"></div>
+  <div style="position:absolute;left:980px;top:80px;width:220px;height:220px;border-radius:50%;background:linear-gradient(160deg,#c9b787,#9e8a56)"></div>
+  <div style="position:absolute;left:180px;top:430px;width:520px;height:16px;background:#8a6f45;border-radius:8px;transform:rotate(-8deg)"></div>
+  <div style="position:absolute;left:480px;top:600px;width:340px;height:14px;background:#8a6f45;border-radius:8px;transform:rotate(14deg)"></div>
+  ${Array.from({ length: 26 }, (_, i) => `<div style="position:absolute;left:${(i * 137) % 1280}px;top:${(i * 89) % 240}px;width:${40 + (i % 5) * 12}px;height:3px;border-radius:2px;background:rgba(255,255,255,.18)"></div>`).join("")}
+  <div style="position:absolute;right:40px;bottom:30px;color:#f6efe1;font-size:20px;letter-spacing:.2em;opacity:.8">SERENA HARBOR · 세레나 항구</div>
+  <div style="position:absolute;left:40px;top:30px;width:90px;height:90px;border:3px solid rgba(255,255,255,.5);border-radius:50%;color:#fff;display:grid;place-items:center;font-size:30px">N</div>
+</div>`;
+const scene = (top, bottom, extra = "") => `
+<div style="width:1280px;height:720px;position:relative;overflow:hidden;background:linear-gradient(180deg,${top},${bottom})">${extra}</div>`;
+const lighthouse = `
+  <div style="position:absolute;left:820px;top:140px;width:90px;height:460px;background:repeating-linear-gradient(180deg,#f2f2f2 0 60px,#c0392b 60px 120px);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)"></div>
+  <div style="position:absolute;left:600px;top:60px;width:560px;height:200px;background:radial-gradient(closest-side,rgba(255,236,170,.75),transparent);transform:rotate(-12deg)"></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:#0b2340"></div>`;
+const dock = `
+  <div style="position:absolute;left:0;right:0;bottom:0;height:260px;background:linear-gradient(180deg,#123a66,#081a33)"></div>
+  <div style="position:absolute;left:120px;bottom:180px;width:760px;height:26px;background:#5b4630"></div>
+  ${[160, 320, 480, 640, 800].map((x) => `<div style="position:absolute;left:${x}px;bottom:120px;width:16px;height:90px;background:#3e2f20"></div>`).join("")}
+  <div style="position:absolute;left:860px;bottom:150px;width:330px;height:120px;background:#1b1b26;clip-path:polygon(0 30%,100% 30%,88% 100%,10% 100%)"></div>
+  <div style="position:absolute;left:980px;bottom:250px;width:10px;height:200px;background:#1b1b26"></div>
+  ${Array.from({ length: 40 }, (_, i) => `<div style="position:absolute;left:${(i * 53) % 1280}px;top:${(i * 37) % 300}px;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.7"></div>`).join("")}`;
+const market = `
+  <div style="position:absolute;left:0;right:0;bottom:0;height:220px;background:#6b4f33"></div>
+  ${[60, 360, 660, 960].map((x, i) => `<div style="position:absolute;left:${x}px;bottom:200px;width:260px;height:150px;background:${["#c0392b", "#2b6fd6", "#1c8a5a", "#b45cff"][i]};clip-path:polygon(0 0,100% 0,90% 100%,10% 100%);opacity:.9"></div><div style="position:absolute;left:${x + 20}px;bottom:120px;width:220px;height:90px;background:#3e2f20"></div>`).join("")}`;
+const sprite = (hair, coat) => `
+<div style="width:600px;height:900px;position:relative;background:transparent">
+  <div style="position:absolute;left:210px;top:120px;width:180px;height:200px;border-radius:50% 50% 46% 46%;background:#f3d4bf"></div>
+  <div style="position:absolute;left:190px;top:80px;width:220px;height:150px;border-radius:50% 50% 30% 30%;background:${hair}"></div>
+  <div style="position:absolute;left:150px;top:310px;width:300px;height:560px;border-radius:120px 120px 20px 20px;background:${coat}"></div>
+  <div style="position:absolute;left:250px;top:210px;width:16px;height:16px;border-radius:50%;background:#2a2238"></div>
+  <div style="position:absolute;left:334px;top:210px;width:16px;height:16px;border-radius:50%;background:#2a2238"></div>
+</div>`;
+
+export const DEMO_ART = { map: demoMap, dock: scene("#0b1d3a", "#1d3f6e", dock), lighthouse: scene("#101a3a", "#3a2c5e", lighthouse), market: scene("#f6c47a", "#f1e3c2", market), seorin: sprite("#2a2238", "#3b4a7a"), doyun: sprite("#5a4632", "#2f3b2f") };
+
 const isMain = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
 if (isMain) {
   mkdirSync(OUT, { recursive: true });
@@ -131,6 +219,8 @@ if (isMain) {
   await render(browser, banner, join(OUT, "banner.png"), { height: 380 });
   await render(browser, architecture, join(OUT, "architecture.png"), { height: 700 });
   await render(browser, stack, join(OUT, "stack.png"), { height: 640 });
+  await render(browser, worldFlow, join(OUT, "world-flow.png"), { height: 580 });
+  await render(browser, features, join(OUT, "features.png"), { height: 690 });
   await render(browser, turn, join(OUT, "chat-turn.png"), { height: 540 });
   await render(browser, card("코디컴퍼챗", "어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인", "실제로 띄운 앱의 화면입니다"), join(TMP, "card-intro.png"));
   await render(browser, card("끝까지 기억하는 동행", "기억 · 관계 · 복선 · 비밀 퀘스트 · 장면 그림 · 웹툰 · 공방", "개발 단계이며 아직 공개 서비스가 아닙니다"), join(TMP, "card-outro.png"));
