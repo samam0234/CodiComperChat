@@ -236,7 +236,7 @@ function BasicTab({ world, patch }: TabProps) {
       <Field label="세계의 규칙 (선택)" hint="마법의 유무, 금기, 기술 수준처럼 진행자가 어기지 말아야 할 것.">
         <textarea rows={4} value={world.rules} maxLength={2000} onChange={(e) => patch({ rules: e.target.value })} />
       </Field>
-      <Field label="첫 장면" hint="플레이를 시작하면 처음 보이는 글. `@: 서술`, `이름: 대사` 형식을 써도 돼요.">
+      <Field label="첫 장면" hint="플레이를 시작하면 처음 보이는 글. 진행자는 앞 글의 모양을 따라 쓰니 대화 방식에 맞춰 쓰세요: 채팅·비주얼노벨은 `@: 서술`과 `이름: 대사`, 소설은 산문, 메신저는 `이름: 메시지` 줄.">
         <textarea rows={4} value={world.opening} maxLength={1000} onChange={(e) => patch({ opening: e.target.value })} data-testid="world-opening" />
       </Field>
       <fieldset className={styles.modes}>

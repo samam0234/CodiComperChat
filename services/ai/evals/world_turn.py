@@ -70,7 +70,7 @@ def check(mode: str, reply: str) -> list[str]:
         errors.append(f"명단 밖 화자 {unknown}")
     if USER in speakers:
         errors.append("유저 대사를 대신 씀")
-    if any(re.match(r"^\s*\[\s*(그림|이동)", line) for line in lines):
+    if any(re.match(r"^\s*\[?\s*(장소\s*|위치\s*|장면\s*)?(그림|이동)\s*[:：]", line) for line in lines):
         errors.append("제어 줄이 본문에 남음")
     if mode in ("chat", "visual_novel") and not (speakers or any(line.lstrip().startswith("@:") for line in lines)):
         errors.append("이름:·@: 줄이 없음")

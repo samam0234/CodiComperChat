@@ -60,7 +60,8 @@ CONTROL_HELP = """답 끝 제어 줄 (필요할 때만, 각 줄 따로):
 제어 줄은 이야기 본문에 섞지 않고 맨 끝에만 둔다."""
 
 _IMAGE_LINE = re.compile(r"^\s*\[\s*그림\s*[:：]\s*(.+?)\s*\]\s*$")
-_MOVE_LINE = re.compile(r"^\s*\[\s*이동\s*[:：]\s*(.+?)\s*(?:→|->|=>)\s*(.+?)\s*\]\s*$")
+_MOVE_LINE = re.compile(r"^\s*\[\s*(?:장소\s*|위치\s*)?이동\s*[:：]\s*(.+?)\s*(?:→|->|=>)\s*(.+?)\s*\]\s*$")
+_LOOSE_CONTROL = re.compile(r"^\s*\[?\s*(?:장소\s*|위치\s*|인물\s*)?(?:이동|그림|장면\s*그림)\s*[:：].*$")
 
 
 def _rating(request: WorldTurnRequest) -> str:
@@ -152,6 +153,10 @@ def parse_controls(raw: str, request: WorldTurnRequest) -> WorldTurnResponse:
             name, place = m.group(1), m.group(2)
             if name in names and place in places and all(x.name != name for x in moves):
                 moves.append(WorldMove(name=name, place=place))
+            continue
+        # 약속과 다른 모양의 제어 줄("[장소 이동: 관리소 → 부두]", 괄호 없는 "장소 이동: -", "[장면 그림: …]")도 본문에 남기지 않는다.
+        # README 화면을 찍다 실제로 나왔다(2026-11-06). 모양이 다르면 반영하지 않고 버리기만 한다
+        if _LOOSE_CONTROL.match(line):
             continue
         body.append(line)
     reply = "\n".join(body).strip()
