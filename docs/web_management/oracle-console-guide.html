@@ -98,6 +98,7 @@ th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); 
 .g { border-bottom:1px dotted #b5651d; } /* 문서에서 확인 못 한 문구 */
 .hot { position:absolute; right:-9px; top:-11px; width:22px; height:22px; border-radius:50%; background:var(--hot); color:#fff !important; font-style:normal; font-size:12px; font-weight:700; display:grid; place-items:center; z-index:2; box-shadow:0 0 0 2px #fff; }
 .hot.l { right:auto; left:-9px; }
+.hot.hh { position:relative; display:inline-grid; margin-left:8px; right:auto; top:0; }
 .term { background:#0c0c0c; color:#e6e6e6; border-radius:8px; font:13px/1.55 ui-monospace,Consolas,monospace; padding:12px 14px; overflow-x:auto; white-space:pre; }
 .term .pr { color:#7ee787; } .term .cm { color:#8b949e; }
 @media (max-width:680px) {
@@ -126,7 +127,7 @@ th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); 
 </div>
 
 <nav class="toc">
-  <a href="#s1">1 가입</a><a href="#s2">2 메뉴 찾기</a><a href="#s3">3 인스턴스 만들기</a><a href="#s4">4 만들어진 뒤</a><a href="#s5">5 80·443 열기</a><a href="#s6">6 접속</a><a href="#s7">7 막혔을 때</a><a href="#check">일치도 점검표</a>
+  <a href="#s1">1 가입</a><a href="#s2">2 메뉴 찾기</a><a href="#s3">3 인스턴스 만들기</a><a href="#s3vcn">3 보충 VCN 만들기</a><a href="#s4">4 만들어진 뒤</a><a href="#s5">5 80·443 열기</a><a href="#s6">6 접속</a><a href="#s7">7 막혔을 때</a><a href="#check">일치도 점검표</a>
 </nav>
 
 <div class="callout">
@@ -314,10 +315,198 @@ th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); 
   </div>
 </div>
 <ol class="legend">
-  <li><div>처음이면 <strong>새 가상 클라우드 네트워크(VCN)를 만드는 쪽</strong>을 고릅니다. 이름은 자동으로 채워지는 그대로 둡니다. 이미 만든 VCN이 있으면 기존 것을 고릅니다. <span class="tag guess">선택지 문구 추정</span></div></li>
+  <li><div>처음이면 <strong>새 가상 클라우드 네트워크(VCN)를 만드는 쪽</strong>을 고릅니다. 이름은 자동으로 채워지는 그대로 둡니다. 이미 만든 VCN이 있으면 기존 것을 고릅니다. 기존 VCN이 없는데 Select existing을 골랐다면 바로 아래 <a href="#s3vcn">3-4 보충</a>을 보세요. <span class="tag guess">선택지 문구 추정</span></div></li>
   <li><div>서브넷도 <strong>새 공개(public) 서브넷</strong>입니다.</div></li>
   <li><div><strong>공인 IPv4 주소를 자동으로 할당</strong>하는 쪽이 켜져 있는지 확인합니다. 꺼져 있으면 밖에서 접속할 수 없습니다.</div></li>
 </ol>
+
+<h3 id="s3vcn" style="margin:30px 0 6px;font-size:1.05rem">3-4 보충: "Select existing virtual cloud network"를 골랐는데 VCN이 없을 때</h3>
+<div class="callout warn">
+  <strong>이 보충 화면은 앞의 화면들보다 확인이 덜 됐습니다.</strong> 이번 보충은 공식 문서를 다시 열어 보지 못하고 알려진 콘솔 흐름(VCN 마법사, VCN 상세 탭)을 기억으로 그렸습니다. 그래서 문구가 거의 다 <span class="tag guess">추정</span>입니다(점선 밑줄). 가장 쉬운 길은 <strong>길 A(마법사)</strong>이고, 길 B는 하나씩 직접 만드는 방법입니다. 길 A로 되면 길 B는 읽지 않아도 됩니다.
+</div>
+<p>인스턴스 만들기 화면의 Networking에서 <strong>Select existing virtual cloud network</strong>를 고르면, 같은 구획(compartment)에 VCN이 이미 있어야 목록에 나옵니다. 새 계정은 VCN이 없어서 목록이 비어 있습니다. 가장 간단한 해결은 위 3-4에서 <strong>Create new virtual cloud network</strong>를 고르는 것이고(그러면 아래 과정이 자동으로 됩니다), 굳이 기존 것을 고르려면 인스턴스 만들기 창을 닫지 말고 <strong>새 탭에서 콘솔을 열어</strong> VCN을 먼저 만듭니다.</p>
+
+<div class="mockcap"><b>3-4a 선택했는데 목록이 비어 있는 모습</b> <span class="tag guess">문구 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="sec">
+      <h4>Networking</h4>
+      <div class="f"><div class="l">Primary network</div>
+        <div class="radio"><i></i><div class="g">Create new virtual cloud network</div></div>
+        <div class="radio"><i class="on"></i><div class="g">Select existing virtual cloud network<i class="hot hh">1</i></div></div>
+        <div class="in sel" style="margin-top:4px"><span class="g" style="color:#7a746d">No virtual cloud networks in this compartment</span><i class="hot hh" style="position:absolute;right:30px;top:-9px;margin:0">2</i></div></div>
+      <div class="f"><div class="l">Subnet</div><div class="in sel"><span class="g" style="color:#7a746d">Select a VCN first</span></div></div>
+    </div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>Primary network에서 <strong>Select existing virtual cloud network</strong>를 골랐습니다.</div></li>
+  <li><div>목록이 비었거나 고를 것이 없습니다. 이 창은 그대로 두고 <strong>브라우저 새 탭</strong>에서 콘솔을 열어 아래 길 A 또는 B로 VCN을 만든 뒤, 이 창으로 돌아와 목록을 다시 열거나 새로 고치면 나옵니다. 안 나오면 <strong>Create in compartment</strong>(구획)가 같은지 확인합니다.</div></li>
+</ol>
+
+<div class="mockcap"><b>길 A-1 VCN 목록 화면에서 마법사 시작</b> <span class="tag guess">메뉴 경로·버튼 이름 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="crumb g">Networking › Virtual cloud networks</div>
+    <h3 class="g">Virtual cloud networks</h3>
+    <div class="bar"><span class="b p g">Start VCN Wizard<i class="hot">1</i></span><span class="b g">Create VCN</span></div>
+    <p style="color:#7a746d;margin:6px 0" class="g">No items found.</p>
+  </div>
+</div>
+<div class="mockcap"><b>길 A-2 마법사 창</b> <span class="tag guess">선택지 이름·칸 순서 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="panel" style="max-width:600px">
+      <div class="ph g">Start VCN Wizard</div>
+      <div class="pb">
+        <div class="row on"><i class="radio" style="margin:0"><i class="on" style="position:relative;display:block"></i></i><span class="g"><strong>Create VCN with Internet Connectivity</strong></span><i class="hot hh" style="position:static;margin-left:auto">1</i></div>
+        <div class="row"><span style="margin-left:23px" class="g">Create a VCN with VPN Connectivity</span></div>
+      </div>
+      <div class="pf"><span class="b p g">Start VCN Wizard</span><span class="b">Cancel</span></div>
+    </div>
+  </div>
+</div>
+<div class="oc" style="margin-top:8px">
+  <div class="oc-main">
+    <div class="sec">
+      <h4 class="g">Create a VCN with Internet Connectivity</h4>
+      <div class="f"><div class="l g">VCN name</div><div class="in on">codicomperchat-vcn<i class="hot">2</i></div></div>
+      <div class="f"><div class="l g">Compartment</div><div class="in sel">(인스턴스를 만드는 구획과 같은 것)<i class="hot">3</i></div></div>
+      <div class="f"><div class="l g">VCN CIDR block</div><div class="in">10.0.0.0/16</div></div>
+      <div class="f"><div class="l g">Public subnet CIDR block</div><div class="in">10.0.0.0/24</div></div>
+      <div class="f"><div class="l g">Private subnet CIDR block</div><div class="in">10.0.1.0/24</div></div>
+    </div>
+    <div class="bar"><span class="b p g">Next<i class="hot">4</i></span><span class="b g">Create</span><span class="b">Cancel</span></div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>VCN 목록에서 <strong>Start VCN Wizard</strong>를 누르고, <strong>Create VCN with Internet Connectivity</strong>를 고릅니다. 이 한 가지가 VCN, 공개 서브넷, 인터넷 게이트웨이, 라우트 테이블, 보안 목록을 한꺼번에 만들어 줍니다.</div></li>
+  <li><div>VCN 이름을 적습니다(예: <code>codicomperchat-vcn</code>). 아무 이름이나 됩니다.</div></li>
+  <li><div><strong>Compartment</strong>가 인스턴스를 만들 구획과 같아야 합니다. 같지 않으면 인스턴스 만들기 화면에 안 보입니다.</div></li>
+  <li><div>CIDR 칸은 기본값(<code>10.0.0.0/16</code>, 공개 <code>10.0.0.0/24</code>, 비공개 <code>10.0.1.0/24</code>) 그대로 둡니다. <strong>Next</strong> → 요약 화면에서 <strong>Create</strong>를 누르고, 완료되면 <strong>View VCN</strong>으로 확인합니다. 끝나면 아래 "3-4f"로 건너뜁니다.</div></li>
+</ol>
+
+<h4 style="margin:22px 0 6px">길 B: 하나씩 직접 만들기 (VCN → 인터넷 게이트웨이 → 라우트 → 서브넷 → 보안 목록)</h4>
+<p>길 A가 안 보이거나 구성 요소를 눈으로 확인하고 싶을 때만 합니다. 순서가 중요합니다: <strong>VCN → 인터넷 게이트웨이 → 라우트 규칙 → 공개 서브넷</strong>.</p>
+
+<div class="mockcap"><b>B-1 VCN 만들기 (Create VCN)</b> <span class="tag guess">칸 이름 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="panel" style="max-width:560px">
+      <div class="ph g">Create VCN</div>
+      <div class="pb">
+        <div class="f"><div class="l g">Name</div><div class="in on">codicomperchat-vcn<i class="hot">1</i></div></div>
+        <div class="f"><div class="l g">Create in compartment</div><div class="in sel">(인스턴스와 같은 구획)<i class="hot">2</i></div></div>
+        <div class="f"><div class="l g">IPv4 CIDR Blocks</div><div class="in on">10.0.0.0/16<i class="hot">3</i></div></div>
+        <div class="f"><span class="chk" style="background:#0b6bcb;border-color:#0b6bcb"></span><span class="g">Use DNS hostnames in this VCN</span></div>
+      </div>
+      <div class="pf"><span class="b p g">Create VCN<i class="hot">4</i></span><span class="b">Cancel</span></div>
+    </div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>Name: <code>codicomperchat-vcn</code></div></li>
+  <li><div>구획은 인스턴스를 만들 구획과 같게 둡니다.</div></li>
+  <li><div>IPv4 CIDR: <code>10.0.0.0/16</code>. 다른 네트워크와 이어 쓰지 않으니 이대로 둡니다.</div></li>
+  <li><div><strong>Create VCN</strong>을 누르면 VCN 상세 화면이 열립니다. 이 화면에 <strong>Subnets · Route Tables · Internet Gateways · Security Lists</strong> 같은 목록이 있습니다(탭이나 왼쪽 목록, 버전마다 다름 <span class="tag guess">추정</span>).</div></li>
+</ol>
+
+<div class="mockcap"><b>B-2 인터넷 게이트웨이 만들기</b> <span class="tag guess">메뉴·칸 이름 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="crumb g">Networking › Virtual cloud networks › codicomperchat-vcn</div>
+    <h3>codicomperchat-vcn</h3>
+    <div class="tabs"><span class="g">Subnets</span><span class="g">Route Tables</span><span class="on g">Internet Gateways<i class="hot" style="position:relative;display:inline-grid;margin-left:6px;right:auto;top:0">1</i></span><span class="g">Security Lists</span></div>
+    <div class="bar"><span class="b p g">Create Internet Gateway<i class="hot">2</i></span></div>
+    <div class="panel" style="max-width:520px"><div class="pb">
+      <div class="f"><div class="l g">Name</div><div class="in on">codicomperchat-igw<i class="hot">3</i></div></div></div>
+      <div class="pf"><span class="b p g">Create Internet Gateway<i class="hot">4</i></span></div></div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>VCN 상세에서 <strong>Internet Gateways</strong> 목록을 엽니다.</div></li>
+  <li><div><strong>Create Internet Gateway</strong>를 누릅니다.</div></li>
+  <li><div>Name: <code>codicomperchat-igw</code></div></li>
+  <li><div>확인 버튼을 눌러 만듭니다. 상태가 <strong>Available</strong>이 되면 다음으로 갑니다.</div></li>
+</ol>
+
+<div class="mockcap"><b>B-3 라우트 테이블에 인터넷 길 열기</b> <span class="tag guess">칸 이름 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="crumb g">… › codicomperchat-vcn › Route Tables › Default Route Table for codicomperchat-vcn</div>
+    <div class="bar"><span class="b p g">Add Route Rules<i class="hot">1</i></span></div>
+    <div class="panel" style="max-width:560px">
+      <div class="ph g">Add Route Rules</div>
+      <div class="pb">
+        <div class="f"><div class="l g">Target Type</div><div class="in sel g">Internet Gateway<i class="hot">2</i></div></div>
+        <div class="f"><div class="l g">Destination CIDR Block</div><div class="in on">0.0.0.0/0<i class="hot">3</i></div></div>
+        <div class="f"><div class="l g">Target Internet Gateway</div><div class="in sel">codicomperchat-igw<i class="hot">4</i></div></div>
+      </div>
+      <div class="pf"><span class="b p g">Add Route Rules<i class="hot">5</i></span><span class="b">Cancel</span></div>
+    </div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>Route Tables 목록에서 <strong>Default Route Table</strong>을 열고 <strong>Add Route Rules</strong>를 누릅니다.</div></li>
+  <li><div>Target Type: <strong>Internet Gateway</strong></div></li>
+  <li><div>Destination CIDR Block: <code>0.0.0.0/0</code> (바깥 어디든)</div></li>
+  <li><div>Target Internet Gateway: 방금 만든 <code>codicomperchat-igw</code></div></li>
+  <li><div>추가 버튼을 누릅니다. <strong>이 규칙이 없으면 공인 IP를 받아도 밖에서 접속이 안 됩니다.</strong> 가장 흔한 실수입니다.</div></li>
+</ol>
+
+<div class="mockcap"><b>B-4 공개 서브넷 만들기 (Create Subnet)</b> <span class="tag guess">칸 이름·선택지 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="panel" style="max-width:600px">
+      <div class="ph g">Create Subnet</div>
+      <div class="pb">
+        <div class="f"><div class="l g">Name</div><div class="in on">codicomperchat-public<i class="hot">1</i></div></div>
+        <div class="f"><div class="l g">Subnet Type</div>
+          <div class="radio"><i class="on"></i><div class="g">Regional (Recommended)<i class="hot hh">2</i></div></div>
+          <div class="radio"><i></i><div class="g">Availability Domain-Specific</div></div></div>
+        <div class="f"><div class="l g">IPv4 CIDR Block</div><div class="in on">10.0.0.0/24<i class="hot">3</i></div></div>
+        <div class="f"><div class="l g">Route Table</div><div class="in sel">Default Route Table for codicomperchat-vcn<i class="hot">4</i></div></div>
+        <div class="f"><div class="l g">Subnet Access</div>
+          <div class="radio"><i class="on"></i><div class="g">Public Subnet<i class="hot hh">5</i></div></div>
+          <div class="radio"><i></i><div class="g">Private Subnet</div></div></div>
+        <div class="f"><div class="l g">Security Lists</div><div class="in sel">Default Security List for codicomperchat-vcn<i class="hot">6</i></div></div>
+      </div>
+      <div class="pf"><span class="b p g">Create Subnet<i class="hot">7</i></span><span class="b">Cancel</span></div>
+    </div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>VCN 상세의 <strong>Subnets</strong>에서 <strong>Create Subnet</strong>을 누르고 Name: <code>codicomperchat-public</code></div></li>
+  <li><div>Subnet Type: <strong>Regional</strong></div></li>
+  <li><div>IPv4 CIDR Block: <code>10.0.0.0/24</code> (VCN 대역 <code>10.0.0.0/16</code> 안이어야 합니다)</div></li>
+  <li><div>Route Table: B-3에서 규칙을 넣은 <strong>Default Route Table</strong></div></li>
+  <li><div>Subnet Access: <strong>Public Subnet</strong>. Private를 고르면 공인 IP를 못 받습니다.</div></li>
+  <li><div>Security Lists: <strong>Default Security List</strong>를 연결합니다. 5단계에서 80·443을 여는 곳이 바로 이 목록입니다. 처음부터 22(SSH)가 열려 있는 기본 목록입니다.</div></li>
+  <li><div><strong>Create Subnet</strong>을 누릅니다.</div></li>
+</ol>
+
+<div class="mockcap"><b>3-4f 만든 VCN을 인스턴스 만들기 화면에서 고르기</b> <span class="tag guess">문구 추정</span></div>
+<div class="oc">
+  <div class="oc-main">
+    <div class="sec">
+      <h4>Networking</h4>
+      <div class="f"><div class="l">Primary network</div>
+        <div class="radio"><i></i><div class="g">Create new virtual cloud network</div></div>
+        <div class="radio"><i class="on"></i><div class="g">Select existing virtual cloud network</div></div>
+        <div class="f" style="margin:6px 0 0"><div class="l g">Virtual cloud network</div><div class="in sel on">codicomperchat-vcn<i class="hot">1</i></div></div></div>
+      <div class="f"><div class="l g">Subnet</div>
+        <div class="radio"><i class="on"></i><div class="g">Select existing subnet</div></div>
+        <div class="in sel on">codicomperchat-public (Regional)<i class="hot">2</i></div></div>
+      <div class="f"><div class="radio"><i class="on"></i><div>Automatically assign public IPv4 address<i class="hot hh">3</i></div></div></div>
+    </div>
+  </div>
+</div>
+<ol class="legend">
+  <li><div>VCN 목록에서 방금 만든 <code>codicomperchat-vcn</code>을 고릅니다. 안 보이면 새로 고침, 그래도 없으면 구획이 다른 것입니다.</div></li>
+  <li><div>서브넷은 <strong>공개 서브넷</strong>(<code>codicomperchat-public</code> 또는 마법사가 만든 public subnet)을 고릅니다. 이름에 private가 들어간 것은 고르지 않습니다.</div></li>
+  <li><div><strong>공인 IPv4 주소를 자동으로 할당</strong>이 켜져 있는지 확인하고 3-5로 이어갑니다. 나중에 5단계의 80·443 열기는 이 서브넷에 붙은 Security List에서 합니다.</div></li>
+</ol>
+<div class="callout"><strong>길 A·B가 끝났는지 눈으로 확인</strong>: VCN 안에 <strong>공개 서브넷 1개 + 인터넷 게이트웨이 1개 + 0.0.0.0/0 → 인터넷 게이트웨이 라우트 규칙 1개 + 보안 목록(22 열림)</strong>이 있으면 됩니다. 그렇게 만들어졌으면 4·5단계는 그대로 따라 하면 됩니다.</div>
 
 <div class="mockcap"><b>3-5 SSH 키·부트 볼륨·만들기</b> <span class="tag ok">"Generate a key pair for me", Save Private Key·Save Public Key, Create 문서 확인</span> <span class="tag guess">나머지 추정</span></div>
 <div class="oc">
@@ -453,7 +642,7 @@ cd ~/CodiComperChat &amp;&amp; sudo bash deploy/oracle/setup.sh</code></pre></di
 <div class="table-scroll"><table>
   <tr><th>화면</th><th>문서에서 확인한 것</th><th>추정한 것</th></tr>
   <tr><td>메뉴</td><td>navigation menu → Compute → Instances → Create instance</td><td>메뉴 아이콘·배치, 다른 항목 이름, 검색창·리전 표시줄 문구</td></tr>
-  <tr><td>인스턴스 만들기</td><td>페이지 이름 Create compute instance, Name, Create in compartment, Availability domain, Capacity type, Fault domain, Always Free Eligible, Image and shape, Change shape, Networking(Virtual cloud network·Subnet·공인 IPv4), Add SSH keys, Boot volume, Create</td><td>Placement 제목 표기, 선택지 문구(새 VCN 만들기 등), SSH 키 다른 선택지 이름, 부트 볼륨 크기 칸 이름, Save as stack, 단계 목록(좌측 스텝) 유무</td></tr>
+  <tr><td>인스턴스 만들기</td><td>페이지 이름 Create compute instance, Name, Create in compartment, Availability domain, Capacity type, Fault domain, Always Free Eligible, Image and shape, Change shape, Networking(Virtual cloud network·Subnet·공인 IPv4), Add SSH keys, Boot volume, Create</td><td>Placement 제목 표기, 선택지 문구(새 VCN 만들기 등), 3-4 보충 전체(VCN 마법사·VCN 직접 만들기·게이트웨이·라우트·서브넷 화면은 기억 기반이라 문구 대부분 추정), SSH 키 다른 선택지 이름, 부트 볼륨 크기 칸 이름, Save as stack, 단계 목록(좌측 스텝) 유무</td></tr>
   <tr><td>이미지·모양 패널</td><td>Select an image, Select image, Browse all shapes, Instance type, Virtual machine, Shape series, Ampere, VM.Standard.A1.Flex, Select shape</td><td>OCPU·메모리 칸 이름과 슬라이더 모양, 이미지 목록 모양</td></tr>
   <tr><td>인스턴스 상세</td><td>Networking 탭, Public IPv4 address, 서브넷 이름 링크, provisioning → running 상태</td><td>상태 배지 모양·색, 탭 이름 나머지, 정보 표 배치</td></tr>
   <tr><td>Security List</td><td>Security 탭, Default Security List for vcn-…, Security rules, Add Ingress Rules, Source CIDR, Destination Port Range</td><td>Stateless·Source Type·IP Protocol·Source Port Range·Description 이름과 순서, 규칙 목록 모양</td></tr>
