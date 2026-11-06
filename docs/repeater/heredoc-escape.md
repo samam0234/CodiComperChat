@@ -1,5 +1,16 @@
 # Git Bash heredoc 안의 이스케이프가 깨짐
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+Bash heredoc ─▶ 파이썬 소스 ─▶ 파이썬 문자열 ─▶ 결과 파일
+                 (이스케이프가 겹마다 한 번씩 풀린다 → 한 겹을 놓치면 \n이 실제 줄바꿈)
+   │ 고침
+   ▼
+이스케이프가 든 편집은 Write·Edit 도구로 → 바로 node --check / python import / tsc
+```
+
 ## 1. 환경
 
 Windows 11, Git Bash(에이전트의 Bash 도구), `python - <<'EOF' … EOF`나 `python 파일.py`로 다른 파일을 고치는 스크립트.

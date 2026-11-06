@@ -9,6 +9,26 @@ npm run dev:console     # http://localhost:3001  (API는 http://localhost:4000 �
 npm run build:console
 ```
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+운영자 ─▶ /login (console_session 쿠키, 12시간)
+            │
+            ▼
+   layout.tsx: getAdmin() → Nest /auth/me (매 요청, role=ADMIN만)
+            │
+            ▼
+   page.tsx (서버 컴포넌트) ─ adminGet('/admin/…') ─▶ 표·숫자
+            │
+            ▼ 버튼
+   클라이언트 컴포넌트 ─▶ app/actions/admin.ts (서버 액션) ─▶ Nest /admin/* (AdminGuard)
+                                                              │
+   그림 보기 ─▶ app/api/**/route.ts ─ lib/relay.ts ───────────┘ (no-store · sandbox CSP)
+
+메뉴: 대시보드 · 신고함 · 그림 신고 · 초상 검수 · 캐릭터 · 월드코퍼챗 · 계정 등급
+```
+
 ## 아키텍처
 
 ```mermaid

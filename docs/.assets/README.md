@@ -4,6 +4,18 @@
 
 **전부 다시 만들 수 있다.** 손으로 그린 것은 없고, 실제로 띄운 앱을 찍거나(`capture.mjs`·`tour.mjs`·`world.mjs`) HTML로 그렸다(`art.mjs`). 만드는 법은 [../../scripts/readme-media/README.md](../../scripts/readme-media/README.md).
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+scripts/readme-media/*.mjs ─▶ docs/.assets/readme/*.png|jpg|gif|mp4
+                                   │
+            ┌──────────────────────┼─────────────────────────┐
+            ▼                      ▼                         ▼
+     루트 README.md          docs/*.md (구조 그림)     앱별 README (링크)
+(손으로 그린 그림은 두지 않는다 — 전부 다시 만들 수 있다)
+```
+
 ## 폴더
 
 ```text

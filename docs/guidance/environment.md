@@ -4,6 +4,18 @@
 
 `.env`는 git에 올라가지 않는다(`.gitignore`). 비밀 값(DB 비밀번호, `AUTH_SECRET`, 토스 시크릿 키, SMTP 비밀번호)은 문서·대화·커밋·로그에 남기지 않는다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+apps/api/.env ─────┬─ DATABASE_URL · AUTH_SECRET · AI_BASE_URL · AI_SERVICE_TOKEN · 메일 · 결제 · ADULT_MODE
+services/ai/.env ──┼─ OLLAMA_* · AI_SERVICE_TOKEN(같은 값) · IMAGE_ENGINE · 프리미엄 키
+apps/web ──────────┼─ API_BASE_URL · CONSOLE_BASE_URL
+console ───────────┘─ API_BASE_URL · WEB_BASE_URL
+운영 설정(월드 이벤트 등)은 환경변수가 아니라 DB app_settings (콘솔)
+빈 값은 "설정 안 함"으로 읽는다 (repeater/empty-env-var.md)
+```
+
 ## `apps/api/.env` (Nest)
 
 | 키 | 필수 | 기본값 | 무엇 |

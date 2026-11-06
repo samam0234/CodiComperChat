@@ -17,3 +17,24 @@
 - **스택**: Next.js(`apps/web`) · Nest.js(`apps/api`) · FastAPI(`services/ai`) · 운영 콘솔(`console`) · PostgreSQL/Prisma. 프론트는 FastAPI를 직접 호출하지 않는다. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
 
 읽는 순서: `.agents/skills/codicomperchat/SKILL.md` → `docs/AGENT_HANDOVER.md`(지금 상태·함정) → `docs/TASKS.md`(할 일) → `docs/trainings/`(실측, 프롬프트·판정을 고칠 때) → `docs/FEATURES.md`(전체 기능) → `CodiComperChat_project_plan.md` → `docs/guidance/commit-message.md` → `docs/guidance/branch-merge.md` → `docs/branchs/TEMPLATE.md`
+
+<!-- logic-structure -->
+아래는 이 파일이 가리키는 규칙이 실제로 흐르는 순서다.
+
+```text
+이 도구가 읽는 파일 (어댑터)
+        │ 가리킨다
+        ▼
+.agents/skills/codicomperchat/SKILL.md   ← 정본. 어긋나면 정본이 이긴다
+        │ 읽는 순서
+        ├─▶ docs/AGENT_HANDOVER.md        지금 상태 · 함정 · 약속
+        ├─▶ docs/TASKS.md                 할 일 (사용자 몫은 대신 하지 않는다)
+        ├─▶ docs/trainings/               실측 (프롬프트·판정·그림을 고치기 전에)
+        └─▶ CodiComperChat_project_plan.md  기획 원본 (승인 없이 수정 금지)
+
+작업 흐름
+  feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
+        │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
+        ▼  사용자가 "병합"이라고 할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+```

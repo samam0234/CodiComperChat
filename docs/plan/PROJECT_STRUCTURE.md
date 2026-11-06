@@ -6,6 +6,21 @@
 
 ![계층 구조](../.assets/readme/layers.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+CodiComperChat/
+├── apps/web ─────┐
+├── console ──────┼──▶ apps/api ──▶ services/ai
+│                 │         └──▶ PostgreSQL (prisma/)
+├── e2e ── 위 넷을 운영 빌드로 띄워 시험
+├── deploy ── 운영 compose · Caddy · Dockerfile
+├── scripts ── ci-local · record-commit · readme-media · db-backup
+├── docs ── 이 문서들 (.assets = 그림)
+└── .agents + 도구별 어댑터 ── 에이전트 규칙
+```
+
 ## 모노레포 최상위
 
 ```text

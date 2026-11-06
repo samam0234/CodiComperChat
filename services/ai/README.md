@@ -36,6 +36,30 @@ cp .env.example .env
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+Nest ─▶ internal_auth 미들웨어 (AI_SERVICE_TOKEN, 루프백 /health만 예외)
+            │
+            ▼
+   routes/*.py ─▶ schemas/*.py (WireModel, camelCase, 길이 한도)
+            │
+            ▼
+   services/*.py
+     inference      1:1 연기 (규칙·수위·나레이션 지시·보상 장면은 맨 끝)
+     grounding      설정에 없는 개인사 단정 판정
+     summarization  요약·친밀도·복선·퀘스트 판정·보상 갈래 고르기
+     world          월드 진행자 · 제어 줄 검사 · 파트 판정
+     photonet/webtoon 장면 설계 → 그림 → 검수
+            │
+            ▼
+   llm.py ─┬─ Ollama (기본, keep_alive 조절)
+           ├─ fake_llm (LLM_FAKE=1, e2e)
+           └─ premium (Claude·Grok, 키·월 상한 있을 때)
+   image_engine.py ─ diffusers (서버 안) 또는 WebUI
+```
+
 ## 아키텍처
 
 ```mermaid

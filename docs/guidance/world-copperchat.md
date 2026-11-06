@@ -2,6 +2,18 @@
 
 설계와 결정은 [../plan/WORLD_COPPERCHAT.md](../plan/WORLD_COPPERCHAT.md), 실측은 [../trainings/world-copperchat.md](../trainings/world-copperchat.md). 이 문서는 손으로 해 볼 때의 순서다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+만들기: /worlds → 새 세계관 → 편집기 6탭 → 저장 → 발행
+플레이: 소개 → 주인공 → 시작 → 말 보내기 ─┬─ 답(방식별 화면) · 장면 그림
+                                          ├─ 3턴마다 파트 판정 → 다음 파트
+                                          ├─ 코퍼맵 (인물 위치)
+                                          └─ 이벤트 창 → 결과·보상
+막혔을 때: 6장 디버깅 표 (그림 · 파트 · 이벤트 · 위치 · 형식)
+```
+
 ## 1. 세계관 만들기 (이용자)
 
 1. 로그인 → 헤더 **월드** → **+ 새 세계관 만들기**. 편집기(`/worlds/<id>/edit`)가 열린다.

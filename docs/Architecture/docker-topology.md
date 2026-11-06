@@ -11,6 +11,20 @@
 
 ![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+인터넷 ─▶ caddy (80·443) ─edge─▶ web:3000 ─┐
+                       └─edge─▶ console:3001 (IP 허용) ─┤ internal
+                                                        ▼
+                                                    api:4000 ─▶ postgres:5432
+                                                        │        ▲ migrate (기동 때)
+                                                        ▼
+                                                    ai:8000 ─▶ ollama:11434
+                                                    (GPU · /models 읽기 전용)
+```
+
 ## 운영 구성
 
 ```text

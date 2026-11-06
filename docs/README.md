@@ -10,6 +10,22 @@
 
 ---
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+처음 온 사람 ─▶ README(루트) ─▶ docs/README (이 파일: 지도)
+                                   │
+       ┌───────────────┬───────────┼──────────────┬────────────────┬───────────────┐
+       ▼               ▼           ▼              ▼                ▼               ▼
+  지금 상태        무엇이 있나   어떻게 생겼나   어떻게 하나      실제로 재 본 것   운영·배포
+  AGENT_HANDOVER   FEATURES     Architecture/   guidance/        trainings/       web_management/
+  TASKS            API_DOC      plan/*          getting-started  find_debug/      DEPLOYMENT
+                                WORKFLOW        world-copperchat repeater/        owner-checklist
+       │
+       └─ 기록: branchs/ (커밋·병합 기록) · 정본 규칙: ../.agents/skills/codicomperchat/SKILL.md
+```
+
 ## 구조 그림 한눈에
 
 그림은 모두 `scripts/readme-media/`로 다시 만든다(HTML → PNG, 서버 필요 없음). 값은 저장소에서 읽은 사실이다.

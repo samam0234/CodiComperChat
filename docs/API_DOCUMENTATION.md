@@ -4,6 +4,19 @@
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+브라우저 ──▶ apps/web (Next) ──Bearer──▶ Nest /…            ← 이 문서의 대부분
+                                          │
+                                          ├── Guard: 로그인 · 운영자 · 요청 한도 (429 + Retry-After)
+                                          ├── 응답: JSON, 오류는 { message } (400·401·403·404·409·429·502)
+                                          └──AI_SERVICE_TOKEN──▶ FastAPI /… (내부망, 웹은 모른다)
+운영 콘솔 ─────────────────────Bearer──▶ Nest /admin/* (AdminGuard)
+그림 본문: Nest가 sandbox CSP·nosniff로 보내고 web/console 중계가 그대로 흘려보낸다
+```
+
 ## Base
 
 | 앱 | Base URL | 상태 |

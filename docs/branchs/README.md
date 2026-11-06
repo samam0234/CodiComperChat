@@ -7,6 +7,16 @@
 - 작성 규칙 정본: `.agents/skills/codicomperchat/SKILL.md` §4
 - 작성기: `node scripts/record-commit.mjs --name <kebab-이름> --notes <본문 파일> [--commit --trailer "..."]` — 파일 이름·표·이 목록의 한 줄을 git에서 읽어 채운다. 본문(`## 주 내용`부터)만 직접 쓴다
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+커밋 ─▶ node scripts/record-commit.mjs --name … --notes … --commit
+           ├─▶ commits/<날짜>_<sha>_<이름>_<브랜치>.md (TEMPLATE 형식)
+           └─▶ 아래 목록 표에 한 줄 (merge=union이라 병합 때 줄이 다 남는다)
+병합 ─▶ 같은 작성기로 --sha <병합 커밋> --branch develop|main
+```
+
 ## 커밋 기록 목록
 
 | 날짜 | 커밋 | 브랜치 | 요약 | 문서 |
@@ -346,5 +356,7 @@
 | 2026-11-06 | `70a23cb` | main (merge) | develop into main | [261106_1551_70a23cb_merge-develop-into-main-6_main.md](commits/261106_1551_70a23cb_merge-develop-into-main-6_main.md) |
 | 2026-11-06 | `0212067` | feature/docs-diagrams | 문서용 구조 그림 6장과 그리는 스크립트 추가 | [261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md](commits/261106_1559_0212067_docs-diagrams_feature-docs-diagrams.md) |
 | 2026-11-06 | `0cd8120` | feature/docs-diagrams | 문서 곳곳에 구조 그림 넣기 | [261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md](commits/261106_1559_0cd8120_docs-embed-diagrams_feature-docs-diagrams.md) |
+| 2026-11-06 | `92ea3a7` | feature/docs-logic-structure | README·에이전트 문서에 로직 구조 상자 그림 추가 | [261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md](commits/261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md) |
+| 2026-11-06 | `5211533` | feature/docs-logic-structure | docs 전체 문서에 로직 구조 상자 그림 추가 | [261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md](commits/261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

@@ -6,6 +6,17 @@
 
 ![기술 스택](../.assets/readme/stack.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+기획 원본 §15 합의 ─▶ 확정 표 ─▶ 구현하며 정한 것 (날짜·사용자 결정과 함께)
+                                         │
+                                         ▼
+                              아직 열린 항목 ─▶ TASKS.md 4장 (방향 확인)
+스택이 바뀌면: 이 문서 → PROJECT_STRUCTURE → 앱 README → docs/README 앱과 포트 (문서 갱신 체크리스트)
+```
+
 ## 확정 (계획서 §15 "합의")
 
 | 영역 | 값 |
