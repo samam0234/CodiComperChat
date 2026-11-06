@@ -39,3 +39,7 @@ web·api와 ai를 분리 배포할 수 있게 둔다. ai가 GPU/호스티드 LLM
 - 포트/서비스명은 이 문서가 아니라 [CURRENT_STACK.md](CURRENT_STACK.md)에서 확정하고 여기는 그것을 참조한다
 
 관련: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md), [../DEPLOYMENT.md](../DEPLOYMENT.md), [../web_management/docker-deploy.md](../web_management/docker-deploy.md)
+
+## 2026-11-06 메모
+
+월드코퍼챗은 별도 서비스가 없다. 로컬에서는 `apps/api`에서 `npx prisma migrate deploy` 한 번이면 된다. 쓰는 법·시험·디버깅: [../guidance/world-copperchat.md](../guidance/world-copperchat.md).

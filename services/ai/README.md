@@ -115,6 +115,23 @@ cd services/ai
 기준에 못 미치는 묶음이 있으면 종료 코드 1이다. 평가용 가상 캐릭터는 `evals/fixture.py`(실제 캐릭터 설정은 비공개라 쓰지 않는다).
 판정·요약 호출(`/critique-test`·`/ground-check`·`/summarize`)은 `seed`를 고정해 같은 입력에 같은 결과가 나온다. 대화 연기는 고정하지 않는다.
 
+## 월드코퍼챗 진행자 (2026-11-06)
+
+```mermaid
+flowchart LR
+  N[Nest WorldPlayService] -->|WorldTurnRequest| T["/world/turn"]
+  T --> B[build_system: 설정·인물·장소·이름표·파트 방향·규칙·수위·방식]
+  B --> L[llm.generate gemma4:e4b, 온도 0.75]
+  L --> P[parse_controls: 그림·이동 제어 줄 떼기, 없는 것 버리기]
+  P --> N
+  N -->|3턴마다| K["/world/part-check"] --> J[온도 0·시드 7, 근거 인용 대조]
+```
+
+- 수위는 1:1 대화와 같은 규칙(`inference.ADULT_RULE`, `coercion_in`, `minors.minor_in`).
+- 방식 형식 지시는 프롬프트 끝 가까이 둔다(앞 글의 모양을 따라가서).
+- 단위 시험 `tests/test_world.py` 9개, 평가 `python -m evals.world_turn --repeat 3`(형식 23/24). AI 단위 전체 54개(파일 7개).
+- 정본 [../../docs/plan/WORLD_COPPERCHAT.md](../../docs/plan/WORLD_COPPERCHAT.md), 실측 [../../docs/trainings/world-copperchat.md](../../docs/trainings/world-copperchat.md).
+
 ## 경로 (현재 상태)
 
 전부 구현돼 있다(`/train`만 403). 요청·응답은 camelCase(`WireModel`). 자세한 계약은 `/docs`와 [API 문서](../../docs/API_DOCUMENTATION.md).

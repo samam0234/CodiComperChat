@@ -62,3 +62,7 @@ npm workspaces 호이스팅 때문에 `@prisma/client`가 루트 `node_modules`�
 cd apps/api/node_modules/@prisma
 ln -s ../../../../node_modules/@prisma/client client
 ```
+
+## 월드코퍼챗과 DB (2026-11-06)
+
+`npx prisma migrate deploy`가 월드 테이블 9개를 더한다. 장면 그림·지도는 DB(`bytea`)에 들어가 데이터 폴더가 커진다(세계관당 최대 약 12MB). 개발 DB를 비우고 싶으면 `delete from worlds;`(플레이·메시지·이벤트·그림이 함께 지워진다). README 그림용 데모 DB는 `codicomperchat_readme`로 따로다.

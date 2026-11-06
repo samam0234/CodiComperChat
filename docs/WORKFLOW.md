@@ -44,6 +44,19 @@ Nest: 로그인·요청 한도·성인 확인(성인 모드면 DB로 매번)·�
 
 웹툰은 콘티(무료)를 먼저 짠다: 외모를 한 번 정한 뒤(`_looks`) 컷마다 구도·행동·해설·대사를 쓰고, 컷은 하나씩 따로 요청해 그린다. 한 편의 컷은 웹툰 id에서 만든 같은 시드로 그린다. 자세한 것: [guidance/photonet-engine.md](guidance/photonet-engine.md), [plan/OPERATIONS.md](plan/OPERATIONS.md).
 
+## 월드코퍼챗 한 턴 (2026-11-06)
+
+![월드코퍼챗 한 턴](.assets/readme/world-flow.png)
+
+1. `POST /worlds/:id/play/turn` → 볼 수 있는 세계관인지, 플레이가 있는지 확인. 열린 이벤트는 끝낸다(EXPIRED).
+2. 기본 모델 사용량을 잡는다(`ModelsService.reserve`). 실패하면 돌려준다.
+3. 세계관·인물(지금 있는 곳)·장소·그림 이름표·최근 16개·지난 이야기·지금 파트·주인공·성인 여부·이벤트 결과를 모아 `/world/turn`.
+4. 답 끝의 제어 줄을 떼고, 있는 이름표면 그림을 붙이고, 명단 안 인물·장소면 위치를 바꾼다.
+5. 유저 말과 답을 저장. 3턴마다 `/world/part-check` → 통과하면 다음 파트 메시지들.
+6. 확률에 걸리면 이벤트를 만든다. 상태 전체를 돌려준다.
+
+자세히: [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md).
+
 ## 원칙
 
 - 숨은 디렉터를 매 턴 풀 생성으로 돌리지 않는다 — 본 생성은 캐릭터 한 번, 판정은 필요한 턴에만 짧게

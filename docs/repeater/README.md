@@ -19,3 +19,5 @@
 - [nest-dev-server-dist-missing.md](nest-dev-server-dist-missing.md) — `Cannot find module dist/main`으로 죽고 안 살아남, 포트 4000 충돌
 - [test-flaky-under-load.md](test-flaky-under-load.md) — 시험이 가끔 실패하는데 혼자 돌리면 늘 통과 (3개 동시 실행으로 재현), e2e 전체 실행의 시간 초과
 - [empty-env-var.md](empty-env-var.md) — 빈 환경변수가 "설정됨"으로 읽혀 기본값이 안 먹음 (`??` vs `||`)
+
+- [heredoc-escape.md](heredoc-escape.md) — Git Bash heredoc 안의 파이썬 문자열 이스케이프가 결과 파일에서 실제 줄바꿈이 됨 (2026-11-06)

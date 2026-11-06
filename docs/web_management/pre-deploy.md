@@ -28,3 +28,9 @@
 - [ ] GitHub 설정: 브랜치 보호, 비밀 스캔. 비공개 저장소에서는 요금제에 따라 제한될 수 있다(미확인)
 - [ ] 정식 서비스로 바꿀 때: `PRO_CLICK=off`, 토스 결제, 프로 안내 문구
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 통과
+
+## 월드코퍼챗 (2026-11-06)
+
+- [ ] 이벤트 보상 정책 법률 검토([../guidance/owner-checklist.md](../guidance/owner-checklist.md) 10장)
+- [ ] 콘솔에서 하루 보상 횟수·확률 최종 값
+- [ ] `ADULT_MODE=off` 유지(월드도 전체 이용가)

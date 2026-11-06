@@ -38,3 +38,7 @@
 - 나눌 때는 `ai`·`ollama`를 다른 서버로 옮기고 사설망으로 잇는다. FastAPI를 공개 주소에 열지 않는다
 
 절차와 실측: [../web_management/docker-deploy.md](../web_management/docker-deploy.md). 포트: [../web_management/ports-inventory.md](../web_management/ports-inventory.md).
+
+## 월드코퍼챗과 구성 (2026-11-06)
+
+새 컨테이너는 없다. 월드코퍼챗은 기존 `api`(Nest)·`ai`(FastAPI)·`web`·`console`·`db` 안에서 돈다. 진행자와 파트 판정은 같은 Ollama 모델을 쓰고, AI 대기열(동시 수 제한)을 1:1 대화와 나눠 쓴다. 장면 그림·지도는 DB에 들어가 `db` 볼륨이 커진다(세계관당 최대 약 12MB).

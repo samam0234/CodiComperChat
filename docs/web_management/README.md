@@ -12,3 +12,5 @@
 | [post-deploy.md](post-deploy.md) | 배포 후 확인 |
 
 > 상태(2026-11-03): 구성은 만들어 개발 PC에서 시험했다. 서버는 Hetzner GEX45로 정했고 계약 전이다. 도메인은 아직 정하지 않았다.
+
+월드코퍼챗(2026-11-06)은 새 서비스가 없어 배포 구성이 같다. 마이그레이션 하나, DB 크기, 콘솔 운영 설정만 본다 → [post-deploy.md](post-deploy.md), [backup-restore.md](backup-restore.md).

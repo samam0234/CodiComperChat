@@ -7,3 +7,5 @@
 | 파일 | 내용 |
 |------|------|
 | [mvp-checklist.md](mvp-checklist.md) | v1 성공 조건 + 플레이테스트 10문항 (계획서 §9.1, §14) |
+
+월드코퍼챗 플레이테스트 항목은 [mvp-checklist.md](mvp-checklist.md) "월드코퍼챗 플레이테스트"(2026-11-06).

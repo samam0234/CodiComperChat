@@ -45,6 +45,17 @@ docs/
 
 ---
 
+## 2026-11-06에 바뀐 것
+
+| 바뀐 것 | 정본 |
+|---------|------|
+| **월드코퍼챗** 새 기능: 세계관·여러 인물·대화 방식 4가지·파트·코퍼맵·이벤트 미니게임 | [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md) · [guidance/world-copperchat.md](guidance/world-copperchat.md) · [trainings/world-copperchat.md](trainings/world-copperchat.md) |
+| 대화 수위(전체 이용가·성인, 미성년자·강제 단서는 코드가 막음) | [trainings/adult-chat.md](trainings/adult-chat.md) |
+| 나레이션 7/12 → 48/48, 보상 장면 2/8 → 20/20 | [trainings/narration-and-reward.md](trainings/narration-and-reward.md) |
+| 그림 폴더 `docs/assets/` → `docs/.assets/` | [.assets/README.md](.assets/README.md) |
+| 에이전트 어댑터 7개(Gemini·Manus·Kimi·Ollama·OpenCode·Qwen·Windsurf)와 어긋남 시험 | [../.agents/README.md](../.agents/README.md) |
+| 운영 콘솔 월드코퍼챗 메뉴 | [guidance/operations.md](guidance/operations.md) |
+
 ## 문서 정본 표
 
 같은 값을 여러 문서에 적으면 어긋난다. 값은 아래 정본에 적고, 다른 문서는 링크로 가리킨다. 코드를 바꾸면 해당 정본을 같은 브랜치에서 고친다.
@@ -74,10 +85,10 @@ docs/
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
 | console | Next.js 16 (TSX) | `console/` | 3001 / 3102 | 동작 (운영자 전용 콘솔, 2026-10-21) |
-| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 31개, 엄격 CSP, 라이트·다크) |
+| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 35개, 엄격 CSP, 라이트·다크, 월드코퍼챗 4화면) |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
 | ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` + 같은 프로세스의 그림 엔진(diffusers) |
-| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 28개, 마이그레이션 33개) |
+| DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 37개, 마이그레이션 34개) |
 | 캐시/잡 | Redis | — | — | 쓰지 않음 |
 
 정본: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)

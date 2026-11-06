@@ -54,6 +54,13 @@
 | `AI_CONCURRENCY`를 대수로 나눠 정하기 | 대기열은 서버마다 따로다 | 〃 |
 | 운영 스위치 | `NODE_ENV=production`, `APP_ENV=production`이면 개발용 스위치가 켜져 있을 때 시작하지 않는다 | `apps/api/src/security/production.ts`, `services/ai/app/internal_auth.py` |
 | 그림 엔진 | 첫 실행 때 모델 구성 파일(수십 KB)을 Hugging Face에서 받아 볼륨에 캐시한다. GPU가 없으면 코디포토넷·웹툰은 "준비 중"으로 잠기고 나머지는 돈다 | [guidance/photonet-engine.md](guidance/photonet-engine.md) |
-| DB 마이그레이션 | `migrate` 서비스가 기동 때 적용한다. 지금까지 33개 | [plan/DATABASE.md](plan/DATABASE.md) |
+| DB 마이그레이션 | `migrate` 서비스가 기동 때 적용한다. 지금까지 34개(2026-11-06 월드코퍼챗 포함) | [plan/DATABASE.md](plan/DATABASE.md) |
 | `apps/api/data/personas/*.json` | git에 없다. 볼륨 `personas`에 둔다. 공식 캐릭터의 `유지성.json`, `이세연.json`은 개발 PC에서 옮긴다. 공방 캐릭터는 다시 발행하면 생긴다 | [`apps/api/data/personas/README.md`](../apps/api/data/personas/README.md) |
 | 웹의 `CONSOLE_BASE_URL` | 빌드할 때 리다이렉트에 박힌다. 도메인을 바꾸면 다시 빌드한다 | `deploy/node.Dockerfile` |
+
+## 월드코퍼챗을 올릴 때 (2026-11-06)
+
+- 새 서비스·환경변수는 없다. 마이그레이션 `20261106120000_world_copperchat`가 테이블 9개와 열거형 값(`CreditReason.EVENT`, `ContentTarget.WORLD`)을 더한다.
+- 운영 설정(하루 보상 횟수·이벤트 확률·간격)은 환경변수가 아니라 DB(`app_settings`)에 있고 콘솔에서 바꾼다. 행이 없으면 기본값(3회·35%·6턴).
+- 장면 그림·지도는 DB(`bytea`)에 들어간다. 한 장 290KB, 세계관당 그림 40장 + 지도 1장이라 세계관 하나가 최대 약 12MB다. 백업 크기를 본다([web_management/backup-restore.md](web_management/backup-restore.md)).
+- 미니게임 보상이 코레딧(유료 기능에 쓰임)이라 공개 전에 경품·사행성 관련 법률 검토를 받는다([guidance/owner-checklist.md](guidance/owner-checklist.md)).

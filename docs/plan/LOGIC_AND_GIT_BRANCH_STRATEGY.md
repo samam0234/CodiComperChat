@@ -43,3 +43,7 @@ feature/official-character-launch # 10
 각 feature 브랜치의 커밋마다 `docs/branchs/commits/`에 기록을 남기고, 어떤 로직 단계(1~10)에 해당하는지 기록 md의 "상세 > 배경"에 적어 두면 나중에 §10 순서와 실제 이력을 대조하기 쉽다.
 
 관련: [LOGIC_STRUCTURE.md](LOGIC_STRUCTURE.md), `docs/guidance/branch-merge.md`, `docs/branchs/BRANCH_MAP.md`
+
+## 실제로 쓴 모양 (2026-11-06)
+
+큰 작업은 브랜치를 쌓아 올렸다: `feature/narration-reward-scene` → `feature/adult-chat` → `feature/agent-adapters` → `feature/world-core`(AI·API·웹·콘솔 커밋) → `feature/docs-assets-rename` → `feature/readme-world` → `feature/docs-overhaul-world`. 병합은 쌓인 순서대로 `develop`에 `--no-ff`로 하고, 병합 커밋마다 기록을 남긴 뒤 `develop` → `main`. 한 브랜치에 기능 단위 커밋(AI → API → 웹 → 콘솔)을 나눠 두면 되돌리기와 기록 읽기가 쉽다.
