@@ -4,7 +4,7 @@
 #   docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml -f deploy/oracle/docker-compose.ai.yml up -d --build
 #   docker compose ... exec ollama ollama pull gemma4:e4b      # 처음 한 번 (수 GB)
 #
-# GPU가 없어 느리다. 그림(코디포토넷·웹툰·AI 초상)은 잠긴다. 절차: docs/web_management/ai-server-guide.html
+# 권장: LLM_BACKEND=openai + NVIDIA NIM 무료 키(GPU급 속도), CPU Ollama는 예비. 그림(코디포토넷·웹툰·AI 초상)은 잠긴다. 절차: docs/web_management/ai-server-guide.html
 services:
   ai:
     restart: always
@@ -20,6 +20,19 @@ services:
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?}
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:e4b}
+      # 무료 호스팅 API(GPU에서 도는 Gemma 4 31B)로 대화한다. 비우면 위 Ollama(CPU)만 쓴다
+      LLM_BACKEND: ${LLM_BACKEND:-ollama}
+      LLM_API_BASE: ${LLM_API_BASE:-https://integrate.api.nvidia.com/v1}
+      LLM_API_MODEL: ${LLM_API_MODEL:-google/gemma-4-31b-it}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      # API가 막히면(한도·서버 오류·시간 초과) CPU Ollama가 대신 답한다
+      LLM_FALLBACK_OLLAMA: ${LLM_FALLBACK_OLLAMA:-1}
+      # API 응답을 기다리는 최대 시간(초). 넘기면 예비로 넘어간다. API(130초 제한) 안에 예비가 답할 시간을 남긴다
+      LLM_API_TIMEOUT_SECONDS: ${LLM_API_TIMEOUT_SECONDS:-45}
+      # CPU는 느리니 토큰 사이 공백 제한을 넉넉히
+      OLLAMA_READ_TIMEOUT_SECONDS: ${OLLAMA_READ_TIMEOUT_SECONDS:-600}
+      # 기동 때 예비 모델을 미리 올려 첫 폴백이 느리지 않게
+      OLLAMA_WARMUP: ${OLLAMA_WARMUP:-1}
       # 프리미엄(유료) 공급자 키. 비워 두면 프리미엄 모델은 "준비 중"이다
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       XAI_API_KEY: ${XAI_API_KEY:-}
