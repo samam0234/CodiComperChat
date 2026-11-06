@@ -8,7 +8,7 @@
 | 서버 | `168.110.61.178`, Ubuntu 24.04, 사용자 `ubuntu` |
 | 구성 | [`deploy/oracle/docker-compose.yml`](../../deploy/oracle/docker-compose.yml): caddy → api, postgres, migrate |
 | 바깥 주소 | `https://api.168-110-61-178.sslip.io` (Caddy가 인증서 자동 발급) |
-| 안 올린 것 | AI(FastAPI·Ollama). 대화·그림 요청은 실패하고 나머지는 돈다 |
+| 안 올린 것 | AI(FastAPI·Ollama). 대화·그림 요청은 실패하고 나머지는 돈다. 같은 VM에 CPU AI를 더하는 절차: [ai-server-guide.html](ai-server-guide.html) (`deploy/oracle/docker-compose.ai.yml`) |
 | 메일 | `MAIL_SMTP_URL`이 비면 인증 메일을 못 보내고 로그만 남긴다 |
 
 ## 로직 구조
