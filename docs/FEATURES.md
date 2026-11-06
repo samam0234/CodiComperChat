@@ -7,6 +7,8 @@
 - 코드 위치의 `api/`는 `apps/api/src/`, `web/`은 `apps/web/`, `ai/`는 `services/ai/app/`, `console/`은 `console/`.
 - 시험 열의 이름은 `e2e/tests/<이름>.spec.ts`, "단위"는 `apps/api` vitest.
 
+![기능 지도](.assets/readme/features.png)
+
 ## 1. 계정·인증
 
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
@@ -141,7 +143,7 @@
 | 테마(시간 자동·영구 설정·헤더 해·달) | 헤더, `/settings` | web/lib/theme*.ts | theme · 한국 시각 오전 7시 밝게/오후 10시 어둡게 |
 | 회원 전용 화면 보호 | — | web/proxy.ts → requireUser → Nest AuthGuard | auth |
 
-## 13. 운영 콘솔(`console/`, 운영자만)
+## 13. 운영 콘솔(`console/`, 운영자만) — 월드코퍼챗 메뉴는 15장
 
 | 기능 | 화면 | API | 시험 |
 |------|------|-----|------|
@@ -185,3 +187,23 @@
 ## 한눈에 안 보이는 한계
 
 스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).
+
+## 15. 월드코퍼챗 (2026-11-06)
+
+정본 [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md). 화면 그림: [../README.md#월드코퍼챗](../README.md#월드코퍼챗).
+
+| 기능 | 화면 | API | 코드 | 시험 / 비고 |
+|------|------|-----|------|-------------|
+| 세계관 목록·검색 | `/worlds` | `GET /worlds`, `/worlds/mine` | web/app/worlds/page.tsx | worlds.spec |
+| 세계관 만들기·고치기 (기본·등장인물·장소·파트·그림·발행) | `/worlds/[id]/edit` | `POST·PUT·DELETE /worlds…` | web/app/worlds/[id]/edit, api/worlds/worlds.service.ts | world.spec(문서 검사), worlds.spec |
+| 등장인물 데려오기 | 편집기 등장인물 탭 | `GET /worlds/cast-candidates` | 〃 | 볼 수 없는 캐릭터는 저장 거절 |
+| 공개 범위·발행 조건 | 편집기 발행 탭 | `/publish`, `/unpublish` | world.ts `publishProblems`, `canView` | worlds.spec |
+| 장면 그림 이름표·자동 검수 | 편집기 장면 그림 탭 | `PUT /worlds/:id/images` | PortraitReviewService 재사용 | worlds.spec(통과·대기·거절) |
+| 대화 방식 4가지 | `/worlds/[id]/play` | `POST …/play/turn` | ai/services/world.py `MODE_STYLE`, web play/world-play.tsx | evals.world_turn 23/24 |
+| 진행자의 그림 고르기·장소 이동 | 플레이 | 〃 | world.py `parse_controls` | test_world 9개 |
+| 파트와 판정 | 플레이 위 띠 | 〃 (3턴마다) | world-play.service.ts `checkPart`, `/world/part-check` | worlds.spec(가짜 판정) |
+| 코퍼맵 | 소개·편집기·플레이 | `/worlds/:id/map` | web/app/worlds/copper-map.tsx | worlds.spec |
+| 이벤트 미니게임 5종 | 플레이 창 | `POST …/play/events/:id` | world.ts `makeSetup`·`resolveEvent`, play/event-game.tsx | world.spec, worlds.spec |
+| 보상·하루 한도 | 결과 창 | 〃 | world-play.service.ts `playEvent` | worlds.spec(20~50·5~10·3번·409) |
+| 수위 | — | — | world.py `_rating` | test_world `test_rating_rules` |
+| 운영: 목록·상세·검수·이벤트·설정·대시보드 | 콘솔 `/worlds/*` | `/admin/world*` | console/app/worlds, api/worlds/admin-worlds.* | worlds.spec |

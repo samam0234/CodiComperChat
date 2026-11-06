@@ -37,3 +37,7 @@ docker exec codicomperchat-postgres-1 sh -c \
 | 2026-11-03 | 운영 compose를 띄워 `db-backup.sh`로 덤프(156KB) → 같은 컨테이너의 새 DB로 `pg_restore` | 공식 캐릭터 2, 계정 1, 적용된 마이그레이션 33개가 그대로 나옴 |
 
 운영 데이터가 생긴 뒤에는 분기마다 한 번, 새 DB에 복구해 행 수를 비교한다. 위 3단계의 `--clean` 복구는 운영 DB를 지우므로 연습에는 쓰지 않는다. 연습에서는 `createdb`로 만든 새 DB에 넣는다.
+
+## 월드코퍼챗 이후 백업 크기 (2026-11-06)
+
+장면 그림(세계관당 최대 40장 × 290KB)과 지도가 DB에 들어간다. 세계관이 늘면 덤프가 빠르게 커진다. 백업 보관 공간을 볼 때 `select pg_size_pretty(pg_total_relation_size('world_images'));`로 그림 테이블 크기를 따로 본다. 복구 연습에는 월드 테이블이 포함되는지(`\dt world_*`) 확인한다.

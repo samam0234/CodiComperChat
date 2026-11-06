@@ -133,6 +133,30 @@ AI 초안       칸 하나씩 /draft-field, 비밀 퀘스트는 /draft-quest로 
 환불: 운영 콘솔 /users → 토스 cancel 성공 뒤에만 REFUNDED + 기간 되돌림
 ```
 
+## 월드코퍼챗 (2026-11-06)
+
+![월드코퍼챗 한 턴](../.assets/readme/world-flow.png)
+
+```text
+시작   POST /worlds/:id/play {personaId}
+       → world_plays(계정×세계관 하나, 프로필 이름·소개를 복사), locations = 인물별 처음 있는 곳
+       → world_messages: 첫 장면(CHARACTER) · "1부 · 제목"(SYSTEM) · 파트 시작 글(@:)
+턴     POST …/play/turn {text}
+       → 열린 world_events는 EXPIRED
+       → /world/turn (최근 16개, storySoFar, 지금 파트, 성인 여부, eventNote)
+       → 제어 줄 검사 → imageId, locations 갱신
+       → world_messages에 USER·CHARACTER 두 줄 (createdAt 1ms 차이로 순서 고정)
+       → turns % 3 == 0 이면 /world/part-check → partIndex+1, SYSTEM 메시지, storySoFar에 근거
+       → shouldStartEvent면 world_events(OPEN, setup에 숨긴 값) 만들고 turnsSinceEvent = 0
+이벤트 POST …/play/events/:id {입력}
+       → 10분 지났으면 EXPIRED + 409
+       → resolveEvent(setup, 입력)로 승패 · rewardFor로 금액
+       → 트랜잭션: 계정 잠금 → OPEN인 행만 WON/LOST → 오늘 받은 수 < 한도면 rewarded, users.credits 증가, credit_ledger(EVENT)
+       → world_plays.eventNote = "이안이(가) … 이겼다 (보상 35 코레딧)" → 다음 턴 진행자 프롬프트 끝
+```
+
+그림과 지도는 올릴 때 `/moderate-image` 자동 검수를 거친다. 통과 → 바로 보임, 애매 → `PENDING`(만든 사람만 봄, 콘솔 검수), 막힘 → 400. 진행자에게는 `APPROVED`이고 막히지 않은 그림의 이름표만 간다.
+
 ## 왜 원문 전체를 매번 안 넣는가
 
 로어·원문을 다 넣으면 최근 장면이 죽는다 (계획서 §11 리스크표). 그래서:

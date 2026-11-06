@@ -25,3 +25,11 @@
 - [ ] `scripts/db-backup.sh` 실행, cron 등록, 새 DB에 복구 연습
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 재확인
 - [ ] 새로 발견된 이슈는 [../find_debug/](../find_debug/)에 당일 일지로 기록
+
+## 월드코퍼챗 확인 (2026-11-06)
+
+- [ ] `/worlds`가 열리고 공개 목록이 보인다
+- [ ] 시험 계정으로 세계관을 만들어 비공개로 발행 → 시작 → 한 턴 → 답
+- [ ] 장면 그림 하나 올리기 → 자동 검수 결과(통과 또는 대기)
+- [ ] 콘솔 `/worlds`, `/worlds/settings`가 열리고 값이 기본값
+- [ ] `select count(*) from world_events where rewarded;`가 이상하게 늘지 않는다(보상 한도)

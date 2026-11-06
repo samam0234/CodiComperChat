@@ -12,10 +12,17 @@
 | 병합 | 2026-11-06까지의 작업을 `develop`과 `main`에 병합했다. 미병합 브랜치는 없다 |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-06에 푸시했다. 저장소는 그날 확인에서 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
-| DB | 마이그레이션 33개, 테이블 28개. 개발 DB에 시드까지 적용(이세연 퀘스트 포함) |
+| DB | 마이그레이션 34개, 테이블 37개(월드코퍼챗 9개 포함, 2026-11-06). 개발 DB에는 월드 마이그레이션을 아직 적용하지 않았다(`npx prisma migrate deploy` 필요). e2e·데모 DB에서는 적용 확인 |
 | 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 코드 시험은 모두 통과한다. 실제 모델 평가에 기준 미달 항목이 있다([TASKS.md](TASKS.md) 3장) |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
+
+### 2026-11-06 늦게 더해진 것
+
+- **월드코퍼챗**(사용자 요청): 세계관을 누구나 만들고, 진행자 모델이 여러 인물을 연기한다. 대화 방식 4가지(기본 채팅·비주얼노벨·소설·메신저), 파트(3턴마다 근거 인용 판정), 코퍼맵, 이벤트 미니게임 5종(승리 20~50·패배 5~10 코레딧, 하루 3번). 웹 `/worlds`, 콘솔 `/worlds`, API `apps/api/src/worlds/`, AI `services/ai/app/services/world.py`. 정본 [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md).
+- 사용자 결정: 보상 하루 3회(콘솔에서 바꿈), 이벤트는 서버가 확률로, 세계관은 누구나 공방처럼.
+- 알려진 한계: 진행자가 인물의 장소 이동을 거의 쓰지 않는다(0/24). 긴 플레이의 요약이 없다. 세계관 신고 화면이 없다.
+- 시험: API 226개(파일 30), e2e 123개(파일 26) + 성인 끔 1개, AI 단위 54개(파일 7), 평가 11묶음 + 별도 7개.
 
 ## 2. 읽는 순서
 
@@ -175,6 +182,8 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 - **라이선스는 쓰는 판의 원문을 본다.** "Gemma 금지 정책이 성인 모드를 막는다"고 한동안 적어 두었는데, 그 약관은 Gemma 3n까지만 적용되고 Gemma 4는 Apache 2.0이었다. `ollama show <모델> --license`로 바로 볼 수 있었다.
 - **시험이 무작위로 실패하면 시간 제한을 늘리기 전에 원인을 찾는다.** e2e 무작위 실패의 원인은 `next dev`의 첫 컴파일이었고, 운영 빌드로 바꾸니 전부 통과하고 시간도 줄었다([trainings/test-infrastructure.md](trainings/test-infrastructure.md)).
 - **모델 평가 8번으로는 개선을 말할 수 없다.** 같은 코드로 보상 장면이 4/8과 2/8이 나왔다. 판정은 시드를 고정해 안정적이고, 연기 쪽 지시가 약하다.
+- **화면은 실제 모델로 한 번은 띄워 본다.** 월드코퍼챗 README 화면을 찍다가, 평가와 e2e가 모두 통과한 상태에서 진행자의 변형 제어 줄(`[장소 이동: …]`)이 본문에 새는 것을 찾았다([trainings/world-copperchat.md](trainings/world-copperchat.md)).
+- **Git Bash heredoc 안의 파이썬 문자열 `\n`이 실제 줄바꿈으로 바뀌어 파일이 깨진 일이 여러 번 있었다.** 코드에 이스케이프가 들어가는 편집은 Write·Edit 도구로 한다([repeater/heredoc-escape.md](repeater/heredoc-escape.md)).
 - **넘으면 안 되는 선은 코드로 찾는다.** 성인 장면을 진행하라는 지시를 넣자 강제 장면에서 "저항하다 받아들이는" 답이 나왔다. 미성년자·강제 단서를 코드가 찾아 그 턴을 막자 16/16 거부([trainings/adult-chat.md](trainings/adult-chat.md)). 성인 대화는 로컬 모델에서만 열고 Claude는 우회하지 않는다.
 - **연기 모델에게 고르게 하지 말고, 고른 것만 넘긴다.** 보상 장면은 갈래를 판정 쪽(코드가 나누고 모델은 번호만)이 고르자 2/8 → 20/20이 됐다. 나레이션은 괄호 장면 지시가 있는 턴에만 맨 끝에 "첫 줄은 @:"를 붙이자 7/12 → 48/48이 됐다([trainings/narration-and-reward.md](trainings/narration-and-reward.md)).
 - **실제로 띄워 봐야 나오는 결함이 있다.** `REQUIRE_HTTPS`는 단위 시험을 통과했지만 내부 호출을 막고 있었고, AI 초상은 시험이 통과하는데 뒷모습이 나왔다. 그림은 눈으로 본다.

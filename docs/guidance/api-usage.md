@@ -78,6 +78,10 @@ curl -s -X POST $API/studio/characters/<초안id>/portrait/generate -H "Authoriz
 curl -s -X POST $API/studio/characters/<초안id>/draft-quest -H "Authorization: Bearer $TOKEN"
 ```
 
+### 월드코퍼챗 (2026-11-06)
+
+만들기 → 그림 올리기 → 발행 → 시작 → 한 턴 → 이벤트까지 `curl` 순서는 [world-copperchat.md](world-copperchat.md) 4장. 그림 올리기는 JSON이 아니라 **그림 원본 본문**(`Content-Type: image/png` 등, `--data-binary @파일`)이고, 이름표·인물은 쿼리(`?label=&character=`)로 준다.
+
 ## 기대 결과
 
 | 요청 | 결과 |

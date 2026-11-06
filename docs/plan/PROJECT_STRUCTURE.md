@@ -48,6 +48,20 @@ apps/web/
 
 웹은 **Nest만** 부른다(`API_BASE_URL`). 로그인 토큰은 httpOnly 쿠키에 있고 서버 액션·서버 컴포넌트가 붙여 보낸다.
 
+### `apps/web/app/worlds` (2026-11-06)
+
+```text
+worlds/
+├── page.tsx · page.module.css · actions.ts · create-button.tsx   목록·새로 만들기
+├── copper-map.tsx · copper-map.module.css                         코퍼맵 (공용)
+└── [id]/
+    ├── page.tsx · detail.module.css · start-play.tsx             소개·시작
+    ├── edit/  page.tsx · world-editor.tsx · editor.module.css · shrink-image.ts
+    └── play/  page.tsx · world-play.tsx · play.module.css · event-game.tsx · event.module.css
+app/api/worlds/[...path]/route.ts   Nest /worlds/* 중계
+lib/worlds.ts (서버 조회) · lib/world-types.ts (모양·라벨)
+```
+
 ## `console` (운영 콘솔)
 
 ```text
@@ -64,6 +78,10 @@ console/
 ├── components/             # 메뉴, 페이지 머리말, 확인 상자, 폼, 로고
 └── lib/                    # api.ts(Nest 주소·쿠키·requireAdmin), relay.ts, 타입, 시간 표시
 ```
+
+### `console/app/worlds` (2026-11-06)
+
+`page.tsx`(목록), `[id]/page.tsx`(상세), `review/`, `events/`, `settings/`(+`settings-form.tsx`), `world-actions.tsx`(내리기·그림·지도 결정), `world-tabs.tsx`, `stats-row.tsx`(대시보드와 공용), `app/api/worlds/**`(운영자 그림 중계), `lib/worlds.ts`.
 
 ## `apps/api`
 
@@ -109,6 +127,10 @@ apps/api/
 
 **ESM 주의:** 상대 import에 `.js` 확장자를 붙인다(`./app.module.js`).
 
+### `apps/api/src/worlds` (2026-11-06)
+
+`world.ts`(순수 함수) · `world.spec.ts` · `worlds.service.ts` · `world-play.service.ts` · `world-settings.service.ts` · `admin-worlds.service.ts` · `worlds.controller.ts` · `admin-worlds.controller.ts` · `worlds.module.ts`. 마이그레이션 `prisma/migrations/20261106120000_world_copperchat`.
+
 ## `services/ai`
 
 ```text
@@ -126,6 +148,10 @@ services/ai/
 ```
 
 **Repository 계층이 없는 것은 의도적이다.** FastAPI는 DB를 직접 보지 않는다 (기획서 §7.4) — [../Architecture/layers.md](../Architecture/layers.md).
+
+### `services/ai` 월드코퍼챗 (2026-11-06)
+
+`app/schemas/world.py`, `app/services/world.py`, `app/routes/world.py`, `app/services/minors.py`(그림·대화·월드 공용 미성년자 단서), `tests/test_world.py`, `evals/world_turn.py`.
 
 ## `e2e`
 

@@ -24,6 +24,18 @@
 
 그 밖에 신규: 인기(`/popular`), 에이전트(사용 안내 챗봇 `/agents`), 마이페이지(`/me`), 요금·결제(`/pricing`, `/billing/*`), 운영자(`/admin/*`). 라벨·경로 전체는 [../plan/NAVIGATION_IA.md](../plan/NAVIGATION_IA.md).
 
+### 월드코퍼챗 화면 (2026-11-06)
+
+| 화면 | 경로 | 하는 일 |
+|------|------|---------|
+| 목록 | `/worlds` | 공개 세계관, 내 세계관, 새로 만들기 |
+| 소개 | `/worlds/[id]` | 설명·파트 제목·등장인물·코퍼맵, 주인공 고르고 시작 |
+| 편집기 | `/worlds/[id]/edit` | 기본·등장인물·장소·코퍼맵·파트·장면 그림·발행 |
+| 플레이 | `/worlds/[id]/play` | 대화 방식 4가지, 코퍼맵 옆 칸, 이벤트 창 |
+| 콘솔 | `console /worlds`, `/worlds/[id]`, `/worlds/review`, `/worlds/events`, `/worlds/settings` | 운영 |
+
+웹의 `/api/worlds/[...path]`는 Nest `/worlds/*`로 넘기기만 한다(경로 조각을 다시 인코딩해 다른 경로로 새지 않게).
+
 ## 서로 어떻게 연결되나
 
 - **web → api**: 서버 컴포넌트·서버 액션만 부른다(`API_BASE_URL`, 기본 `http://localhost:4000`). 로그인 토큰은 httpOnly `session` 쿠키에서 꺼내 `Authorization: Bearer`로 붙인다. 브라우저가 Nest를 직접 부르지 않아 CORS를 열지 않았다. 요청 한도가 사람마다 세어지도록 실제 IP를 `X-Forwarded-For`로 넘긴다

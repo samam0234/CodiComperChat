@@ -97,3 +97,7 @@
 e2e 서버(`e2e/servers/*.mjs`)는 위 값을 스스로 정한다: 가짜 LLM, 가짜 결제(토스 키 비움), 메일은 폴더로, 요청 한도 1000배 + DB 저장소, 전용 포트 3101/4101/8101.
 
 관련: [getting-started.md](getting-started.md), [../plan/CURRENT_STACK.md](../plan/CURRENT_STACK.md)
+
+## 월드코퍼챗 (2026-11-06)
+
+새 환경변수는 없다. 이벤트 확률·간격·하루 보상 횟수는 DB `app_settings`에 두고 운영 콘솔 **월드코퍼챗 → 운영 설정**에서 바꾼다(없으면 3회·35%·6턴). 성인 수위는 기존 `ADULT_MODE`를 따른다(`off`면 월드도 전체 이용가). 그림 올리기 한도는 본문 파서 300kb 안의 290KB다.

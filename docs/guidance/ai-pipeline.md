@@ -33,6 +33,15 @@
 
 모델을 바꾸거나 프롬프트를 고치면 평가를 다시 돌린다. 평가 묶음과 기준: [services/ai/README.md](../../services/ai/README.md).
 
+## 월드코퍼챗 (2026-11-06)
+
+| 경로 | 하는 일 | 확인 |
+|------|---------|------|
+| `POST /world/turn` | 진행자가 여러 인물을 연기한 답. 끝의 `[그림:]`·`[이동:]` 제어 줄을 떼어 `image`·`moves`로 돌려준다 | `python -m evals.world_turn --repeat 3` |
+| `POST /world/part-check` | 파트 목표가 이루어졌나. 근거 인용 대조 | `python -m unittest tests.test_world` |
+
+`LLM_FAKE=1`: 진행자는 고정 한 줄, 파트 판정은 유저 말에 `[파트완료]`가 있으면 통과. 자세히 [world-copperchat.md](world-copperchat.md).
+
 ## 이 가이드가 다루지 않는 것
 
 컴퓨터 비전/이미지 세그멘테이션 모델(YOLO 등)은 이 프로젝트와 무관하다. (그림 생성은 위 "그림" 묶음과 [photonet-engine.md](photonet-engine.md)가 다룬다.) 이 파일은 LLM 추론/요약 파이프라인만 다룬다.

@@ -163,6 +163,33 @@
 
 > 501을 쓰는 이유: 개발 초기에 가짜 데이터를 돌려주면 프론트가 그걸 진짜로 착각한 채 배선된다. 미구현은 시끄럽게 실패하는 편이 낫다. 기획서 §10 4번의 "가짜 스트림"은 세션 채팅 셸을 만들 때 의도적으로 도입한다.
 
+## 월드코퍼챗 (2026-11-06)
+
+정본 표와 요청·응답 모양은 [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md) 4.2. 웹은 `apps/web/app/api/worlds/[...path]/route.ts` 중계로만 부른다.
+
+| 메서드 | 경로 | 인증 | 요청 한도 | 설명 |
+|--------|------|------|-----------|------|
+| GET | `/worlds?q=` | 선택 | — | 공개 목록 60개 |
+| GET | `/worlds/mine` | 필수 | — | 내 세계관 |
+| POST | `/worlds` | 필수 | — | 새 세계관(계정당 30개) → `{ id }` |
+| GET | `/worlds/cast-candidates?q=` | 필수 | — | 데려올 수 있는 캐릭터 30개 |
+| GET | `/worlds/:id` | 선택 | — | 상세. 파트는 제목만. 못 보면 404 |
+| GET | `/worlds/:id/edit` | 만든 사람 | — | 편집기 전부 + `problems` (남이면 403) |
+| PUT | `/worlds/:id` | 만든 사람 | — | `{ world: { title, oneLiner, setting, rules, opening, mode, cast[], places[], parts[] } }` |
+| POST | `/worlds/:id/publish` | 만든 사람 | — | `{ visibility }`. 조건이 빠지면 400(빠진 것을 말한다), 내려간 것은 403 |
+| POST | `/worlds/:id/unpublish` | 만든 사람 | — | 발행 거두기 |
+| DELETE | `/worlds/:id` | 만든 사람 | — | 204 |
+| PUT | `/worlds/:id/images?label=&character=` | 만든 사람 | `upload` 10/분 | 본문 = 그림 원본(webp·jpeg·png, 290KB). 자동 검수: 막힘 400, 애매 `PENDING` |
+| DELETE | `/worlds/:id/images/:imageId` | 만든 사람 | — | 204 |
+| GET | `/worlds/:id/images/:imageId` | 선택 | — | 그림 본문(`private, max-age=300`, sandbox CSP) |
+| PUT / DELETE / GET | `/worlds/:id/map` | 만든 사람 / 만든 사람 / 선택 | `upload` | 코퍼맵 지도 |
+| GET | `/worlds/:id/play` | 필수 | — | 플레이 상태 |
+| POST | `/worlds/:id/play` | 필수 | — | `{ personaId, restart? }` |
+| POST | `/worlds/:id/play/turn` | 필수 | `chat` 20/분 | `{ text }` 1000자. 기본 모델 사용량을 잡고 실패하면 돌려준다 |
+| POST | `/worlds/:id/play/events/:eventId` | 필수 | `chat` | 게임 입력. 끝난 이벤트 409, 남의 것 404 |
+
+운영자(`AuthGuard` + `AdminGuard`): `GET /admin/world-stats`, `GET /admin/worlds`, `GET /admin/worlds/:id`, `POST /admin/worlds/:id/takedown`(사유 필수), `POST /admin/worlds/:id/restore`, `POST /admin/worlds/:id/map-review`, `GET /admin/worlds/:id/map`, `GET /admin/worlds/:id/images/:imageId`, `GET /admin/world-review`, `POST /admin/world-images/:imageId`(`approve`·`reject`·`block`·`unblock`), `GET /admin/world-events`, `GET·PUT /admin/world-settings`(하루 보상 0~20, 확률 0~1, 간격 1~100).
+
 ## FastAPI — Nest만 내부에서 호출 (웹은 알 필요 없음)
 
 | 메서드/경로 | 용도 | 현재 |
@@ -192,6 +219,13 @@
 **필드명은 camelCase다.** 프론트 폼·Nest DTO·FastAPI 입력이 같은 뼈대를 공유해야 하고(기획서 §7.5) TypeScript 쪽이 camelCase이기 때문이다. 파이썬 내부는 snake_case를 쓰되 두 형태 모두 입력으로 받는다.
 
 > `/train`의 403은 501과 의미가 다르다. 미구현이 아니라 **의도적으로 닫아 둔 것**이다 — v1은 자체 가중치 학습을 하지 않고 경로만 설계에 남긴다 (기획서 §7.6, §7.7). 구현하려다 만 것으로 오해하지 말 것.
+
+### FastAPI 월드코퍼챗 (2026-11-06)
+
+| 경로 | 요청 | 응답 |
+|------|------|------|
+| `POST /world/turn` | `{ world{title,setting,rules,mode}, part?, cast[{name,summary,speech,place}], places[], images[{label,character}], recentTurns[], storySoFar?, userPersona?, userTurn, adult, eventNote? }` | `{ reply, image?, moves[{name,place}] }` — 제어 줄은 떼어 내고 없는 이름표·인물·장소는 버린다 |
+| `POST /world/part-check` | `{ part{title,goal}, turns[], storySoFar?, userName }` | `{ done, evidence }` — 근거 인용이 대화에 그대로 있어야 `done` |
 
 ## `/summarize` 반환 형태 (계획서 §13.4)
 
