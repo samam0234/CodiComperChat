@@ -37,7 +37,7 @@ model User {
 
   /// PRO 만료 시각. 비어 있으면 만료 없음. 지나면 FREE로 본다
 
-  planUntil  DateTime?
+  planUntil DateTime?
 
   /// 이메일 인증을 마친 시각. 비어 있으면 미인증 (캐릭터 공개 발행은 인증 뒤에만)
 
@@ -53,27 +53,29 @@ model User {
 
   /// 로그인 토큰 세대. 비밀번호를 바꾸거나 재설정하면 1 올려 이전에 발급한 토큰을 모두 무효로 만든다
 
-  sessionVersion Int @default(0)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  campaigns  Campaign[]
-  personas   UserPersona[]
-  drafts     CharacterDraft[]
-  extras     UserExtra[]
-  characters Character[]
+  sessionVersion Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  campaigns      Campaign[]
+  personas       UserPersona[]
+  drafts         CharacterDraft[]
+  extras         UserExtra[]
+  characters     Character[]
 
-  reports CharacterReport[]
+  reports        CharacterReport[]
   contentReports ContentReport[]
 
   emailTokens EmailToken[]
 
-  orders PaymentOrder[]
-  modelUsage ModelUsage[]
+  orders       PaymentOrder[]
+  modelUsage   ModelUsage[]
   /// 코레딧 잔액 (src/credits/credits.ts). 바뀔 때마다 credit_ledger에 한 줄 남긴다
-  credits     Int             @default(0)
+  credits      Int            @default(0)
   creditLedger CreditLedger[]
   attendances  Attendance[]
   questRewards QuestReward[]
+  worlds       World[]
+  worldPlays   WorldPlay[]
 
   @@map("users")
 }
@@ -138,7 +140,8 @@ model Character {
   /// 공방에서 만들어 발행한 캐릭터면 그 초안
   draft     CharacterDraft?
 
-  reports CharacterReport[]
+  reports   CharacterReport[]
+  worldCast WorldCast[]
 
   @@map("characters")
 }
@@ -277,25 +280,25 @@ model MemoryChunk {
 /// 캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고,
 /// 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다
 model CharacterDraft {
-  id           String              @id @default(cuid())
-  ownerId      String
-  owner        User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  card         Json
+  id                 String              @id @default(cuid())
+  ownerId            String
+  owner              User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  card               Json
   /// 마지막 3턴 테스트 결과와 그때의 카드 지문. 카드를 고치면 지문이 달라져 다시 테스트해야 발행된다
-  lastTest     Json?
+  lastTest           Json?
   /// 흉상 초상 이미지 (webp·jpeg·png, 150KB 이하). 발행하면 캐릭터에도 실린다
-  portrait     Bytes?
-  portraitMime String?
+  portrait           Bytes?
+  portraitMime       String?
   /// 초상 검수 결과. 승인된 초상만 캐릭터에 실려 남에게 보인다(기다리는 중·반려면 캐릭터에는 초상이 없다)
   portraitReview     PortraitReview?
   /// 자동 검수가 운영자에게 넘긴 이유, 또는 운영자의 반려 사유
   portraitReviewNote String?
   /// 발행할 때(또는 발행 중이면 바로) 캐릭터에 적용할 공개 범위
-  visibility   CharacterVisibility @default(PRIVATE)
-  characterId  String?             @unique
-  character    Character?          @relation(fields: [characterId], references: [id], onDelete: SetNull)
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  visibility         CharacterVisibility @default(PRIVATE)
+  characterId        String?             @unique
+  character          Character?          @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   @@index([ownerId, updatedAt])
   @@map("character_drafts")
@@ -346,6 +349,8 @@ enum ReportStatus {
 enum ContentTarget {
   PHOTONET
   WEBTOON
+  /// 월드코퍼챗 세계관 (targetId = 세계관 id)
+  WORLD
 }
 
 enum ContentReportStatus {
@@ -433,31 +438,31 @@ enum PaymentStatus {
 /// 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다
 model PaymentOrder {
   /// 결제사에 넘기는 주문 번호
-  id          String        @id @default(cuid())
+  id           String        @id @default(cuid())
   /// 탈퇴하면 비워진다. 결제 기록은 전자상거래법에 따라 정해진 기간 남겨야 해서 주문은 지우지 않는다
-  userId      String?
-  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   /// 결제할 때의 구매자 이메일 (탈퇴 뒤에도 결제 기록을 확인할 수 있게 남긴다)
-  buyerEmail  String?
+  buyerEmail   String?
   /// 상품 코드 (apps/api/src/billing/products.ts)
-  productId   String
+  productId    String
   /// 원 단위 금액. 승인할 때 결제사가 돌려준 금액과 맞아야 한다
-  amount      Int
+  amount       Int
   /// 결제하면 늘어나는 프로 등급 일수
-  days        Int
+  days         Int
   /// toss | mock(개발·시험용 가짜 결제)
-  provider    String
-  status      PaymentStatus @default(PENDING)
+  provider     String
+  status       PaymentStatus @default(PENDING)
   /// 결제사가 준 결제 키 (승인·취소 조회에 쓴다)
-  paymentKey  String?       @unique
-  failReason  String?
+  paymentKey   String?       @unique
+  failReason   String?
   /// 결제사 영수증 주소 (토스 승인 응답의 receipt.url)
-  receiptUrl  String?
+  receiptUrl   String?
   /// 환불한 시각과 사유 (운영자가 처리)
-  refundedAt  DateTime?
+  refundedAt   DateTime?
   refundReason String?
-  createdAt   DateTime      @default(now())
-  paidAt      DateTime?
+  createdAt    DateTime      @default(now())
+  paidAt       DateTime?
 
   @@index([userId, createdAt])
   @@map("payment_orders")
@@ -496,6 +501,8 @@ enum CreditReason {
   OPERATION
   /// 비밀 퀘스트 보상(공식 캐릭터만). modelId 칸에 "quest:캐릭터 id"
   QUEST
+  /// 월드코퍼챗 이벤트 미니게임 보상. modelId 칸에 "event:종류"
+  EVENT
 }
 
 /// 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다
@@ -618,25 +625,25 @@ model BoardComment {
 
 /// 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다
 model PhotonetImage {
-  id         String   @id @default(cuid())
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  campaignId  String
+  campaign    Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   /// 유저가 쓴 장면 설명
-  prompt     String
+  prompt      String
   /// 엔진에 실제로 보낸 영어 프롬프트
-  promptUsed String
-  style      String
-  ratio      String
+  promptUsed  String
+  style       String
+  ratio       String
   /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
-  rating     String   @default("sfw")
+  rating      String    @default("sfw")
   /// 운영자가 접근을 막은 시각. 값이 있으면 만든 사람에게도 본문을 주지 않는다
   blockedAt   DateTime?
   blockReason String?
-  mime       String
-  data       Bytes
-  width      Int
-  height     Int
-  createdAt  DateTime @default(now())
+  mime        String
+  data        Bytes
+  width       Int
+  height      Int
+  createdAt   DateTime  @default(now())
 
   @@index([campaignId, createdAt])
   @@map("photonet_images")
@@ -644,19 +651,19 @@ model PhotonetImage {
 
 /// 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧)
 model Webtoon {
-  id         String         @id @default(cuid())
-  campaignId String
-  campaign   Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  title      String
+  id          String         @id @default(cuid())
+  campaignId  String
+  campaign    Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  title       String
   /// 유저가 쓴 장면 설명(또는 고른 대사)
-  prompt     String
+  prompt      String
   /// sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
-  rating     String         @default("sfw")
+  rating      String         @default("sfw")
   /// 운영자가 접근을 막은 시각. 값이 있으면 컷 본문을 주지 않고 더 그리지 못한다
   blockedAt   DateTime?
   blockReason String?
-  createdAt  DateTime       @default(now())
-  panels     WebtoonPanel[]
+  createdAt   DateTime       @default(now())
+  panels      WebtoonPanel[]
 
   @@index([campaignId, createdAt])
   @@map("webtoons")
@@ -664,15 +671,15 @@ model Webtoon {
 
 /// 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다)
 model WebtoonPanel {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   webtoonId  String
-  webtoon    Webtoon  @relation(fields: [webtoonId], references: [id], onDelete: Cascade)
+  webtoon    Webtoon   @relation(fields: [webtoonId], references: [id], onDelete: Cascade)
   index      Int
   /// 장면 설계표(사람·장소·행동·빛·구도) — 그릴 때 프롬프트로 조립한다
   plan       Json
   /// 해설(나레이션 상자)과 대사 [{ speaker, text }]
   caption    String
-  lines      Json     @default("[]")
+  lines      Json      @default("[]")
   promptUsed String?
   mime       String?
   data       Bytes?
@@ -682,4 +689,213 @@ model WebtoonPanel {
 
   @@unique([webtoonId, index])
   @@map("webtoon_panels")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 월드코퍼챗 (2026-11-06): 한 세계관 안에서 여러 캐릭터와 이어 가는 이야기.
+// 누구나 공방처럼 만들고(공개 범위 선택), 운영자가 내릴 수 있다.
+// ─────────────────────────────────────────────────────────────
+
+/// 대화 방식: 기본 채팅(장면 그림이 상황에 맞게 나온다) · 비주얼노벨 · 소설 · 메신저(카톡형)
+enum WorldMode {
+  CHAT
+  VISUAL_NOVEL
+  NOVEL
+  MESSENGER
+}
+
+model World {
+  id             String              @id @default(cuid())
+  ownerId        String?
+  owner          User?               @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  title          String
+  oneLiner       String              @default("")
+  /// 세계관 설명(시대·장소·분위기·사회). 진행자 프롬프트에 그대로 들어간다
+  setting        String              @default("")
+  /// 이 세계의 규칙(마법 유무, 금기 등)
+  rules          String              @default("")
+  /// 첫 장면 (플레이를 시작하면 처음 보이는 글)
+  opening        String              @default("")
+  mode           WorldMode           @default(CHAT)
+  visibility     CharacterVisibility @default(PRIVATE)
+  /// 발행해야 남이 플레이할 수 있다. 만든 사람은 발행 전에도 시험 플레이를 할 수 있다
+  published      Boolean             @default(false)
+  /// 코퍼맵 바탕 그림 (지도·도표). 장소 핀은 WorldPlace
+  map            Bytes?
+  mapMime        String?
+  mapReview      PortraitReview      @default(APPROVED)
+  takenDownAt    DateTime?
+  takedownReason String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  cast           WorldCast[]
+  places         WorldPlace[]
+  parts          WorldPart[]
+  images         WorldImage[]
+  plays          WorldPlay[]
+
+  @@index([published, visibility, takenDownAt])
+  @@index([ownerId])
+  @@map("worlds")
+}
+
+/// 등장인물. 이미 있는 캐릭터를 가져오거나(characterId) 여기서 바로 쓴다
+model WorldCast {
+  id          String     @id @default(cuid())
+  worldId     String
+  world       World      @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  characterId String?
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  name        String
+  summary     String
+  speech      String     @default("")
+  /// 처음 있는 장소 · 사는 곳 (WorldPlace 이름)
+  startPlace  String     @default("")
+  homePlace   String     @default("")
+  order       Int        @default(0)
+
+  @@unique([worldId, name])
+  @@map("world_cast")
+}
+
+/// 코퍼맵의 장소 핀. 좌표는 지도 그림 기준 백분율(0~100)
+model WorldPlace {
+  id      String @id @default(cuid())
+  worldId String
+  world   World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  name    String
+  x       Float
+  y       Float
+  note    String @default("")
+  order   Int    @default(0)
+
+  @@unique([worldId, name])
+  @@map("world_places")
+}
+
+/// 파트(이야기의 부). 목표가 이루어지면 다음 파트로 넘어간다. 없으면 파트 없이 자유롭게
+model WorldPart {
+  id      String @id @default(cuid())
+  worldId String
+  world   World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  order   Int
+  title   String
+  /// 이 파트가 끝나는 조건 (판정 모델만 읽는다 — 진행자에게는 향하는 방향으로만 알린다)
+  goal    String
+  /// 이 파트가 시작될 때 보여 줄 글
+  opening String @default("")
+
+  @@unique([worldId, order])
+  @@map("world_parts")
+}
+
+/// 제작자가 올린 장면 그림. 진행자는 이름표만 보고 고르고, 화면은 그 그림을 보여 준다
+model WorldImage {
+  id         String         @id @default(cuid())
+  worldId    String
+  world      World          @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  label      String
+  /// 특정 인물의 그림이면 그 이름 (비주얼노벨 서 있는 그림)
+  character  String         @default("")
+  mime       String
+  data       Bytes
+  review     PortraitReview @default(APPROVED)
+  reviewNote String?
+  /// 운영자가 막은 시각. 막힌 그림은 진행자에게도 화면에도 나가지 않는다
+  blockedAt  DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@unique([worldId, label])
+  @@index([review])
+  @@map("world_images")
+}
+
+/// 한 사람의 플레이 (계정×세계관에 하나. 처음부터 하려면 새로 시작)
+model WorldPlay {
+  id                 String         @id @default(cuid())
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  worldId            String
+  world              World          @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  personaName        String
+  personaDescription String         @default("")
+  partIndex          Int            @default(0)
+  /// 마지막 파트까지 끝냈다 (그 뒤에도 자유롭게 이어 갈 수 있다)
+  finished           Boolean        @default(false)
+  /// 인물 이름 → 지금 있는 장소 이름
+  locations          Json           @default("{}")
+  turns              Int            @default(0)
+  turnsSinceEvent    Int            @default(0)
+  /// 방금 끝난 이벤트 결과 (다음 답에서 인물이 반응한다)
+  eventNote          String?
+  storySoFar         String         @default("")
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  messages           WorldMessage[]
+  events             WorldEvent[]
+
+  @@unique([userId, worldId])
+  @@map("world_plays")
+}
+
+model WorldMessage {
+  id        String      @id @default(cuid())
+  playId    String
+  play      WorldPlay   @relation(fields: [playId], references: [id], onDelete: Cascade)
+  role      MessageRole
+  content   String
+  /// 이 답과 함께 보여 줄 장면 그림 (WorldImage id)
+  imageId   String?
+  createdAt DateTime    @default(now())
+
+  @@index([playId, createdAt])
+  @@map("world_messages")
+}
+
+enum WorldEventKind {
+  LADDER
+  DICE
+  BOWLING
+  LOTTERY
+  MAZE
+}
+
+enum WorldEventStatus {
+  OPEN
+  WON
+  LOST
+  EXPIRED
+}
+
+/// 대화 중 뜨는 이벤트 미니게임. 결과는 서버가 정한다(setup은 화면에 다 보내지 않는다)
+model WorldEvent {
+  id         String           @id @default(cuid())
+  playId     String
+  play       WorldPlay        @relation(fields: [playId], references: [id], onDelete: Cascade)
+  userId     String
+  kind       WorldEventKind
+  status     WorldEventStatus @default(OPEN)
+  setup      Json
+  /// 결과 기록 (고른 것, 굴린 값, 쓰러뜨린 핀 등)
+  outcome    Json?
+  reward     Int              @default(0)
+  /// 하루 보상 한도 안이라 실제로 코레딧을 줬나
+  rewarded   Boolean          @default(false)
+  /// 보상한 날 (한국 시각 YYYY-MM-DD) — 하루 한도를 센다
+  rewardDay  String?
+  createdAt  DateTime         @default(now())
+  resolvedAt DateTime?
+
+  @@index([userId, rewardDay])
+  @@index([status, createdAt])
+  @@map("world_events")
+}
+
+/// 운영 설정 (키 → JSON 값). 운영 콘솔에서 바꾼다
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
 }

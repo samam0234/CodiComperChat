@@ -21,6 +21,7 @@ import { ContentReportsModule } from './content-reports/content-reports.module.j
 import { ReportsModule } from './reports/reports.module.js';
 import { RateLimitGuard } from './security/rate-limit.js';
 import { StudioModule } from './studio/studio.module.js';
+import { WorldsModule } from './worlds/worlds.module.js';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { StudioModule } from './studio/studio.module.js';
     CharacterChatModule,
     CampaignsModule,
     StudioModule,
+    WorldsModule,
     ReportsModule,
     ContentReportsModule,
     AgentChatModule,

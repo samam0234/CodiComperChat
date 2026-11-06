@@ -24,13 +24,18 @@ function matchesMime(data: Uint8Array, mime: PortraitMime): boolean {
 }
 
 export function parsePortrait(contentType: unknown, body: unknown): { data: Buffer; mime: PortraitMime } {
+  return parseImage(contentType, body, PORTRAIT_MAX_BYTES, '초상');
+}
+
+// 올린 그림 검사 (초상·세계관 장면 그림·지도가 같이 쓴다). what: 안내 문구의 이름
+export function parseImage(contentType: unknown, body: unknown, maxBytes: number, what: string): { data: Buffer; mime: PortraitMime } {
   const mime = typeof contentType === 'string' ? (contentType.split(';')[0].trim().toLowerCase() as PortraitMime) : undefined;
   if (!mime || !PORTRAIT_MIMES.includes(mime)) {
-    throw new BadRequestException('초상은 webp·jpeg·png 이미지만 올릴 수 있습니다.');
+    throw new BadRequestException(`${what}: webp·jpeg·png 이미지만 올릴 수 있습니다.`);
   }
   if (!Buffer.isBuffer(body) || body.length === 0) throw new BadRequestException('이미지가 비어 있습니다.');
-  if (body.length > PORTRAIT_MAX_BYTES) {
-    throw new BadRequestException(`초상은 ${Math.round(PORTRAIT_MAX_BYTES / 1000)}KB 이하여야 합니다 (지금 ${Math.round(body.length / 1000)}KB).`);
+  if (body.length > maxBytes) {
+    throw new BadRequestException(`${what}: ${Math.round(maxBytes / 1000)}KB 이하여야 합니다 (지금 ${Math.round(body.length / 1000)}KB).`);
   }
   if (!matchesMime(body, mime)) throw new BadRequestException('이미지 파일이 아니거나 형식이 맞지 않습니다.');
   return { data: body, mime };
