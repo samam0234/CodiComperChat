@@ -113,3 +113,27 @@ export async function findOrders(email: string) {
 export async function refundOrder(orderId: string, reason: string) {
   return call(`/admin/orders/${encodeURIComponent(orderId)}/refund`, { method: "POST", body: { reason } });
 }
+
+// ---- 월드코퍼챗 (2026-11-06) ----
+
+export async function takeDownWorld(id: string, reason: string) {
+  return call(`/admin/worlds/${encodeURIComponent(id)}/takedown`, { method: "POST", body: { reason } });
+}
+
+export async function restoreWorld(id: string) {
+  return call(`/admin/worlds/${encodeURIComponent(id)}/restore`, { method: "POST", body: {} });
+}
+
+export async function decideWorldImage(imageId: string, decision: "approve" | "reject" | "block" | "unblock", note = "") {
+  return call(`/admin/world-images/${encodeURIComponent(imageId)}`, { method: "POST", body: { decision, note } });
+}
+
+export async function decideWorldMap(id: string, decision: "approve" | "reject" | "remove") {
+  return call(`/admin/worlds/${encodeURIComponent(id)}/map-review`, { method: "POST", body: { decision } });
+}
+
+export type WorldSettings = { dailyRewardCap: number; eventChance: number; eventMinTurns: number };
+
+export async function saveWorldSettings(settings: WorldSettings) {
+  return call<WorldSettings>("/admin/world-settings", { method: "PUT", body: settings });
+}

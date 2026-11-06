@@ -1,0 +1,250 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(10 6 24 / 55%);
+  backdrop-filter: blur(4px);
+}
+
+.card {
+  width: min(460px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  animation: pop 0.25s ease-out;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--pink);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.game,
+.choices {
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.lanes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.lane {
+  width: 52px;
+  height: 64px;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.straw {
+  width: 36px;
+  height: 96px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface-2);
+  cursor: pointer;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 8px;
+}
+
+.straw span {
+  width: 8px;
+  height: 70px;
+  border-radius: 4px;
+  background: var(--gradient);
+}
+
+.lane:disabled,
+.straw:disabled {
+  opacity: 0.5;
+}
+
+.slider {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.maze {
+  display: grid;
+  width: min(280px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 2px solid var(--foreground);
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  border-style: solid;
+  border-color: var(--foreground);
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.pad {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pad button {
+  min-width: 44px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--foreground);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.win,
+.lose {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.win {
+  background: var(--accent-soft);
+}
+
+.lose {
+  background: var(--surface-2);
+}
+
+.win strong,
+.lose strong {
+  font-size: 22px;
+}
+
+.dice {
+  font-size: 18px;
+}
+
+.pins {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pinUp,
+.pinDown {
+  width: 10px;
+  height: 22px;
+  border-radius: 5px 5px 3px 3px;
+}
+
+.pinUp {
+  background: var(--border);
+}
+
+.pinDown {
+  background: var(--pink);
+  transform: rotate(70deg);
+}
+
+.ladder {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.laneLine {
+  stroke: var(--muted);
+  stroke-width: 3;
+}
+
+.laneMine {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.prize {
+  fill: var(--pink);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primary,
+.secondary {
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--gradient);
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}

@@ -12,6 +12,7 @@ const NAV = [
   { href: "/content", label: "그림 신고", icon: "▨" },
   { href: "/portraits", label: "초상 검수", icon: "▣" },
   { href: "/characters", label: "캐릭터", icon: "☆" },
+  { href: "/worlds", label: "월드코퍼챗", icon: "◈" },
   { href: "/users", label: "계정 등급", icon: "◐" },
 ];
 

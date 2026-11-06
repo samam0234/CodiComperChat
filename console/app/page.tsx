@@ -2,6 +2,8 @@ import Link from "next/link";
 import PageHead from "@/components/page-head";
 import { adminGet, requireAdmin } from "@/lib/api";
 import { formatDayTime } from "@/lib/format-time";
+import type { WorldStats } from "@/lib/worlds";
+import StatsRow from "./worlds/stats-row";
 import styles from "./dashboard.module.css";
 
 type Stats = {
@@ -33,7 +35,7 @@ function Tile({ label, value, hint, href, alert }: { label: string; value: numbe
 
 export default async function Dashboard() {
   await requireAdmin("/");
-  const stats = await adminGet<Stats>("/admin/stats");
+  const [stats, worldStats] = await Promise.all([adminGet<Stats>("/admin/stats"), adminGet<WorldStats>("/admin/world-stats")]);
 
   if (!stats) {
     return (
@@ -91,6 +93,15 @@ export default async function Dashboard() {
           <Tile label="배경 정리 대기" value={ai.waitingBackground} />
         </div>
         <p className={styles.note}>기다리는 답이 계속 쌓이면 모델이 밀리는 것이다 — Ollama 상태와 AI_CONCURRENCY를 확인한다.</p>
+      </section>
+      <section aria-label="월드코퍼챗" className={styles.section}>
+        <h2 className={styles.sectionTitle}>
+          월드코퍼챗{" "}
+          <Link href="/worlds" className={worldStats && worldStats.pendingReview > 0 ? styles.badgeAlert : styles.badge}>
+            검수 {worldStats?.pendingReview ?? "?"}
+          </Link>
+        </h2>
+        <StatsRow stats={worldStats} />
       </section>
     </>
   );
