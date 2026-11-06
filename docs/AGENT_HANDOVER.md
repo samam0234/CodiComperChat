@@ -172,6 +172,12 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | 그림 신고·계정 정지 | `apps/api/src/content-reports/`, `console/app/content/` |
 | 소유자가 직접 할 일 | [guidance/owner-checklist.md](guidance/owner-checklist.md) |
 
+![시스템 구조](.assets/readme/architecture.png)
+
+![계층 구조](.assets/readme/layers.png)
+
+![데이터 지도](.assets/readme/data-map.png)
+
 ## 9. 이 프로젝트에서 반복해서 맞은 교훈
 
 - **작은 로컬 모델은 지시를 한 번에 다 못 따른다.** 웹툰 콘티는 한 번에 쓰게 하면 태그를 한국어로 쓰고 외모를 섞었다 → 단계를 나눴다. 나레이션은 "필요할 때만"이라고 하면 한 번도 안 썼다 → 역할을 나누고 형식 예시를 주되 베끼지 않게 다른 상황의 예시를 썼다. **프롬프트를 바꾸면 실제 모델로 확인한다.**

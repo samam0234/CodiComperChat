@@ -9,6 +9,8 @@
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 인증·계정·성인 확인, 캐릭터, 대화와 컨텍스트 조립, 기억·이야기 정리, 공방(초안·테스트·발행·초상 검수), 신고, 결제(보류), 코레딧·모델·오퍼레이션(웹툰 포함)·비밀 퀘스트, 요청 한도, AI 호출 대기열. 웹이 유일하게 직접 치는 대상 |
 | ai | FastAPI (Python 3.12) | `services/ai/` | `/infer` `/summarize` `/critique-test` `/remember` `/suggest-replies` `/assist` `/ground-check` `/draft-field` `/draft-quest` `/moderate-image` `/mind` `/diary` `/board-posts` `/board-comments` `/photonet` `/webtoon/plan` `/webtoon/panel`, `/train`(403). 그림은 같은 프로세스의 diffusers 엔진. Nest만 내부에서 호출 |
 
+![화면 지도](../.assets/readme/screen-map.png)
+
 ## 화면 지도 (계획서 §8 → 구현)
 
 | 계획서 §8 | 구현 | 경로 |

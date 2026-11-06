@@ -7,6 +7,10 @@
 | `docker-compose.yml` | 로컬 개발 보조 | `postgres`(설치형이 없을 때만), `mailpit` |
 | `deploy/docker-compose.prod.yml` | 운영 (2026-11-03) | 아래 |
 
+![운영 배포 구성](../.assets/readme/deploy-topology.png)
+
+![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
+
 ## 운영 구성
 
 ```text

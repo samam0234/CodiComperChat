@@ -92,6 +92,8 @@ AI 호출은 `apps/api/src/ai/ai-queue.ts` 대기열을 지난다. 동시 호출
 
 최근 측정(2026-11-06, 사용자 8명, 모델 1.5초 직렬): 연속 채팅 p95 12.0초(대기열 넣기 전 33.0초), 읽기 2300 req/s(p95 5ms), 이야기 정리 완료 p50 19.8초·p95 24.3초, 오류 0건. 이전 값과 비교: [../trainings/test-infrastructure.md](../trainings/test-infrastructure.md).
 
+![CI 단계](../.assets/readme/ci-pipeline.png)
+
 ## CI (`.github/workflows/ci.yml`)
 
 develop·main에 올리거나 PR을 열면 GitHub Actions가 돈다. 모델·돈·메일 없이 돈다(가짜 LLM, 가짜 결제, 메일은 폴더로).

@@ -14,6 +14,10 @@
 | 보안·법률의 공개 전 필수 | [../SECURITY.md](../SECURITY.md), [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) |
 | 로컬 실행 | [guidance/getting-started.md](guidance/getting-started.md) |
 
+![운영 배포 구성](.assets/readme/deploy-topology.png)
+
+<sub>deploy/docker-compose.prod.yml을 그대로 옮긴 그림. 바깥에는 Caddy만 열린다</sub>
+
 ## 결정된 것
 
 | 항목 | 값 |

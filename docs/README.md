@@ -10,6 +10,24 @@
 
 ---
 
+## 구조 그림 한눈에
+
+그림은 모두 `scripts/readme-media/`로 다시 만든다(HTML → PNG, 서버 필요 없음). 값은 저장소에서 읽은 사실이다.
+
+| 그림 | 무엇을 보나 | 자세한 문서 |
+|------|------------|-------------|
+| [![시스템 구조](.assets/readme/architecture.png)](.assets/readme/architecture.png) | 앱 네 개와 호출 방향, 신뢰 경계 | [Architecture/overview.md](Architecture/overview.md) |
+| [![계층 구조](.assets/readme/layers.png)](.assets/readme/layers.png) | Next → Nest(Controller·Service·순수 함수·Prisma) → FastAPI(routes·schemas·services·llm) | [Architecture/layers.md](Architecture/layers.md) |
+| [![운영 배포](.assets/readme/deploy-topology.png)](.assets/readme/deploy-topology.png) | 운영 컨테이너 8개, edge·internal 망, 볼륨 | [Architecture/docker-topology.md](Architecture/docker-topology.md) |
+| [![로컬 환경 세 벌](.assets/readme/dev-environments.png)](.assets/readme/dev-environments.png) | 개발·e2e·README 데모의 포트와 DB | [web_management/ports-inventory.md](web_management/ports-inventory.md) |
+| [![데이터 지도](.assets/readme/data-map.png)](.assets/readme/data-map.png) | 테이블 37개를 영역별로 | [plan/DATABASE.md](plan/DATABASE.md) |
+| [![화면 지도](.assets/readme/screen-map.png)](.assets/readme/screen-map.png) | 이용자 화면 35개, 콘솔 12개 | [Architecture/apps.md](Architecture/apps.md) |
+| [![대화 한 턴](.assets/readme/chat-turn.png)](.assets/readme/chat-turn.png) | 1:1 대화 한 턴의 처리 순서 | [Architecture/data-flow.md](Architecture/data-flow.md) |
+| [![월드 한 턴](.assets/readme/world-flow.png)](.assets/readme/world-flow.png) | 월드코퍼챗 한 턴의 처리 순서 | [plan/WORLD_COPPERCHAT.md](plan/WORLD_COPPERCHAT.md) |
+| [![CI](.assets/readme/ci-pipeline.png)](.assets/readme/ci-pipeline.png) | 병합 전 확인 단계 | [plan/TESTING.md](plan/TESTING.md) |
+| [![기능 지도](.assets/readme/features.png)](.assets/readme/features.png) | 기능 12칸 | [FEATURES.md](FEATURES.md) |
+| [![기술 스택](.assets/readme/stack.png)](.assets/readme/stack.png) | 프레임워크와 버전 | [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) |
+
 ## 폴더 맵
 
 ```text

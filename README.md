@@ -265,6 +265,29 @@
 
 <a href="docs/.assets/readme/chat-turn.png"><img src="docs/.assets/readme/chat-turn.png" alt="대화 한 턴의 처리 순서" width="100%"></a>
 
+### 더 자세한 구조 그림
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/.assets/readme/layers.png"><img src="docs/.assets/readme/layers.png" alt="계층 구조: Next → Nest → FastAPI"></a></td>
+    <td width="50%"><a href="docs/.assets/readme/deploy-topology.png"><img src="docs/.assets/readme/deploy-topology.png" alt="운영 배포 구성: Caddy, web, console, api, postgres, ai, ollama"></a></td>
+  </tr>
+  <tr>
+    <td><b>계층.</b> 웹은 FastAPI를 모르고, FastAPI는 DB를 모릅니다. 판단은 Nest의 순수 함수에 모아 DB 없이 시험합니다.</td>
+    <td><b>운영 배포.</b> GPU 서버 한 대, 바깥에는 Caddy의 80·443만 열립니다.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/.assets/readme/data-map.png"><img src="docs/.assets/readme/data-map.png" alt="데이터 지도: 테이블 37개"></a></td>
+    <td><a href="docs/.assets/readme/screen-map.png"><img src="docs/.assets/readme/screen-map.png" alt="화면 지도: 이용자 35개, 콘솔 12개"></a></td>
+  </tr>
+  <tr>
+    <td><b>데이터.</b> 테이블 37개를 영역별로. 돈과 횟수는 DB 한 문장으로 셉니다.</td>
+    <td><b>화면.</b> 이용자 사이트 35개, 운영 콘솔 12개.</td>
+  </tr>
+</table>
+
+모든 구조 그림과 설명: [docs/README.md#구조-그림-한눈에](docs/README.md#구조-그림-한눈에)
+
 ### 저장소 구성
 
 ```text
