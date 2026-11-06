@@ -11,6 +11,7 @@ export type Viewer = { displayName: string } | null;
 const DRAWER_NAV = [
   { href: "/", label: "홈", memberOnly: false },
   { href: "/library", label: "대화 목록 (라이브러리)", memberOnly: true },
+  { href: "/worlds", label: "월드코퍼챗", memberOnly: false },
   { href: "/studio", label: "제작", memberOnly: true },
   { href: "/me", label: "마이페이지", memberOnly: true },
   { href: "/pricing", label: "요금 안내", memberOnly: false },
