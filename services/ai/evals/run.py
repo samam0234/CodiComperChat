@@ -274,7 +274,8 @@ NARRATION_SCENES = [
     "(갑자기 카페 정전이 나서 불이 꺼졌다) 어, 뭐죠?",
     "(비가 그치고 해가 지기 시작한다) 창밖 좀 보세요.",
 ]
-NARRATION_PLAIN = ["오늘 원두는 뭐예요?", "라떼 한 잔 주세요."]
+# 장면이 바뀌지 않는 말. 짧은 괄호 추임새는 장면 지시가 아니다
+NARRATION_PLAIN = ["오늘 원두는 뭐예요?", "라떼 한 잔 주세요.", "(웃음) 농담이에요.", "케이크도 있어요?"]
 
 
 def run_narration(repeat: int) -> list[tuple[str, bool]]:

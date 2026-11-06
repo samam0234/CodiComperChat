@@ -175,4 +175,5 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 - **라이선스는 쓰는 판의 원문을 본다.** "Gemma 금지 정책이 성인 모드를 막는다"고 한동안 적어 두었는데, 그 약관은 Gemma 3n까지만 적용되고 Gemma 4는 Apache 2.0이었다. `ollama show <모델> --license`로 바로 볼 수 있었다.
 - **시험이 무작위로 실패하면 시간 제한을 늘리기 전에 원인을 찾는다.** e2e 무작위 실패의 원인은 `next dev`의 첫 컴파일이었고, 운영 빌드로 바꾸니 전부 통과하고 시간도 줄었다([trainings/test-infrastructure.md](trainings/test-infrastructure.md)).
 - **모델 평가 8번으로는 개선을 말할 수 없다.** 같은 코드로 보상 장면이 4/8과 2/8이 나왔다. 판정은 시드를 고정해 안정적이고, 연기 쪽 지시가 약하다.
+- **연기 모델에게 고르게 하지 말고, 고른 것만 넘긴다.** 보상 장면은 갈래를 판정 쪽(코드가 나누고 모델은 번호만)이 고르자 2/8 → 20/20이 됐다. 나레이션은 괄호 장면 지시가 있는 턴에만 맨 끝에 "첫 줄은 @:"를 붙이자 7/12 → 48/48이 됐다([trainings/narration-and-reward.md](trainings/narration-and-reward.md)).
 - **실제로 띄워 봐야 나오는 결함이 있다.** `REQUIRE_HTTPS`는 단위 시험을 통과했지만 내부 호출을 막고 있었고, AI 초상은 시험이 통과하는데 뒷모습이 나왔다. 그림은 눈으로 본다.
