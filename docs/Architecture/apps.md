@@ -11,6 +11,17 @@
 
 ![화면 지도](../.assets/readme/screen-map.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+apps/web (이용자) ──┐
+                    ├──▶ apps/api (Nest) ──▶ services/ai (FastAPI)
+console (운영자) ───┘          │
+                               └──▶ PostgreSQL
+두 Next 앱은 쿠키 이름(session · console_session)과 배포(도메인)가 다르다
+```
+
 ## 화면 지도 (계획서 §8 → 구현)
 
 | 계획서 §8 | 구현 | 경로 |

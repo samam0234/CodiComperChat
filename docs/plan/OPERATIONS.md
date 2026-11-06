@@ -7,6 +7,21 @@
 - 맥락은 대화와 똑같이 조립한다: 고정된 내 프로필, 기억, 캐릭터 상태설정, 이야기 상태, 최근 대화 (`CharacterChatService.operationContext`). 캐릭터 설정의 **비밀은 애초에 AI에 보내지 않는다**
 - AI 쪽은 캐릭터 연기 프롬프트를 그대로 쓰고 마지막에 괄호 "작가 지시"로 이번에 무엇을 쓸지 정한다 (`services/ai/app/services/operations.py`)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+오퍼레이션 요청 ─▶ 진행 중인 대화가 있나 (없으면 409)
+     │
+     ▼
+코레딧 차감 (한 문장, 모자라면 403) ─▶ FastAPI (/mind · /diary · /board · /photonet · /webtoon)
+     │ 실패                                  │ 성공
+     ▼                                       ▼
+환불 (REFUND)                           저장 · 장부(OPERATION, op:이름)
+수위: 성인은 매 턴 DB 확인 · 미성년자 단서는 그리기 전에 거절 · 그림 검수
+월드 이벤트는 반대 방향: 코레딧을 받는다 (EVENT, 하루 3번)
+```
+
 ## 값 (코레딧, 2026-10-23 사용자 결정: 모델이 글을 새로 쓰는 기능은 코레딧으로)
 
 정본: `apps/api/src/credits/credits.ts`의 `OPERATION_COSTS`. 먼저 빼고, 만들기·저장이 실패하면 돌려준다. 기록은 `credit_ledger`에 사유 `OPERATION`, 모델 칸에 `op:이름`.

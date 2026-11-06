@@ -4,6 +4,21 @@
 
 엔진이 없거나 꺼져 있으면 코디포토넷·웹툰은 "준비 중"으로 잠기고 서버는 코레딧을 빼지 않고 503을 돌려준다. 나머지 기능(대화·오퍼레이션)은 엔진과 상관없이 돈다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+POST …/ops/photonet {prompt, style, ratio, rating}
+  ▼
+Nest: 코레딧 차감 · 성인 확인(nsfw) · 미성년 단서
+  ▼
+FastAPI: 장면 설계(LLM, 인물 명단 → 설계표) → LLM 내리기(keep_alive 0)
+  ▼
+image_engine: Animagine XL 4.0 (애니·웹툰) / SD 1.5 (수채화·실사풍) — 같은 프로세스, GPU
+  ▼
+그림 검수 (항목 판정 → 규칙) ─ 막힘이면 환불 ─ 통과면 webp 저장
+```
+
 ## 엔진 고르기: 서버 안 엔진(기본) / WebUI
 
 2026-10-24 사용자 요청: 배포 때 WebUI를 따로 띄우기 곤란하므로 services/ai 안에 서버용 엔진을 둔다.

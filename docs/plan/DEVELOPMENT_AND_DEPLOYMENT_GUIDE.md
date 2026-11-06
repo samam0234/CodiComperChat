@@ -2,6 +2,15 @@
 
 > 상태(2026-10-24): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다(컨테이너화·배포는 아직). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+설치 (npm install · .venv) ─▶ .env 두 개 ─▶ DB (migrate deploy · seed) ─▶ 서버 넷 ─▶ 시험
+                                                                              │
+                                                     운영: deploy/docker-compose.prod.yml (DEPLOYMENT.md)
+```
+
 ## 사전 준비 체크리스트 (스캐폴딩 때 정한 것 — 모두 정해짐)
 
 - [x] 패키지 매니저: npm workspaces(`apps/*`, `console`)

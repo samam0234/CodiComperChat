@@ -4,6 +4,18 @@
 
 ![계층 구조](../.assets/readme/layers.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+Next   page(서버) ─▶ lib 조회 ─▶ 클라이언트 ─▶ 서버 액션 / api 중계
+                                                    │ Bearer
+Nest   Controller ─▶ Guard ─▶ Service ─▶ 순수 함수 ─▶ Prisma
+                                  └─▶ ai-client (대기열) │ AI_SERVICE_TOKEN
+FastAPI routes ─▶ schemas ─▶ services ─▶ llm · image_engine
+아래 층은 위 층을 모른다 (FastAPI는 DB를, 웹은 FastAPI를 모른다)
+```
+
 ## Nest.js (`apps/api`)
 
 ```text

@@ -4,6 +4,18 @@
 
 ![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+1) npm install · services/ai .venv
+2) .env 두 개 (apps/api · services/ai)
+3) DB: migrate deploy → seed (유지성·이세연)
+4) 서버 넷: dev:api :4000 · dev:web :3000 · dev:console :3001 · uvicorn :8000
+5) 확인: 가입 → 이메일 인증(개발은 파일/mailpit) → 프로필 → 대화 → /worlds
+6) 시험: test:api · test:e2e
+```
+
 ## 전제 조건
 
 | 항목 | 값 | 확인 |

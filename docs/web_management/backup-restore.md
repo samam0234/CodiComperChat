@@ -2,6 +2,18 @@
 
 대상은 PostgreSQL이다(계정·캐릭터·대화·코레딧·그림). 볼륨 `personas`(페르소나 지식 JSON)는 발행하면 공방이 다시 만들 수 있지만, 함께 복사해 두면 빠르다. 체크포인트와 Ollama 모델은 다시 받을 수 있어 백업하지 않는다.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+cron 04:00 ─▶ scripts/db-backup.sh ─▶ pg_dump (custom) ─▶ pg_restore --list로 읽어 보기
+                                                              │ 읽히면
+                                                              ▼
+                                         deploy/backups/날짜_시각.dump (700) · 14일 지나면 삭제
+복구: web·console·api 멈춤 → 덤프 넣기 → pg_restore → 다시 켜기 → 화면 확인
+서버 밖 사본은 따로 (같은 서버만이면 함께 잃는다)
+```
+
 ## 백업
 
 ```bash

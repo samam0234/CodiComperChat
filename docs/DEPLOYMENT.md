@@ -18,6 +18,22 @@
 
 <sub>deploy/docker-compose.prod.yml을 그대로 옮긴 그림. 바깥에는 Caddy만 열린다</sub>
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+개발 PC (지금)                         운영 (아직 올리지 않음)
+  npm run dev:* + uvicorn                GPU 서버 한 대 (Hetzner GEX45 권장)
+        │                                     │ deploy/server-setup.sh
+        │ 커밋 → develop → main               ▼
+        └──────────── git ──────────▶ docker compose -f deploy/docker-compose.prod.yml up -d
+                                              │
+                                              ├─ migrate: prisma migrate deploy (34개)
+                                              ├─ caddy → web · console (HTTPS)
+                                              ├─ api → postgres · ai → ollama
+                                              └─ cron: scripts/db-backup.sh (14일 보관)
+```
+
 ## 결정된 것
 
 | 항목 | 값 |

@@ -7,6 +7,17 @@
 
 ---
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+카드 원문 (이 문서) ─▶ apps/api/prisma/seed.mjs (Character 행, 퀘스트 JSON)
+                    └─▶ data/personas/<이름>.json (지식 조각, git 밖)
+대화 때: 카드 핵심 + 지식 조각 → 연기     비밀은 보내지 않음 → 해금 조건이 차면 unlockedSecrets
+퀘스트:  친밀도 문턱 → 부탁(offer) → 판정(objective, 캐릭터 모르게) → 보상 장면(reward) 한 번 → 100 코레딧
+월드:    공개 캐릭터라 등장인물로 데려갈 수 있다 (이름·소개·말투만)
+```
+
 ## 유지성
 
 ### 1. 한 줄

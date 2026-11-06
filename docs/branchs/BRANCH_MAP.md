@@ -16,6 +16,15 @@ main          ← 배포 통합만
 
 로직 단계(§10)를 feature 브랜치로 쪼개는 제안은 [../plan/LOGIC_AND_GIT_BRANCH_STRATEGY.md](../plan/LOGIC_AND_GIT_BRANCH_STRATEGY.md) 참고.
 
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+feature/* ──┐
+bugfix/* ───┼──(--no-ff)──▶ develop ──(--no-ff, 사용자가 말할 때)──▶ main
+experimental/*┘
+```
+
 ## 현재 상태 (2026-11-03)
 
 - 원격: `origin` (GitHub). `develop`이 개발 통합, `main`은 사용자가 지시할 때 `develop`을 병합한다(마지막: 2026-10-25). `release/*`는 아직 쓴 적이 없다
