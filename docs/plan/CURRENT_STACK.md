@@ -17,6 +17,32 @@
 스택이 바뀌면: 이 문서 → PROJECT_STRUCTURE → 앱 README → docs/README 앱과 포트 (문서 갱신 체크리스트)
 ```
 
+<!-- logic-mermaid -->
+
+### 결정이 쌓이는 순서
+
+```mermaid
+flowchart LR
+  P["기획 §15 합의"] --> F["확정"]
+  F --> I["구현하며 정한 것 (날짜·사용자 결정)"]
+  I --> O["아직 열린 항목"]
+  O --> T["TASKS 4장"]
+```
+
+### 시스템 구조
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
 ## 확정 (계획서 §15 "합의")
 
 | 영역 | 값 |

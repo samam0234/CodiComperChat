@@ -16,6 +16,15 @@
 6) 시험: test:api · test:e2e
 ```
 
+<!-- logic-mermaid -->
+
+### 처음 띄우기
+
+```mermaid
+flowchart LR
+  A["npm install · .venv"] --> B[".env 두 개"] --> C["migrate · seed"] --> D["서버 넷"] --> E["가입 · 인증"] --> F["대화 · 월드"] --> G["시험"]
+```
+
 ## 전제 조건
 
 | 항목 | 값 | 확인 |

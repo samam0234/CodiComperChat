@@ -26,9 +26,41 @@
        └─ 기록: branchs/ (커밋·병합 기록) · 정본 규칙: ../.agents/skills/codicomperchat/SKILL.md
 ```
 
+<!-- logic-mermaid -->
+
+### 문서 지도
+
+```mermaid
+flowchart LR
+  R["루트 README"] --> DR["docs/README<br/>문서 지도"]
+  DR --> S["지금 상태<br/>AGENT_HANDOVER · TASKS"]
+  DR --> F["무엇이 있나<br/>FEATURES · API_DOCUMENTATION"]
+  DR --> A["어떻게 생겼나<br/>Architecture · plan · WORKFLOW"]
+  DR --> G["어떻게 하나<br/>guidance"]
+  DR --> T["실제로 잰 것<br/>trainings · find_debug · repeater"]
+  DR --> O["운영<br/>web_management · DEPLOYMENT"]
+  DR --> B["기록<br/>branchs"]
+```
+
+### 시스템 구조
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
 ## 구조 그림 한눈에
 
 그림은 모두 `scripts/readme-media/`로 다시 만든다(HTML → PNG, 서버 필요 없음). 값은 저장소에서 읽은 사실이다.
+
+문서마다 맨 앞의 **로직 구조** 절에 텍스트 상자 그림과 mermaid 그림(흐름도·순서도·상태도·관계도)이 있다. mermaid 문법은 `node scripts/check-mermaid.mjs`로 확인한다(GitHub와 같은 mermaid 11로 파싱, 인터넷 필요). 2026-11-06 기준 161개 블록, 108개 문서.
 
 | 그림 | 무엇을 보나 | 자세한 문서 |
 |------|------------|-------------|

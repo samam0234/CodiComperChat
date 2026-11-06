@@ -21,6 +21,21 @@ CodiComperChat/
 └── .agents + 도구별 어댑터 ── 에이전트 규칙
 ```
 
+<!-- logic-mermaid -->
+
+### 폴더와 의존 방향
+
+```mermaid
+flowchart LR
+  WEB["apps/web"] --> API["apps/api"]
+  CON["console"] --> API
+  API --> AI["services/ai"]
+  API --> PRI["prisma/"]
+  E2E["e2e"] -.-> WEB & CON & API & AI
+  DEP["deploy"] -.-> WEB & CON & API & AI
+  SCR["scripts"] -.-> API
+```
+
 ## 모노레포 최상위
 
 ```text

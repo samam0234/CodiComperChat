@@ -16,6 +16,32 @@ FastAPI routes ─▶ schemas ─▶ services ─▶ llm · image_engine
 아래 층은 위 층을 모른다 (FastAPI는 DB를, 웹은 FastAPI를 모른다)
 ```
 
+<!-- logic-mermaid -->
+
+### 계층
+
+```mermaid
+flowchart TB
+  subgraph next["Next.js"]
+    P["page (서버)"] --> L["lib 조회"]
+    P --> CC["클라이언트"]
+    CC --> SA["서버 액션 · api 중계"]
+  end
+  subgraph nest["Nest.js"]
+    CT["Controller"] --> GD["Guard"] --> SV["Service"]
+    SV --> PF["순수 함수"]
+    SV --> PR["Prisma"]
+    SV --> AQ["ai-client 대기열"]
+  end
+  subgraph fast["FastAPI"]
+    RT["routes"] --> SC["schemas"] --> SR["services"]
+    SR --> LM["llm"]
+    SR --> IE["image_engine"]
+  end
+  L & SA --> CT
+  AQ --> RT
+```
+
 ## Nest.js (`apps/api`)
 
 ```text

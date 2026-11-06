@@ -15,6 +15,17 @@
 apps/api: npx prisma migrate deploy (34개) → npm run prisma:seed
 ```
 
+<!-- logic-mermaid -->
+
+### DB 세 개
+
+```mermaid
+flowchart LR
+  PG[("PostgreSQL 16 :5432")] --> D1["codicomperchat (개발)"]
+  PG --> D2["codicomperchat_e2e (e2e가 만듦)"]
+  PG --> D3["codicomperchat_readme (데모가 만듦)"]
+```
+
 ## 로컬 PostgreSQL (현재 개발 환경)
 
 로컬 개발 DB는 Docker가 아니라 **Windows에 설치한 PostgreSQL 16**을 쓴다. 프로그램과 데이터 모두 D드라이브다.

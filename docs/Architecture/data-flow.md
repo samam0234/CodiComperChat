@@ -27,6 +27,124 @@ POST /characters/:id/chat {message, personaId, model?}
               · CreditLedger(코레딧) · WorldPlay/WorldMessage/WorldEvent(월드)
 ```
 
+<!-- logic-mermaid -->
+
+### 1:1 대화
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant B as 브라우저
+  participant W as web (Next)
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  participant A as ai (FastAPI)
+  B->>W: 메시지 보내기
+  W->>N: POST /characters/{id}/chat (Bearer)
+  N->>D: 캐릭터·프로필·대화·상태 읽기
+  N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
+  N->>A: POST /infer
+  A-->>N: reply
+  opt 설정에 없는 개인사를 물은 턴
+    N->>A: POST /ground-check
+    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+  end
+  N->>D: 유저 말 + 답 저장
+  N-->>W: 답 · 사용량
+  W-->>B: 화면에 그리기
+  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+```
+
+### 비밀 퀘스트 상태
+
+```mermaid
+stateDiagram-v2
+  state "잠김" as locked
+  state "때가 됨" as ready
+  state "건넴 (offered)" as offered
+  state "달성 (done)" as done
+  state "보상 장면 보임 (staged)" as staged
+  [*] --> locked
+  locked --> ready: 친밀도 ≥ 문턱
+  ready --> offered: 판정 - 캐릭터 대사에 부탁 인용
+  offered --> done: 판정 - 유저 대사에 근거 인용, 확신 85+
+  done --> staged: 다음 첫 답 한 번 (sceneNote)
+  staged --> [*]
+```
+
+### 월드 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/turn
+  N->>D: 열린 이벤트를 EXPIRED로
+  N->>N: 기본 모델 reserve, 맥락 조립
+  N->>A: POST /world/turn
+  A-->>N: reply · image · moves (제어 줄은 떼어 냄)
+  N->>D: USER·CHARACTER 메시지, 위치 저장
+  alt 3턴마다
+    N->>A: POST /world/part-check
+    A-->>N: done · evidence
+    N->>D: 다음 파트 · SYSTEM 메시지
+  end
+  opt 간격과 확률을 넘김
+    N->>D: WorldEvent 만들기 (숨긴 setup)
+  end
+  N-->>P: 플레이 상태
+```
+
+### 월드 이벤트 보상
+
+```mermaid
+sequenceDiagram
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/events/{eventId} (게임 입력)
+  N->>N: resolveEvent (승패) · rewardFor (금액)
+  N->>D: BEGIN · pg_advisory_xact_lock(계정)
+  N->>D: status OPEN인 행만 WON/LOST로
+  N->>D: 오늘 받은 보상 수 세기
+  alt 하루 한도 안
+    N->>D: users.credits 증가 · credit_ledger(EVENT)
+  else 한도 넘음
+    N->>D: 결과만 기록 (보상 0)
+  end
+  N->>D: COMMIT · eventNote 저장
+  N-->>P: won · outcome · reward · balance
+```
+
+### 데이터 관계
+
+```mermaid
+erDiagram
+  User ||--o{ UserPersona : "프로필"
+  User ||--o{ Campaign : "대화"
+  Character ||--o{ Campaign : "상대"
+  Campaign ||--|| CampaignState : "이야기 상태"
+  Campaign ||--o{ Session : "세션"
+  Session ||--o{ Message : "메시지"
+  Campaign ||--o{ MemoryChunk : "기억"
+  User ||--o{ CreditLedger : "코레딧 장부"
+  User ||--o{ CharacterDraft : "공방 초안"
+  CharacterDraft |o--o| Character : "발행"
+  Character ||--o{ CharacterReport : "신고"
+  User ||--o{ World : "만든 세계관"
+  World ||--o{ WorldCast : "등장인물"
+  World ||--o{ WorldPlace : "장소"
+  World ||--o{ WorldPart : "파트"
+  World ||--o{ WorldImage : "장면 그림"
+  User ||--o{ WorldPlay : "플레이"
+  World ||--o{ WorldPlay : "플레이"
+  WorldPlay ||--o{ WorldMessage : "메시지"
+  WorldPlay ||--o{ WorldEvent : "이벤트"
+```
+
 ## 메시지 한 번 보낼 때 상태가 움직이는 순서 (`POST /characters/:id/chat`)
 
 ```text

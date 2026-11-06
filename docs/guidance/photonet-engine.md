@@ -19,6 +19,23 @@ image_engine: Animagine XL 4.0 (애니·웹툰) / SD 1.5 (수채화·실사풍) 
 그림 검수 (항목 판정 → 규칙) ─ 막힘이면 환불 ─ 통과면 webp 저장
 ```
 
+<!-- logic-mermaid -->
+
+### 그림 한 장
+
+```mermaid
+sequenceDiagram
+  participant N as Nest
+  participant A as FastAPI
+  participant E as image_engine
+  N->>A: POST /photonet (설계 맥락 · 화풍 · 수위)
+  A->>A: 장면 설계 (LLM) → 모델 내리기
+  A->>E: SDXL (애니·웹툰) 또는 SD 1.5 (수채화·실사풍)
+  E-->>A: 그림
+  A->>A: 검수
+  A-->>N: webp 또는 막힘
+```
+
 ## 엔진 고르기: 서버 안 엔진(기본) / WebUI
 
 2026-10-24 사용자 요청: 배포 때 WebUI를 따로 띄우기 곤란하므로 services/ai 안에 서버용 엔진을 둔다.

@@ -18,6 +18,36 @@
 병합 전: typecheck · lint · 위 전부 ─▶ CI(GitHub Actions) / npm run ci:local
 ```
 
+<!-- logic-mermaid -->
+
+### 시험 층
+
+```mermaid
+flowchart TB
+  CH["코드를 고침"] --> U["순수 함수<br/>*.spec.ts · vitest"]
+  CH --> DB["DB가 걸린 것<br/>*.db.spec.ts · 실제 PostgreSQL"]
+  CH --> AU["AI 규칙<br/>services/ai/tests · unittest"]
+  CH --> E["화면 흐름<br/>e2e · 운영 빌드 + 가짜 LLM"]
+  CH --> EV["프롬프트·판정<br/>evals · 실제 모델"]
+  U & DB --> TA["npm run test:api<br/>226개"]
+  AU --> TU["unittest 54개"]
+  E --> TE["e2e 123개 + 성인 끔 1개"]
+  TA & TU & TE --> CI["CI · npm run ci:local"]
+  EV --> TR["docs/trainings 에 기록<br/>(CI 밖, 사람이 돌림)"]
+```
+
+### CI 두 잡
+
+```mermaid
+flowchart LR
+  subgraph checks["checks"]
+    A1["npm ci"] --> A2["Prisma"] --> A3["oxlint"] --> A4["타입 검사 셋"] --> A5["API 226"] --> A6["스크립트 36"] --> A7["AI 불러오기"] --> A8["AI 단위 54"]
+  end
+  subgraph e2e["e2e"]
+    B1["npm ci · Prisma"] --> B2["AI .venv"] --> B3["Playwright 123"] --> B4["성인 끔 1"]
+  end
+```
+
 ## 앱별 도구
 
 | 앱 | 도구 | 상태 | 계층 |
@@ -124,3 +154,10 @@ AI 품질 평가(`evals`)는 실제 모델(Ollama)이 있어야 해서 CI에 넣
 GitHub Actions 결과를 바로 볼 수 없을 때, 같은 단계를 **지금 커밋의 깨끗한 클론**(`e2e/.tmp/ci-clone`)에서 돌린다. 내 PC에만 있는 파일·설치물·환경변수에 기대는 곳을 찾는 용도다.
 DB는 개발 DB와 같은 서버에 `codicomperchat_ci`·`codicomperchat_ci_e2e`를 매번 새로 만들어 쓴다(개발 DB는 그대로). 개발 PC의 DB·키 환경변수는 넘기지 않는다. 커밋하지 않은 변경은 들어가지 않는다.
 `npm run ci:local -- checks`·`-- e2e`로 나눠 돌릴 수 있고, 실패한 단계의 로그는 `e2e/.tmp/ci-logs/`에 남는다.
+
+## 문서 그림 확인 (2026-11-06)
+
+| 명령 | 보는 것 |
+|------|---------|
+| `node scripts/check-mermaid.mjs` | 모든 md의 ```mermaid 블록을 mermaid 11로 파싱(인터넷 필요). 2026-11-06: 161개 실패 0 |
+| `node scripts/readme-media/diagrams.mjs`, `art.mjs` | 구조 그림 PNG 다시 만들기 |

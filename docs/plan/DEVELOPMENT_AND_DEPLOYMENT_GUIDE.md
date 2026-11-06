@@ -11,6 +11,19 @@
                                                      운영: deploy/docker-compose.prod.yml (DEPLOYMENT.md)
 ```
 
+<!-- logic-mermaid -->
+
+### 로컬에서 운영까지
+
+```mermaid
+flowchart LR
+  I["설치"] --> E["환경변수"]
+  E --> DB["DB migrate · seed"]
+  DB --> RU["서버 넷"]
+  RU --> TE["시험"]
+  TE --> PR["운영 compose"]
+```
+
 ## 사전 준비 체크리스트 (스캐폴딩 때 정한 것 — 모두 정해짐)
 
 - [x] 패키지 매니저: npm workspaces(`apps/*`, `console`)

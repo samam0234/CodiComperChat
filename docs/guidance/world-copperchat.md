@@ -14,6 +14,55 @@
 막혔을 때: 6장 디버깅 표 (그림 · 파트 · 이벤트 · 위치 · 형식)
 ```
 
+<!-- logic-mermaid -->
+
+### 월드 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/turn
+  N->>D: 열린 이벤트를 EXPIRED로
+  N->>N: 기본 모델 reserve, 맥락 조립
+  N->>A: POST /world/turn
+  A-->>N: reply · image · moves (제어 줄은 떼어 냄)
+  N->>D: USER·CHARACTER 메시지, 위치 저장
+  alt 3턴마다
+    N->>A: POST /world/part-check
+    A-->>N: done · evidence
+    N->>D: 다음 파트 · SYSTEM 메시지
+  end
+  opt 간격과 확률을 넘김
+    N->>D: WorldEvent 만들기 (숨긴 setup)
+  end
+  N-->>P: 플레이 상태
+```
+
+### 이벤트 보상
+
+```mermaid
+sequenceDiagram
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/events/{eventId} (게임 입력)
+  N->>N: resolveEvent (승패) · rewardFor (금액)
+  N->>D: BEGIN · pg_advisory_xact_lock(계정)
+  N->>D: status OPEN인 행만 WON/LOST로
+  N->>D: 오늘 받은 보상 수 세기
+  alt 하루 한도 안
+    N->>D: users.credits 증가 · credit_ledger(EVENT)
+  else 한도 넘음
+    N->>D: 결과만 기록 (보상 0)
+  end
+  N->>D: COMMIT · eventNote 저장
+  N-->>P: won · outcome · reward · balance
+```
+
 ## 1. 세계관 만들기 (이용자)
 
 1. 로그인 → 헤더 **월드** → **+ 새 세계관 만들기**. 편집기(`/worlds/<id>/edit`)가 열린다.

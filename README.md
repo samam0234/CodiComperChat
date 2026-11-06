@@ -87,6 +87,91 @@
                  → 저장 → 3턴마다 파트 판정 → 확률로 이벤트 → 서버가 결과·보상
 ```
 
+<!-- logic-mermaid -->
+
+### 시스템 구조
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
+### 1:1 대화 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant B as 브라우저
+  participant W as web (Next)
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  participant A as ai (FastAPI)
+  B->>W: 메시지 보내기
+  W->>N: POST /characters/{id}/chat (Bearer)
+  N->>D: 캐릭터·프로필·대화·상태 읽기
+  N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
+  N->>A: POST /infer
+  A-->>N: reply
+  opt 설정에 없는 개인사를 물은 턴
+    N->>A: POST /ground-check
+    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+  end
+  N->>D: 유저 말 + 답 저장
+  N-->>W: 답 · 사용량
+  W-->>B: 화면에 그리기
+  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+```
+
+### 월드코퍼챗 한 턴
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/turn
+  N->>D: 열린 이벤트를 EXPIRED로
+  N->>N: 기본 모델 reserve, 맥락 조립
+  N->>A: POST /world/turn
+  A-->>N: reply · image · moves (제어 줄은 떼어 냄)
+  N->>D: USER·CHARACTER 메시지, 위치 저장
+  alt 3턴마다
+    N->>A: POST /world/part-check
+    A-->>N: done · evidence
+    N->>D: 다음 파트 · SYSTEM 메시지
+  end
+  opt 간격과 확률을 넘김
+    N->>D: WorldEvent 만들기 (숨긴 setup)
+  end
+  N-->>P: 플레이 상태
+```
+
+### 비밀 퀘스트 상태
+
+```mermaid
+stateDiagram-v2
+  state "잠김" as locked
+  state "때가 됨" as ready
+  state "건넴 (offered)" as offered
+  state "달성 (done)" as done
+  state "보상 장면 보임 (staged)" as staged
+  [*] --> locked
+  locked --> ready: 친밀도 ≥ 문턱
+  ready --> offered: 판정 - 캐릭터 대사에 부탁 인용
+  offered --> done: 판정 - 유저 대사에 근거 인용, 확신 85+
+  done --> staged: 다음 첫 답 한 번 (sceneNote)
+  staged --> [*]
+```
+
 ## 소개 영상
 
 약 55초입니다. 실제로 띄운 앱을 녹화했고, 답은 실제 `gemma4:e4b`가 썼습니다. 그림은 미리 그려 둔 것을 보여 줍니다. 그리는 데 분 단위로 걸려 영상에서 뺐습니다.

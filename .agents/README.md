@@ -29,3 +29,20 @@
 루트 AGENTS.md (자동으로 읽는 도구용 요약) ───┘
 규칙을 바꿀 때: 정본 → 루트 AGENTS.md → 어댑터(.codex/AGENTS.md 목록 기준) → node --test scripts/adapters.test.mjs
 ```
+
+<!-- logic-mermaid -->
+
+mermaid로 본 같은 흐름:
+
+```mermaid
+flowchart TD
+  T["도구 (Claude · Cursor · Codex · Gemini · …)"] --> AD["도구별 어댑터 파일"]
+  AD --> S["정본<br/>.agents/skills/codicomperchat/SKILL.md"]
+  S --> H["docs/AGENT_HANDOVER.md<br/>지금 상태 · 함정"]
+  S --> TK["docs/TASKS.md<br/>할 일"]
+  S --> TR["docs/trainings/<br/>실측"]
+  S --> PL["기획 원본<br/>(승인 없이 수정 금지)"]
+  H --> F["feature/* 에서 작업 · 커밋 · 기록"]
+  F -->|"사용자가 병합이라고 할 때"| DV["develop --no-ff"]
+  DV --> MN["main --no-ff"]
+```

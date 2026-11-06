@@ -21,6 +21,43 @@
 공식 캐릭터면 100 코레딧 (QuestReward 기본키: 계정×캐릭터 한 번)
 ```
 
+<!-- logic-mermaid -->
+
+### 퀘스트 상태
+
+```mermaid
+stateDiagram-v2
+  state "잠김" as locked
+  state "때가 됨" as ready
+  state "건넴 (offered)" as offered
+  state "달성 (done)" as done
+  state "보상 장면 보임 (staged)" as staged
+  [*] --> locked
+  locked --> ready: 친밀도 ≥ 문턱
+  ready --> offered: 판정 - 캐릭터 대사에 부탁 인용
+  offered --> done: 판정 - 유저 대사에 근거 인용, 확신 85+
+  done --> staged: 다음 첫 답 한 번 (sceneNote)
+  staged --> [*]
+```
+
+### 판정
+
+```mermaid
+sequenceDiagram
+  participant S as /summarize
+  participant V as 전용 판정
+  participant C as 코드
+  S->>V: 후보 "해냈다"
+  V-->>C: met · evidence · confidence
+  C->>C: 확신 85 이상?
+  C->>C: 인용 8자 이상이 그 화자의 실제 대사에?
+  alt 둘 다 맞음
+    C->>C: done · 보상 갈래 고르기
+  else
+    C->>C: 그대로 (놓치는 쪽 실패)
+  end
+```
+
 ## 한 줄 설명
 
 대화가 깊어져 친밀도가 문턱을 넘으면 캐릭터가 이야기 속 **부탁**을 먼저 꺼낸다. 유저가 그 부탁을 해내면 퀘스트 달성 — 캐릭터가 보상 장면을 보여 주고, **공식 캐릭터**는 100 코레딧(계정×캐릭터당 한 번)을 준다.

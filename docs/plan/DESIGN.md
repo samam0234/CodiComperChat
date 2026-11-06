@@ -13,6 +13,18 @@ globals.css 토큰 (--accent · --surface · --radius-* · --shadow-* …)
 월드 방식별 모양은 같은 토큰 위에서 바뀐다 (채팅·비주얼노벨·소설·메신저)
 ```
 
+<!-- logic-mermaid -->
+
+### 토큰에서 화면까지
+
+```mermaid
+flowchart LR
+  G["globals.css 토큰"] --> TH["라이트 · 다크<br/>시간표 + 고정"]
+  G --> CM["*.module.css"]
+  CM --> SC["화면"]
+  SC --> RM["prefers-reduced-motion이면 움직임 끔"]
+```
+
 ## 토큰 (`apps/web/app/globals.css`)
 
 화면 CSS는 색·그림자·둥글기를 직접 쓰지 않고 아래 이름만 쓴다. 라이트·다크는 같은 이름에 다른 값이 들어간다. 어느 쪽을 보일지는 서버가 `data-theme`으로 늘 정해 보낸다 — 기본은 한국 시각 오전 7시~오후 10시 밝게·그 밖에 어둡게(시간표), 설정에서 밝기·다크 영구 설정, 헤더의 해·달 버튼으로 다음 전환까지 잠깐 바꾸기 (`apps/web/lib/theme-schedule.ts`).

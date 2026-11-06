@@ -34,6 +34,40 @@
                                               └─ cron: scripts/db-backup.sh (14일 보관)
 ```
 
+<!-- logic-mermaid -->
+
+### 배포 구성
+
+```mermaid
+flowchart TB
+  I(("인터넷")) -->|"80 · 443"| CA["caddy 2.10<br/>자동 HTTPS"]
+  subgraph edge["edge 망"]
+    CA --> WEB["web :3000"]
+    CA -->|"IP 허용 목록"| CON["console :3001"]
+  end
+  subgraph internal["internal 망"]
+    WEB --> API["api :4000"]
+    CON --> API
+    API --> PG[("postgres 16<br/>볼륨 pgdata")]
+    MIG["migrate<br/>기동 때 한 번"] --> PG
+    API --> AI["ai :8000<br/>GPU · /models 읽기 전용"]
+    AI --> OL["ollama<br/>볼륨 ollama"]
+  end
+```
+
+### 올리는 순서
+
+```mermaid
+flowchart LR
+  A["서버 계약"] --> B["server-setup.sh"]
+  B --> C["git clone (배포 키)"]
+  C --> D["deploy/.env"]
+  D --> E["compose up -d"]
+  E --> F["migrate"]
+  F --> G["post-deploy 확인"]
+  G --> H["cron 백업"]
+```
+
 ## 결정된 것
 
 | 항목 | 값 |

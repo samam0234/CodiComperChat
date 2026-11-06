@@ -16,6 +16,18 @@ scripts/readme-media/*.mjs ─▶ docs/.assets/readme/*.png|jpg|gif|mp4
 (손으로 그린 그림은 두지 않는다 — 전부 다시 만들 수 있다)
 ```
 
+<!-- logic-mermaid -->
+
+### 어디서 만들어 어디에 쓰나
+
+```mermaid
+flowchart LR
+  S["scripts/readme-media"] --> A[("docs/.assets/readme")]
+  A --> R["루트 README"]
+  A --> D["docs 문서"]
+  A --> AR["앱별 README"]
+```
+
 ## 폴더
 
 ```text

@@ -16,6 +16,20 @@ console ───────────┘─ API_BASE_URL · WEB_BASE_URL
 빈 값은 "설정 안 함"으로 읽는다 (repeater/empty-env-var.md)
 ```
 
+<!-- logic-mermaid -->
+
+### 환경변수가 닿는 곳
+
+```mermaid
+flowchart LR
+  AE["apps/api/.env"] --> N["Nest"]
+  SE["services/ai/.env"] --> A["FastAPI"]
+  WE["web 환경"] --> W["Next web"]
+  CE["console 환경"] --> C["Next console"]
+  N -- "AI_SERVICE_TOKEN 같은 값" --- A
+  DB[("app_settings")] --> N
+```
+
 ## `apps/api/.env` (Nest)
 
 | 키 | 필수 | 기본값 | 무엇 |
