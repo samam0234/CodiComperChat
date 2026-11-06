@@ -1,0 +1,8 @@
+# API만 바깥에 연다. 인증서는 자동 발급·갱신.
+# Caddy는 바깥에서 온 X-Forwarded-For·X-Forwarded-Proto를 덮어쓴다 (API의 HTTPS·IP 판단이 이 값을 믿는다).
+# 인증서 만료 안내 메일을 받으려면 맨 위에 { email 주소 } 블록을 더한다.
+
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy api:4000
+}
