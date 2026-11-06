@@ -359,5 +359,6 @@
 | 2026-11-06 | `92ea3a7` | feature/docs-logic-structure | README·에이전트 문서에 로직 구조 상자 그림 추가 | [261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md](commits/261106_1607_92ea3a7_logic-structure-readmes_feature-docs-logic-structure.md) |
 | 2026-11-06 | `5211533` | feature/docs-logic-structure | docs 전체 문서에 로직 구조 상자 그림 추가 | [261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md](commits/261106_1607_5211533_logic-structure-docs_feature-docs-logic-structure.md) |
 | 2026-11-06 | `8be2deb` | develop (merge) | feature/docs-diagrams into develop | [261106_1607_8be2deb_merge-docs-diagrams_develop.md](commits/261106_1607_8be2deb_merge-docs-diagrams_develop.md) |
+| 2026-11-06 | `f495917` | develop (merge) | feature/docs-logic-structure into develop | [261106_1607_f495917_merge-docs-logic-structure_develop.md](commits/261106_1607_f495917_merge-docs-logic-structure_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
