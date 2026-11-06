@@ -385,5 +385,6 @@ flowchart LR
 | 2026-11-06 | `5b59b63` | claude/project-thread-pz0x5f | Oracle VM에 CPU AI 서버를 더하는 구성과 안내 | [261106_2249_5b59b63_oracle-cpu-ai-server_claude-project-thread-pz0x5f.md](commits/261106_2249_5b59b63_oracle-cpu-ai-server_claude-project-thread-pz0x5f.md) |
 | 2026-11-06 | `e2e7636` | claude/project-thread-pz0x5f | 무료 호스팅 API(NVIDIA NIM)로 대화하고 CPU Ollama를 예비로 둔다 | [261106_2259_e2e7636_free-api-ai-backend_claude-project-thread-pz0x5f.md](commits/261106_2259_e2e7636_free-api-ai-backend_claude-project-thread-pz0x5f.md) |
 | 2026-11-06 | `2555a4d` | claude/project-thread-pz0x5f | Code 창 인수인계 문서와 안내 HTML 추가 | [261106_2312_2555a4d_code-window-handover_claude-project-thread-pz0x5f.md](commits/261106_2312_2555a4d_code-window-handover_claude-project-thread-pz0x5f.md) |
+| 2026-11-06 | `5be5327` | claude/project-thread-pz0x5f | AI 서버 배포를 스크립트 한 개로 묶고 화면 예시를 더한다 | [261106_2320_5be5327_ai-deploy-script_claude-project-thread-pz0x5f.md](commits/261106_2320_5be5327_ai-deploy-script_claude-project-thread-pz0x5f.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
