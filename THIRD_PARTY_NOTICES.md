@@ -21,6 +21,22 @@
   └─ 쓰지 않는 것: Stable Diffusion WebUI(AGPL) — 배포물에 넣지 않는다
 ```
 
+<!-- logic-mermaid -->
+
+### 구성 요소와 라이선스
+
+```mermaid
+flowchart LR
+  APP["코디컴퍼챗"] --> NPM["npm 의존성<br/>Next · React · Nest · Prisma"]
+  APP --> PY["Python 의존성<br/>FastAPI · diffusers · torch"]
+  APP -. "배포물 밖, 서버에 따로" .-> MOD["모델"]
+  MOD --> GE["Gemma 4<br/>Apache 2.0"]
+  MOD --> AN["Animagine XL 4.0"]
+  MOD --> SD["SD 1.5"]
+  APP -. "키가 있을 때만" .-> EXT["Claude · Grok API"]
+  APP -. "넣지 않음" .-> WU["SD WebUI (AGPL)"]
+```
+
 ## 1. 쓰는 AI 모델 — 배포 전에 반드시 원문을 확인할 것
 
 모델은 일반 소프트웨어 라이선스보다 **사용 제한**이 붙는 일이 많다. 이 서비스는 성인 모드(성적 장면·폭력 묘사 그림)가 있어서 특히 중요하다.

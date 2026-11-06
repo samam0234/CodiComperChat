@@ -14,6 +14,31 @@ cron 04:00 ─▶ scripts/db-backup.sh ─▶ pg_dump (custom) ─▶ pg_restore
 서버 밖 사본은 따로 (같은 서버만이면 함께 잃는다)
 ```
 
+<!-- logic-mermaid -->
+
+### 백업
+
+```mermaid
+flowchart LR
+  CR["cron 04:00"] --> SH["db-backup.sh"] --> DU["pg_dump -Fc"] --> LS{"pg_restore --list 로 읽히나"}
+  LS -- "예" --> SV["deploy/backups/날짜.dump"]
+  LS -- "아니오" --> DEL["버림"]
+  SV --> OLD["14일 지나면 삭제"]
+```
+
+### 복구
+
+```mermaid
+sequenceDiagram
+  participant O as 운영자
+  participant C as 컨테이너들
+  participant P as postgres
+  O->>C: web · console · api 멈춤
+  O->>P: 덤프 복사 · pg_restore
+  O->>C: 다시 켜기
+  O->>O: 화면 확인
+```
+
 ## 백업
 
 ```bash

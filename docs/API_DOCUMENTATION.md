@@ -17,6 +17,84 @@
 그림 본문: Nest가 sandbox CSP·nosniff로 보내고 web/console 중계가 그대로 흘려보낸다
 ```
 
+<!-- logic-mermaid -->
+
+### 호출 경계
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["web"]
+  W -- "Bearer" --> N["Nest /..."]
+  OP["운영자"] --> C["console"]
+  C -- "Bearer" --> NA["Nest /admin/*<br/>AdminGuard"]
+  N -- "AI_SERVICE_TOKEN" --> A["FastAPI (내부망)"]
+  NA -- "AI_SERVICE_TOKEN" --> A
+```
+
+### 오류 응답 고르기
+
+```mermaid
+flowchart TD
+  R["요청"] --> L{"로그인 필요한데 토큰 없음?"}
+  L -- "예" --> E401["401"]
+  L -- "아니오" --> RL{"요청 한도 넘음?"}
+  RL -- "예" --> E429["429 + Retry-After"]
+  RL -- "아니오" --> P{"권한 · 코레딧 · 성인?"}
+  P -- "부족" --> E403["403"]
+  P -- "됨" --> V{"볼 수 있나?"}
+  V -- "아니오" --> E404["404"]
+  V -- "예" --> S{"상태가 맞나?"}
+  S -- "아니오" --> E409["409"]
+  S -- "예" --> OK["200 · 204"]
+```
+
+### 1:1 대화
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant B as 브라우저
+  participant W as web (Next)
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  participant A as ai (FastAPI)
+  B->>W: 메시지 보내기
+  W->>N: POST /characters/{id}/chat (Bearer)
+  N->>D: 캐릭터·프로필·대화·상태 읽기
+  N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
+  N->>A: POST /infer
+  A-->>N: reply
+  opt 설정에 없는 개인사를 물은 턴
+    N->>A: POST /ground-check
+    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+  end
+  N->>D: 유저 말 + 답 저장
+  N-->>W: 답 · 사용량
+  W-->>B: 화면에 그리기
+  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+```
+
+### 월드 이벤트 보상
+
+```mermaid
+sequenceDiagram
+  participant P as 플레이어
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  P->>N: POST /worlds/{id}/play/events/{eventId} (게임 입력)
+  N->>N: resolveEvent (승패) · rewardFor (금액)
+  N->>D: BEGIN · pg_advisory_xact_lock(계정)
+  N->>D: status OPEN인 행만 WON/LOST로
+  N->>D: 오늘 받은 보상 수 세기
+  alt 하루 한도 안
+    N->>D: users.credits 증가 · credit_ledger(EVENT)
+  else 한도 넘음
+    N->>D: 결과만 기록 (보상 0)
+  end
+  N->>D: COMMIT · eventNote 저장
+  N-->>P: won · outcome · reward · balance
+```
+
 ## Base
 
 | 앱 | Base URL | 상태 |

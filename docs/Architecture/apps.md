@@ -22,6 +22,39 @@ console (운영자) ───┘          │
 두 Next 앱은 쿠키 이름(session · console_session)과 배포(도메인)가 다르다
 ```
 
+<!-- logic-mermaid -->
+
+### 앱 네 개
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
+### 화면 묶음
+
+```mermaid
+flowchart TB
+  subgraph web["apps/web (35)"]
+    H["홈 · 인기 · 캐릭터"] --> CH["대화 + 오퍼레이션"]
+    ST["공방"]
+    WO["월드 목록 · 소개 · 편집기 · 플레이"]
+    AC["계정 · 설정 · 요금 · 약관"]
+  end
+  subgraph console["console (12)"]
+    DA["대시보드"] --> RP["신고 · 그림 신고 · 초상"]
+    DA --> CC["캐릭터 · 계정"]
+    DA --> WW["월드 목록 · 상세 · 검수 · 이벤트 · 설정"]
+  end
+```
+
 ## 화면 지도 (계획서 §8 → 구현)
 
 | 계획서 §8 | 구현 | 경로 |

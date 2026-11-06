@@ -28,6 +28,57 @@
 충돌할 때 (1장): 기획 원본 > 이 정본 > 루트 AGENTS.md > commit-message > branch-merge > TEMPLATE > 도구별 어댑터
 ```
 
+<!-- logic-mermaid -->
+
+### 규칙이 흐르는 순서
+
+```mermaid
+flowchart TD
+  T["도구 (Claude · Cursor · Codex · Gemini · …)"] --> AD["도구별 어댑터 파일"]
+  AD --> S["정본<br/>.agents/skills/codicomperchat/SKILL.md"]
+  S --> H["docs/AGENT_HANDOVER.md<br/>지금 상태 · 함정"]
+  S --> TK["docs/TASKS.md<br/>할 일"]
+  S --> TR["docs/trainings/<br/>실측"]
+  S --> PL["기획 원본<br/>(승인 없이 수정 금지)"]
+  H --> F["feature/* 에서 작업 · 커밋 · 기록"]
+  F -->|"사용자가 병합이라고 할 때"| DV["develop --no-ff"]
+  DV --> MN["main --no-ff"]
+```
+
+### 브랜치와 병합
+
+```mermaid
+gitGraph
+  commit id: "main"
+  branch develop
+  checkout develop
+  commit id: "develop"
+  branch feature-a
+  checkout feature-a
+  commit id: "기능 커밋"
+  commit id: "기록 커밋"
+  branch feature-b
+  checkout feature-b
+  commit id: "이어지는 작업"
+  checkout develop
+  merge feature-a id: "merge a (--no-ff)"
+  merge feature-b id: "merge b (--no-ff)"
+  checkout main
+  merge develop id: "merge develop (--no-ff)"
+```
+
+### 우선순위 (1장)
+
+```mermaid
+flowchart TD
+  P1["1 기획 원본"] --> P2["2 이 정본"]
+  P2 --> P3["3 루트 AGENTS.md"]
+  P3 --> P4["4 commit-message.md"]
+  P4 --> P5["5 branch-merge.md"]
+  P5 --> P6["6 branchs/TEMPLATE.md"]
+  P6 --> P7["7 도구별 어댑터"]
+```
+
 ## 0. 원본 보존 원칙 (최상위, 예외 없음)
 
 - 루트의 `CodiComperChat_project_plan.md`는 이 프로젝트의 **기획 원본**이다. 대화로 합의된 제품 정의·차별점·컨텐츠 구조·기술 구조·v1 범위가 여기 담겨 있다.

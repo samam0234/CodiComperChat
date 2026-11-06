@@ -15,6 +15,23 @@ core(극소 핵심) + 이번 대화 관련 조각 (2-gram BM25 + 키워드 보�
 /ground-check ─ 지어냈나? ─ 예 ─▶ 다시 쓰기 (최대 2번)
 ```
 
+<!-- logic-mermaid -->
+
+### 개인사 환각 막기
+
+```mermaid
+sequenceDiagram
+  participant N as Nest
+  participant A as FastAPI
+  N->>N: 이번 말이 설정에 없는 개인사를 묻나
+  N->>A: /infer (끝에 단정하지 말라는 지시)
+  A-->>N: 답
+  N->>A: /ground-check
+  alt 지어냄
+    N->>A: /infer (다시 쓰기 지시)
+  end
+```
+
 ## 페르소나 지식 검색 (2026-09-26)
 
 카드 원문 전부 대신 **짧은 핵심 + 이번 대화와 관련된 조각**만 넣는다.

@@ -19,6 +19,45 @@ World ─ WorldCast · WorldPlace · WorldPart · WorldImage          AppSetting
 바꾸는 순서: schema.prisma → migrate diff로 SQL → migrations/ → generate → 시험
 ```
 
+<!-- logic-mermaid -->
+
+### 테이블 관계
+
+```mermaid
+erDiagram
+  User ||--o{ UserPersona : "프로필"
+  User ||--o{ Campaign : "대화"
+  Character ||--o{ Campaign : "상대"
+  Campaign ||--|| CampaignState : "이야기 상태"
+  Campaign ||--o{ Session : "세션"
+  Session ||--o{ Message : "메시지"
+  Campaign ||--o{ MemoryChunk : "기억"
+  User ||--o{ CreditLedger : "코레딧 장부"
+  User ||--o{ CharacterDraft : "공방 초안"
+  CharacterDraft |o--o| Character : "발행"
+  Character ||--o{ CharacterReport : "신고"
+  User ||--o{ World : "만든 세계관"
+  World ||--o{ WorldCast : "등장인물"
+  World ||--o{ WorldPlace : "장소"
+  World ||--o{ WorldPart : "파트"
+  World ||--o{ WorldImage : "장면 그림"
+  User ||--o{ WorldPlay : "플레이"
+  World ||--o{ WorldPlay : "플레이"
+  WorldPlay ||--o{ WorldMessage : "메시지"
+  WorldPlay ||--o{ WorldEvent : "이벤트"
+```
+
+### 스키마 바꾸는 순서
+
+```mermaid
+flowchart LR
+  S["schema.prisma"] --> DF["prisma migrate diff → SQL"]
+  DF --> MG["migrations/새 폴더"]
+  MG --> GE["prisma generate"]
+  GE --> TS["시험 (e2e DB에서 적용 확인)"]
+  TS --> DP["운영: migrate 컨테이너"]
+```
+
 ## 데이터스토어 (계획서 §7.4 → 실제)
 
 | 용도 | 계획서 추천 | 지금 | 비고 |

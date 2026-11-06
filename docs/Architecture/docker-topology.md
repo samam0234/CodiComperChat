@@ -25,6 +25,42 @@
                                                     (GPU · /models 읽기 전용)
 ```
 
+<!-- logic-mermaid -->
+
+### 운영 구성
+
+```mermaid
+flowchart TB
+  I(("인터넷")) -->|"80 · 443"| CA["caddy 2.10<br/>자동 HTTPS"]
+  subgraph edge["edge 망"]
+    CA --> WEB["web :3000"]
+    CA -->|"IP 허용 목록"| CON["console :3001"]
+  end
+  subgraph internal["internal 망"]
+    WEB --> API["api :4000"]
+    CON --> API
+    API --> PG[("postgres 16<br/>볼륨 pgdata")]
+    MIG["migrate<br/>기동 때 한 번"] --> PG
+    API --> AI["ai :8000<br/>GPU · /models 읽기 전용"]
+    AI --> OL["ollama<br/>볼륨 ollama"]
+  end
+```
+
+### 로컬 환경 세 벌
+
+```mermaid
+flowchart LR
+  subgraph dev["개발"]
+    D1["web 3000 · console 3001 · api 4000 · ai 8000"] --> DB1[("codicomperchat")]
+  end
+  subgraph e2e["e2e"]
+    D2["web 3101 · console 3102 · api 4101 · ai 8101"] --> DB2[("codicomperchat_e2e")]
+  end
+  subgraph demo["README 데모"]
+    D3["web 3201 · console 3202 · api 4201 · ai 8201"] --> DB3[("codicomperchat_readme")]
+  end
+```
+
 ## 운영 구성
 
 ```text

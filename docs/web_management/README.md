@@ -25,3 +25,14 @@ hosting-options (서버 고르기) ─▶ pre-deploy (올리기 전 확인) ─�
                      backup-restore (백업·복구 연습) ◀────────────────┤
                      post-deploy (올린 뒤 확인) ◀─────────────────────┘
 ```
+
+<!-- logic-mermaid -->
+
+### 운영 문서 순서
+
+```mermaid
+flowchart LR
+  H["hosting-options"] --> P["pre-deploy"] --> D["docker-deploy"] --> A["post-deploy"]
+  D --> PO["ports-inventory"]
+  D --> BR["backup-restore"]
+```

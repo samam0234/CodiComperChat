@@ -29,6 +29,24 @@ npm run build:console
 메뉴: 대시보드 · 신고함 · 그림 신고 · 초상 검수 · 캐릭터 · 월드코퍼챗 · 계정 등급
 ```
 
+<!-- logic-mermaid -->
+
+### 운영자 처리 흐름
+
+```mermaid
+sequenceDiagram
+  participant O as 운영자
+  participant C as console (Next)
+  participant N as api (Nest)
+  O->>C: 화면 열기
+  C->>N: GET /auth/me (role=ADMIN인지 매번)
+  C->>N: GET /admin/... (표·숫자)
+  O->>C: 버튼 (내리기 · 검수 · 설정)
+  C->>N: 서버 액션 → POST/PUT /admin/... (AdminGuard)
+  N-->>C: 결과
+  C->>C: router.refresh()
+```
+
 ## 아키텍처
 
 ```mermaid

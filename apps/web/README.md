@@ -30,6 +30,47 @@ npm run build:web
                 Nest (Bearer 토큰)        ※ FastAPI는 부르지 않는다
 ```
 
+<!-- logic-mermaid -->
+
+### 요청 흐름
+
+```mermaid
+flowchart LR
+  RQ["요청"] --> MW["middleware<br/>nonce CSP"]
+  MW --> PG["page.tsx<br/>서버 컴포넌트"]
+  PG --> LB["lib/*.ts<br/>토큰 붙여 Nest 조회"]
+  PG --> CL["클라이언트 컴포넌트"]
+  CL --> SA["서버 액션"]
+  CL --> RH["app/api 중계"]
+  LB & SA & RH --> N["Nest"]
+```
+
+### 대화 화면에서 보내기
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant B as 브라우저
+  participant W as web (Next)
+  participant N as api (Nest)
+  participant D as PostgreSQL
+  participant A as ai (FastAPI)
+  B->>W: 메시지 보내기
+  W->>N: POST /characters/{id}/chat (Bearer)
+  N->>D: 캐릭터·프로필·대화·상태 읽기
+  N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
+  N->>A: POST /infer
+  A-->>N: reply
+  opt 설정에 없는 개인사를 물은 턴
+    N->>A: POST /ground-check
+    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+  end
+  N->>D: 유저 말 + 답 저장
+  N-->>W: 답 · 사용량
+  W-->>B: 화면에 그리기
+  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+```
+
 ## 무엇이 있나
 
 화면 35개. 홈·인기·캐릭터 상세, **대화**(기억·지난 이야기·상태설정·엑스트라·모델 고르기·명령어·글 꾸미기), **오퍼레이션**(심리 탐구·일기·메시지·커뮤니티·웹툰), **코디포토넷**·**비밀 퀘스트**·**성인 확인** 열림 상자, 캐릭터 **공방**(8단계), 대화 목록, 마이페이지·설정(테마·성인 확인), 로그인·가입·이메일 인증·비밀번호 찾기, 요금(눌러서 프로로, 실제 결제는 보류), 약관.

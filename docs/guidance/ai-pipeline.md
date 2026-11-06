@@ -10,6 +10,15 @@ Nest ─▶ FastAPI 경로 ─▶ services ─▶ llm (Ollama / 가짜 / 프리�
 확인 순서: uvicorn 켜기 → curl /health → LLM_FAKE=1로 형식 확인 → 실제 모델로 evals
 ```
 
+<!-- logic-mermaid -->
+
+### 확인 순서
+
+```mermaid
+flowchart LR
+  U["uvicorn 켜기"] --> H["/health"] --> F["LLM_FAKE=1 형식 확인"] --> R["실제 모델 evals"]
+```
+
 ## v1 요지
 
 - 자체 학습 없음. LLM + 시스템 프롬프트 + 상태 RAG

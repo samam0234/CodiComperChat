@@ -19,6 +19,31 @@
 공통: 연기 모델에게 판단을 맡기지 않는다
 ```
 
+<!-- logic-mermaid -->
+
+### 나레이션 지시
+
+```mermaid
+flowchart LR
+  U["유저 말"] --> P{"괄호 장면 지시<br/>6자 이상 · 별표 밖"}
+  P -- "예" --> D["맨 끝에 첫 줄은 @: 지시"]
+  P -- "아니오" --> N["규칙 8만"]
+```
+
+### 보상 갈래 고르기
+
+```mermaid
+sequenceDiagram
+  participant S as 정리 (/summarize)
+  participant C as 코드
+  participant J as 판정 모델
+  S->>C: questDone
+  C->>C: reward를 …라면: 으로 갈래 나누기
+  C->>J: 달성 조건 + 갈래 머리말 + 대화
+  J-->>C: happened · branch 번호
+  C->>C: 범위 확인 → 원문 갈래를 scene으로
+```
+
 ## 보상 장면
 
 ### 무엇이 틀렸나

@@ -28,6 +28,34 @@ docker compose -f deploy/docker-compose.prod.yml up -d
 24시간 유지: restart always · healthcheck · cron 백업 · 로그 크기 제한
 ```
 
+<!-- logic-mermaid -->
+
+### 운영 구성
+
+```mermaid
+flowchart TB
+  I(("인터넷")) -->|"80 · 443"| CA["caddy 2.10<br/>자동 HTTPS"]
+  subgraph edge["edge 망"]
+    CA --> WEB["web :3000"]
+    CA -->|"IP 허용 목록"| CON["console :3001"]
+  end
+  subgraph internal["internal 망"]
+    WEB --> API["api :4000"]
+    CON --> API
+    API --> PG[("postgres 16<br/>볼륨 pgdata")]
+    MIG["migrate<br/>기동 때 한 번"] --> PG
+    API --> AI["ai :8000<br/>GPU · /models 읽기 전용"]
+    AI --> OL["ollama<br/>볼륨 ollama"]
+  end
+```
+
+### 처음 설치
+
+```mermaid
+flowchart LR
+  A["server-setup.sh"] --> B["git clone"] --> C["deploy/.env"] --> D["compose up -d"] --> E["migrate"] --> F["caddy HTTPS"] --> G["ollama 모델 받기"]
+```
+
 ## 서버 조건
 
 | 항목 | 기준 | 근거 |

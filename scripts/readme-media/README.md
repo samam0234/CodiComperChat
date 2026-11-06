@@ -42,3 +42,19 @@ servers.mjs (켜 둔다) ─ 데모 DB codicomperchat_readme 새로 · 포트 32
 
 결과 ─▶ docs/.assets/readme/
 ```
+
+<!-- logic-mermaid -->
+
+### 그림·영상 만들기
+
+```mermaid
+flowchart LR
+  AR["art.mjs"] --> OUT[("docs/.assets/readme")]
+  DG["diagrams.mjs"] --> OUT
+  SV["servers.mjs<br/>데모 서버 켜 두기"] --> CP["capture.mjs"]
+  SV --> WM["world.mjs"]
+  SV --> TO["tour.mjs<br/>녹화"]
+  CP & WM --> OUT
+  TO --> BU["build.mjs<br/>자막 · mp4 · gif"]
+  BU --> OUT
+```

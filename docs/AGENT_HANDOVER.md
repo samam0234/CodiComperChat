@@ -18,6 +18,63 @@
             개발 서버를 켜거나 끄지 않는다 · 켜져 있으면 build:api 금지
 ```
 
+<!-- logic-mermaid -->
+
+### 세션 흐름
+
+```mermaid
+flowchart TD
+  S["세션 시작"] --> K["정본 SKILL.md"]
+  K --> H["이 문서<br/>상태 · 함정 · 검증 명령"]
+  H --> T["TASKS.md"]
+  T --> W["feature/* 에서 작업"]
+  W --> C["커밋 + 기록"]
+  C --> V["시험 (커밋·병합과 따로)"]
+  V --> Q{"사용자가<br/>병합이라고 했나"}
+  Q -- "예" --> M1["develop --no-ff → main --no-ff"]
+  Q -- "아니오" --> E["브랜치에 두고 보고"]
+```
+
+### 시스템 구조
+
+```mermaid
+flowchart LR
+  B["브라우저"] --> W["apps/web<br/>Next.js :3000"]
+  OP["운영자"] --> C["console<br/>Next.js :3001"]
+  W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
+  C -- "Bearer" --> N
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
+  A --> O["Ollama<br/>gemma4"]
+  A --> G["diffusers<br/>Animagine · SD 1.5"]
+```
+
+### 데이터 관계
+
+```mermaid
+erDiagram
+  User ||--o{ UserPersona : "프로필"
+  User ||--o{ Campaign : "대화"
+  Character ||--o{ Campaign : "상대"
+  Campaign ||--|| CampaignState : "이야기 상태"
+  Campaign ||--o{ Session : "세션"
+  Session ||--o{ Message : "메시지"
+  Campaign ||--o{ MemoryChunk : "기억"
+  User ||--o{ CreditLedger : "코레딧 장부"
+  User ||--o{ CharacterDraft : "공방 초안"
+  CharacterDraft |o--o| Character : "발행"
+  Character ||--o{ CharacterReport : "신고"
+  User ||--o{ World : "만든 세계관"
+  World ||--o{ WorldCast : "등장인물"
+  World ||--o{ WorldPlace : "장소"
+  World ||--o{ WorldPart : "파트"
+  World ||--o{ WorldImage : "장면 그림"
+  User ||--o{ WorldPlay : "플레이"
+  World ||--o{ WorldPlay : "플레이"
+  WorldPlay ||--o{ WorldMessage : "메시지"
+  WorldPlay ||--o{ WorldEvent : "이벤트"
+```
+
 ## 1. 한 줄 요약
 
 캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **실제 서버 배포는 하지 않았다.** 서버 계약(Hetzner GEX45)을 기다린다.

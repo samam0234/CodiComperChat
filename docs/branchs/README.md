@@ -17,6 +17,18 @@
 병합 ─▶ 같은 작성기로 --sha <병합 커밋> --branch develop|main
 ```
 
+<!-- logic-mermaid -->
+
+### 기록이 쌓이는 길
+
+```mermaid
+flowchart LR
+  C["커밋"] --> R["record-commit.mjs"]
+  R --> F["commits/*.md"]
+  R --> L["이 목록 (merge=union)"]
+  MG["병합 커밋"] --> R
+```
+
 ## 커밋 기록 목록
 
 | 날짜 | 커밋 | 브랜치 | 요약 | 문서 |
@@ -361,5 +373,7 @@
 | 2026-11-06 | `8be2deb` | develop (merge) | feature/docs-diagrams into develop | [261106_1607_8be2deb_merge-docs-diagrams_develop.md](commits/261106_1607_8be2deb_merge-docs-diagrams_develop.md) |
 | 2026-11-06 | `f495917` | develop (merge) | feature/docs-logic-structure into develop | [261106_1607_f495917_merge-docs-logic-structure_develop.md](commits/261106_1607_f495917_merge-docs-logic-structure_develop.md) |
 | 2026-11-06 | `0e55f44` | main (merge) | develop into main | [261106_1608_0e55f44_merge-develop-into-main-7_main.md](commits/261106_1608_0e55f44_merge-develop-into-main-7_main.md) |
+| 2026-11-06 | `c6c8e03` | feature/docs-mermaid | README·에이전트 문서에 mermaid 그림과 문법 검사기 추가 | [261106_1627_c6c8e03_mermaid-readmes_feature-docs-mermaid.md](commits/261106_1627_c6c8e03_mermaid-readmes_feature-docs-mermaid.md) |
+| 2026-11-06 | `2580756` | feature/docs-mermaid | docs 전체 문서에 mermaid 그림 추가 | [261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md](commits/261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
