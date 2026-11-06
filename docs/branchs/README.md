@@ -377,5 +377,6 @@ flowchart LR
 | 2026-11-06 | `2580756` | feature/docs-mermaid | docs 전체 문서에 mermaid 그림 추가 | [261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md](commits/261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md) |
 | 2026-11-06 | `d7fc373` | develop (merge) | feature/docs-mermaid into develop | [261106_1627_d7fc373_merge-docs-mermaid_develop.md](commits/261106_1627_d7fc373_merge-docs-mermaid_develop.md) |
 | 2026-11-06 | `4e041d9` | main (merge) | develop into main | [261106_1627_4e041d9_merge-develop-into-main-8_main.md](commits/261106_1627_4e041d9_merge-develop-into-main-8_main.md) |
+| 2026-11-06 | `fae510e` | claude/project-thread-po3i10 | Ollama 타임아웃 방지와 Vercel·Oracle·GPU 노드 배포 구성 추가 | [261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md](commits/261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
