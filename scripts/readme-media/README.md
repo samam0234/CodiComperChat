@@ -23,3 +23,22 @@ FFMPEG=<H.264 인코더가 있는 ffmpeg 경로> node scripts/readme-media/build
 ```
 
 데모 DB(`codicomperchat_readme`)와 임시 파일(`e2e/.tmp/readme-media`)은 개발 DB·개발 서버와 겹치지 않는다. `servers.mjs`는 켤 때마다 데모 DB를 지우고 새로 만든다. 계정은 `example.com` 주소의 가짜 계정이고, 대답과 그림은 실제 모델이 만든 것이다. 성인 모드는 끈 상태(`ADULT_MODE=off`)로 찍는다.
+
+<!-- logic-structure -->
+## 로직 구조
+
+```text
+art.mjs ──────────────▶ 배너 · 스택 · 구조도 · 대화/월드 흐름도 · 기능 지도 (서버 필요 없음)
+diagrams.mjs ─────────▶ 계층 · 배포 · 로컬 환경 · 데이터 지도 · 화면 지도 · CI (서버 필요 없음)
+
+servers.mjs (켜 둔다) ─ 데모 DB codicomperchat_readme 새로 · 포트 3201/3202/4201/8201
+   │
+   ├─▶ capture.mjs ─ 데모 계정 → 대화·오퍼레이션·그림·공방·콘솔 스크린샷 (실제 모델)
+   ├─▶ world.mjs   ─ 데모 세계관 4개(방식마다) → 2턴씩 → 월드·콘솔 스크린샷
+   └─▶ tour.mjs    ─ 녹화(webm)
+                        │
+                        ▼
+                  build.mjs ─ 자막 입히기 → intro.mp4 · demo-*.gif (H.264 ffmpeg)
+
+결과 ─▶ docs/.assets/readme/
+```
