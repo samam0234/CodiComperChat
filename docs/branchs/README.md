@@ -377,5 +377,8 @@ flowchart LR
 | 2026-11-06 | `2580756` | feature/docs-mermaid | docs 전체 문서에 mermaid 그림 추가 | [261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md](commits/261106_1627_2580756_mermaid-docs_feature-docs-mermaid.md) |
 | 2026-11-06 | `d7fc373` | develop (merge) | feature/docs-mermaid into develop | [261106_1627_d7fc373_merge-docs-mermaid_develop.md](commits/261106_1627_d7fc373_merge-docs-mermaid_develop.md) |
 | 2026-11-06 | `4e041d9` | main (merge) | develop into main | [261106_1627_4e041d9_merge-develop-into-main-8_main.md](commits/261106_1627_4e041d9_merge-develop-into-main-8_main.md) |
+| 2026-11-07 | `e945987` | feature/oracle-backend-deploy | Oracle Cloud ARM 서버에 백엔드만 올리는 구성 추가 | [261107_0117_e945987_oracle-backend-deploy_feature-oracle-backend-deploy.md](commits/261107_0117_e945987_oracle-backend-deploy_feature-oracle-backend-deploy.md) |
+| 2026-11-07 | `a6cafd9` | feature/oracle-backend-deploy | Oracle 배포 문서에 줄바꿈 함정 추가 | [261107_0117_a6cafd9_oracle-archive-crlf_feature-oracle-backend-deploy.md](commits/261107_0117_a6cafd9_oracle-archive-crlf_feature-oracle-backend-deploy.md) |
+| 2026-11-07 | `b8c2a1e` | feature/oracle-backend-deploy | Oracle 배포 명령에 core.eol=lf 추가 | [261107_0118_b8c2a1e_oracle-archive-eol_feature-oracle-backend-deploy.md](commits/261107_0118_b8c2a1e_oracle-archive-eol_feature-oracle-backend-deploy.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
