@@ -1,0 +1,11 @@
+erDiagram
+  rate_limit_buckets {
+    text key PK
+    integer count
+    timestamp(3) resetAt
+  }
+  app_settings {
+    text key PK
+    jsonb value
+    timestamp(3) updatedAt
+  }

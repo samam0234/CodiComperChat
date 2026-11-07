@@ -135,7 +135,7 @@ docs/
 | 구현된 기능과 한계 | [FEATURES.md](FEATURES.md) |
 | 시험 수, 시험 방법 | [plan/TESTING.md](plan/TESTING.md) |
 | 실측 결과와 판단 | [trainings/](trainings/README.md) |
-| 테이블 | [plan/DATABASE.md](plan/DATABASE.md) |
+| 테이블 | [plan/DATABASE.md](plan/DATABASE.md) · 개체 관계도 [plan/ERD.md](plan/ERD.md) |
 | API 계약 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) |
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 공개 전 보안·법률 체크 | [../SECURITY.md](../SECURITY.md) |

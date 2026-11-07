@@ -1,0 +1,92 @@
+erDiagram
+  board_posts ||--o{ board_comments : "postId · CASCADE"
+  campaigns ||--o{ board_posts : "campaignId · CASCADE"
+  campaigns ||--o{ diary_entries : "campaignId · CASCADE"
+  campaigns ||--o{ direct_messages : "campaignId · CASCADE"
+  campaigns ||--o{ mind_readings : "campaignId · CASCADE"
+  campaigns ||--o{ photonet_images : "campaignId · CASCADE"
+  campaigns ||--o{ webtoons : "campaignId · CASCADE"
+  webtoons ||--o{ webtoon_panels : "webtoonId · CASCADE"
+  campaigns {
+    text id PK "대화 그림에 전체"
+  }
+  mind_readings {
+    text id PK
+    text campaignId FK
+    text innerVoice
+    text feeling
+    text aboutUser
+    timestamp(3) createdAt "기본 now()"
+  }
+  diary_entries {
+    text id PK
+    text campaignId FK
+    text title
+    text mood
+    text body
+    timestamp(3) createdAt "기본 now()"
+  }
+  direct_messages {
+    text id PK
+    text campaignId FK
+    MessageRole role
+    text content
+    timestamp(3) createdAt "기본 now()"
+  }
+  board_posts {
+    text id PK
+    text campaignId FK
+    BoardAuthor authorKind
+    text authorName
+    text title
+    text body
+    timestamp(3) createdAt "기본 now()"
+  }
+  board_comments {
+    text id PK
+    text postId FK
+    BoardAuthor authorKind
+    text authorName
+    text body
+    timestamp(3) createdAt "기본 now()"
+  }
+  photonet_images {
+    text id PK
+    text campaignId FK
+    text prompt
+    text promptUsed
+    text style
+    text ratio
+    text rating "기본 sfw"
+    timestamp(3) blockedAt "NULL"
+    text blockReason "NULL"
+    text mime
+    bytea data
+    integer width
+    integer height
+    timestamp(3) createdAt "기본 now()"
+  }
+  webtoons {
+    text id PK
+    text campaignId FK
+    text title
+    text prompt
+    text rating "기본 sfw"
+    timestamp(3) blockedAt "NULL"
+    text blockReason "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  webtoon_panels {
+    text id PK
+    text webtoonId FK "UK(webtoonId+index)"
+    integer index "UK(webtoonId+index)"
+    jsonb plan
+    text caption
+    jsonb lines "기본 []"
+    text promptUsed "NULL"
+    text mime "NULL"
+    bytea data "NULL"
+    integer width "NULL"
+    integer height "NULL"
+    timestamp(3) drawnAt "NULL"
+  }

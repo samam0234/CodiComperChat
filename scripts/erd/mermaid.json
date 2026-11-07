@@ -1,0 +1,5 @@
+{
+  "theme": "default",
+  "er": { "useMaxWidth": false },
+  "themeVariables": { "fontFamily": "NanumGothic, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif" }
+}

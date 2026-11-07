@@ -160,7 +160,8 @@ erDiagram
 | **RAM 16GB**: 도커 빌드와 그림 엔진이 겹치면 SDXL 뒤 gemma가 502, 또는 프로세스가 조용히 죽는다 | 실측은 다른 무거운 작업 없이 한다. 파이프로 묶으면 종료 코드가 가려지니 로그 파일에 받고 `$?`를 본다 |
 | e2e가 `next dev`일 때 메모리 압박으로 실행마다 다른 시험이 시간 초과했다(2026-11-03) | 2026-11-04에 운영 빌드로 바꿔 없앴다. 다시 실패하면 부하 탓으로 넘기지 말고 결함으로 본다. 시간 제한을 늘려 덮지 않는다. 진행 중 로그의 실패 표시는 `x`이니 `FAIL`로 찾으면 못 잡는다 |
 | 사용자의 도커에 다른 프로젝트 컨테이너가 있다(`storyforge-postgres`) | 이 저장소 일이 아니다. `docker system prune`이나 `wsl --shutdown`을 하지 않는다. 내가 만든 이미지·볼륨만 지운다 |
-| **Windows에서 `git archive`로 서버에 올리면 파일이 CRLF로 나간다**(2026-11-07 실측) | `git -c core.autocrlf=false -c core.eol=lf archive ...`. `autocrlf=false`만으로는 부족하다. `.env` 값 끝에 ``이 붙으면 비밀값이 깨진다 |
+| **Windows에서 `git archive`로 서버에 올리면 파일이 CRLF로 나간다**(2026-11-07 실측) | `git -c core.autocrlf=false -c core.eol=lf archive ...`. `autocrlf=false`만으로는 부족하다. `.env` 값 끝에 `
+`이 붙으면 비밀값이 깨진다 |
 | Oracle 인스턴스의 개인키가 없을 때 | 콘솔에서 SSH 키를 더할 수 없다. Run Command는 동적 그룹·정책이 있어야 돌고, Ubuntu에서는 `ocarun`(sudo 없음)으로 돌아 `authorized_keys`를 못 고친다. 원래 키 파일을 받거나 인스턴스를 다시 만든다 |
 | Vercel 웹이 API를 못 부른다 | `API_BASE_URL`이 `https://api.168-110-61-178.sslip.io`인지(`api.` 접두사) 본다. Caddy의 사이트 이름과 같아야 인증서가 맞다 |
 | `deploy/oracle/bootstrap.sh`·`setup.sh`(po3i10에서 들어옴) | 다른 compose를 전제로 쓰였다. 지금 서버에 돌리지 않는다. 지금 절차는 [web_management/oracle-backend.md](web_management/oracle-backend.md) |
@@ -265,7 +266,7 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | 코레딧·모델 조건 | `apps/api/src/credits/`, `apps/api/src/models/` |
 | 성인 확인·가드 | `apps/api/src/account/adult.ts`, `services/ai/app/services/{photonet,photonet_moderation}.py` |
 | 보안(요청 한도·인증·CSP) | `apps/api/src/{security,auth}/`, `apps/web/proxy.ts` |
-| DB | `apps/api/prisma/schema.prisma`, [plan/DATABASE.md](plan/DATABASE.md) |
+| DB | `apps/api/prisma/schema.prisma`, [plan/DATABASE.md](plan/DATABASE.md), ERD [plan/ERD.md](plan/ERD.md) (스키마를 바꾸면 `scripts/erd/`로 다시 만든다) |
 | 화면 | `apps/web/app/`, [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md) |
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 운영 구성·배포 | `deploy/`, [DEPLOYMENT.md](DEPLOYMENT.md) |

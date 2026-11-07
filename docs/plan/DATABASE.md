@@ -23,12 +23,14 @@ World ─ WorldCast · WorldPlace · WorldPart · WorldImage          AppSetting
 
 ### 테이블 관계
 
+주요 관계만 줄인 그림이다. 37개 테이블의 모든 칸·외래 키·인덱스는 [ERD.md](ERD.md).
+
 ```mermaid
 erDiagram
   User ||--o{ UserPersona : "프로필"
   User ||--o{ Campaign : "대화"
   Character ||--o{ Campaign : "상대"
-  Campaign ||--|| CampaignState : "이야기 상태"
+  Campaign ||--o| CampaignState : "이야기 상태"
   Campaign ||--o{ Session : "세션"
   Session ||--o{ Message : "메시지"
   Campaign ||--o{ MemoryChunk : "기억"
@@ -75,7 +77,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 
 공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.
 
-계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 21개가 생겼다. 열거형 14개, 마이그레이션 33개(`apps/api/prisma/migrations/`).
+계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 21개, 월드코퍼챗으로 9개가 더 생겼다. 열거형 17개, 마이그레이션 34개(`apps/api/prisma/migrations/`). 칸·키·인덱스까지 모두 그린 개체 관계도는 [ERD.md](ERD.md).
 
 | 테이블 (모델) | 계획서 | 무엇 | 지워질 때 |
 |---|---|---|---|
