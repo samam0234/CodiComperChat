@@ -411,5 +411,6 @@ flowchart LR
 | 2026-11-07 | `964097a` | feature/docs-final-update | 운영 대화 모델과 지금 배포 결정을 스택 정본에 반영 | [261107_0954_964097a_stack-deploy-decision_feature-docs-final-update.md](commits/261107_0954_964097a_stack-deploy-decision_feature-docs-final-update.md) |
 | 2026-11-07 | `ca0d882` | feature/docs-final-update | Oracle 운영 서버 문서를 지금 구성의 정본으로 다시 쓴다 | [261107_0955_ca0d882_oracle-backend-rewrite_feature-docs-final-update.md](commits/261107_0955_ca0d882_oracle-backend-rewrite_feature-docs-final-update.md) |
 | 2026-11-07 | `c639f83` | feature/docs-final-update | 배포 진입 문서의 로직 구조를 지금 운영과 목표로 나눠 다시 그린다 | [261107_0955_c639f83_deployment-logic-mermaid_feature-docs-final-update.md](commits/261107_0955_c639f83_deployment-logic-mermaid_feature-docs-final-update.md) |
+| 2026-11-07 | `02654c2` | feature/docs-final-update | 문서 허브와 운영 문서 목록을 실제 배포 기준으로 고친다 | [261107_0956_02654c2_docs-hub-deploy_feature-docs-final-update.md](commits/261107_0956_02654c2_docs-hub-deploy_feature-docs-final-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
