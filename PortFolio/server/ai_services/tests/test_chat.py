@@ -69,17 +69,18 @@ def test_unrelated_question_does_not_invent():
     assert "지어내서 답하지 않을게요" in r["answer"]
 
 
-def test_falls_back_to_second_model():
-    rec = Recorder(fail={"gemma4:12b"})
+def test_uses_e4b_only():
+    rec = Recorder()
     r = make(rec).post("/chat", json={"message": "오라클 배포에서 막힌 것은?"}).get_json()
     assert r["model"] == "gemma4:e4b"
-    assert rec.calls[:2] == ["gemma4:12b", "gemma4:e4b"]
+    assert set(rec.calls) == {"gemma4:e4b"}
 
 
-def test_both_models_down_is_503():
-    rec = Recorder(fail={"gemma4:12b", "gemma4:e4b"})
+def test_e4b_down_is_503():
+    rec = Recorder(fail={"gemma4:e4b"})
     res = make(rec).post("/chat", json={"message": "오라클 배포에서 막힌 것은?"})
     assert res.status_code == 503
+    assert rec.calls == ["gemma4:e4b"]
 
 
 def test_follow_up_is_condensed_with_history():

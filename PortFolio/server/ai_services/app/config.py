@@ -23,8 +23,8 @@ def load_settings() -> Settings:
     here = Path(__file__).resolve().parents[1]
     return Settings(
         ollama_base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
-        # 사용자 요청: 챗봇은 Ollama gemma4:12b. 메모리가 모자란 서버는 CHAT_MODEL=gemma4:e4b
-        chat_model=os.environ.get("CHAT_MODEL", "gemma4:12b"),
+        # 챗봇은 Ollama gemma4:e4b 하나만 쓴다. 예비도 같은 모델이라 다른 모델을 고르지 않는다.
+        chat_model=os.environ.get("CHAT_MODEL", "gemma4:e4b"),
         fallback_model=os.environ.get("FALLBACK_MODEL", "gemma4:e4b"),
         temperature=float(os.environ.get("CHAT_TEMPERATURE", "0.3")),
         top_k=int(os.environ.get("RAG_TOP_K", "10")),

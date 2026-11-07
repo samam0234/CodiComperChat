@@ -182,12 +182,12 @@ FastAPI(Python 3.12) 내부망 전용 서버. DB를 보지 않고 Nest가 조립
 ### AI 서비스 — 연기 · 판정 · 그림 — 개요
 연기(/infer), 요약 · 기억(/summarize · /remember), 환각 판정(/ground-check), 월드 진행자(/world/turn · /world/part-check), 그림(/photonet · /webtoon), 검수(/moderate-image) 등 경로 24개. 바깥에 열리지 않고 X-AI-Token이 맞는 요청만 받는다.
 - LLM_BACKEND=openai: NVIDIA 호스팅 gemma-4-31b-it → 막히면 CPU Ollama gemma4:e4b
-- LLM_BACKEND=ollama: 로컬 GPU의 gemma4:e4b · 12b
+- LLM_BACKEND=ollama: 로컬 Ollama gemma4:e4b
 - /train은 403 — v1은 학습하지 않는다는 정책
 
 ### AI 서비스 — 연기 · 판정 · 그림 — 사용 엔진
 - 서버: FastAPI · Pydantic(camelCase 통신)
-- 대화 모델: Gemma 4 (e4b · 12b · 31b), Ollama · OpenAI 호환 호스팅 API
+- 대화 모델: 운영 NVIDIA 호스팅 gemma-4-31b-it, 로컬·예비 Ollama gemma4:e4b
 - 그림: diffusers · Animagine XL 4.0 · SD 1.5 (NVIDIA GPU)
 - 프리미엄: Anthropic Claude · xAI Grok (키가 있을 때만)
 - 시험: unittest 71개 + 평가 스크립트 11묶음 + 퀘스트 판정 평가
@@ -215,7 +215,7 @@ FastAPI(Python 3.12) 내부망 전용 서버. DB를 보지 않고 Nest가 조립
 - 판단은 코드로: 작은 모델에게 조건부 지시 대신 '이번 답 첫 줄은 @:' 같은 할 일 하나만 → 나레이션 7/12 → 48/48
 - 보상 장면은 코드가 갈래를 나누고 모델은 번호만 고른다 → 2/8 → 20/20
 - 예비 모델 자동 전환: 429 · 5xx · 시간 초과면 같은 요청을 CPU Ollama로
-- 이 포트폴리오의 챗봇: LangChain + LangGraph + BM25 RAG로 저장소 문서를 근거로 답한다(Flask, gemma4:12b)
+- 이 포트폴리오의 챗봇 코드: LangChain + LangGraph + BM25 RAG(Flask). 공개 사이트는 이 서버를 올리지 않아 모델을 부르지 않는다
 
 ### AI 서비스 — 연기 · 판정 · 그림 — 문제점과 개선
 - 31B 품질 미측정: 평가는 gemma4:e4b로 맞춰 둠 → 호스팅 31B 재평가 필요(Q08)

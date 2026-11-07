@@ -410,7 +410,7 @@ def build_pptx(path: Path) -> None:
 
     # 13. 이 포트폴리오
     n += 1; s = prs.slides.add_slide(blank); head(s, "THIS SITE", "이 포트폴리오도 작은 풀스택", n)
-    table(s, [["프론트엔드", "Astro — 정적 10페이지, 라이트·다크, ERD 탐색기, 스프레드시트 뷰어"], ["백엔드", "Ruby on Rails 8 API — 콘텐츠·검색 API, 챗봇 중계, IP당 1분 6번"], ["AI 서비스", "Flask + LangChain + LangGraph — BM25 RAG, gemma4:12b → e4b 예비"], ["대화 기록", "브라우저 localStorage (서버에 저장하지 않음)"]], Inches(0.7), Inches(2.1), Inches(11.9), 0.22, 14)
+    table(s, [["프론트엔드", "Astro — 정적 10페이지, 라이트·다크, ERD 탐색기, 스프레드시트 뷰어"], ["백엔드", "Ruby on Rails 8 API — 콘텐츠·검색 API, 챗봇 중계, IP당 1분 6번"], ["AI 서비스", "Flask + LangChain + LangGraph — BM25 RAG. 공개 사이트는 이 서버를 올리지 않아 모델을 부르지 않음"], ["대화 기록", "브라우저 localStorage (서버에 저장하지 않음)"]], Inches(0.7), Inches(2.1), Inches(11.9), 0.22, 14)
 
     # 14. 마무리
     n += 1; s = prs.slides.add_slide(blank); bg(s, INK)
