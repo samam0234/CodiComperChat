@@ -407,5 +407,6 @@ flowchart LR
 | 2026-11-07 | `664fc88` | feature/docs-final-update | 실제 배포 뒤 남은 일을 작업 지시서에 반영 | [261107_0952_664fc88_tasks-after-deploy_feature-docs-final-update.md](commits/261107_0952_664fc88_tasks-after-deploy_feature-docs-final-update.md) |
 | 2026-11-07 | `d4f6d3d` | feature/docs-final-update | 시험 수를 실측으로 고치고 운영 배포 확인 표를 더한다 | [261107_0953_d4f6d3d_testing-counts-deploy-check_feature-docs-final-update.md](commits/261107_0953_d4f6d3d_testing-counts-deploy-check_feature-docs-final-update.md) |
 | 2026-11-07 | `9248c5d` | feature/docs-final-update | 웹 프록시 토큰과 운영에서 실제로 쓰는 환경변수 위치를 적는다 | [261107_0953_9248c5d_env-production-map_feature-docs-final-update.md](commits/261107_0953_9248c5d_env-production-map_feature-docs-final-update.md) |
+| 2026-11-07 | `129856e` | feature/docs-final-update | 지금 운영 중인 Oracle·Vercel 구성을 Docker 토폴로지에 더한다 | [261107_0954_129856e_topology-oracle-vercel_feature-docs-final-update.md](commits/261107_0954_129856e_topology-oracle-vercel_feature-docs-final-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
