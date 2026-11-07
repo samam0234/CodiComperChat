@@ -418,5 +418,6 @@ flowchart LR
 | 2026-11-07 | `f9e425f` | claude/project-thread-pz0x5f | 병합 뒤 main 기준으로 배포 안내를 고친다 | [261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md](commits/261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md) |
 | 2026-11-07 | `2befb55` | feature/contributing | 기여 절차를 CONTRIBUTING에 모으다 | [261107_1001_2befb55_contributing-guide_feature-contributing.md](commits/261107_1001_2befb55_contributing-guide_feature-contributing.md) |
 | 2026-11-07 | `3ceae06` | develop (merge) | feature/contributing into develop (no-ff) | [261107_1002_3ceae06_merge-contributing_develop.md](commits/261107_1002_3ceae06_merge-contributing_develop.md) |
+| 2026-11-07 | `60df6ab` | feature/docs-gap-fill | 대화 모델 백엔드 두 가지와 호스팅 API일 때 나가는 데이터를 적는다 | [261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md](commits/261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
