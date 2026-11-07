@@ -420,5 +420,6 @@ flowchart LR
 | 2026-11-07 | `3ceae06` | develop (merge) | feature/contributing into develop (no-ff) | [261107_1002_3ceae06_merge-contributing_develop.md](commits/261107_1002_3ceae06_merge-contributing_develop.md) |
 | 2026-11-07 | `60df6ab` | feature/docs-gap-fill | 대화 모델 백엔드 두 가지와 호스팅 API일 때 나가는 데이터를 적는다 | [261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md](commits/261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md) |
 | 2026-11-07 | `5a3d752` | feature/docs-gap-fill | 제3자에게 나가는 데이터와 웹·API 분리 때의 IP 신뢰를 적는다 | [261107_1412_5a3d752_security-third-party-flows_feature-docs-gap-fill.md](commits/261107_1412_5a3d752_security-third-party-flows_feature-docs-gap-fill.md) |
+| 2026-11-07 | `1028e1a` | feature/docs-gap-fill | 운영에서 쓰는 NVIDIA 호스팅 API와 외부 서비스를 고지 문서에 더한다 | [261107_1413_1028e1a_notices-hosted-services_feature-docs-gap-fill.md](commits/261107_1413_1028e1a_notices-hosted-services_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
