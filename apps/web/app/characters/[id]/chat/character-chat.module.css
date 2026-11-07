@@ -24,6 +24,68 @@
   scroll-behavior: smooth;
 }
 
+.sceneNow {
+  align-self: center;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.lineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.lineAction {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.lineAction:disabled {
+  opacity: 0.45;
+}
+
+.lineEdit {
+  width: 100%;
+  min-height: 64px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.rewriteBox {
+  flex-basis: 100%;
+  display: grid;
+  gap: 6px;
+}
+
+.rewriteLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
 .row {
   display: flex;
   align-items: flex-end;
@@ -66,9 +128,10 @@
 
 .user {
   border-bottom-right-radius: 6px;
-  background: var(--gradient);
-  color: #ffffff;
-  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .character {
@@ -200,8 +263,9 @@
   flex: 1;
   min-width: 0;
   max-width: 240px;
-  height: 34px;
-  padding: 0 10px;
+  height: 40px;
+  padding: 0 14px;
+  line-height: 1.4;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--background);
@@ -220,13 +284,24 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 0 16px 14px;
+  padding: 0 22px 8px;
   font-size: 13px;
 }
 
 .modelNote {
+  display: block;
+  margin: 0;
+  padding: 4px 22px 20px;
   font-size: 12px;
+  line-height: 1.6;
   color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.modelBar .modelNote {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 4px 0;
 }
 
 .personaRequired .personaLabel {
@@ -533,7 +608,7 @@
 
 @media (max-width: 640px) {
   .chat {
-    height: min(74vh, 640px);
+    height: min(78dvh, 640px);
     border-radius: 22px;
   }
 
