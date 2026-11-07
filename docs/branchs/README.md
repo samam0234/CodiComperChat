@@ -438,5 +438,11 @@ flowchart LR
 | 2026-11-07 | `ea1339d` | develop (merge) | feature/docs-gap-fill into develop | [261107_1416_ea1339d_merge-docs-gap-fill_develop.md](commits/261107_1416_ea1339d_merge-docs-gap-fill_develop.md) |
 | 2026-11-07 | `8a8ba49` | main (merge) | develop into main | [261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md](commits/261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md) |
 | 2026-11-07 | `75c3020` | feature/official-world | 공식 세계관 「코퍼 시티: 멈춘 시계탑」과 지도·장면 그림을 시드에 더한다 | [261107_1620_75c3020_official-world-copper-city_feature-official-world.md](commits/261107_1620_75c3020_official-world-copper-city_feature-official-world.md) |
+| 2026-11-07 | `dfabbc3` | feature/portfolio | 포트폴리오 폴더와 콘텐츠 정본·데이터 생성기를 만든다 | [261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md](commits/261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md) |
+| 2026-11-07 | `ec3b9dc` | feature/portfolio | Flask AI 가이드 챗봇을 LangChain·LangGraph·BM25 RAG로 만든다 | [261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md](commits/261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md) |
+| 2026-11-07 | `942c4f3` | feature/portfolio | Rails 8 API 백엔드로 콘텐츠·시트·ERD·검색과 챗봇 프록시를 만든다 | [261107_1644_942c4f3_portfolio-rails-api_feature-portfolio.md](commits/261107_1644_942c4f3_portfolio-rails-api_feature-portfolio.md) |
+| 2026-11-07 | `e499efd` | feature/portfolio | Astro 포트폴리오 사이트(메인·층별 상세·스프레드시트·ERD·AI 챗봇·문서)를 만든다 | [261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md](commits/261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md) |
+| 2026-11-07 | `dfd7e57` | feature/portfolio | 포트폴리오 문서(docx·pdf·pptx)를 콘텐츠 정본에서 만든다 | [261107_2048_dfd7e57_portfolio-portfile-docs_feature-portfolio.md](commits/261107_2048_dfd7e57_portfolio-portfile-docs_feature-portfolio.md) |
+| 2026-11-07 | `fcbb9eb` | feature/portfolio | 배포 구성(Vercel·Netlify, Rails+Flask compose)과 포트폴리오 안내를 더한다 | [261107_2050_fcbb9eb_portfolio-deploy-config_feature-portfolio.md](commits/261107_2050_fcbb9eb_portfolio-deploy-config_feature-portfolio.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

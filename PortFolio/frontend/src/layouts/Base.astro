@@ -1,0 +1,406 @@
+---
+import "../styles/global.css";
+import { site, toc, API_BASE } from "../lib/content";
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: string;
+}
+const { title, description = site.intro, active } = Astro.props;
+const fullTitle = title ? `${title} · ${site.title}` : `${site.title} — ${site.tagline}`;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/shots/banner.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <title>{fullTitle}</title>
+    <script is:inline>
+      // 깜빡임 없이 테마를 먼저 정한다 (저장한 값 → 시스템 설정)
+      try {
+        const saved = localStorage.getItem("pf-theme");
+        const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      } catch {}
+    </script>
+  </head>
+  <body data-api={API_BASE}>
+    <a class="skip sr-only" href="#main">본문으로 건너뛰기</a>
+    <header class="top">
+      <div class="container bar">
+        <a href="/" class="logo" aria-label="포트폴리오 처음으로">
+          <span class="mark" aria-hidden="true">C</span>
+          <span><b>CodiComperChat</b><small>Portfolio</small></span>
+        </a>
+        <nav aria-label="목차">
+          <ul>
+            {toc.map((t) => (
+              <li>
+                <a href={`/${t.slug}`} aria-current={active === t.slug ? "page" : undefined}>{t.title}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="tools">
+          <button class="icon" id="open-search" aria-label="빠른 찾기 (Ctrl+K)" title="빠른 찾기 (Ctrl+K)">⌕</button>
+          <button class="icon" id="theme" aria-label="밝게·어둡게 바꾸기" title="밝게·어둡게">◐</button>
+          <button class="icon menu" id="menu" aria-label="목차 열기" aria-expanded="false">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="container cols">
+        <div>
+          <p class="brand"><b>코디컴퍼챗</b> 포트폴리오</p>
+          <p class="muted">{site.author} · {site.period}</p>
+          <p class="muted small">이 사이트의 숫자와 화면은 저장소 문서와 실측 노트(docs/trainings)를 근거로 합니다.</p>
+        </div>
+        <div>
+          <p class="h">둘러보기</p>
+          <ul>{toc.map((t) => <li><a href={`/${t.slug}`}>{t.no} {t.title}</a></li>)}</ul>
+        </div>
+        <div>
+          <p class="h">링크</p>
+          <ul>
+            <li><a href={site.service} rel="noopener" target="_blank">서비스 (Vercel)</a></li>
+            <li><a href={site.repo} rel="noopener" target="_blank">저장소 (GitHub)</a></li>
+            <li><a href={site.notion} rel="noopener" target="_blank">노션 포트폴리오</a></li>
+            <li><a href="/files">문서 내려받기 (docx · pptx · pdf)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container copy muted small">© 2026 코디컴퍼챗 프로젝트. 화면의 그림과 대사는 AI가 만든 가상의 이야기입니다.</div>
+    </footer>
+
+    <dialog id="search" aria-label="빠른 찾기">
+      <form method="dialog" class="search-head">
+        <input id="q" type="search" placeholder="기능 · 테이블 · 화면 · 일정 찾기 (2자 이상)" autocomplete="off" />
+        <button class="btn" aria-label="닫기">Esc</button>
+      </form>
+      <ul id="results" aria-live="polite"></ul>
+      <p class="muted small hint">Rails API(<code>/api/v1/search</code>)로 페이지·스프레드시트·ERD를 함께 찾습니다.</p>
+    </dialog>
+
+    <dialog id="lightbox" aria-label="크게 보기">
+      <form method="dialog"><button class="close" aria-label="닫기">✕</button></form>
+      <img id="lb-img" alt="" />
+      <p id="lb-cap" class="muted"></p>
+    </dialog>
+  </body>
+</html>
+
+<script>
+  const root = document.documentElement;
+  document.getElementById("theme")?.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = next;
+    try { localStorage.setItem("pf-theme", next); } catch {}
+  });
+
+  const menu = document.getElementById("menu");
+  menu?.addEventListener("click", () => {
+    const open = document.body.classList.toggle("nav-open");
+    menu.setAttribute("aria-expanded", String(open));
+  });
+
+  // 스크롤로 나타나기
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add("in"), io.unobserve(e.target))), { threshold: 0.04, rootMargin: "0px 0px -6% 0px" });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  // 빠른 찾기: Rails 검색 API
+  const dialog = document.getElementById("search") as HTMLDialogElement;
+  const q = document.getElementById("q") as HTMLInputElement;
+  const results = document.getElementById("results") as HTMLUListElement;
+  const api = document.body.dataset.api;
+  const open = () => { dialog.showModal(); q.focus(); };
+  document.getElementById("open-search")?.addEventListener("click", open);
+  addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); open(); } });
+  let timer = 0;
+  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  q.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(async () => {
+      const term = q.value.trim();
+      if (term.length < 2) { results.innerHTML = ""; return; }
+      try {
+        const res = await fetch(`${api}/api/v1/search?q=${encodeURIComponent(term)}`);
+        const { hits } = await res.json();
+        results.innerHTML = hits.length
+          ? hits.map((h: any) => {
+              const href = h.type === "page" ? `/${h.slug}#${h.anchor}` : h.type === "sheet" ? `/data#${h.id}` : `/erd#${h.name}`;
+              const label = { page: "페이지", sheet: "시트", table: "테이블" }[h.type as "page"];
+              return `<li><a href="${href}"><span class="tag">${label}</span> <b>${esc(h.title)}</b><span class="muted small">${esc(h.snippet)}</span></a></li>`;
+            }).join("")
+          : `<li class="muted">찾은 것이 없어요.</li>`;
+      } catch {
+        results.innerHTML = `<li class="muted">검색 서버(Rails)에 연결하지 못했어요. 로컬이면 <code>bin/rails server</code>를 켜 주세요.</li>`;
+      }
+    }, 220);
+  });
+  results.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("a")) dialog.close(); });
+
+  // 이미지 크게 보기 (Section의 .zoom 버튼)
+  const lb = document.getElementById("lightbox") as HTMLDialogElement;
+  const lbImg = document.getElementById("lb-img") as HTMLImageElement;
+  const lbCap = document.getElementById("lb-cap") as HTMLParagraphElement;
+  document.addEventListener("click", (e) => {
+    const z = (e.target as HTMLElement).closest<HTMLButtonElement>(".zoom");
+    if (!z) return;
+    lbImg.src = z.dataset.src!;
+    lbImg.alt = lbCap.textContent = z.dataset.caption ?? "";
+    lb.showModal();
+  });
+  lb.addEventListener("click", (e) => { if (e.target === lb) lb.close(); });
+</script>
+
+<style>
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    backdrop-filter: saturate(1.4) blur(12px);
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 68px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo b {
+    display: block;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .logo small {
+    display: block;
+    font: 600 10px/1 var(--mono);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+  .mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--copper), #7a3d17);
+    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.15);
+  }
+  nav {
+    flex: 1;
+  }
+  nav ul {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  nav a {
+    display: block;
+    padding: 8px 11px;
+    border-radius: 999px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  nav a:hover,
+  nav a[aria-current="page"] {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  nav a[aria-current="page"] {
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .tools {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 17px;
+  }
+  .menu {
+    display: none;
+  }
+  @media (max-width: 1120px) {
+    .menu {
+      display: block;
+    }
+    nav {
+      position: fixed;
+      inset: 68px 0 auto;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 20px 20px;
+      display: none;
+    }
+    :global(body.nav-open) nav {
+      display: block;
+    }
+    nav ul {
+      flex-direction: column;
+    }
+  }
+  .foot {
+    margin-top: 96px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+    padding: 48px 0 28px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 760px) {
+    .cols {
+      grid-template-columns: 1fr;
+    }
+  }
+  .foot ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .foot a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .foot a:hover {
+    color: var(--copper);
+  }
+  .foot .h {
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .copy {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .small {
+    font-size: 13px;
+  }
+  dialog {
+    width: min(680px, 94vw);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-lg);
+  }
+  dialog::backdrop {
+    background: rgb(10 16 28 / 0.45);
+    backdrop-filter: blur(3px);
+  }
+  .search-head {
+    display: flex;
+    gap: 8px;
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .search-head input {
+    flex: 1;
+    font: inherit;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+  }
+  #results {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    max-height: 56vh;
+    overflow: auto;
+  }
+  #results :global(a) {
+    display: grid;
+    gap: 3px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  #results :global(a:hover) {
+    background: var(--surface-2);
+  }
+  #results :global(li.muted) {
+    padding: 12px;
+  }
+  .hint {
+    padding: 0 16px 14px;
+    margin: 0;
+  }
+  #lightbox {
+    width: min(1280px, 96vw);
+    padding: 14px;
+    background: var(--surface);
+  }
+  #lightbox img {
+    width: 100%;
+    max-height: 82vh;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  #lightbox p {
+    margin: 10px 4px 0;
+  }
+  .close {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    z-index: 2;
+  }
+</style>

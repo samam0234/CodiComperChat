@@ -1,0 +1,6 @@
+# 포트폴리오 API 앞단. 인증서 자동 발급·갱신. Rails만 바깥에 연다(Flask·Ollama는 내부망).
+# 챗봇 답은 수십 초 걸릴 수 있다. Caddy는 기본으로 응답 대기 시간 제한이 없다.
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy backend:3000
+}

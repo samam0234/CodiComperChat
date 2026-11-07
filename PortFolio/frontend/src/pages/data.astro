@@ -1,0 +1,300 @@
+---
+// 기획 스프레드시트 (PortFile/*.xlsx → build_data.py → sheets.json)
+import Base from "../layouts/Base.astro";
+import { sheetList } from "../lib/content";
+
+const gantt = sheetList.find((s) => s.kind === "gantt");
+// 간트 막대 위치: 전체 기간 중 어디인지 %로
+const isDate = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d);
+const dates = (gantt?.bars ?? []).flatMap((b) => [b.start, b.end]).filter(isDate).sort();
+const t0 = dates.length ? Date.parse(dates[0]) : 0;
+const t1 = dates.length ? Date.parse(dates[dates.length - 1]) + 86400000 : 1;
+const pct = (d: string) => ((Date.parse(d) - t0) / (t1 - t0)) * 100;
+const weeks: { label: string; left: number }[] = [];
+for (let t = t0; t < t1; t += 7 * 86400000) weeks.push({ label: new Date(t).toISOString().slice(5, 10).replace("-", "/"), left: ((t - t0) / (t1 - t0)) * 100 });
+const statusClass = (s: string) => (s.includes("완료") ? "done" : s.includes("진행") ? "doing" : "todo");
+---
+
+<Base title="기획 스프레드시트" description="코디컴퍼챗 기획 스프레드시트: 총기획 · 기능 설계 · 용어 · 테이블 · 스키마 · URL · 화면 · 간트 · 향후 계획" active="data">
+  <section class="head">
+    <div class="container">
+      <p class="eyebrow">06 · PLANNING SHEET</p>
+      <h1>기획 스프레드시트</h1>
+      <p class="lead">프로젝트를 설계·관리한 스프레드시트 9개 시트를 그대로 옮겼습니다. 시트를 고르고, 찾고, 열 제목을 눌러 정렬할 수 있습니다.</p>
+      <a class="btn" href="/files/CodiComperChat_planning.xlsx" download>원본 엑셀 내려받기 (.xlsx)</a>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="tabs" role="tablist" aria-label="시트">
+      {sheetList.map((s, i) => (
+        <button role="tab" id={`tab-${s.id}`} aria-controls={s.id} aria-selected={i === 0 ? "true" : "false"} data-sheet={s.id}>
+          {s.name.replaceAll("_", " ")}
+          <span class="count">{(s.rows ?? s.lines ?? []).length}</span>
+        </button>
+      ))}
+    </div>
+
+    {sheetList.map((s, i) => (
+      <section class="sheet" id={s.id} role="tabpanel" aria-labelledby={`tab-${s.id}`} hidden={i !== 0}>
+        <div class="sheet-head">
+          <div>
+            <h2>{s.name.replaceAll("_", " ")}</h2>
+            {s.meta.map((m) => <p class="muted small">{m}</p>)}
+          </div>
+          {s.kind !== "text" && <input class="filter" type="search" placeholder="이 시트에서 찾기" aria-label={`${s.name}에서 찾기`} />}
+        </div>
+
+        {s.kind === "gantt" && gantt && (
+          <div class="card gantt" aria-label="일정 막대">
+            <div class="axis">{weeks.map((w) => <span style={`left:${w.left}%`}>{w.label}</span>)}</div>
+            {gantt.rows!.map((r, k) => {
+              const b = gantt.bars![k];
+              if (!b || !isDate(b.start)) return null;
+              const end = isDate(b.end) ? b.end : b.start;
+              const left = pct(b.start);
+              const width = Math.max(pct(end) - left + (100 / ((t1 - t0) / 86400000)), 0.8);
+              return (
+                <div class="g-row">
+                  <span class="g-label" title={r[1]}><em>{r[0]}</em>{r[1]}</span>
+                  <span class="g-track"><span class:list={["g-bar", statusClass(r[5] ?? "")]} style={`left:${left}%;width:${width}%`} title={`${b.start} ~ ${end}`} /></span>
+                </div>
+              );
+            })}
+            <p class="legend muted small"><span class="g-bar done" /> 완료 <span class="g-bar doing" /> 진행 <span class="g-bar todo" /> 예정</p>
+          </div>
+        )}
+
+        {s.kind === "text" ? (
+          <div class="card text">{s.lines!.map((l) => <p>{l}</p>)}</div>
+        ) : (
+          <div class="card table-wrap">
+            <table class="grid sortable">
+              <thead>
+                <tr>{s.header!.map((h, c) => <th scope="col"><button data-col={c}>{h || "—"}</button></th>)}</tr>
+              </thead>
+              <tbody>
+                {s.rows!.map((r) => (
+                  <tr>{s.header!.map((_, c) => <td>{r[c] ?? ""}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="empty muted" hidden>찾은 행이 없어요.</p>
+          </div>
+        )}
+      </section>
+    ))}
+  </div>
+</Base>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+  const show = (id: string) => {
+    tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.sheet === id)));
+    document.querySelectorAll<HTMLElement>(".sheet").forEach((p) => (p.hidden = p.id !== id));
+  };
+  tabs.forEach((t) => t.addEventListener("click", () => { show(t.dataset.sheet!); history.replaceState(null, "", `#${t.dataset.sheet}`); }));
+  if (location.hash && document.getElementById(location.hash.slice(1))) show(location.hash.slice(1));
+
+  // 찾기
+  document.querySelectorAll<HTMLInputElement>(".filter").forEach((input) => {
+    const panel = input.closest(".sheet")!;
+    const rows = [...panel.querySelectorAll<HTMLTableRowElement>("tbody tr")];
+    const empty = panel.querySelector<HTMLElement>(".empty")!;
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      let shown = 0;
+      rows.forEach((r) => { const ok = !q || r.textContent!.toLowerCase().includes(q); r.hidden = !ok; if (ok) shown++; });
+      empty.hidden = shown > 0;
+    });
+  });
+
+  // 열 정렬 (숫자는 숫자로)
+  document.querySelectorAll<HTMLButtonElement>("th button[data-col]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const table = btn.closest("table")!;
+      const col = Number(btn.dataset.col);
+      const dir = btn.dataset.dir === "asc" ? "desc" : "asc";
+      table.querySelectorAll<HTMLButtonElement>("th button").forEach((b) => delete b.dataset.dir);
+      btn.dataset.dir = dir;
+      const body = table.tBodies[0];
+      const rows = [...body.rows];
+      const val = (r: HTMLTableRowElement) => r.cells[col]?.textContent?.trim() ?? "";
+      rows.sort((a, b) => {
+        const x = val(a), y = val(b);
+        const nx = Number(x), ny = Number(y);
+        const c = x !== "" && y !== "" && !isNaN(nx) && !isNaN(ny) ? nx - ny : x.localeCompare(y, "ko");
+        return dir === "asc" ? c : -c;
+      });
+      rows.forEach((r) => body.appendChild(r));
+    });
+  });
+</script>
+
+<style>
+  .head {
+    background: var(--hero);
+    padding: 64px 0 36px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 22px 0 14px;
+    position: sticky;
+    top: 68px;
+    background: var(--paper);
+    z-index: 5;
+  }
+  .tabs button {
+    flex-shrink: 0;
+    font: inherit;
+    font-size: 14px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .count {
+    font: 600 11px/1 var(--mono);
+    opacity: 0.65;
+    margin-left: 4px;
+  }
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: end;
+    margin: 18px 0 14px;
+    flex-wrap: wrap;
+  }
+  .sheet-head h2 {
+    margin: 0 0 4px;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .small {
+    font-size: 13px;
+    margin: 0;
+  }
+  .filter {
+    font: inherit;
+    padding: 10px 14px;
+    min-width: 260px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .table-wrap {
+    overflow: auto;
+    max-height: 72vh;
+  }
+  .table-wrap td {
+    font-size: 14px;
+    min-width: 90px;
+    max-width: 420px;
+    white-space: pre-line;
+  }
+  th button {
+    all: unset;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  th button::after {
+    content: " ↕";
+    opacity: 0.35;
+  }
+  th button[data-dir="asc"]::after {
+    content: " ↑";
+    opacity: 1;
+  }
+  th button[data-dir="desc"]::after {
+    content: " ↓";
+    opacity: 1;
+  }
+  tbody tr:hover td {
+    background: var(--surface-2);
+  }
+  .empty {
+    padding: 16px;
+  }
+  .text {
+    padding: 22px;
+  }
+  .gantt {
+    padding: 16px 18px 12px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+  }
+  .axis {
+    position: relative;
+    height: 22px;
+    margin-left: 300px;
+    border-bottom: 1px solid var(--line);
+    min-width: 520px;
+  }
+  .axis span {
+    position: absolute;
+    font: 11px/1 var(--mono);
+    color: var(--muted);
+    transform: translateX(-50%);
+  }
+  .g-row {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    align-items: center;
+    min-height: 26px;
+  }
+  .g-label {
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+    color: var(--ink-2);
+  }
+  .g-label em {
+    font-style: normal;
+    color: var(--copper);
+    margin-right: 6px;
+  }
+  .g-track {
+    position: relative;
+    height: 12px;
+    min-width: 520px;
+    background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 8 - 1px), var(--line) 0 calc(100% / 8));
+  }
+  .g-bar {
+    position: absolute;
+    top: 0;
+    height: 12px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .legend .g-bar {
+    position: static;
+    width: 18px;
+    vertical-align: middle;
+    margin: 0 4px 0 12px;
+  }
+  .done {
+    background: var(--teal);
+  }
+  .doing {
+    background: var(--copper);
+  }
+  .todo {
+    background: var(--muted);
+    opacity: 0.55;
+  }
+</style>
