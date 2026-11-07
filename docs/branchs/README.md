@@ -413,5 +413,6 @@ flowchart LR
 | 2026-11-07 | `c639f83` | feature/docs-final-update | 배포 진입 문서의 로직 구조를 지금 운영과 목표로 나눠 다시 그린다 | [261107_0955_c639f83_deployment-logic-mermaid_feature-docs-final-update.md](commits/261107_0955_c639f83_deployment-logic-mermaid_feature-docs-final-update.md) |
 | 2026-11-07 | `02654c2` | feature/docs-final-update | 문서 허브와 운영 문서 목록을 실제 배포 기준으로 고친다 | [261107_0956_02654c2_docs-hub-deploy_feature-docs-final-update.md](commits/261107_0956_02654c2_docs-hub-deploy_feature-docs-final-update.md) |
 | 2026-11-07 | `7c8ed95` | feature/docs-final-update | 운영 배포·이용자 IP 넘기기·대화 모델 예비를 기능 목록에 반영 | [261107_0956_7c8ed95_features-deploy-rows_feature-docs-final-update.md](commits/261107_0956_7c8ed95_features-deploy-rows_feature-docs-final-update.md) |
+| 2026-11-07 | `e42f066` | feature/docs-final-update | 배포 뒤 확인 결과와 운영 비밀값 상태를 남은 문서에 반영 | [261107_0957_e42f066_postdeploy-security-status_feature-docs-final-update.md](commits/261107_0957_e42f066_postdeploy-security-status_feature-docs-final-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
