@@ -1,6 +1,6 @@
 # 기능과 운영 현황
 
-구현된 기능과, 지금 공개 주소에서 실제로 열리는 범위를 나눈다. 기준 2026-11-07.
+구현된 기능과, 지금 공개 주소에서 실제로 열리는 범위를 나눈다. 기준 2026-11-08 (마지막 배포: `main` `0fc2302`, 2026-11-08).
 
 이 문서는 **추가**다. 기획 원본 `CodiComperChat_project_plan.md`와 기능 목록 [FEATURES.md](FEATURES.md)의 기존 줄을 여기 적힌 현황으로 바꾸지 않는다. 날짜가 붙은 실측·커밋 기록도 그때의 기록으로 둔다.
 
@@ -43,6 +43,7 @@ flowchart TD
 | 이용자 웹 | Vercel `https://codicomperchat-web.vercel.app` | 홈·인기·캐릭터·대화·공방·월드·마이페이지·설정·요금·약관·`/project` 소개. `main` 배포 |
 | API · DB · 대화 AI | Oracle `https://api.168-110-61-178.sslip.io` | caddy · api · postgres · ai · ollama. 대화는 NVIDIA 호스팅 `gemma-4-31b-it`, 막히면 CPU `gemma4:e4b` |
 | 공식 세계관 | 웹 `/worlds` | 「코퍼 시티: 멈춘 시계탑」시드가 공개·발행됨 (2026-11-07) |
+| 대화 수정 · 직접 적는 기억 · 때와 곳 | 대화 화면 | 2026-11-08 배포에 포함. 마이그레이션 `20261108123000_chat_memory_scene`(칸 추가만)이 서버에서 적용됐고 AI의 `/rewrite-line`·`/remember`가 올라와 있다. 로그인한 상태로 써 보는 확인은 하지 않았다 |
 | 프로젝트 소개 | 웹 `/project` | 2026-11-07에 추가. `PORTFOLIO_URL`이 있으면 포트폴리오 사이트 버튼 |
 | 포트폴리오 사이트 | Vercel `https://codicomperchat-portfolio.vercel.app` | Astro 정적 10페이지. 제품 웹이 아니다. Rails·Flask는 올리지 않아 챗봇은 서버 꺼짐. 그 챗봇 코드의 모델은 `gemma4:e4b` 하나 |
 
