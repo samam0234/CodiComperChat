@@ -166,7 +166,7 @@ docs/
 - 기획 원본: [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)
 - **인수인계: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **할 일: [TASKS.md](TASKS.md)** · **전체 기능: [FEATURES.md](FEATURES.md)**
 - 저장소 라이선스·보안·제3자 고지: [../LICENSE](../LICENSE) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
-- 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
+- 기여 순서: [../CONTRIBUTING.md](../CONTRIBUTING.md) · 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
 - 현재 스택: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
 - 소유자가 직접 할 일: [guidance/owner-checklist.md](guidance/owner-checklist.md)
 - 처음 띄우기: [guidance/getting-started.md](guidance/getting-started.md) · 환경변수: [guidance/environment.md](guidance/environment.md)
