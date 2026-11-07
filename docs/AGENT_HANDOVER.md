@@ -81,7 +81,7 @@ erDiagram
 
 | 항목 | 지금 |
 |------|------|
-| 배포 | **운영 중**(2026-11-07): Vercel 웹 + Oracle A1.Flex(caddy·api·postgres·ai·ollama). 상태 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). 접속 키는 사용자 PC에만 있고 저장소·문서에 적지 않는다. 비어 있는 값: SMTP, 프리미엄 키. 콘솔은 API에 연결 안 함. 전체 운영(Hetzner GEX45, GPU)은 계약 전 |
+| 배포 | **운영 중**(2026-11-07, **공개 전 필수 확인이 남음**: 처리방침의 국외 이전 표가 실제 구성과 다르다 — U11): Vercel 웹 + Oracle A1.Flex(caddy·api·postgres·ai·ollama). 상태 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). 접속 키는 사용자 PC에만 있고 저장소·문서에 적지 않는다. 비어 있는 값: SMTP, 프리미엄 키. 콘솔은 API에 연결 안 함. 전체 운영(Hetzner GEX45, GPU)은 계약 전 |
 | 병합 | 2026-11-07까지의 작업을 `develop`과 `main`에 병합했다: `feature/oracle-backend-deploy`, `claude/project-thread-pz0x5f`, `origin/claude/project-thread-po3i10`(충돌은 서버 구성 유지), `feature/web-vercel-deploy`, `feature/docs-final-update` |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-07에 푸시했다. Vercel 웹은 `main`에서 배포한다. 저장소는 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
@@ -98,6 +98,12 @@ erDiagram
 - **비밀값 위치**: 서버 `deploy/oracle/.env`(권한 600), Vercel 환경변수, 사용자 로컬 `.env`. 저장소·문서에는 없다.
 - **사용자 결정**: 처음엔 API+DB만 → AI도 같은 VM → 웹도 Vercel. 두 배포 브랜치 충돌은 서버 구성 유지. 배포 뒤 임시 키·IAM·CLI는 지웠다.
 - **남은 것**: SMTP, 콘솔 연결(허용 IP), 프리미엄 키·한도, 그림 엔진(GPU), 페르소나 파일을 서버 볼륨으로, DB 백업 cron, 도메인.
+- **문서를 보강하며 드러난 것(2026-11-07, 코드로 확인)** — 공개 전에 본다:
+  - **개인정보**: `LLM_BACKEND=openai`면 프리미엄이 아닌 **모든 대화 모델 호출과 그림 검수 입력이 NVIDIA 호스팅 API로 간다.** 서비스 처리방침의 국외 이전 표에는 Anthropic·xAI만 있다. → TASKS U11·U12, [../SECURITY.md](../SECURITY.md) "제3자에게 나가는 데이터"
+  - **성인 모드**: "성인 대화는 로컬 모델에서만"이 호스팅 백엔드에서는 코드로 지켜지지 않는다. 운영 `ADULT_MODE=off`에만 기댄다. → T05
+  - **모델 고르기**: 호스팅 API는 고른 모델 이름을 쓰지 않아 기본·강화 구분이 사라지는데 강화 한도·코레딧은 매겨지고, 강화로 예비에 넘어가면 서버에 없는 `gemma4:12b`를 찾는다(서버 미시험). → T06
+  - **품질**: 평가 11묶음은 `gemma4:e4b`로 맞춰져 있어 운영의 호스팅 31B는 재지 않았다. → Q08, [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md)
+  - API 문서는 Nest 라우트 155개·FastAPI 24개 모두 있음을 대조했다(경로만).
 
 ### 2026-11-06 늦게 더해진 것
 
