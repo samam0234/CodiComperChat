@@ -469,5 +469,6 @@ flowchart LR
 | 2026-11-08 | `a3f0e29` | feature/chat-edit-memory | 괄호 조사를 받침에 맞게 고치다 | [261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md](commits/261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md) |
 | 2026-11-08 | `acd5167` | feature/chat-edit-memory | 내 말풍선 색을 맞추고 안내 글 잘림을 없애다 | [261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md](commits/261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md) |
 | 2026-11-08 | `d40ceba` | feature/chat-edit-memory | 최근 대사를 고치고 기억과 때·곳을 남기다 | [261108_0049_d40ceba_chat-edit-memory-scene_feature-chat-edit-memory.md](commits/261108_0049_d40ceba_chat-edit-memory-scene_feature-chat-edit-memory.md) |
+| 2026-11-08 | `99d1921` | feature/chat-edit-memory | 대사 수정·기억·때와 곳 경로를 적다 | [261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md](commits/261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
