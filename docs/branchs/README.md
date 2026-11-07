@@ -472,5 +472,6 @@ flowchart LR
 | 2026-11-08 | `99d1921` | feature/chat-edit-memory | 대사 수정·기억·때와 곳 경로를 적다 | [261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md](commits/261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md) |
 | 2026-11-08 | `f0b7d19` | develop (merge) | feature/chat-edit-memory into develop (no-ff) | [261108_0050_f0b7d19_merge-chat-edit-memory-into-develop_develop.md](commits/261108_0050_f0b7d19_merge-chat-edit-memory-into-develop_develop.md) |
 | 2026-11-08 | `1924634` | main (merge) | develop into main (no-ff) | [261108_0050_1924634_merge-develop-into-main-chat_main.md](commits/261108_0050_1924634_merge-develop-into-main-chat_main.md) |
+| 2026-11-08 | `8982dbd` | feature/deploy-status-1108 | 2026-11-08 배포(main 0fc2302)의 확인 결과를 현황 문서에 적는다 | [261108_0104_8982dbd_deploy-status-1108_feature-deploy-status-1108.md](commits/261108_0104_8982dbd_deploy-status-1108_feature-deploy-status-1108.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
