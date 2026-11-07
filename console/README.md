@@ -113,6 +113,8 @@ flowchart LR
 
 ## Vercel에 올릴 때 (2026-11-07, 아직 API에 연결 안 됨)
 
+코드의 메뉴는 로컬에서 동작한다. 공개 주소에 연결됐는지는 [../docs/STATUS.md](../docs/STATUS.md).
+
 Vercel 프로젝트 `codicomperchat-console`이 있고 빌드 설정은 [`vercel.json`](vercel.json)(`nextjs`, `icn1`)이다. **하지만 `API_BASE_URL`과 `CONSOLE_IP_ALLOWLIST`가 없어 API에 연결돼 있지 않다.** 운영자 화면이라 허용할 IP를 사용자가 정한 뒤에 연결한다([../docs/TASKS.md](../docs/TASKS.md) U08, T04).
 
 | 환경변수(Vercel) | 지금 | 연결할 때 |
