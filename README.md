@@ -549,6 +549,7 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 | 찾는 것 | 문서 |
 |---------|------|
 | 전체 문서 안내, 어떤 값을 어느 문서가 맡는지 | [docs/README.md](docs/README.md) |
+| 일을 시작하는 순서 (브랜치, 커밋, 시험, 병합) | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | 지금 상태와 함정 | [AGENT_HANDOVER](docs/AGENT_HANDOVER.md) |
 | 다음에 할 일 | [TASKS](docs/TASKS.md) |
 | 소유자가 직접 할 일 | [owner-checklist](docs/guidance/owner-checklist.md) |
@@ -566,7 +567,7 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 
 ## 작업 규칙
 
-AI 에이전트를 포함해 이 저장소에서 일하는 모두가 따릅니다. 정본: [.agents/skills/codicomperchat/SKILL.md](.agents/skills/codicomperchat/SKILL.md)
+AI 에이전트를 포함해 이 저장소에서 일하는 모두가 따릅니다. 순서는 [CONTRIBUTING.md](CONTRIBUTING.md), 정본은 [.agents/skills/codicomperchat/SKILL.md](.agents/skills/codicomperchat/SKILL.md)입니다.
 
 - 커밋: `type(scope):`는 영어, 요약·본문은 한국어 → [commit-message](docs/guidance/commit-message.md)
 - 매 커밋마다 `docs/branchs/commits/`에 기록 → [TEMPLATE](docs/branchs/TEMPLATE.md)
