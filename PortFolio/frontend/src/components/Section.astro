@@ -1,0 +1,158 @@
+---
+import type { Section } from "../lib/content";
+interface Props {
+  section: Section;
+  index: number;
+}
+const { section: s, index } = Astro.props;
+// `코드`만 <code>로 바꾼다(콘텐츠는 저장소가 쓴 글이라 HTML을 넣지 않는다)
+const inline = (t: string) =>
+  t
+    .replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/(\d+\/\d+ → \d+\/\d+|잘못 통과 0건|\d+개)/g, "<mark>$1</mark>");
+---
+
+<section id={s.id} class="sec reveal">
+  <header>
+    <span class="num">{String(index + 1).padStart(2, "0")}</span>
+    <h2>{s.title}</h2>
+  </header>
+  {s.body && <p class="body" set:html={inline(s.body)} />}
+  {s.bullets && (
+    <ul class="bullets">
+      {s.bullets.map((b) => <li set:html={inline(b)} />)}
+    </ul>
+  )}
+  {s.table && (
+    <div class="table-wrap card">
+      <table class="grid">
+        <tbody>
+          {s.table.map(([k, v]) => (
+            <tr>
+              <th scope="row" set:html={inline(k)} />
+              <td set:html={inline(v)} />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {s.images && (
+    <div class:list={["shots", s.images.length === 1 && "one"]}>
+      {s.images.map((img) => (
+        <figure class="shot">
+          <button class="zoom" data-src={img.src} data-caption={img.caption} aria-label={`${img.caption} 크게 보기`}>
+            <img src={img.src} alt={img.caption} loading="lazy" decoding="async" />
+          </button>
+          <figcaption>{img.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  .sec {
+    padding: 40px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+  .sec:first-of-type {
+    border-top: 0;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .num {
+    font: 700 13px/1 var(--mono);
+    color: var(--copper);
+    background: var(--copper-soft);
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+  h2 {
+    font-size: 1.55rem;
+  }
+  .body {
+    color: var(--ink-2);
+    max-width: 75ch;
+  }
+  .bullets {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    max-width: 82ch;
+  }
+  .bullets li {
+    position: relative;
+    padding-left: 22px;
+    color: var(--ink-2);
+  }
+  .bullets li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.72em;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--copper);
+    transform: rotate(45deg);
+  }
+  .table-wrap {
+    overflow: auto;
+    margin: 18px 0 8px;
+  }
+  .table-wrap th {
+    width: 30%;
+    position: static;
+    color: var(--ink);
+    font-size: 0.92rem;
+  }
+  :global(mark) {
+    background: linear-gradient(transparent 58%, var(--copper-soft) 0);
+    color: inherit;
+    font-weight: 700;
+  }
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .shots.one {
+    grid-template-columns: minmax(0, 760px);
+  }
+  .shot {
+    margin: 0;
+  }
+  .zoom {
+    all: unset;
+    cursor: zoom-in;
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    background: var(--surface-2);
+    aspect-ratio: 16 / 10;
+  }
+  .zoom img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 0.4s ease;
+  }
+  .zoom:hover img {
+    transform: scale(1.03);
+  }
+  figcaption {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+</style>

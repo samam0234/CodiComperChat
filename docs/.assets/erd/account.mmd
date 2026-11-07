@@ -1,0 +1,88 @@
+erDiagram
+  users ||--o{ attendances : "userId · CASCADE"
+  users ||--o{ credit_ledger : "userId · CASCADE"
+  users ||--o{ email_tokens : "userId · CASCADE"
+  users ||--o{ model_usage : "userId · CASCADE"
+  users |o--o{ payment_orders : "userId · SET NULL"
+  users ||--o{ quest_rewards : "userId · CASCADE"
+  users ||--o{ user_personas : "userId · CASCADE"
+  users {
+    text id PK
+    text email UK
+    text displayName
+    text passwordHash "NULL"
+    UserRole role "기본 USER"
+    UserPlan plan "기본 FREE"
+    timestamp(3) planUntil "NULL"
+    timestamp(3) emailVerifiedAt "NULL"
+    date birthDate "NULL"
+    timestamp(3) adultConsentAt "NULL"
+    timestamp(3) suspendedAt "NULL"
+    text suspendReason "NULL"
+    integer sessionVersion "기본 0"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+    integer credits "기본 0"
+  }
+  user_personas {
+    text id PK
+    text userId FK
+    text name
+    text description "기본 ''"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  email_tokens {
+    text id PK
+    text userId FK
+    EmailTokenPurpose purpose
+    text tokenHash UK
+    timestamp(3) expiresAt
+    timestamp(3) usedAt "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  payment_orders {
+    text id PK
+    text userId FK "NULL"
+    text buyerEmail "NULL"
+    text productId
+    integer amount
+    integer days
+    text provider
+    PaymentStatus status "기본 PENDING"
+    text paymentKey UK "NULL"
+    text failReason "NULL"
+    text receiptUrl "NULL"
+    timestamp(3) refundedAt "NULL"
+    text refundReason "NULL"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) paidAt "NULL"
+  }
+  credit_ledger {
+    text id PK
+    text userId FK
+    integer delta
+    integer balance
+    CreditReason reason
+    text modelId "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  attendances {
+    text userId PK,FK
+    text day PK
+    integer credits
+    timestamp(3) createdAt "기본 now()"
+  }
+  model_usage {
+    text userId PK,FK
+    text modelId PK
+    text day PK
+    integer count "기본 0"
+  }
+  quest_rewards {
+    text id PK
+    text userId FK "UK(userId+characterId)"
+    text characterId "UK(userId+characterId)"
+    integer amount
+    timestamp(3) createdAt "기본 now()"
+  }

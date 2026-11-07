@@ -1,0 +1,84 @@
+---
+// 포트폴리오 문서 내려받기 (PortFolio/PortFile → public/files, scripts/build_portfile.py)
+import Base from "../layouts/Base.astro";
+const files = [
+  { file: "CodiComperChat_Portfolio.pdf", kind: "PDF", title: "포트폴리오 문서", text: "읽기·인쇄용. 표지 · 목차 · 프로젝트 · 네 층 · 미래 · 부록(평가 · 데이터)" },
+  { file: "CodiComperChat_Portfolio.docx", kind: "Word", title: "포트폴리오 문서 (편집용)", text: "같은 내용을 고쳐 쓸 수 있는 Word 문서" },
+  { file: "CodiComperChat_Portfolio.pptx", kind: "PowerPoint", title: "발표 자료", text: "면접·발표용 슬라이드. 한 장에 한 메시지" },
+  { file: "CodiComperChat_planning.xlsx", kind: "Excel", title: "기획 스프레드시트", text: "총기획 · 기능 · 용어 · 테이블 · 스키마 · URL · 화면 · 간트 · 향후 계획 (9개 시트)" },
+];
+---
+
+<Base title="문서 내려받기" description="코디컴퍼챗 포트폴리오 문서: PDF · Word · PowerPoint · Excel">
+  <section class="head">
+    <div class="container">
+      <p class="eyebrow">Documents</p>
+      <h1>문서 내려받기</h1>
+      <p class="lead">이 사이트와 같은 콘텐츠 정본(<code>portfolio.json</code>)에서 만든 문서입니다. 사이트를 고치면 문서도 함께 다시 만들어집니다.</p>
+    </div>
+  </section>
+  <div class="container grid4">
+    {files.map((f) => (
+      <a class="card file" href={`/files/${f.file}`} download>
+        <span class={`kind k-${f.kind.toLowerCase()}`}>{f.kind}</span>
+        <b>{f.title}</b>
+        <span class="muted">{f.text}</span>
+        <span class="dl">내려받기 ↓</span>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .head {
+    background: var(--hero);
+    padding: 64px 0 36px;
+    border-bottom: 1px solid var(--line);
+  }
+  .grid4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .file {
+    display: grid;
+    gap: 8px;
+    padding: 22px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.15s;
+  }
+  .file:hover {
+    transform: translateY(-3px);
+    border-color: var(--copper);
+  }
+  .kind {
+    justify-self: start;
+    font: 700 11px/1 var(--mono);
+    padding: 6px 9px;
+    border-radius: 6px;
+    color: #fff;
+  }
+  .k-pdf {
+    background: #b4423a;
+  }
+  .k-word {
+    background: #2b5797;
+  }
+  .k-powerpoint {
+    background: #c55a11;
+  }
+  .k-excel {
+    background: #217346;
+  }
+  .muted {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .dl {
+    color: var(--copper);
+    font-weight: 600;
+    margin-top: 6px;
+  }
+</style>

@@ -1,0 +1,1011 @@
+<!-- source: PortFile 스프레드시트 -->
+## 스프레드시트 시트: 프로젝트_총기획
+- 구분: 개요 · 항목: 플랫폼 이름 · 내용: 코디컴퍼챗 (CodiComperChat) — 코디네이션 + 컴포넌트 + 챗
+- 구분: 개요 · 항목: AI 기능 이름 · 내용: 캠페니언 (AI Companion)
+- 구분: 개요 · 항목: 한 줄 정의 · 내용: 캐릭터 캠페인 동행 플랫폼. 유저가 주인공인 이어지는 이야기를, 고정된 인격의 AI 캐릭터가 동행하며 다음 세션까지 기억한다
+- 구분: 개요 · 항목: 제품 한 줄 · 내용: 캐릭터챗 입구 + 캠페인 잔존 ("지난주에 한 약속이 오늘 돌아오는 세계")
+- 구분: 개요 · 항목: 컨텐츠 단위 · 내용: 메시지가 아니라 세션 → 장면 → 캠페인. 캐릭터 층 · 캠페인 상태 층 · 세션 층이 함께 움직인다
+- 구분: 개요 · 항목: 기획 원본 · 내용: CodiComperChat_project_plan.md (문서 버전 0.1.3, 2026-09-15). 사용자 승인 없이 수정하지 않는다
+- 구분: 개요 · 항목: 지금 상태 · 내용: 2026-11-07 실제 배포·운영 중. 웹 https://codicomperchat-web.vercel.app · API https://api.168-110-61-178.sslip.io. 공개 전 필수 확인이 남음 (처리방침 국외 이전 표 등)
+- 구분: 차별점 · 항목: 대상 · 내용: 캐릭터챗·웹소설·TRPG·덕질에 익숙한 10대 후반~20대. "최애와 말하고 싶다"에서 "이 세계가 이어지면 좋겠다"로 옮겨 갈 사람
+- 구분: 차별점 · 항목: 겨냥하지 않음 · 내용: 업무용 챗봇이 필요한 사람, 정보만 원하는 사람, 캐릭터를 대량으로 광장에 올리려는 창작 유저(2차 이후)
+- 구분: 차별점 · 항목: 오늘 대화가 전부 → · 내용: 지난 약속·상처·비밀이 다음 세션에 돌아온다 (장기 기억 · 지난 이야기 · 복선)
+- 구분: 차별점 · 항목: 성격 프롬프트 한 장 → · 내용: 말투 규칙·비밀·해금 조건이 DB 필드로 존재한다 (characters, character_drafts)
+- 구분: 차별점 · 항목: 무한 채팅방 → · 내용: 세션이 있고 끝에 훅이 남는다 (sessions, campaign_states)
+- 구분: 차별점 · 항목: 만능 친구 → · 내용: 캐릭터는 연기만, 숨은 디렉터는 뒤에서만 개입
+- 구분: 차별점 · 항목: 캐릭터 광장 → · 내용: v1은 공식 캐릭터 소수(지금 유지성·이세연 2명)로 밀도를 증명
+- 구분: 차별점 · 항목: 유저에게 거는 약속 · 내용: ① 캐릭터가 어제 일을 안다 ② 말투가 어제의 그 사람이다 ③ 안 연 비밀은 먼저 말하지 않는다 ④ 세션을 닫아도 캠페인은 죽지 않는다
+- 구분: 기술 · 항목: 프론트 (이용자) · 내용: Next.js 16.4 · React 19.2 · App Router · TSX — apps/web (:3000), CSS Modules
+- 구분: 기술 · 항목: 프론트 (운영) · 내용: Next.js 운영 콘솔 — console/ (:3001), 운영자만
+- 구분: 기술 · 항목: 도메인 API · 내용: Nest.js 12 · TypeScript ESM — apps/api (:4000). 인증·캐릭터·대화·상태·코레딧·결제·신고 (신뢰 경계)
+- 구분: 기술 · 항목: AI 서비스 · 내용: FastAPI · Python 3.12 — services/ai (:8000, 내부망 전용). 연기·요약·판정·그림
+- 구분: 기술 · 항목: DB / ORM · 내용: PostgreSQL 16 · Prisma 7 — 테이블 37개 · 외래 키 40개 · 열거형 17개 · 마이그레이션 34개
+- 구분: 기술 · 항목: LLM · 내용: 개발: 로컬 Ollama gemma4:e4b · 운영: NVIDIA 호스팅 gemma-4-31b-it(OpenAI 호환), 막히면 CPU Ollama gemma4:e4b
+- 구분: 기술 · 항목: 그림 엔진 · 내용: diffusers (Animagine XL 4.0 · SD 1.5), GPU 필요 — 지금 운영 서버엔 GPU가 없어 "준비 중"
+- 구분: 기술 · 항목: 호출 규칙 · 내용: 브라우저 → web → Nest(Bearer) → FastAPI(AI_SERVICE_TOKEN). 프론트는 FastAPI를 직접 부르지 않는다
+- 구분: 기술 · 항목: 인증 · 내용: 자체 이메일·비밀번호 (scrypt + HS256 JWT 7일), 이메일 인증·비밀번호 찾기, 토큰 세대(sessionVersion)
+- 구분: 기술 · 항목: 시험 · 내용: API vitest 232개 · AI unittest 71개 · 웹 Playwright e2e 123개 · AI 품질 평가(evals) 11묶음 · GitHub Actions CI
+- 구분: 배포 · 항목: 웹 · 내용: Vercel codicomperchat-web (icn1), main 브랜치에서 배포. 환경변수 API_BASE_URL · WEB_PROXY_TOKEN · CONSOLE_BASE_URL · REQUIRE_HTTPS
+- 구분: 배포 · 항목: API·DB·AI · 내용: Oracle Cloud A1.Flex (ARM 2 OCPU · 12GB, Ubuntu 24.04, 도쿄) — Caddy · api · postgres · ai · ollama (docker compose 두 파일)
+- 구분: 배포 · 항목: TLS / 이름 · 내용: Caddy + sslip.io (api.168-110-61-178.sslip.io). 바깥 포트 80·443만, 4000·8000·5432·11434 닫힘
+- 구분: 배포 · 항목: 목표 구성 · 내용: GPU 서버 한 대 24시간 (Hetzner GEX45 결정, 계약 전) — deploy/docker-compose.prod.yml
+- 구분: 배포 · 항목: 남은 운영 일 · 내용: SMTP · 콘솔 연결(허용 IP) · 프리미엄 키·한도 · 그림 엔진(GPU) · 페르소나 파일 서버 볼륨 · DB 백업 cron · 도메인
+- 구분: 배포 · 항목: 관련 문서 · 내용: deploy/deploy-guide.html · oracle-console-guide.html · ai-server-guide.html · ai-deploy-handover.md (프로젝트 공유 폴더)
+- 구분: 범위 · 항목: v1이 증명할 것 · 내용: 세션을 넘기면 캐릭터가 지난 훅을 먼저 꺼낸다 · 비밀이 조건 전에 새지 않는다 · 말투가 20턴 근처까지 버틴다 · 유저가 "회차"로 기억한다
+- 구분: 범위 · 항목: v1에서 빼는 것 · 내용: 유저 캐릭터 광장·카드 마켓, 자체 LLM 학습, 멀티플레이·파티, 음성, 생산성 기능, 복잡한 전투 룰북
+- 구분: 범위 · 항목: 사용자 요청으로 더한 것 · 내용: 오퍼레이션 · 코디포토넷 · 웹툰 · 비밀 퀘스트 · 코레딧 · 월드코퍼챗 (기획 원본 밖, 사용자 지시)
+- 구분: 범위 · 항목: 합의된 결정 · 내용: 스택(Next/Nest/FastAPI), PostgreSQL, 공방 단계형, 공식 캐릭터 소수, 자체 학습 없음, 결제 보류(눌러서 프로 30일)
+- 구분: 리스크 · 항목: 캐릭터챗 복제 · 내용: 세션·상태·비밀 해금을 온보딩부터 보여 준다
+- 구분: 리스크 · 항목: 설명충화 · 내용: 말투 규칙, 예시 대사, 3턴 테스트 가드, 메타 금지
+- 구분: 리스크 · 항목: 컨텍스트 폭발 · 내용: 토큰 예산, 검색된 기억만, 요약 계층
+- 구분: 리스크 · 항목: 비밀 누설 · 내용: 해금 조건 필드 + 서버 점검, 공개 응답에서 비밀 제외
+- 구분: 리스크 · 항목: 스코프 팽창 · 내용: v1 증명 문장 4개를 이슈 필터로 사용
+- 구분: 리스크 · 항목: 비용 · 내용: 디렉터는 짧은 체크, 본 생성 1회, 요약은 배치(메시지 6개마다)
+- 구분: 리스크 · 항목: 개인정보 (공개 전) · 내용: LLM_BACKEND=openai이면 대화가 NVIDIA 호스팅 API로 간다 → 처리방침 국외 이전 표 갱신 필요 (U11·U12)
+- 구분: 수치 · 항목: 기능 수 · 내용: 107
+- 구분: 수치 · 항목: 용어 수 · 내용: 61
+- 구분: 수치 · 항목: 테이블 수 · 내용: 37
+- 구분: 수치 · 항목: 컬럼 수 · 내용: 331
+- 구분: 수치 · 항목: URL 수 · 화면 · 내용: 47
+- 구분: 수치 · 항목: URL 수 · 웹 중계 · 내용: 10
+- 구분: 수치 · 항목: URL 수 · Nest API · 내용: 155
+- 구분: 수치 · 항목: URL 수 · FastAPI · 내용: 24
+- 구분: 수치 · 항목: 화면 수 · 내용: 47
+- 구분: 수치 · 항목: 간트 작업 · 완료 · 내용: 26
+- 구분: 수치 · 항목: 간트 작업 · 예정 · 내용: 13
+- 구분: 수치 · 항목: 향후 계획 항목 · 내용: 41
+
+## 스프레드시트 시트: 기능_설계
+- 기능 ID: F01-01 · 대분류: 계정·인증 · 기능명: 가입 · 로그인 · 로그아웃 · 화면: /signup /login · API: POST /auth/signup login logout · 코드 위치: api/auth, web/app/actions/auth.ts · 시험 / 비고: auth · 상태 구현. scrypt 비밀번호, JWT 7일, 약한 비밀번호 거절 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-02 · 대분류: 계정·인증 · 기능명: 내 정보 · 표시 이름 변경 · 화면: /settings 계정 · API: GET·PATCH /auth/me · 코드 위치: api/auth · 시험 / 비고: auth · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-03 · 대분류: 계정·인증 · 기능명: 비밀번호 변경 · 화면: /settings · API: POST /auth/me/password · 코드 위치: api/auth · 시험 / 비고: email · 변경하면 다른 기기 로그인 끊김(토큰 세대) · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-04 · 대분류: 계정·인증 · 기능명: 이메일 인증 · 화면: /verify-email, 마이페이지 · API: POST /auth/me/verify-email POST /auth/verify-email · 코드 위치: api/auth/email-token.ts, api/mail · 시험 / 비고: email · 발행·성인 확인의 전제 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-05 · 대분류: 계정·인증 · 기능명: 비밀번호 찾기·재설정 · 화면: /forgot-password /reset-password · API: POST /auth/password/forgot reset · 코드 위치: api/auth · 시험 / 비고: email · 가입 여부 비노출 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-06 · 대분류: 계정·인증 · 기능명: 회원 탈퇴 · 화면: /settings · API: DELETE /auth/me · 코드 위치: api/account · 시험 / 비고: account · 데이터 삭제, 결제 기록만 법정 보관 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-07 · 대분류: 계정·인증 · 기능명: 성인 확인·끄기 · 화면: /settings 콘텐츠 수위, 코디포토넷·웹툰의 성인 버튼(열림 상자) · API: POST·DELETE /auth/me/adult · 코드 위치: api/account/adult.ts, web/app/characters/[id]/chat/adult-dialog.tsx · 시험 / 비고: operations · 자기 신고(생년월일+동의+이메일 인증), 본인인증 없음. ADULT_MODE=off면 모두 막히고 화면의 입구도 숨는다(운영 compose 기본, adult-off) · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-08 · 대분류: 계정·인증 · 기능명: 나이 확인(프리미엄용) · 화면: /settings#age-settings, 대화 화면 모델 안내 링크 · API: POST /auth/me/birthdate · 코드 위치: api/account, web/app/settings/forms.tsx · 시험 / 비고: models · 자기 신고, 한 번만 입력. 성인 확인과 별개라 ADULT_MODE=off여도 쓴다 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-09 · 대분류: 계정·인증 · 기능명: 요금 등급(무료/프로) · 화면: 마이페이지·/pricing · API: GET /auth/me(plan) · 코드 위치: api/plan · 시험 / 비고: plan · 프로는 공방 긴 글 칸 3배, 강화 모델 무제한, 출석 5,000 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F01-10 · 대분류: 계정·인증 · 기능명: 프리미엄 월 상한 · 화면: 대화 화면 모델 안내("이번 달 제공량 소진") · API: — · 코드 위치: api/models · 시험 / 비고: 단위 · PREMIUM_MONTHLY_CREDITS. 운영에서 값이 없으면 열리지 않는다 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F02-01 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 내 프로필 캐릭터(이름·소개, 10개까지) · 화면: 마이페이지 · API: GET·POST /me/personas, PATCH·DELETE /me/personas/:id · 코드 위치: api/personas · 시험 / 비고: auth · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-02 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 추천 프로필(캐릭터가 추천, 선택) · 화면: 대화 화면 "추천 프로필" 카드 · API: GET /characters/:id(recommendedPersona) 후 POST /me/personas · 코드 위치: web/…/chat/recommended-persona.tsx, api/characters · 시험 / 비고: persona-recommend · 그대로/고쳐서 쓰기, 같은 이름이면 재사용 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-03 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 홈 · 이어서 대화하기 · 화면: / · API: GET /characters, GET /me/conversations · 코드 위치: web/components/character-list.tsx · 시험 / 비고: popular · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-04 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 인기 순위 · 화면: /popular · API: GET /characters/popular · 코드 위치: api/characters · 시험 / 비고: popular · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-05 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 캐릭터 상세 · 초상 · 화면: /characters/:id · API: GET /characters/:id …/portrait · 코드 위치: api/characters · 시험 / 비고: studio · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-06 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 공식 캐릭터 2명(유지성·이세연) · 화면: 홈·인기 · API: 시드 · 코드 위치: api/prisma/seed.mjs, docs/plan/CHARACTERS.md · 시험 / 비고: 초상·퀘스트·추천 프로필 포함 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-07 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 신고 · 화면: 캐릭터 상세 맨 아래 · API: GET /characters/:id/report/reasons, POST /characters/:id/report · 코드 위치: api/reports · 시험 / 비고: reports · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F02-08 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 대화 목록 · 저장한 대화 · 화면: /library · API: GET /me/conversations, GET /characters/:id/chat/saved · 코드 위치: api/conversations · 시험 / 비고: chat · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F03-01 · 대분류: 대화 · 기능명: 대화 보내기·기록 · 화면: /characters/:id/chat · API: GET·POST /characters/:id/chat · 코드 위치: api/character-chat, web/…/chat/character-chat.tsx · 시험 / 비고: chat · 답은 한 번에 옴(스트리밍 없음) · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-02 · 대분류: 대화 · 기능명: 새로하기(저장/저장 안 함)·이어하기 · 화면: 대화 위 버튼 · API: POST …/chat/new, GET …/chat/saved, POST …/saved/:campaignId/resume, DELETE …/saved/:campaignId · 코드 위치: api/character-chat · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-03 · 대분류: 대화 · 기능명: 대답 추천(3개) · 화면: 입력창 옆 ✦ · API: POST …/chat/suggestions · 코드 위치: api/character-chat, ai/services/suggestion.py · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-04 · 대분류: 대화 · 기능명: 명령어 · 화면: 입력창 · API: POST …/chat/regenerate continue undo · 코드 위치: api/character-chat · 시험 / 비고: commands · /다시 /계속 /되돌리기 /상황 내용 /도움말 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-05 · 대분류: 대화 · 기능명: 글 꾸미기 · 화면: 말풍선 · API: — · 코드 위치: web/lib/chat-format.ts, web/components/chat-text.tsx · 시험 / 비고: format · *행동*(40% 회색 기울임) 굵게 ~취소선~ 코드·제목·인용·상자·정보창·@이름, HTML은 실행되지 않음 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-06 · 대분류: 대화 · 기능명: 나레이션 @: · 화면: 말풍선(가운데 상자) · API: — · 코드 위치: 위와 같음 + ai/services/inference.py(규칙 8) · 시험 / 비고: format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-07 · 대분류: 대화 · 기능명: 모델 고르기(기본 무료·강화 무료·프리미엄) · 화면: 입력창 아래 · API: GET /models · 코드 위치: api/models · 시험 / 비고: models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 · 상태: 준비 중 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-08 · 대분류: 대화 · 기능명: 프로필 고정 · 화면: 대화 · API: — · 코드 위치: api/conversations · 시험 / 비고: chat · 첫 메시지 뒤 새로하기 전까지 못 바꿈 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-01 · 대분류: 기억·이야기 상태 · 기능명: 장기 기억(보기·지우기·정리) · 화면: /chat/memories · API: GET …/memories, DELETE …/memories/:id, POST …/memories/refresh · 코드 위치: api/memories, ai/services/remember.py · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-02 · 대분류: 기억·이야기 상태 · 기능명: 지난 이야기(요약·친밀도 자동 변화·복선) · 화면: 대화 아래 접이식 패널 · API: GET …/chat/story, DELETE …/story/hooks/:hookId · 코드 위치: api/campaign-state, ai/services/summarization.py · 시험 / 비고: chat · 대화 3번(메시지 6개)마다 뒤에서 정리 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-03 · 대분류: 기억·이야기 상태 · 기능명: 상태설정(친밀도·메모·호칭·자동 변화 끄기) · 화면: /chat/settings · API: GET·PATCH …/chat/state · 코드 위치: api/chat-state · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-04 · 대분류: 기억·이야기 상태 · 기능명: 엑스트라(조연, 1인 20개·대화당 3명) · 화면: 대화 아래 패널 · API: GET·POST·PATCH·DELETE /me/extras, GET·PUT·DELETE …/chat/extras · 코드 위치: api/extras · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-05 · 대분류: 기억·이야기 상태 · 기능명: 개인사 환각 가드 · 화면: 보이지 않음 · API: /ground-check(내부) · 코드 위치: api/character-chat/grounding.ts, ai/services/grounding.py · 시험 / 비고: evals · 설정에 없는 개인사를 지어내면 다시 쓰게 함 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F04-06 · 대분류: 기억·이야기 상태 · 기능명: 페르소나 지식 RAG · 화면: 보이지 않음 · API: — · 코드 위치: api/persona-rag · 시험 / 비고: 캐릭터별 비공개 JSON(git 제외) 검색 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F05-01 · 대분류: 코레딧 · 기능명: 출석(무료 1,000·프로 5,000) · 잔액 · 내역 · 화면: 마이페이지 코레딧 카드 · API: POST /me/attendance, GET /me/credits · 코드 위치: api/credits · 시험 / 비고: models · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F05-02 · 대분류: 코레딧 · 기능명: 값표 · 화면: 곳곳 · API: — · 코드 위치: api/credits/credits.ts · 시험 / 비고: 심리 탐구 30 · 일기 20 · 커뮤니티 20/10 · 코디포토넷 50 · 웹툰 한 컷 45 · 공방 AI 초상 25 · 퀘스트 보상 100 · 강화 무료 초과 10 · 메시지 무료 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F05-03 · 대분류: 코레딧 · 기능명: 차감·환불 · 화면: — · API: — · 코드 위치: api/credits, api/operations(charged) · 시험 / 비고: 한 문장으로 차감(음수 불가), 실패하면 환불 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F06-01 · 대분류: 캐릭터 공방 · 기능명: 초안 만들기·목록·자동 저장 · 화면: /studio /studio/:id · API: GET·POST /studio/characters, GET·PATCH·DELETE …/:id · 코드 위치: api/studio, web/app/studio · 시험 / 비고: studio · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-02 · 대분류: 캐릭터 공방 · 기능명: 8단계 카드(정체성·외형·성격·캠페인 역할·비밀·첫인사·로어북·비밀 퀘스트) · 화면: 편집기 · API: 〃 · 코드 위치: api/studio/card.ts · 시험 / 비고: studio · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-03 · 대분류: 캐릭터 공방 · 기능명: 칸별 AI 초안 · 화면: 칸 옆 "AI 초안" · API: POST …/:id/draft-field · 코드 위치: ai/services/draft.py · 시험 / 비고: studio · 비밀·이름·예시는 제외 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-04 · 대분류: 캐릭터 공방 · 기능명: 말투 샘플 · 화면: 성격·말투 단계 · API: POST …/:id/samples · 코드 위치: api/studio · 시험 / 비고: studio · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-05 · 대분류: 캐릭터 공방 · 기능명: 3턴 테스트·판정·테스트 초기화 · 화면: 미리보기 · API: POST …/:id/test/chat test/critique test/reset · 코드 위치: api/studio, ai/services/critique.py · 시험 / 비고: studio · 카드를 고치면 무효 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-06 · 대분류: 캐릭터 공방 · 기능명: 발행 · 공개 범위 · 내리기 · 화면: 위쪽 막대 · API: POST …/:id/publish unpublish, PATCH …/:id/visibility · 코드 위치: api/studio/studio-publish.service.ts · 시험 / 비고: studio · 이메일 인증 + 필수 단계 + 테스트 통과 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-07 · 대분류: 캐릭터 공방 · 기능명: 프로 등급 글자 수 3배·프롬프트 연장 · 화면: 긴 글 칸 · API: — · 코드 위치: api/studio/card.ts · 시험 / 비고: plan · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-08 · 대분류: 캐릭터 공방 · 기능명: 초상 올리기(내 파일 선택) · 화면: 외형 단계 · API: PUT·DELETE·GET …/:id/portrait · 코드 위치: api/studio/portrait.ts · 시험 / 비고: studio · 형식·150KB·첫 바이트 검사 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-09 · 대분류: 캐릭터 공방 · 기능명: AI로 초상 만들기(25 코레딧) · 화면: 외형 단계 "AI로 직접 만들기" · API: POST …/:id/portrait/generate · 코드 위치: api/studio/studio-portrait-ai.service.ts, ai/services/portrait.py, web/app/studio/[id]/portrait-ai.tsx · 시험 / 비고: portrait-ai · 화풍 4×생김새 8항목, 전체 이용가, 검수 거침. 후보를 보고 고른 그림만 저장하며 여러 장 뽑을 수 있다. 후보는 화면을 나가면 사라진다 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-10 · 대분류: 캐릭터 공방 · 기능명: 추천 프로필 칸(선택) · 화면: 비밀 퀘스트 단계 아래 · API: PATCH …/:id(card.recommendedPersona) · 코드 위치: api/studio/card.ts · 시험 / 비고: studio-recommend · 발행하면 캐릭터에 실린다. 3턴 테스트를 무효로 만들지 않는다 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-11 · 대분류: 캐릭터 공방 · 기능명: 비밀 퀘스트 한 번에 AI 제작 · 화면: 비밀 퀘스트 단계 · API: POST …/:id/draft-quest · 코드 위치: ai/services/draft.py · 시험 / 비고: quest · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F06-12 · 대분류: 캐릭터 공방 · 기능명: 초상 자동 검수 · 화면: 올릴 때 · API: /moderate-image(내부) · 코드 위치: api/studio/portrait-review.service.ts, ai/services/image_moderation.py · 시험 / 비고: moderation · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F07-01 · 대분류: 비밀 퀘스트 · 기능명: 숨은 부탁(이름·부탁·달성 조건·보상 장면·열리는 친밀도) · 화면: 대화 "비밀 퀘스트" 열림 상자 · API: GET …/chat/quest · 코드 위치: api/quests, web/…/chat/secret-quest.tsx · 시험 / 비고: quest · 건네기 전엔 ???, 달성 조건은 캐릭터에게 알리지 않음 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F07-02 · 대분류: 비밀 퀘스트 · 기능명: 엄격 판정 · 화면: 보이지 않음 · API: /summarize(quest) · 코드 위치: ai/services/summarization.py · 시험 / 비고: 후보 + 전용 판정(인용 근거 대조, 확신 85↑). 실제 gemma 16/16 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F07-03 · 대분류: 비밀 퀘스트 · 기능명: 보상 · 화면: 열림 상자 · API: — · 코드 위치: api/credits(grantQuestReward) · 시험 / 비고: 공식 캐릭터만 100 코레딧(계정×캐릭터 1회), 유저 캐릭터는 보상 장면만 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F07-04 · 대분류: 비밀 퀘스트 · 기능명: 현재 퀘스트 · 화면: — · API: 시드 · 코드 위치: api/prisma/seed.mjs, services/ai/evals/quest_seyeon.py · 시험 / 비고: 유지성 「접어 둔 문제집」(친밀도 40). 이세연 「결재되지 않은 서류」(친밀도 50): 혼인에 이르거나, 기혼인 채 이어져 실제 충돌이 벌어지면 달성. 실제 gemma 장면 10개 모두 맞음 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F08-01 · 대분류: 오퍼레이션 · 기능명: 심리 탐구(30) · 화면: /chat/mind · API: GET·POST …/chat/ops/mind · 코드 위치: api/operations, ai/services/operations.py · 시험 / 비고: operations · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F08-02 · 대분류: 오퍼레이션 · 기능명: 일기(20) · 화면: /chat/diary · API: GET·POST …/ops/diary · 코드 위치: 〃 · 시험 / 비고: operations · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F08-03 · 대분류: 오퍼레이션 · 기능명: 메시지(무료, 대화와 따로) · 화면: /chat/messages · API: GET·POST …/ops/messages · 코드 위치: 〃 · 시험 / 비고: operations · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F08-04 · 대분류: 오퍼레이션 · 기능명: 커뮤니티(새 글 20·글쓰기 10) · 화면: /chat/community · API: GET …/ops/board, POST …/ops/board/refresh board/posts · 코드 위치: 〃 · 시험 / 비고: operations · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F09-01 · 대분류: 그림 · 기능명: 코디포토넷(50) · 화면: 입력창 위 왼쪽 버튼(열림 상자) · API: GET·POST …/ops/photonet, GET …/ops/photonet/:imageId · 코드 위치: api/operations, ai/services/photonet.py, web/…/chat/photonet.tsx · 시험 / 비고: operations · 등장인물·줄거리·고른 대사를 읽고 장면 설계, 화풍 4·비율 3 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F09-02 · 대분류: 그림 · 기능명: 웹툰(콘티 무료·컷 45) · 화면: /chat/webtoon · API: GET·POST …/ops/webtoon, POST·GET …/webtoon/:webtoonId/panels/:index · 코드 위치: api/operations/webtoon.*, ai/services/webtoon.py · 시험 / 비고: webtoon · 외모를 먼저 정해 모든 컷에서 같게, 컷은 하나씩 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F09-03 · 대분류: 그림 · 기능명: 그림 엔진 · 화면: — · API: GET /photonet/status(내부) · 코드 위치: ai/services/image_engine.py, image_local.py · 시험 / 비고: 기본 diffusers(같은 프로세스), 선택 WebUI. GPU 없으면 "준비 중". guidance/photonet-engine.md · 상태: 준비 중 · 구분: 사용자 요청 확장
+- 기능 ID: F10-01 · 대분류: 성인 모드 · 기능명: 전체 이용가(기본) / 성인 분리 · 화면: 코디포토넷·웹툰의 토글 · 코드 위치: api/operations, ai/services/photonet.py · 시험 / 비고: operations, webtoon · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-02 · 대분류: 성인 모드 · 기능명: 성인 확인 필요·동의 철회 시 즉시 닫힘 · 화면: 〃 · 코드 위치: api/account/adult.ts · 시험 / 비고: operations · 성인 그림은 목록·본문에서 404 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-03 · 대분류: 성인 모드 · 기능명: 미성년자 설정 원천 차단 · 화면: 〃 · 코드 위치: ai/services/photonet.py(minor_hint) · 시험 / 비고: operations, webtoon · 그리기 전에 400·환불 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-04 · 대분류: 성인 모드 · 기능명: 실사 금지·그림 검수(어려 보임·강제·실존 인물·실사·혐오·자해) · 화면: 〃 · 코드 위치: ai/services/photonet_moderation.py · 시험 / 비고: evals 밖(실측만) · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-05 · 대분류: 성인 모드 · 기능명: 거짓 정보 책임 고지 · 화면: 동의 문구·약관 · 코드 위치: web/app/terms · 시험 / 비고: security · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-06 · 대분류: 성인 모드 · 기능명: 대화 수위 (2026-11-06): 성인 확인한 계정은 모든 대화가 성인 수위, 로컬 모델에서만 · 화면: 설정 → 콘텐츠 수위 · 코드 위치: api/character-chat(adultChat), ai/services/inference.py(rating_rule) · 시험 / 비고: ai tests/test_rating.py, evals.adult_chat · trainings/adult-chat.md · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F10-07 · 대분류: 성인 모드 · 기능명: 대화의 미성년자·강제 단서 → 그 턴은 성적 진행 금지 · 화면: 〃 · 코드 위치: ai/services/minors.py, inference.py(coercion_in) · 시험 / 비고: 〃 · 강제 장면 거부 16/16 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F11-01 · 대분류: 에이전트·안내 · 기능명: 에이전트(사용 안내 챗봇, 비로그인 가능) · 화면: /agents · API: POST /agent-chat/messages · 코드 위치: api/agent-chat, ai/services/assist.py · 시험 / 비고: 범위를 묶어 범용 비서가 되지 않게 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F11-02 · 대분류: 에이전트·안내 · 기능명: 약관·개인정보·사업자·고객센터 · 화면: /terms /privacy /business /support · API: — · 코드 위치: web/app/terms·privacy·business·support · 시험 / 비고: security · 법률 검토 전 초안 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F12-01 · 대분류: 화면 공통 · 기능명: 헤더·드로어·푸터 · 화면: 모든 화면 · 코드 위치: web/components · 시험 / 비고: plan/NAVIGATION_IA.md · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F12-02 · 대분류: 화면 공통 · 기능명: 테마(시간 자동·영구 설정·헤더 해·달) · 화면: 헤더, /settings · 코드 위치: web/lib/theme*.ts · 시험 / 비고: theme · 한국 시각 오전 7시 밝게/오후 10시 어둡게 · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F12-03 · 대분류: 화면 공통 · 기능명: 회원 전용 화면 보호 · 화면: — · 코드 위치: web/proxy.ts → requireUser → Nest AuthGuard · 시험 / 비고: auth · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F13-01 · 대분류: 운영 콘솔 · 기능명: 대시보드(처리할 일·숫자·AI 대기열) · 화면: / · API: GET /admin/stats · 시험 / 비고: console · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F13-02 · 대분류: 운영 콘솔 · 기능명: 신고함(내리기·기각·복구) · 화면: /reports · API: GET …/reports, POST …/take-down dismiss-reports restore · 시험 / 비고: reports, console · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F13-03 · 대분류: 운영 콘솔 · 기능명: 초상 검수(승인·반려) · 화면: /portraits · API: GET·POST /admin/portraits · 시험 / 비고: moderation · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F13-04 · 대분류: 운영 콘솔 · 기능명: 그림 신고(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) · 화면: /content, 이용자는 그림 옆 신고 버튼 · API: GET·POST /characters/:id/content-reports, GET /admin/content-reports, POST …/:id/block dismiss, POST /admin/users/:id/unsuspend · 시험 / 비고: content-reports, 단위 · 코디포토넷으로 시험. 웹툰 신고는 같은 부품이고 브라우저로 눌러 보지 않았다. 운영자 계정은 정지하지 않음 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F13-05 · 대분류: 운영 콘솔 · 기능명: 캐릭터 관리 · 화면: /characters · API: GET /admin/characters · 시험 / 비고: console · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F13-06 · 대분류: 운영 콘솔 · 기능명: 계정 등급·결제 내역·환불·생년월일 고치기 · 화면: /users · API: GET /admin/users, POST …/plan, POST …/birthdate, POST /billing/:id/refund(운영자) · 시험 / 비고: billing · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F14-01 · 대분류: 요금·결제 · 기능명: 눌러서 프로로 바꾸기(30일, 임시) · 화면: /pricing · API: POST /billing/pro-click · 시험 / 비고: billing · PRO_CLICK. 이미 프로면 409, 닫혀 있으면 403, 주문 기록 없음, 토스를 켜면 닫힘 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F14-02 · 대분류: 요금·결제 · 기능명: 요금 안내·결제·승인·내역·환불 (보류) · 화면: /pricing /billing/* · API: GET /billing/products, POST checkout confirm, GET orders, POST :id/refund · 시험 / 비고: billing · 토스페이먼츠 연동 코드와 시험 결제(mock)는 있으나 운영에서 열지 않음(2026-10-21 사용자 결정) · 상태: 보류 · 구분: 플랫폼
+- 기능 ID: F15-01 · 대분류: 플랫폼 · 기능명: 요청 한도(사람·IP별) · 코드 위치: api/security · 시험 / 비고: ../SECURITY.md, 단위 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-02 · 대분류: 플랫폼 · 기능명: AI 호출 대기열(동시 수 제한·기다리는 답 우선) · 코드 위치: api/ai/ai-queue.ts · 시험 / 비고: WORKFLOW.md · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-03 · 대분류: 플랫폼 · 기능명: 보안 헤더·nonce CSP·CSP 보고 · 코드 위치: web/proxy.ts, api/main.ts · 시험 / 비고: security · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-04 · 대분류: 플랫폼 · 기능명: 메일 발송(SMTP·폴더·로그) · 코드 위치: api/mail · 시험 / 비고: npm run mail:check --workspace api · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-05 · 대분류: 플랫폼 · 기능명: HTTPS 강제·HSTS · 코드 위치: api/security/https.ts, web/lib/https.ts, console/lib/https.ts · 시험 / 비고: 단위 · REQUIRE_HTTPS, 내부 호스트는 REQUIRE_HTTPS_EXEMPT_HOSTS · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-06 · 대분류: 플랫폼 · 기능명: 운영 기동 검사 · 코드 위치: api/security/production.ts, ai/internal_auth.py · 시험 / 비고: 단위 · 개발용 스위치가 켜져 있거나 토큰이 짧으면 시작하지 않음 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-07 · 대분류: 플랫폼 · 기능명: FastAPI 내부 인증 · 코드 위치: ai/internal_auth.py · 시험 / 비고: 토큰 또는 루프백 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-08 · 대분류: 플랫폼 · 기능명: 운영 배포 구성 · 코드 위치: deploy/(GPU 목표), deploy/oracle/(지금), web_management/oracle-backend.md · 시험 / 비고: 2026-11-07 실제 배포: Vercel 웹 + Oracle API·DB·AI. 연결 손 확인(plan/TESTING.md "운영 배포 확인") · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-09 · 대분류: 플랫폼 · 기능명: 웹 → API 이용자 IP 넘기기 · 코드 위치: web/lib/client-ip.ts, deploy/oracle/Caddyfile · 시험 / 비고: WEB_PROXY_TOKEN이 맞을 때만 Caddy가 X-Forwarded-For를 믿음. 서버에서 caddy validate · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-10 · 대분류: 플랫폼 · 기능명: 대화 모델 호스팅 API + 예비 · 코드 위치: ai/services/llm.py · 시험 / 비고: unittest(test_llm_openai, test_llm_stream) · 운영 실측 NVIDIA 19초, 예비 CPU 32초 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-11 · 대분류: 플랫폼 · 기능명: DB 백업 · 코드 위치: scripts/db-backup.sh, web_management/backup-restore.md · 시험 / 비고: 복구 연습 1회 · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-12 · 대분류: 플랫폼 · 기능명: 상태 확인 · 코드 위치: GET /health · 시험 / 비고: — · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-13 · 대분류: 플랫폼 · 기능명: 계획서 /campaigns/* 자리 · 코드 위치: api/campaigns · 시험 / 비고: 501(실제 대화는 /characters/:id/chat*) · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-14 · 대분류: 플랫폼 · 기능명: 개발 도구 · 코드 위치: apps/api/scripts · 시험 / 비고: user:role user:plan persona:build persona:search billing:check mail:check · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-15 · 대분류: 플랫폼 · 기능명: 커밋 기록 작성기 · 코드 위치: scripts/record-commit.mjs · 시험 / 비고: node --test scripts/record-commit.test.mjs · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-16 · 대분류: 플랫폼 · 기능명: CI · 코드 위치: .github/workflows/ci.yml, scripts/ci-local.mjs · 시험 / 비고: plan/TESTING.md · 상태: 구현 · 구분: 플랫폼
+- 기능 ID: F15-01 · 대분류: 월드코퍼챗 · 기능명: 세계관 목록·검색 · 화면: /worlds · API: GET /worlds, /worlds/mine · 코드 위치: web/app/worlds/page.tsx · 시험 / 비고: worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-02 · 대분류: 월드코퍼챗 · 기능명: 세계관 만들기·고치기 (기본·등장인물·장소·파트·그림·발행) · 화면: /worlds/[id]/edit · API: POST·PUT·DELETE /worlds… · 코드 위치: web/app/worlds/[id]/edit, api/worlds/worlds.service.ts · 시험 / 비고: world.spec(문서 검사), worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-03 · 대분류: 월드코퍼챗 · 기능명: 등장인물 데려오기 · 화면: 편집기 등장인물 탭 · API: GET /worlds/cast-candidates · 코드 위치: 〃 · 시험 / 비고: 볼 수 없는 캐릭터는 저장 거절 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-04 · 대분류: 월드코퍼챗 · 기능명: 공개 범위·발행 조건 · 화면: 편집기 발행 탭 · API: /publish, /unpublish · 코드 위치: world.ts publishProblems, canView · 시험 / 비고: worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-05 · 대분류: 월드코퍼챗 · 기능명: 장면 그림 이름표·자동 검수 · 화면: 편집기 장면 그림 탭 · API: PUT /worlds/:id/images · 코드 위치: PortraitReviewService 재사용 · 시험 / 비고: worlds.spec(통과·대기·거절) · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-06 · 대분류: 월드코퍼챗 · 기능명: 대화 방식 4가지 · 화면: /worlds/[id]/play · API: POST …/play/turn · 코드 위치: ai/services/world.py MODE_STYLE, web play/world-play.tsx · 시험 / 비고: evals.world_turn 23/24 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-07 · 대분류: 월드코퍼챗 · 기능명: 진행자의 그림 고르기·장소 이동 · 화면: 플레이 · API: 〃 · 코드 위치: world.py parse_controls · 시험 / 비고: test_world 9개 · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-08 · 대분류: 월드코퍼챗 · 기능명: 파트와 판정 · 화면: 플레이 위 띠 · API: 〃 (3턴마다) · 코드 위치: world-play.service.ts checkPart, /world/part-check · 시험 / 비고: worlds.spec(가짜 판정) · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-09 · 대분류: 월드코퍼챗 · 기능명: 코퍼맵 · 화면: 소개·편집기·플레이 · API: /worlds/:id/map · 코드 위치: web/app/worlds/copper-map.tsx · 시험 / 비고: worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-10 · 대분류: 월드코퍼챗 · 기능명: 이벤트 미니게임 5종 · 화면: 플레이 창 · API: POST …/play/events/:id · 코드 위치: world.ts makeSetup·resolveEvent, play/event-game.tsx · 시험 / 비고: world.spec, worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-11 · 대분류: 월드코퍼챗 · 기능명: 보상·하루 한도 · 화면: 결과 창 · API: 〃 · 코드 위치: world-play.service.ts playEvent · 시험 / 비고: worlds.spec(20~50·5~10·3번·409) · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-12 · 대분류: 월드코퍼챗 · 기능명: 수위 · 화면: — · API: — · 코드 위치: world.py _rating · 시험 / 비고: test_world test_rating_rules · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F15-13 · 대분류: 월드코퍼챗 · 기능명: 운영: 목록·상세·검수·이벤트·설정·대시보드 · 화면: 콘솔 /worlds/* · API: /admin/world* · 코드 위치: console/app/worlds, api/worlds/admin-worlds.* · 시험 / 비고: worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+
+## 스프레드시트 시트: 용어_정리
+- No: 1 · 분류: 브랜드 · 용어: 코디컴퍼챗 · 영문 / 코드명: CodiComperChat · 정의: 플랫폼 전체 브랜드. 코디네이션(Coordination) + 컴포넌트(Component) + 챗. 캠페이너·캠페니어는 쓰지 않는다 · 관련 테이블 · 코드 · 문서: 기획서 머리말
+- No: 2 · 분류: 브랜드 · 용어: 캠페니언 · 영문 / 코드명: AI Companion · 정의: 코디컴퍼챗 안의 캐릭터 동행 AI 기능 이름. 플랫폼 이름으로 쓰지 않는다 · 관련 테이블 · 코드 · 문서: 기획서 §1
+- No: 3 · 분류: 브랜드 · 용어: CutNKeep · 영문 / 코드명: - · 정의: 이 스프레드시트 제목에 쓴 이름(요청 그대로). 저장소에는 이 이름이 없고 내용은 CodiComperChat 기준 · 관련 테이블 · 코드 · 문서: 이 문서
+- No: 4 · 분류: 제품 · 용어: 캠페인 · 영문 / 코드명: Campaign · 정의: 유저가 주인공인 이어지는 이야기 단위. DB에서는 계정 × 캐릭터의 대화 한 판(campaigns) · 관련 테이블 · 코드 · 문서: campaigns
+- No: 5 · 분류: 제품 · 용어: 세션 · 영문 / 코드명: Session · 정의: 캠페인 안의 회차. 시작·장면·종료(요약·관계·훅 갱신)로 닫힌다 · 관련 테이블 · 코드 · 문서: sessions
+- No: 6 · 분류: 제품 · 용어: 캠페인 상태 · 영문 / 코드명: CampaignState · 정의: 관계 수치와 근거, 열린 훅, 해금된 비밀, 다음 회차 브리핑. 숫자가 대사를 바꿔야 한다 · 관련 테이블 · 코드 · 문서: campaign_states
+- No: 7 · 분류: 제품 · 용어: 숨은 디렉터 · 영문 / 코드명: Director · 정의: 유저에게 보이지 않는 약한 게임마스터. 장면 전환·갈등 주입·페이싱만 맡는다 · 관련 테이블 · 코드 · 문서: 기획서 §1, §7.6
+- No: 8 · 분류: 제품 · 용어: v1 범위 · 영문 / 코드명: v1 scope · 정의: 공식 캐릭터 소수, 유저 광장·자체 학습·멀티·음성 없음. 임의로 넓히지 않는다 · 관련 테이블 · 코드 · 문서: 기획서 §9
+- No: 9 · 분류: 캐릭터 · 용어: 캐릭터 카드 · 영문 / 코드명: Character · 정의: 프롬프트 메모가 아니라 구조화된 필드(정체성·말투·역할·비밀·해금 조건 등) · 관련 테이블 · 코드 · 문서: characters
+- No: 10 · 분류: 캐릭터 · 용어: 공식 캐릭터 · 영문 / 코드명: Official · 정의: 운영이 만든 캐릭터(ownerId 비어 있음). 지금 유지성·이세연 2명 · 관련 테이블 · 코드 · 문서: prisma/seed.mjs, plan/CHARACTERS.md
+- No: 11 · 분류: 캐릭터 · 용어: 캐릭터 공방 · 영문 / 코드명: Studio · 정의: 캐릭터를 만드는 편집기. 왼쪽 단계 / 가운데 폼 / 오른쪽 미리보기, 8단계 · 관련 테이블 · 코드 · 문서: /studio, api/studio
+- No: 12 · 분류: 캐릭터 · 용어: 초안 · 영문 / 코드명: CharacterDraft · 정의: 공방에서 저장한 카드 JSON. 발행하면 characters 행이 생긴다 · 관련 테이블 · 코드 · 문서: character_drafts
+- No: 13 · 분류: 캐릭터 · 용어: 발행 · 영문 / 코드명: Publish · 정의: 초안을 실제 캐릭터로 내보내기. 이메일 인증 + 필수 단계 + 3턴 테스트 통과가 조건 · 관련 테이블 · 코드 · 문서: studio-publish.service.ts
+- No: 14 · 분류: 캐릭터 · 용어: 3턴 테스트 · 영문 / 코드명: critique-test · 정의: 발행 전 대화 3턴을 해 보고 말투 붕괴·설명충·메타 발언을 판정 · 관련 테이블 · 코드 · 문서: FastAPI /critique-test
+- No: 15 · 분류: 캐릭터 · 용어: 공개 범위 · 영문 / 코드명: Visibility · 정의: PUBLIC(목록에 나옴) / UNLISTED(링크 공개) / PRIVATE(만든 사람만) · 관련 테이블 · 코드 · 문서: CharacterVisibility
+- No: 16 · 분류: 캐릭터 · 용어: 로어북 · 영문 / 코드명: Lorebook · 정의: 세계 규칙·인물·금기 메모. 키워드가 맞을 때만 맥락에 넣는다 · 관련 테이블 · 코드 · 문서: card.ts
+- No: 17 · 분류: 캐릭터 · 용어: 해금 조건 · 영문 / 코드명: secretUnlockCondition · 정의: 비밀이 열리는 조건. 조건 없는 비밀은 언젠가 먼저 말해진다 · 관련 테이블 · 코드 · 문서: characters
+- No: 18 · 분류: 캐릭터 · 용어: 추천 프로필 · 영문 / 코드명: recommendedPersona · 정의: 캐릭터가 추천하는 내 프로필. 그대로 또는 고쳐서 쓴다 · 관련 테이블 · 코드 · 문서: characters.recommendedPersona
+- No: 19 · 분류: 대화 · 용어: 내 프로필 · 영문 / 코드명: UserPersona · 정의: 유저가 연기하는 주인공(이름·소개). 계정당 10개, 첫 메시지 뒤 고정 · 관련 테이블 · 코드 · 문서: user_personas
+- No: 20 · 분류: 대화 · 용어: 엑스트라 · 영문 / 코드명: UserExtra · 정의: 유저가 만든 조연 카드. 대화마다 골라 붙이고 등장 조건이 맞을 때만 맥락에 들어간다 (1인 20개, 대화당 3명) · 관련 테이블 · 코드 · 문서: user_extras, campaign_extras
+- No: 21 · 분류: 대화 · 용어: 장기 기억 · 영문 / 코드명: MemoryChunk · 정의: 대화에서 캐릭터가 기억할 짧은 문장. 원문과 분리하고 관련된 것만 맥락에 넣는다 · 관련 테이블 · 코드 · 문서: memory_chunks, /remember
+- No: 22 · 분류: 대화 · 용어: 지난 이야기 · 영문 / 코드명: Story · 정의: 요약·친밀도 자동 변화·복선을 보여 주는 대화 아래 패널. 메시지 6개마다 뒤에서 정리 · 관련 테이블 · 코드 · 문서: api/campaign-state, /summarize
+- No: 23 · 분류: 대화 · 용어: 친밀도 · 영문 / 코드명: Affinity · 정의: 관계 축 수치. 근거 한 줄과 함께 바뀌고 비밀 퀘스트 문턱이 된다 · 관련 테이블 · 코드 · 문서: campaign_states
+- No: 24 · 분류: 대화 · 용어: 복선(훅) · 영문 / 코드명: Hook · 정의: 아직 회수하지 않은 약속·단서·위협 · 관련 테이블 · 코드 · 문서: campaign_states.openHooks
+- No: 25 · 분류: 대화 · 용어: 대답 추천 · 영문 / 코드명: suggest-replies · 정의: 유저가 다음에 할 말 3개를 제안 · 관련 테이블 · 코드 · 문서: FastAPI /suggest-replies
+- No: 26 · 분류: 대화 · 용어: 명령어 · 영문 / 코드명: Commands · 정의: /다시 · /계속 · /되돌리기 · /상황 내용 · /도움말 · 관련 테이블 · 코드 · 문서: api/character-chat
+- No: 27 · 분류: 대화 · 용어: 나레이션 · 영문 / 코드명: @: · 정의: 장면이 바뀔 때 말풍선 가운데 상자로 보이는 지문 줄 · 관련 테이블 · 코드 · 문서: web/lib/chat-format.ts
+- No: 28 · 분류: 대화 · 용어: 개인사 환각 가드 · 영문 / 코드명: ground-check · 정의: 설정에 없는 나이·가족 등을 지어내면 답을 다시 쓰게 하는 서버 검사 (최대 2번) · 관련 테이블 · 코드 · 문서: grounding.ts, /ground-check
+- No: 29 · 분류: 대화 · 용어: 페르소나 지식 RAG · 영문 / 코드명: persona-rag · 정의: 캐릭터별 비공개 JSON에서 글자 2-gram BM25로 관련 조각만 찾아 맥락에 넣는다 · 관련 테이블 · 코드 · 문서: api/persona-rag
+- No: 30 · 분류: 퀘스트 · 용어: 비밀 퀘스트 · 영문 / 코드명: Secret Quest · 정의: 친밀도 문턱을 넘으면 캐릭터가 건네는 숨은 부탁. 엄격 판정 뒤 보상 · 관련 테이블 · 코드 · 문서: api/quests, plan/SECRET_QUEST.md
+- No: 31 · 분류: 퀘스트 · 용어: 엄격 판정 · 영문 / 코드명: Quest judge · 정의: 대화에서 인용 근거를 대조하고 확신 85 이상일 때만 달성. 잘못 통과 0이 기준 · 관련 테이블 · 코드 · 문서: summarization.py
+- No: 32 · 분류: 코레딧 · 용어: 코레딧 · 영문 / 코드명: Credit · 정의: 서비스 안 포인트. 출석·퀘스트·이벤트로 받고 오퍼레이션·그림·강화/프리미엄 모델에 쓴다. 100 코레딧 = 350원 · 관련 테이블 · 코드 · 문서: credits/credits.ts, credit_ledger
+- No: 33 · 분류: 코레딧 · 용어: 출석 · 영문 / 코드명: Attendance · 정의: 하루 한 번 코레딧 지급 (무료 1,000 · 프로 5,000) · 관련 테이블 · 코드 · 문서: attendances
+- No: 34 · 분류: 모델 · 용어: 기본 무료 / 강화 무료 · 영문 / 코드명: Model tiers · 정의: 강화 무료는 하루 30번 무료, 그 뒤 1번 10 코레딧. 프로는 무제한 · 관련 테이블 · 코드 · 문서: api/models, model_usage
+- No: 35 · 분류: 모델 · 용어: 프리미엄 모델 · 영문 / 코드명: Premium · 정의: Claude·Grok 연동 코드. 키가 없어 "준비 중", 만 18세 미만 잠금, 월 상한 PREMIUM_MONTHLY_CREDITS · 관련 테이블 · 코드 · 문서: services/ai/app/services/premium.py
+- No: 36 · 분류: 요금 · 용어: 프로 · 영문 / 코드명: PRO · 정의: 유료 등급. 공방 긴 글 칸 3배, 강화 무제한, 출석 5,000. 지금은 결제 없이 눌러서 30일(PRO_CLICK) · 관련 테이블 · 코드 · 문서: api/plan, /pricing
+- No: 37 · 분류: 오퍼레이션 · 용어: 오퍼레이션 · 영문 / 코드명: Operations · 정의: 대화에 붙는 플러그인 메뉴: 심리 탐구(30)·일기(20)·메시지(무료)·커뮤니티(20/10) · 관련 테이블 · 코드 · 문서: api/operations
+- No: 38 · 분류: 그림 · 용어: 코디포토넷 · 영문 / 코드명: Photonet · 정의: 대화 장면을 읽고 그림 한 장을 만든다 (50 코레딧, 화풍 4·비율 3) · 관련 테이블 · 코드 · 문서: photonet_images, /photonet
+- No: 39 · 분류: 그림 · 용어: 웹툰 · 콘티 · 컷 · 영문 / 코드명: Webtoon · 정의: 대화를 여러 컷 웹툰으로. 콘티는 무료, 컷 하나 45 코레딧 · 관련 테이블 · 코드 · 문서: webtoons, webtoon_panels
+- No: 40 · 분류: 그림 · 용어: 그림 엔진 · 영문 / 코드명: Image engine · 정의: diffusers(Animagine XL 4.0 · SD 1.5). GPU가 없으면 "준비 중" · 관련 테이블 · 코드 · 문서: image_engine.py
+- No: 41 · 분류: 안전 · 용어: 성인 모드 · 영문 / 코드명: ADULT_MODE · 정의: 성인 확인(생년월일+동의+이메일 인증, 자기 신고) 계정의 성인 수위. 운영 서버는 off · 관련 테이블 · 코드 · 문서: account/adult.ts
+- No: 42 · 분류: 안전 · 용어: 신고 · 내리기 · 영문 / 코드명: Report · Takedown · 정의: 이용자 신고를 운영자가 보고 캐릭터·그림·세계관을 내리거나 기각 · 관련 테이블 · 코드 · 문서: character_reports, content_reports
+- No: 43 · 분류: 안전 · 용어: 초상 검수 · 영문 / 코드명: Portrait review · 정의: 올린 초상을 로컬 모델이 자동 검수 → 통과·운영자 검수·거절 · 관련 테이블 · 코드 · 문서: /moderate-image
+- No: 44 · 분류: 월드 · 용어: 월드코퍼챗 · 영문 / 코드명: World CopperChat · 정의: 누구나 세계관을 만들고 진행자 모델이 여러 인물을 연기하는 기능 (2026-11-06) · 관련 테이블 · 코드 · 문서: plan/WORLD_COPPERCHAT.md
+- No: 45 · 분류: 월드 · 용어: 진행자 · 영문 / 코드명: Narrator · 정의: 월드 플레이에서 여러 등장인물을 연기하고 장면 그림·장소 이동을 고르는 모델 · 관련 테이블 · 코드 · 문서: world.py
+- No: 46 · 분류: 월드 · 용어: 대화 방식 · 영문 / 코드명: WorldMode · 정의: 기본 채팅 · 비주얼노벨 · 소설 · 메신저 · 관련 테이블 · 코드 · 문서: worlds.mode
+- No: 47 · 분류: 월드 · 용어: 파트 · 영문 / 코드명: WorldPart · 정의: 이야기의 부. 목표가 이루어지면 다음 파트로 (3턴마다 근거 인용 판정) · 관련 테이블 · 코드 · 문서: world_parts, /world/part-check
+- No: 48 · 분류: 월드 · 용어: 코퍼맵 · 영문 / 코드명: CopperMap · 정의: 세계관 지도와 장소 핀(좌표 0~100%) · 관련 테이블 · 코드 · 문서: world_places, copper-map.tsx
+- No: 49 · 분류: 월드 · 용어: 이벤트 미니게임 · 영문 / 코드명: WorldEvent · 정의: 사다리·주사위·볼링·복권·미로. 서버가 결과를 정하고 하루 3번 보상 · 관련 테이블 · 코드 · 문서: world_events
+- No: 50 · 분류: 운영 · 용어: 운영 콘솔 · 영문 / 코드명: console · 정의: 운영자 전용 Next.js 앱(:3001). 대시보드·신고·검수·계정·월드 설정 · 관련 테이블 · 코드 · 문서: console/
+- No: 51 · 분류: 운영 · 용어: AI 호출 대기열 · 영문 / 코드명: ai-queue · 정의: 동시 호출 수 제한(기본 2), 기다리는 답 우선, 배경 작업은 양보 · 관련 테이블 · 코드 · 문서: api/ai/ai-queue.ts
+- No: 52 · 분류: 운영 · 용어: 요청 한도 · 영문 / 코드명: Rate limit · 정의: 사람·IP별 고정 창 한도. 넘으면 429 + Retry-After · 관련 테이블 · 코드 · 문서: security/rate-limit.ts, rate_limit_buckets
+- No: 53 · 분류: 운영 · 용어: 운영 설정 · 영문 / 코드명: AppSetting · 정의: 환경변수가 아닌 DB 키-값 설정. 콘솔에서 바꾼다 · 관련 테이블 · 코드 · 문서: app_settings
+- No: 54 · 분류: 기술 · 용어: 신뢰 경계 · 영문 / 코드명: Trust boundary · 정의: 웹 → Nest → FastAPI. 프론트는 FastAPI를 직접 부르지 않는다 · 관련 테이블 · 코드 · 문서: CURRENT_STACK.md
+- No: 55 · 분류: 기술 · 용어: AI_SERVICE_TOKEN · 영문 / 코드명: - · 정의: Nest가 FastAPI를 부를 때 쓰는 내부 토큰 · 관련 테이블 · 코드 · 문서: ai/internal_auth.py
+- No: 56 · 분류: 기술 · 용어: WEB_PROXY_TOKEN · 영문 / 코드명: - · 정의: 웹(Vercel)이 넘긴 이용자 IP를 Caddy가 믿게 하는 공유 비밀 · 관련 테이블 · 코드 · 문서: deploy/oracle/Caddyfile
+- No: 57 · 분류: 기술 · 용어: sslip.io · 영문 / 코드명: - · 정의: 도메인 없이 IP로 인증서를 받는 이름 (api.168-110-61-178.sslip.io) · 관련 테이블 · 코드 · 문서: web_management/oracle-backend.md
+- No: 58 · 분류: 기술 · 용어: LLM_BACKEND · 영문 / 코드명: ollama / openai · 정의: 대화 모델 백엔드. 운영은 NVIDIA 호스팅 gemma-4-31b-it, 막히면 CPU Ollama gemma4:e4b · 관련 테이블 · 코드 · 문서: ai/services/llm.py
+- No: 59 · 분류: 개발 · 용어: feature/* 브랜치 · --no-ff · 영문 / 코드명: Branch rule · 정의: 작업별 브랜치에서 하고 develop·main 병합은 --no-ff만. 병합·푸시는 사용자가 말할 때만 · 관련 테이블 · 코드 · 문서: guidance/branch-merge.md
+- No: 60 · 분류: 개발 · 용어: 커밋 기록 · 영문 / 코드명: docs/branchs/commits · 정의: 커밋마다 TEMPLATE 형식의 기록 md를 남긴다 · 관련 테이블 · 코드 · 문서: scripts/record-commit.mjs
+- No: 61 · 분류: 개발 · 용어: trainings · evals · 영문 / 코드명: - · 정의: 실제 모델로 잰 결과 노트(trainings)와 품질 평가 묶음(evals) · 관련 테이블 · 코드 · 문서: docs/trainings, services/ai/evals
+
+## 스프레드시트 시트: 테이블_명세서
+- No: 1 · 영역: 계정 · 결제 · 코레딧 · 테이블명: users · Prisma 모델: User · 설명: 계정. 로그인·등급(FREE/PRO)·이메일 인증·성인 확인·정지·코레딧 잔액을 담는다 · 컬럼 수: 16 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: (email) · 인덱스: - · 자식 테이블: attendances, campaigns, character_drafts, character_reports, characters, content_reports, credit_ledger, email_tokens, model_usage, payment_orders, quest_rewards, user_extras, user_personas, world_plays, worlds
+- No: 2 · 영역: 계정 · 결제 · 코레딧 · 테이블명: user_personas · Prisma 모델: UserPersona · 설명: 유저가 연기하는 주인공(프로필 캐릭터). 본인만 보고 쓴다 — 공유·마켓은 v1 범위 밖 (기획서 §9.2) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId) · 자식 테이블: -
+- No: 3 · 영역: 계정 · 결제 · 코레딧 · 테이블명: email_tokens · Prisma 모델: EmailToken · 설명: 메일로 보낸 일회용 링크 토큰. 원문은 메일에만 있고 DB에는 SHA-256 해시만 둔다 · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (tokenHash) · 인덱스: (userId, purpose) · 자식 테이블: -
+- No: 4 · 영역: 계정 · 결제 · 코레딧 · 테이블명: payment_orders · Prisma 모델: PaymentOrder · 설명: 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다 · 컬럼 수: 15 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (SET NULL) · 고유 키: (paymentKey) · 인덱스: (userId, createdAt) · 자식 테이블: -
+- No: 5 · 영역: 계정 · 결제 · 코레딧 · 테이블명: credit_ledger · Prisma 모델: CreditLedger · 설명: 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액 · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, createdAt) · 자식 테이블: -
+- No: 6 · 영역: 계정 · 결제 · 코레딧 · 테이블명: attendances · Prisma 모델: Attendance · 설명: 출석 (하루 한 번). day는 한국 시각 기준 YYYY-MM-DD · 컬럼 수: 4 · 기본 키: userId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: - · 자식 테이블: -
+- No: 7 · 영역: 계정 · 결제 · 코레딧 · 테이블명: model_usage · Prisma 모델: ModelUsage · 설명: 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. day는 한국 시각 기준 YYYY-MM-DD · 컬럼 수: 4 · 기본 키: userId, modelId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (day) · 자식 테이블: -
+- No: 8 · 영역: 계정 · 결제 · 코레딧 · 테이블명: quest_rewards · Prisma 모델: QuestReward · 설명: 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다 · 컬럼 수: 5 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (userId, characterId) · 인덱스: - · 자식 테이블: -
+- No: 9 · 영역: 캐릭터 · 대화 · 테이블명: characters · Prisma 모델: Character · 설명: 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다. · 컬럼 수: 26 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: (name) · 인덱스: - · 자식 테이블: campaigns, character_drafts, character_reports, world_cast
+- No: 10 · 영역: 캐릭터 · 대화 · 테이블명: character_drafts · Prisma 모델: CharacterDraft · 설명: 캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고, 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다 · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
+ownerId → users.id (CASCADE) · 고유 키: (characterId) · 인덱스: (ownerId, updatedAt) · 자식 테이블: -
+- No: 11 · 영역: 캐릭터 · 대화 · 테이블명: character_reports · Prisma 모델: CharacterReport · 설명: 공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED) · 컬럼 수: 9 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (CASCADE)
+reporterId → users.id (CASCADE) · 고유 키: - · 인덱스: (status, createdAt)
+(characterId, status) · 자식 테이블: -
+- No: 12 · 영역: 캐릭터 · 대화 · 테이블명: content_reports · Prisma 모델: ContentReport · 설명: 코디포토넷 그림·웹툰 신고. 만든 사람이 올리고, 운영자가 본 뒤 접근을 막거나 기각한다. 그림 행을 가리키지만 그림이 지워져도 신고는 남게 외래 키는 두지 않는다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): reporterId → users.id (CASCADE) · 고유 키: - · 인덱스: (status, createdAt)
+(target, targetId, status) · 자식 테이블: -
+- No: 13 · 영역: 캐릭터 · 대화 · 테이블명: campaigns · Prisma 모델: Campaign · 설명: 대화(캠페인) 한 판. 계정 × 캐릭터. 고정한 내 프로필의 복사본을 가진다 · 컬럼 수: 13 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (RESTRICT)
+userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, characterId, status) · 자식 테이블: board_posts, campaign_extras, campaign_states, diary_entries, direct_messages, memory_chunks, mind_readings, photonet_images, sessions, webtoons
+- No: 14 · 영역: 캐릭터 · 대화 · 테이블명: campaign_states · Prisma 모델: CampaignState · 설명: §13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑 · 컬럼 수: 15 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId) · 인덱스: - · 자식 테이블: -
+- No: 15 · 영역: 캐릭터 · 대화 · 테이블명: sessions · Prisma 모델: Session · 설명: 대화 안의 회차(세션) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId, index) · 인덱스: - · 자식 테이블: messages
+- No: 16 · 영역: 캐릭터 · 대화 · 테이블명: messages · Prisma 모델: Message · 설명: 세션 안의 메시지 원문 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): sessionId → sessions.id (CASCADE) · 고유 키: - · 인덱스: (sessionId, createdAt) · 자식 테이블: -
+- No: 17 · 영역: 캐릭터 · 대화 · 테이블명: memory_chunks · Prisma 모델: MemoryChunk · 설명: §7.5 MemoryChunk — 지난 대화에서 캐릭터가 기억할 내용을 요약한 짧은 문장. 원문(Message)과 분리해 두고, 매 턴 관련 있는 것만 골라 컨텍스트에 넣는다. 임베딩은 나중에 붙인다 · 컬럼 수: 4 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 18 · 영역: 캐릭터 · 대화 · 테이블명: user_extras · Prisma 모델: UserExtra · 설명: 엑스트라: 유저가 만든 조연. 캐릭터 공방보다 간단한 카드이고, 대화마다 골라서 적용한다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, updatedAt) · 자식 테이블: campaign_extras
+- No: 19 · 영역: 캐릭터 · 대화 · 테이블명: campaign_extras · Prisma 모델: CampaignExtra · 설명: 이 대화에 적용한 엑스트라와 등장 조건(relation/situation/place 중 하나 이상). 조건에 맞는 말이 대화에 나올 때만 그 엑스트라 정보를 모델에 넘긴다 (환각 방지) · 컬럼 수: 4 · 기본 키: campaignId, extraId · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE)
+extraId → user_extras.id (CASCADE) · 고유 키: - · 인덱스: - · 자식 테이블: -
+- No: 20 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: mind_readings · Prisma 모델: MindReading · 설명: 오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 21 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: diary_entries · Prisma 모델: DiaryEntry · 설명: 오퍼레이션 · 일기: 캐릭터가 자기 입장에서 쓰는 일기 (최근 대화에서 겪은 일과 기분) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 22 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: direct_messages · Prisma 모델: DirectMessage · 설명: 오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다 · 컬럼 수: 5 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 23 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_posts · Prisma 모델: BoardPost · 설명: 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: board_comments
+- No: 24 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_comments · Prisma 모델: BoardComment · 설명: 커뮤니티 글의 댓글 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): postId → board_posts.id (CASCADE) · 고유 키: - · 인덱스: (postId, createdAt) · 자식 테이블: -
+- No: 25 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: photonet_images · Prisma 모델: PhotonetImage · 설명: 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다 · 컬럼 수: 14 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 26 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoons · Prisma 모델: Webtoon · 설명: 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧) · 컬럼 수: 8 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: webtoon_panels
+- No: 27 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoon_panels · Prisma 모델: WebtoonPanel · 설명: 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다) · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): webtoonId → webtoons.id (CASCADE) · 고유 키: (webtoonId, index) · 인덱스: - · 자식 테이블: -
+- No: 28 · 영역: 월드코퍼챗 · 테이블명: worlds · Prisma 모델: World · 설명: 월드코퍼챗 세계관. 설정·규칙·시작 장면·대화 방식·공개 범위·코퍼맵 지도 · 컬럼 수: 17 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: - · 인덱스: (published, visibility, takenDownAt)
+(ownerId) · 자식 테이블: world_cast, world_images, world_parts, world_places, world_plays
+- No: 29 · 영역: 월드코퍼챗 · 테이블명: world_cast · Prisma 모델: WorldCast · 설명: 등장인물. 이미 있는 캐릭터를 가져오거나(characterId) 여기서 바로 쓴다 · 컬럼 수: 9 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
+worldId → worlds.id (CASCADE) · 고유 키: (worldId, name) · 인덱스: - · 자식 테이블: -
+- No: 30 · 영역: 월드코퍼챗 · 테이블명: world_places · Prisma 모델: WorldPlace · 설명: 코퍼맵의 장소 핀. 좌표는 지도 그림 기준 백분율(0~100) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, name) · 인덱스: - · 자식 테이블: -
+- No: 31 · 영역: 월드코퍼챗 · 테이블명: world_parts · Prisma 모델: WorldPart · 설명: 파트(이야기의 부). 목표가 이루어지면 다음 파트로 넘어간다. 없으면 파트 없이 자유롭게 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, order) · 인덱스: - · 자식 테이블: -
+- No: 32 · 영역: 월드코퍼챗 · 테이블명: world_images · Prisma 모델: WorldImage · 설명: 제작자가 올린 장면 그림. 진행자는 이름표만 보고 고르고, 화면은 그 그림을 보여 준다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, label) · 인덱스: (review) · 자식 테이블: -
+- No: 33 · 영역: 월드코퍼챗 · 테이블명: world_plays · Prisma 모델: WorldPlay · 설명: 한 사람의 플레이 (계정×세계관에 하나. 처음부터 하려면 새로 시작) · 컬럼 수: 14 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE)
+worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: - · 자식 테이블: world_events, world_messages
+- No: 34 · 영역: 월드코퍼챗 · 테이블명: world_messages · Prisma 모델: WorldMessage · 설명: 월드 플레이의 메시지 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (playId, createdAt) · 자식 테이블: -
+- No: 35 · 영역: 월드코퍼챗 · 테이블명: world_events · Prisma 모델: WorldEvent · 설명: 대화 중 뜨는 이벤트 미니게임. 결과는 서버가 정한다(setup은 화면에 다 보내지 않는다) · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (userId, rewardDay)
+(status, createdAt) · 자식 테이블: -
+- No: 36 · 영역: 독립 테이블 · 테이블명: rate_limit_buckets · Prisma 모델: RateLimitBucket · 설명: 요청 한도 카운터 (RATE_LIMIT_STORE=db일 때). API 서버가 여러 대여도 같은 한도를 나눠 쓰게 DB에 둔다. 고정 창: resetAt이 지나면 처음부터 센다. 지난 창은 주기적으로 지운다 · 컬럼 수: 3 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: (resetAt) · 자식 테이블: -
+- No: 37 · 영역: 독립 테이블 · 테이블명: app_settings · Prisma 모델: AppSetting · 설명: 운영 설정 (키 → JSON 값). 운영 콘솔에서 바꾼다 · 컬럼 수: 3 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: - · 자식 테이블: -
+- 설명: 합계 · 컬럼 수: 331
+
+## 스프레드시트 시트: 스키마_설계
+- No: 1 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 2 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: email · 타입: text · UK: Y · NULL 허용: N · 설명: 로그인 이메일 (고유)
+- No: 3 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: displayName · 타입: text · NULL 허용: N · 설명: 화면에 보이는 이름
+- No: 4 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: passwordHash · 타입: text · NULL 허용: Y · 설명: 소셜 로그인 등 비밀번호 없는 계정도 담을 수 있게 nullable (인증 벤더 미정)
+- No: 5 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: role · 타입: UserRole · NULL 허용: N · 기본값: USER · 설명: 권한 USER / ADMIN (운영자)
+- No: 6 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: plan · 타입: UserPlan · NULL 허용: N · 기본값: FREE · 설명: 요금 등급. 결제는 아직 없어 운영자가 부여한다(npm run user:plan). PRO면 긴 글 칸 글자 수가 3배
+- No: 7 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: planUntil · 타입: timestamp(3) · NULL 허용: Y · 설명: PRO 만료 시각. 비어 있으면 만료 없음. 지나면 FREE로 본다
+- No: 8 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: emailVerifiedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 이메일 인증을 마친 시각. 비어 있으면 미인증 (캐릭터 공개 발행은 인증 뒤에만)
+- No: 9 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: birthDate · 타입: date · NULL 허용: Y · 설명: 성인 확인 (코디포토넷 NSFW). 생년월일(만 19세 이상) + 성인 콘텐츠 동의 + 이메일 인증. 2026-10-25 결정: 이 자기 신고 방식을 유지한다. 본인인증(PASS 등)은 법률 검토 항목으로 남기고 코드로 바꾸지 않는다. 생년월일은 응답에 싣지 않는다
+- No: 10 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: adultConsentAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 성인 콘텐츠 동의 시각
+- No: 11 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: suspendedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영 조치로 계정 이용을 막은 시각. 값이 있으면 로그인과 API를 거절한다 (운영자 계정은 정지하지 않는다)
+- No: 12 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: suspendReason · 타입: text · NULL 허용: Y · 설명: 계정 정지 사유
+- No: 13 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: sessionVersion · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 로그인 토큰 세대. 비밀번호를 바꾸거나 재설정하면 1 올려 이전에 발급한 토큰을 모두 무효로 만든다
+- No: 14 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 15 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 16 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: credits · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 코레딧 잔액 (src/credits/credits.ts). 바뀔 때마다 credit_ledger에 한 줄 남긴다
+- No: 17 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 18 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 19 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: name · 타입: text · NULL 허용: N · 설명: 내 프로필(주인공) 이름
+- No: 20 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: description · 타입: text · NULL 허용: N · 기본값: '' · 설명: 내 프로필 소개
+- No: 21 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 22 · 영역: 계정 · 결제 · 코레딧 · 테이블: user_personas · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 23 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 24 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 25 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: purpose · 타입: EmailTokenPurpose · NULL 허용: N · 설명: 용도 VERIFY_EMAIL / RESET_PASSWORD
+- No: 26 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: tokenHash · 타입: text · UK: Y · NULL 허용: N · 설명: 토큰 원문의 SHA-256 해시 (원문은 메일에만)
+- No: 27 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: expiresAt · 타입: timestamp(3) · NULL 허용: N · 설명: 만료 시각 (인증 24시간, 재설정 30분)
+- No: 28 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: usedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 사용한 시각 (한 번만 쓴다)
+- No: 29 · 영역: 계정 · 결제 · 코레딧 · 테이블: email_tokens · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 30 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 결제사에 넘기는 주문 번호
+- No: 31 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: userId · 타입: text · FK: Y · NULL 허용: Y · 참조 (부모 · 삭제 시): users.id (SET NULL) · 설명: 탈퇴하면 비워진다. 결제 기록은 전자상거래법에 따라 정해진 기간 남겨야 해서 주문은 지우지 않는다
+- No: 32 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: buyerEmail · 타입: text · NULL 허용: Y · 설명: 결제할 때의 구매자 이메일 (탈퇴 뒤에도 결제 기록을 확인할 수 있게 남긴다)
+- No: 33 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: productId · 타입: text · NULL 허용: N · 설명: 상품 코드 (apps/api/src/billing/products.ts)
+- No: 34 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: amount · 타입: integer · NULL 허용: N · 설명: 원 단위 금액. 승인할 때 결제사가 돌려준 금액과 맞아야 한다
+- No: 35 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: days · 타입: integer · NULL 허용: N · 설명: 결제하면 늘어나는 프로 등급 일수
+- No: 36 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: provider · 타입: text · NULL 허용: N · 설명: toss | mock(개발·시험용 가짜 결제)
+- No: 37 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: status · 타입: PaymentStatus · NULL 허용: N · 기본값: PENDING · 설명: 결제 상태 PENDING / PAID / FAILED / REFUNDED
+- No: 38 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: paymentKey · 타입: text · UK: Y · NULL 허용: Y · 설명: 결제사가 준 결제 키 (승인·취소 조회에 쓴다)
+- No: 39 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: failReason · 타입: text · NULL 허용: Y · 설명: 결제 실패 사유
+- No: 40 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: receiptUrl · 타입: text · NULL 허용: Y · 설명: 결제사 영수증 주소 (토스 승인 응답의 receipt.url)
+- No: 41 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: refundedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 환불한 시각과 사유 (운영자가 처리)
+- No: 42 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: refundReason · 타입: text · NULL 허용: Y · 설명: 환불 사유 (운영자 입력)
+- No: 43 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 44 · 영역: 계정 · 결제 · 코레딧 · 테이블: payment_orders · 컬럼: paidAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 결제 승인 시각
+- No: 45 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 46 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 47 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: delta · 타입: integer · NULL 허용: N · 설명: 늘거나 준 코레딧 (음수 = 차감)
+- No: 48 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: balance · 타입: integer · NULL 허용: N · 설명: 이 줄을 반영한 뒤의 잔액
+- No: 49 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: reason · 타입: CreditReason · NULL 허용: N · 설명: 이유 (출석·모델 사용·환불·운영자·오퍼레이션·퀘스트·이벤트)
+- No: 50 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: modelId · 타입: text · NULL 허용: Y · 설명: 모델을 쓰거나 돌려받았을 때 그 모델 id
+- No: 51 · 영역: 계정 · 결제 · 코레딧 · 테이블: credit_ledger · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 52 · 영역: 계정 · 결제 · 코레딧 · 테이블: attendances · 컬럼: userId · 타입: text · PK: Y · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 53 · 영역: 계정 · 결제 · 코레딧 · 테이블: attendances · 컬럼: day · 타입: text · PK: Y · NULL 허용: N · 설명: 출석한 날 (한국 시각 YYYY-MM-DD)
+- No: 54 · 영역: 계정 · 결제 · 코레딧 · 테이블: attendances · 컬럼: credits · 타입: integer · NULL 허용: N · 설명: 그날 받은 코레딧 (무료 1,000 · 프로 5,000)
+- No: 55 · 영역: 계정 · 결제 · 코레딧 · 테이블: attendances · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 56 · 영역: 계정 · 결제 · 코레딧 · 테이블: model_usage · 컬럼: userId · 타입: text · PK: Y · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 57 · 영역: 계정 · 결제 · 코레딧 · 테이블: model_usage · 컬럼: modelId · 타입: text · PK: Y · NULL 허용: N · 설명: 모델 id (강화 무료 등)
+- No: 58 · 영역: 계정 · 결제 · 코레딧 · 테이블: model_usage · 컬럼: day · 타입: text · PK: Y · NULL 허용: N · 설명: 집계한 날 (한국 시각 YYYY-MM-DD)
+- No: 59 · 영역: 계정 · 결제 · 코레딧 · 테이블: model_usage · 컬럼: count · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 그날 사용한 횟수
+- No: 60 · 영역: 계정 · 결제 · 코레딧 · 테이블: quest_rewards · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 61 · 영역: 계정 · 결제 · 코레딧 · 테이블: quest_rewards · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 62 · 영역: 계정 · 결제 · 코레딧 · 테이블: quest_rewards · 컬럼: characterId · 타입: text · NULL 허용: N · 설명: 캐릭터 (characters.id)
+- No: 63 · 영역: 계정 · 결제 · 코레딧 · 테이블: quest_rewards · 컬럼: amount · 타입: integer · NULL 허용: N · 설명: 지급한 코레딧 (공식 캐릭터 100)
+- No: 64 · 영역: 계정 · 결제 · 코레딧 · 테이블: quest_rewards · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 65 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 66 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: name · 타입: text · UK: Y · NULL 허용: N · 설명: 캐릭터 이름 (고유)
+- No: 67 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: oneLiner · 타입: text · NULL 허용: N · 설명: 한 줄 소개
+- No: 68 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: role · 타입: text · NULL 허용: N · 설명: 캠페인 역할 (동료·라이벌·의뢰인·가이드·와일드카드)
+- No: 69 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: addressing · 타입: text · NULL 허용: N · 설명: 유저를 부르는 호칭 규칙
+- No: 70 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: personalityAxes · 타입: text · NULL 허용: N · 설명: 성격 축 (온기·직설·충동·보호)
+- No: 71 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: speechStyle · 타입: text · NULL 허용: N · 설명: 말투 규칙 (반말/존댓말, 습관, 금지 말투)
+- No: 72 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: knows · 타입: text · NULL 허용: N · 설명: 캐릭터가 아는 것
+- No: 73 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: unknown · 타입: text · NULL 허용: N · 설명: 캐릭터가 모르는 것
+- No: 74 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: goal · 타입: text · NULL 허용: N · 설명: 캐릭터의 목표
+- No: 75 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: conflictSeed · 타입: text · NULL 허용: N · 설명: 갈등 씨앗
+- No: 76 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: secret · 타입: text · NULL 허용: N · 설명: 비밀 (공개 응답에 싣지 않는다)
+- No: 77 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: secretUnlockCondition · 타입: text · NULL 허용: N · 설명: 비밀 해금 조건
+- No: 78 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: openingScene · 타입: text · NULL 허용: N · 설명: 시작 장면 (첫 메시지)
+- No: 79 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: quest · 타입: jsonb · NULL 허용: Y · 설명: 비밀 퀘스트(제목·건네는 부탁·달성 조건·보상 장면·열리는 친밀도). 공개 응답에는 싣지 않는다. 없으면 퀘스트 없는 캐릭터
+- No: 80 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: recommendedPersona · 타입: jsonb · NULL 허용: Y · 설명: 이 캐릭터와 대화할 때 추천하는 내 프로필 { name, description } (선택). 유저가 그대로 쓰거나 고쳐서 내 프로필로 만든다
+- No: 81 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: profile · 타입: jsonb · NULL 허용: Y · 설명: 신체·직업 등 카드 밖 부가 프로필. 캐릭터마다 있을 수도, 없을 수도 있다
+- No: 82 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: published · 타입: boolean · NULL 허용: N · 기본값: false · 설명: 발행 여부
+- No: 83 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: visibility · 타입: CharacterVisibility · NULL 허용: N · 기본값: PUBLIC · 설명: 공개: 홈·인기 목록에 나온다 / 링크 공개: 목록에는 없고 주소를 아는 사람만 / 비공개: 만든 사람만
+- No: 84 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: portrait · 타입: bytea · NULL 허용: Y · 설명: 흉상 초상 이미지(공방에서 올린 것). 목록 조회에는 싣지 않고 portraitMime만 본다
+- No: 85 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: portraitMime · 타입: text · NULL 허용: Y · 설명: 초상 형식
+- No: 86 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: takenDownAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영자가 내린 시각. 값이 있으면 어디에도 나오지 않는다
+- No: 87 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: takedownReason · 타입: text · NULL 허용: Y · 설명: 내린 사유 (만든 사람이 공방에서 본다)
+- No: 88 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: ownerId · 타입: text · FK: Y · NULL 허용: Y · 참조 (부모 · 삭제 시): users.id (SET NULL) · 설명: 공방에서 발행한 사람. 운영(공식) 캐릭터는 비어 있다
+- No: 89 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 90 · 영역: 캐릭터 · 대화 · 테이블: characters · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 91 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 92 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: ownerId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 만든 사람 (users.id)
+- No: 93 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: card · 타입: jsonb · NULL 허용: N · 설명: 카드 전체 JSON (8단계: 정체성·외형·성격·캠페인 역할·비밀·첫인사·로어북·비밀 퀘스트)
+- No: 94 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: lastTest · 타입: jsonb · NULL 허용: Y · 설명: 마지막 3턴 테스트 결과와 그때의 카드 지문. 카드를 고치면 지문이 달라져 다시 테스트해야 발행된다
+- No: 95 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: portrait · 타입: bytea · NULL 허용: Y · 설명: 흉상 초상 이미지 (webp·jpeg·png, 150KB 이하). 발행하면 캐릭터에도 실린다
+- No: 96 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: portraitMime · 타입: text · NULL 허용: Y · 설명: 초상 형식
+- No: 97 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: portraitReview · 타입: PortraitReview · NULL 허용: Y · 설명: 초상 검수 결과. 승인된 초상만 캐릭터에 실려 남에게 보인다(기다리는 중·반려면 캐릭터에는 초상이 없다)
+- No: 98 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: portraitReviewNote · 타입: text · NULL 허용: Y · 설명: 자동 검수가 운영자에게 넘긴 이유, 또는 운영자의 반려 사유
+- No: 99 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: visibility · 타입: CharacterVisibility · NULL 허용: N · 기본값: PRIVATE · 설명: 발행할 때(또는 발행 중이면 바로) 캐릭터에 적용할 공개 범위
+- No: 100 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: characterId · 타입: text · FK: Y · UK: Y · NULL 허용: Y · 참조 (부모 · 삭제 시): characters.id (SET NULL) · 설명: 발행된 캐릭터 (발행 전에는 비어 있음)
+- No: 101 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 102 · 영역: 캐릭터 · 대화 · 테이블: character_drafts · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 103 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 104 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: characterId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): characters.id (CASCADE) · 설명: 캐릭터 (characters.id)
+- No: 105 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: reporterId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 신고한 계정 (users.id)
+- No: 106 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: reason · 타입: text · NULL 허용: N · 설명: SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER
+- No: 107 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: detail · 타입: text · NULL 허용: N · 설명: 신고 내용
+- No: 108 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: status · 타입: ReportStatus · NULL 허용: N · 기본값: OPEN · 설명: 처리 상태 OPEN / RESOLVED / DISMISSED
+- No: 109 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: resolution · 타입: text · NULL 허용: Y · 설명: 처리 때 운영자가 남긴 말(캐릭터 주인에게도 보인다)
+- No: 110 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: resolvedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 처리한 시각
+- No: 111 · 영역: 캐릭터 · 대화 · 테이블: character_reports · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 112 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 113 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: reporterId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 신고한 계정 (users.id)
+- No: 114 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: target · 타입: ContentTarget · NULL 허용: N · 설명: 대상 종류 PHOTONET / WEBTOON / WORLD
+- No: 115 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: targetId · 타입: text · NULL 허용: N · 설명: 대상 행 id (외래 키 없음: 그림이 지워져도 신고는 남게)
+- No: 116 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: reason · 타입: text · NULL 허용: N · 설명: MINOR · PHOTOREAL · NONCONSENT · REAL_PERSON · OTHER
+- No: 117 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: detail · 타입: text · NULL 허용: N · 설명: 신고 내용
+- No: 118 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: status · 타입: ContentReportStatus · NULL 허용: N · 기본값: OPEN · 설명: 처리 상태 OPEN / BLOCKED / DISMISSED
+- No: 119 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: resolution · 타입: text · NULL 허용: Y · 설명: 운영자 처리 메모
+- No: 120 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: resolvedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 처리한 시각
+- No: 121 · 영역: 캐릭터 · 대화 · 테이블: content_reports · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 122 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 123 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 124 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: characterId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): characters.id (RESTRICT) · 설명: 캐릭터 (characters.id)
+- No: 125 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: title · 타입: text · NULL 허용: N · 설명: 대화 제목
+- No: 126 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: status · 타입: CampaignStatus · NULL 허용: N · 기본값: ACTIVE · 설명: 대화 상태 ACTIVE / CLOSED (새로하기로 저장하면 CLOSED)
+- No: 127 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 128 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 129 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: personaId · 타입: text · NULL 허용: Y · 설명: 이 대화에서 쓰는 내 프로필. 첫 메시지 때 정해지고 새로하기 전까지 바꿀 수 없다. 프로필을 나중에 고치거나 지워도 대화가 흔들리지 않게 이름·소개를 함께 남긴다
+- No: 130 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: personaName · 타입: text · NULL 허용: Y · 설명: 대화에 고정한 내 프로필 이름 (복사본)
+- No: 131 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: personaDescription · 타입: text · NULL 허용: Y · 설명: 대화에 고정한 내 프로필 소개 (복사본)
+- No: 132 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: savedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 새로하기·이어하기에서 저장한 시각 (status CLOSED = 저장한 대화)
+- No: 133 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: memorizedUntil · 타입: timestamp(3) · NULL 허용: Y · 설명: 이 시각까지의 메시지는 기억으로 정리했다. 그 뒤 메시지가 쌓이면 다음 정리를 한다
+- No: 134 · 영역: 캐릭터 · 대화 · 테이블: campaigns · 컬럼: chatModel · 타입: text · NULL 허용: N · 기본값: basic · 설명: 이 대화의 답을 쓰는 모델 (src/models/models.ts의 id). 새 대화는 기본 무료 모델
+- No: 135 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 136 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: campaignId · 타입: text · FK: Y · UK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 137 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: relationshipValue · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 친밀도 0(처음 만남)~100(각별함). 유저가 캐릭터 상태설정에서 조정한다
+- No: 138 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: relationshipNote · 타입: text · NULL 허용: Y · 설명: 관계 메모
+- No: 139 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: userNickname · 타입: text · NULL 허용: Y · 설명: 이 대화에서 캐릭터가 유저를 부르는 호칭. 비어 있으면 캐릭터 카드의 호칭 규칙을 따른다
+- No: 140 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: openHooks · 타입: jsonb · NULL 허용: N · 기본값: [] · 설명: 열린 복선(훅) 목록
+- No: 141 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: unlockedSecrets · 타입: jsonb · NULL 허용: N · 기본값: [] · 설명: 해금된 비밀 목록
+- No: 142 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: briefForNextSession · 타입: text · NULL 허용: Y · 설명: 다음 회차 브리핑
+- No: 143 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: autoRelationship · 타입: boolean · NULL 허용: N · 기본값: true · 설명: 대화에 따라 친밀도가 자동으로 바뀌게 할지 (유저가 끌 수 있다)
+- No: 144 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: relationshipReason · 타입: text · NULL 허용: Y · 설명: 자동 변화의 근거 한 줄과 최근 기록 [{ at, delta, value, reason }] (최근 10개)
+- No: 145 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: relationshipLog · 타입: jsonb · NULL 허용: N · 기본값: [] · 설명: 친밀도가 바뀐 근거 기록
+- No: 146 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: closedEvents · 타입: jsonb · NULL 허용: N · 기본값: [] · 설명: 이미 끝난 일(문장 목록, 최근 20개). 모델이 다시 되돌리지 못하게 프롬프트에 넣는다
+- No: 147 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: digestedUntil · 타입: timestamp(3) · NULL 허용: Y · 설명: 이 시각까지의 메시지는 이야기 상태(요약·친밀도·복선)에 반영했다
+- No: 148 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: questState · 타입: jsonb · NULL 허용: Y · 설명: 비밀 퀘스트 진행 { status: offered|done, at } — 아직 건네지 않았으면 비어 있다
+- No: 149 · 영역: 캐릭터 · 대화 · 테이블: campaign_states · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 150 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 151 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 152 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: index · 타입: integer · NULL 허용: N · 설명: 회차 번호 (대화 안에서 고유)
+- No: 153 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: status · 타입: SessionStatus · NULL 허용: N · 기본값: OPEN · 설명: 세션 상태 OPEN / CLOSED
+- No: 154 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: startedAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 시작 시각
+- No: 155 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: closedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 종료 시각
+- No: 156 · 영역: 캐릭터 · 대화 · 테이블: sessions · 컬럼: summaryBrief · 타입: text · NULL 허용: Y · 설명: 세션 요약
+- No: 157 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 158 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: sessionId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): sessions.id (CASCADE) · 설명: 세션 (sessions.id)
+- No: 159 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: role · 타입: MessageRole · NULL 허용: N · 설명: 말한 쪽 USER / CHARACTER / SYSTEM
+- No: 160 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: content · 타입: text · NULL 허용: N · 설명: 메시지 본문
+- No: 161 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: speaker · 타입: text · NULL 허용: Y · 설명: 유저 메시지를 보낼 때 쓴 내 프로필 캐릭터 이름 (프로필을 나중에 지우거나 바꿔도 기록은 그대로 남긴다)
+- No: 162 · 영역: 캐릭터 · 대화 · 테이블: messages · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 163 · 영역: 캐릭터 · 대화 · 테이블: memory_chunks · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 164 · 영역: 캐릭터 · 대화 · 테이블: memory_chunks · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 165 · 영역: 캐릭터 · 대화 · 테이블: memory_chunks · 컬럼: content · 타입: text · NULL 허용: N · 설명: 캐릭터가 기억할 짧은 문장
+- No: 166 · 영역: 캐릭터 · 대화 · 테이블: memory_chunks · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 167 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 168 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 169 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: name · 타입: text · NULL 허용: N · 설명: 조연 이름
+- No: 170 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: summary · 타입: text · NULL 허용: N · 설명: 조연 소개
+- No: 171 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: personality · 타입: text · NULL 허용: N · 설명: 조연 성격·말투
+- No: 172 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: relation · 타입: text · NULL 허용: N · 설명: 주인공 캐릭터·유저와의 관계 (인물 관계 조건의 단어가 여기서 나온다)
+- No: 173 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: situation · 타입: text · NULL 허용: N · 설명: 등장 상황 (상황 조건)
+- No: 174 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: place · 타입: text · NULL 허용: N · 설명: 등장 장소 (장소 조건)
+- No: 175 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 176 · 영역: 캐릭터 · 대화 · 테이블: user_extras · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 177 · 영역: 캐릭터 · 대화 · 테이블: campaign_extras · 컬럼: campaignId · 타입: text · PK: Y · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 178 · 영역: 캐릭터 · 대화 · 테이블: campaign_extras · 컬럼: extraId · 타입: text · PK: Y · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): user_extras.id (CASCADE) · 설명: 엑스트라 (user_extras.id)
+- No: 179 · 영역: 캐릭터 · 대화 · 테이블: campaign_extras · 컬럼: triggers · 타입: text[] · NULL 허용: Y · 설명: 등장 조건 (relation / situation / place)
+- No: 180 · 영역: 캐릭터 · 대화 · 테이블: campaign_extras · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 181 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 182 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 183 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: innerVoice · 타입: text · NULL 허용: N · 설명: 속마음
+- No: 184 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: feeling · 타입: text · NULL 허용: N · 설명: 지금 기분
+- No: 185 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: aboutUser · 타입: text · NULL 허용: N · 설명: 유저에 대한 생각
+- No: 186 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: mind_readings · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 187 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 188 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 189 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: title · 타입: text · NULL 허용: N · 설명: 일기 제목
+- No: 190 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: mood · 타입: text · NULL 허용: N · 설명: 기분
+- No: 191 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: body · 타입: text · NULL 허용: N · 설명: 일기 본문
+- No: 192 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: diary_entries · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 193 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: direct_messages · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 194 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: direct_messages · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 195 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: direct_messages · 컬럼: role · 타입: MessageRole · NULL 허용: N · 설명: 보낸 쪽
+- No: 196 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: direct_messages · 컬럼: content · 타입: text · NULL 허용: N · 설명: 문자 내용
+- No: 197 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: direct_messages · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 198 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 199 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 200 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: authorKind · 타입: BoardAuthor · NULL 허용: N · 설명: 글쓴이 USER / RESIDENT (세계 속 주민)
+- No: 201 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: authorName · 타입: text · NULL 허용: N · 설명: 화면에 보이는 글쓴이 (익명·주민 닉네임·내 주인공 실명)
+- No: 202 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: title · 타입: text · NULL 허용: N · 설명: 글 제목
+- No: 203 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: body · 타입: text · NULL 허용: N · 설명: 글 본문
+- No: 204 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_posts · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 205 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 206 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: postId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): board_posts.id (CASCADE) · 설명: 글 (board_posts.id)
+- No: 207 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: authorKind · 타입: BoardAuthor · NULL 허용: N · 설명: 댓글 쓴 쪽 USER / RESIDENT
+- No: 208 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: authorName · 타입: text · NULL 허용: N · 설명: 댓글 쓴 이름
+- No: 209 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: body · 타입: text · NULL 허용: N · 설명: 댓글 본문
+- No: 210 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: board_comments · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 211 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 212 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 213 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: prompt · 타입: text · NULL 허용: N · 설명: 유저가 쓴 장면 설명
+- No: 214 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: promptUsed · 타입: text · NULL 허용: N · 설명: 엔진에 실제로 보낸 영어 프롬프트
+- No: 215 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: style · 타입: text · NULL 허용: N · 설명: 화풍 (4가지)
+- No: 216 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: ratio · 타입: text · NULL 허용: N · 설명: 비율 (3가지)
+- No: 217 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: rating · 타입: text · NULL 허용: N · 기본값: sfw · 설명: sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+- No: 218 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: blockedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영자가 접근을 막은 시각. 값이 있으면 만든 사람에게도 본문을 주지 않는다
+- No: 219 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: blockReason · 타입: text · NULL 허용: Y · 설명: 접근 차단 사유 (신고 처리)
+- No: 220 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: mime · 타입: text · NULL 허용: N · 설명: 그림 형식 (image/webp 등)
+- No: 221 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: data · 타입: bytea · NULL 허용: N · 설명: 그림 원본 바이트
+- No: 222 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: width · 타입: integer · NULL 허용: N · 설명: 그림 가로 픽셀
+- No: 223 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: height · 타입: integer · NULL 허용: N · 설명: 그림 세로 픽셀
+- No: 224 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: photonet_images · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 225 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 226 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: campaignId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): campaigns.id (CASCADE) · 설명: 대화 (campaigns.id)
+- No: 227 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: title · 타입: text · NULL 허용: N · 설명: 웹툰 제목
+- No: 228 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: prompt · 타입: text · NULL 허용: N · 설명: 유저가 쓴 장면 설명(또는 고른 대사)
+- No: 229 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: rating · 타입: text · NULL 허용: N · 기본값: sfw · 설명: sfw: 전체 이용가 / nsfw: 성인 (성인 확인한 사람에게만 보인다)
+- No: 230 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: blockedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영자가 접근을 막은 시각. 값이 있으면 컷 본문을 주지 않고 더 그리지 못한다
+- No: 231 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: blockReason · 타입: text · NULL 허용: Y · 설명: 접근 차단 사유 (신고 처리)
+- No: 232 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoons · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 233 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 234 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: webtoonId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): webtoons.id (CASCADE) · 설명: 웹툰 (webtoons.id)
+- No: 235 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: index · 타입: integer · NULL 허용: N · 설명: 컷 순서 (웹툰 안에서 고유)
+- No: 236 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: plan · 타입: jsonb · NULL 허용: N · 설명: 장면 설계표(사람·장소·행동·빛·구도) — 그릴 때 프롬프트로 조립한다
+- No: 237 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: caption · 타입: text · NULL 허용: N · 설명: 해설(나레이션 상자)과 대사 [{ speaker, text }]
+- No: 238 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: lines · 타입: jsonb · NULL 허용: N · 기본값: [] · 설명: 말풍선 대사 목록
+- No: 239 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: promptUsed · 타입: text · NULL 허용: Y · 설명: 그림에 쓴 프롬프트
+- No: 240 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: mime · 타입: text · NULL 허용: Y · 설명: 그림 형식 (image/webp 등)
+- No: 241 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: data · 타입: bytea · NULL 허용: Y · 설명: 그림 원본 바이트
+- No: 242 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: width · 타입: integer · NULL 허용: Y · 설명: 그림 가로 픽셀
+- No: 243 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: height · 타입: integer · NULL 허용: Y · 설명: 그림 세로 픽셀
+- No: 244 · 영역: 오퍼레이션 (대화 플러그인) · 테이블: webtoon_panels · 컬럼: drawnAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 그린 시각 (실패하면 비어 있음)
+- No: 245 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 246 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: ownerId · 타입: text · FK: Y · NULL 허용: Y · 참조 (부모 · 삭제 시): users.id (SET NULL) · 설명: 만든 사람 (users.id)
+- No: 247 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: title · 타입: text · NULL 허용: N · 설명: 세계관 제목
+- No: 248 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: oneLiner · 타입: text · NULL 허용: N · 기본값: '' · 설명: 한 줄 소개
+- No: 249 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: setting · 타입: text · NULL 허용: N · 기본값: '' · 설명: 세계관 설명(시대·장소·분위기·사회). 진행자 프롬프트에 그대로 들어간다
+- No: 250 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: rules · 타입: text · NULL 허용: N · 기본값: '' · 설명: 이 세계의 규칙(마법 유무, 금기 등)
+- No: 251 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: opening · 타입: text · NULL 허용: N · 기본값: '' · 설명: 첫 장면 (플레이를 시작하면 처음 보이는 글)
+- No: 252 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: mode · 타입: WorldMode · NULL 허용: N · 기본값: CHAT · 설명: 대화 방식 CHAT / VISUAL_NOVEL / NOVEL / MESSENGER
+- No: 253 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: visibility · 타입: CharacterVisibility · NULL 허용: N · 기본값: PRIVATE · 설명: 공개 범위 PUBLIC / UNLISTED / PRIVATE
+- No: 254 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: published · 타입: boolean · NULL 허용: N · 기본값: false · 설명: 발행해야 남이 플레이할 수 있다. 만든 사람은 발행 전에도 시험 플레이를 할 수 있다
+- No: 255 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: map · 타입: bytea · NULL 허용: Y · 설명: 코퍼맵 바탕 그림 (지도·도표). 장소 핀은 WorldPlace
+- No: 256 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: mapMime · 타입: text · NULL 허용: Y · 설명: 코퍼맵 지도 그림 형식
+- No: 257 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: mapReview · 타입: PortraitReview · NULL 허용: N · 기본값: APPROVED · 설명: 지도 그림 검수 상태
+- No: 258 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: takenDownAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영자가 내린 시각
+- No: 259 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: takedownReason · 타입: text · NULL 허용: Y · 설명: 내린 사유
+- No: 260 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 261 · 영역: 월드코퍼챗 · 테이블: worlds · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 262 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 263 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: worldId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): worlds.id (CASCADE) · 설명: 세계관 (worlds.id)
+- No: 264 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: characterId · 타입: text · FK: Y · NULL 허용: Y · 참조 (부모 · 삭제 시): characters.id (SET NULL) · 설명: 캐릭터 (characters.id)
+- No: 265 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: name · 타입: text · NULL 허용: N · 설명: 등장인물 이름 (세계관 안에서 고유)
+- No: 266 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: summary · 타입: text · NULL 허용: N · 설명: 등장인물 소개
+- No: 267 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: speech · 타입: text · NULL 허용: N · 기본값: '' · 설명: 말투
+- No: 268 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: startPlace · 타입: text · NULL 허용: N · 기본값: '' · 설명: 처음 있는 장소 · 사는 곳 (WorldPlace 이름)
+- No: 269 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: homePlace · 타입: text · NULL 허용: N · 기본값: '' · 설명: 처음 있는 장소
+- No: 270 · 영역: 월드코퍼챗 · 테이블: world_cast · 컬럼: order · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 화면에 놓이는 순서
+- No: 271 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 272 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: worldId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): worlds.id (CASCADE) · 설명: 세계관 (worlds.id)
+- No: 273 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: name · 타입: text · NULL 허용: N · 설명: 장소 이름 (세계관 안에서 고유)
+- No: 274 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: x · 타입: float8 · NULL 허용: N · 설명: 지도 가로 위치 (0~100%)
+- No: 275 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: y · 타입: float8 · NULL 허용: N · 설명: 지도 세로 위치 (0~100%)
+- No: 276 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: note · 타입: text · NULL 허용: N · 기본값: '' · 설명: 장소 설명
+- No: 277 · 영역: 월드코퍼챗 · 테이블: world_places · 컬럼: order · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 화면에 놓이는 순서
+- No: 278 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 279 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: worldId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): worlds.id (CASCADE) · 설명: 세계관 (worlds.id)
+- No: 280 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: order · 타입: integer · NULL 허용: N · 설명: 파트 순서 (세계관 안에서 고유)
+- No: 281 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: title · 타입: text · NULL 허용: N · 설명: 파트 제목
+- No: 282 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: goal · 타입: text · NULL 허용: N · 설명: 이 파트가 끝나는 조건 (판정 모델만 읽는다 — 진행자에게는 향하는 방향으로만 알린다)
+- No: 283 · 영역: 월드코퍼챗 · 테이블: world_parts · 컬럼: opening · 타입: text · NULL 허용: N · 기본값: '' · 설명: 이 파트가 시작될 때 보여 줄 글
+- No: 284 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 285 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: worldId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): worlds.id (CASCADE) · 설명: 세계관 (worlds.id)
+- No: 286 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: label · 타입: text · NULL 허용: N · 설명: 이름표 (진행자가 이 이름으로 고른다)
+- No: 287 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: character · 타입: text · NULL 허용: N · 기본값: '' · 설명: 특정 인물의 그림이면 그 이름 (비주얼노벨 서 있는 그림)
+- No: 288 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: mime · 타입: text · NULL 허용: N · 설명: 그림 형식 (image/webp 등)
+- No: 289 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: data · 타입: bytea · NULL 허용: N · 설명: 그림 원본 바이트
+- No: 290 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: review · 타입: PortraitReview · NULL 허용: N · 기본값: APPROVED · 설명: 검수 상태 APPROVED / PENDING / REJECTED
+- No: 291 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: reviewNote · 타입: text · NULL 허용: Y · 설명: 검수 메모
+- No: 292 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: blockedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 운영자가 막은 시각. 막힌 그림은 진행자에게도 화면에도 나가지 않는다
+- No: 293 · 영역: 월드코퍼챗 · 테이블: world_images · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 294 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 295 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: userId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): users.id (CASCADE) · 설명: 계정 (users.id)
+- No: 296 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: worldId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): worlds.id (CASCADE) · 설명: 세계관 (worlds.id)
+- No: 297 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: personaName · 타입: text · NULL 허용: N · 설명: 플레이에 쓴 내 프로필 이름 (복사본)
+- No: 298 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: personaDescription · 타입: text · NULL 허용: N · 기본값: '' · 설명: 플레이에 쓴 내 프로필 소개 (복사본)
+- No: 299 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: partIndex · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 지금 파트 번호
+- No: 300 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: finished · 타입: boolean · NULL 허용: N · 기본값: false · 설명: 마지막 파트까지 끝냈다 (그 뒤에도 자유롭게 이어 갈 수 있다)
+- No: 301 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: locations · 타입: jsonb · NULL 허용: N · 기본값: {} · 설명: 인물 이름 → 지금 있는 장소 이름
+- No: 302 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: turns · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 진행한 턴 수
+- No: 303 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: turnsSinceEvent · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 마지막 이벤트 뒤 턴 수
+- No: 304 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: eventNote · 타입: text · NULL 허용: Y · 설명: 방금 끝난 이벤트 결과 (다음 답에서 인물이 반응한다)
+- No: 305 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: storySoFar · 타입: text · NULL 허용: N · 기본값: '' · 설명: 지금까지의 줄거리
+- No: 306 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 307 · 영역: 월드코퍼챗 · 테이블: world_plays · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 308 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 309 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: playId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): world_plays.id (CASCADE) · 설명: 플레이 (world_plays.id)
+- No: 310 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: role · 타입: MessageRole · NULL 허용: N · 설명: 말한 쪽
+- No: 311 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: content · 타입: text · NULL 허용: N · 설명: 메시지 본문
+- No: 312 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: imageId · 타입: text · NULL 허용: Y · 설명: 이 답과 함께 보여 줄 장면 그림 (WorldImage id)
+- No: 313 · 영역: 월드코퍼챗 · 테이블: world_messages · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 314 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
+- No: 315 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: playId · 타입: text · FK: Y · NULL 허용: N · 참조 (부모 · 삭제 시): world_plays.id (CASCADE) · 설명: 플레이 (world_plays.id)
+- No: 316 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: userId · 타입: text · NULL 허용: N · 설명: 이벤트를 받은 계정 (하루 보상 한도 집계용, 외래 키 없음)
+- No: 317 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: kind · 타입: WorldEventKind · NULL 허용: N · 설명: 미니게임 종류 LADDER / DICE / BOWLING / LOTTERY / MAZE
+- No: 318 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: status · 타입: WorldEventStatus · NULL 허용: N · 기본값: OPEN · 설명: 상태 OPEN / WON / LOST / EXPIRED
+- No: 319 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: setup · 타입: jsonb · NULL 허용: N · 설명: 게임 설정 (화면에 다 보내지 않는다)
+- No: 320 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: outcome · 타입: jsonb · NULL 허용: Y · 설명: 결과 기록 (고른 것, 굴린 값, 쓰러뜨린 핀 등)
+- No: 321 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: reward · 타입: integer · NULL 허용: N · 기본값: 0 · 설명: 보상 코레딧 (승리 20~50, 패배 5~10)
+- No: 322 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: rewarded · 타입: boolean · NULL 허용: N · 기본값: false · 설명: 하루 보상 한도 안이라 실제로 코레딧을 줬나
+- No: 323 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: rewardDay · 타입: text · NULL 허용: Y · 설명: 보상한 날 (한국 시각 YYYY-MM-DD) — 하루 한도를 센다
+- No: 324 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: createdAt · 타입: timestamp(3) · NULL 허용: N · 기본값: now() · 설명: 만든 시각
+- No: 325 · 영역: 월드코퍼챗 · 테이블: world_events · 컬럼: resolvedAt · 타입: timestamp(3) · NULL 허용: Y · 설명: 끝난 시각
+- No: 326 · 영역: 독립 테이블 · 테이블: rate_limit_buckets · 컬럼: key · 타입: text · PK: Y · NULL 허용: N · 설명: 한도 키 (사람·IP·경로)
+- No: 327 · 영역: 독립 테이블 · 테이블: rate_limit_buckets · 컬럼: count · 타입: integer · NULL 허용: N · 설명: 이번 창에서 센 요청 수
+- No: 328 · 영역: 독립 테이블 · 테이블: rate_limit_buckets · 컬럼: resetAt · 타입: timestamp(3) · NULL 허용: N · 설명: 창이 끝나는 시각
+- No: 329 · 영역: 독립 테이블 · 테이블: app_settings · 컬럼: key · 타입: text · PK: Y · NULL 허용: N · 설명: 설정 키
+- No: 330 · 영역: 독립 테이블 · 테이블: app_settings · 컬럼: value · 타입: jsonb · NULL 허용: N · 설명: 설정 값 (JSON)
+- No: 331 · 영역: 독립 테이블 · 테이블: app_settings · 컬럼: updatedAt · 타입: timestamp(3) · NULL 허용: N · 설명: 마지막으로 고친 시각 (Prisma @updatedAt)
+- No: 열거형 (enum) — 17개
+- No: No · 테이블: 열거형 · 컬럼: 값
+- No: E01 · 테이블: BoardAuthor · 컬럼: USER · RESIDENT
+- No: E02 · 테이블: CampaignStatus · 컬럼: ACTIVE · CLOSED
+- No: E03 · 테이블: CharacterVisibility · 컬럼: PUBLIC · UNLISTED · PRIVATE
+- No: E04 · 테이블: ContentReportStatus · 컬럼: OPEN · BLOCKED · DISMISSED
+- No: E05 · 테이블: ContentTarget · 컬럼: PHOTONET · WEBTOON · WORLD
+- No: E06 · 테이블: CreditReason · 컬럼: ATTENDANCE · MODEL_USE · REFUND · ADMIN · OPERATION · QUEST · EVENT
+- No: E07 · 테이블: EmailTokenPurpose · 컬럼: VERIFY_EMAIL · RESET_PASSWORD
+- No: E08 · 테이블: MessageRole · 컬럼: USER · CHARACTER · SYSTEM
+- No: E09 · 테이블: PaymentStatus · 컬럼: PENDING · PAID · FAILED · REFUNDED
+- No: E10 · 테이블: PortraitReview · 컬럼: APPROVED · PENDING · REJECTED
+- No: E11 · 테이블: ReportStatus · 컬럼: OPEN · RESOLVED · DISMISSED
+- No: E12 · 테이블: SessionStatus · 컬럼: OPEN · CLOSED
+- No: E13 · 테이블: UserPlan · 컬럼: FREE · PRO
+- No: E14 · 테이블: UserRole · 컬럼: USER · ADMIN
+- No: E15 · 테이블: WorldEventKind · 컬럼: LADDER · DICE · BOWLING · LOTTERY · MAZE
+- No: E16 · 테이블: WorldEventStatus · 컬럼: OPEN · WON · LOST · EXPIRED
+- No: E17 · 테이블: WorldMode · 컬럼: CHAT · VISUAL_NOVEL · NOVEL · MESSENGER
+
+## 스프레드시트 시트: URL_설계
+- No: 1 · 구분: 화면 · 앱: web · 메서드: GET · URL: / · 설명: 홈 — 히어로(소개·둘러보기·직접 만들기), 이어서 대화하기(최근 3개), 시작할 캐릭터 목록 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/page.tsx
+- No: 2 · 구분: 화면 · 앱: web · 메서드: GET · URL: /popular · 설명: 인기 — 요약 숫자, 종류 탭(전체·공식·유저 제작), TOP 3 시상대, 순위 목록 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/popular/page.tsx
+- No: 3 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id · 설명: 캐릭터 상세 — 초상·이름·한 줄·태그, 시작하기, 신고(맨 아래) · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/characters/[id]/page.tsx
+- No: 4 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat · 설명: 대화 — 초상 말풍선, 입력창(Shift+Enter 줄바꿈), 대답 추천 ✦, 모델 고르기, 오퍼레이션 메뉴, 코디포토넷 버튼, 지난 이야기·엑스트라·비밀 퀘스트 패널, ⋮ 메뉴 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/page.tsx
+- No: 5 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/saved · 설명: 저장한 대화 — 저장한 대화 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/saved/page.tsx
+- No: 6 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/memories · 설명: 메모리 기록 — 캐릭터가 기억하는 문장 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/memories/page.tsx
+- No: 7 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/settings · 설명: 캐릭터 내 상태설정 — 친밀도·관계 메모·호칭, 자동 변화 끄기 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/settings/page.tsx
+- No: 8 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/mind · 설명: 심리 탐구 — 속마음·기분·유저에 대한 생각 카드 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/mind/page.tsx
+- No: 9 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/diary · 설명: 일기 — 캐릭터 일기 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/diary/page.tsx
+- No: 10 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/messages · 설명: 메시지 — 문자 주고받기 화면 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/messages/page.tsx
+- No: 11 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/community · 설명: 커뮤니티 — 세계 속 익명 게시판 글·댓글 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/community/page.tsx
+- No: 12 · 구분: 화면 · 앱: web · 메서드: GET · URL: /characters/:id/chat/webtoon · 설명: 웹툰 — 콘티(컷마다 장면·해설·대사), 컷 그리기, 성인 토글(열림 상자) · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/characters/[id]/chat/webtoon/page.tsx
+- No: 13 · 구분: 화면 · 앱: web · 메서드: GET · URL: /library · 설명: 대화 목록 (라이브러리) — 진행 중·저장한 대화 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/library/page.tsx
+- No: 14 · 구분: 화면 · 앱: web · 메서드: GET · URL: /studio · 설명: 캐릭터 공방 목록 — 내 초안(작성 중·필수 완료·발행됨), 새 캐릭터 만들기 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/studio/page.tsx
+- No: 15 · 구분: 화면 · 앱: web · 메서드: GET · URL: /studio/:id · 설명: 캐릭터 공방 편집기 — 왼쪽 8단계 / 가운데 폼 / 오른쪽 미리보기·토큰 예상·테스트 3턴, 위쪽 초안저장·발행 · 인증 · 권한: 로그인 (만든 사람) · 담당 코드: apps/web/app/studio/[id]/page.tsx
+- No: 16 · 구분: 화면 · 앱: web · 메서드: GET · URL: /agents · 설명: 에이전트 — 사용 안내 챗봇 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/agents/page.tsx
+- No: 17 · 구분: 화면 · 앱: web · 메서드: GET · URL: /me · 설명: 마이페이지 — 내 정보, 이메일 인증 안내, 코레딧 카드(출석·잔액·내역), 내 프로필 10개 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/me/page.tsx
+- No: 18 · 구분: 화면 · 앱: web · 메서드: GET · URL: /settings · 설명: 설정 — 화면(테마), 계정·비밀번호·로그인·나이·콘텐츠 수위·회원 탈퇴 · 인증 · 권한: 누구나 (로그인 시 추가 칸) · 담당 코드: apps/web/app/settings/page.tsx
+- No: 19 · 구분: 화면 · 앱: web · 메서드: GET · URL: /login · 설명: 로그인 — 이메일·비밀번호, 비밀번호 찾기 링크 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/login/page.tsx
+- No: 20 · 구분: 화면 · 앱: web · 메서드: GET · URL: /signup · 설명: 회원가입 — 이메일·비밀번호·표시 이름 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/signup/page.tsx
+- No: 21 · 구분: 화면 · 앱: web · 메서드: GET · URL: /forgot-password · 설명: 비밀번호 찾기 — 이메일 입력 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/forgot-password/page.tsx
+- No: 22 · 구분: 화면 · 앱: web · 메서드: GET · URL: /reset-password?token=… · 설명: 새 비밀번호 정하기 — 새 비밀번호 · 인증 · 권한: 메일 링크 · 담당 코드: apps/web/app/reset-password/page.tsx
+- No: 23 · 구분: 화면 · 앱: web · 메서드: GET · URL: /verify-email?token=… · 설명: 이메일 인증 — 인증 버튼 · 인증 · 권한: 메일 링크 · 담당 코드: apps/web/app/verify-email/page.tsx
+- No: 24 · 구분: 화면 · 앱: web · 메서드: GET · URL: /pricing · 설명: 요금 안내 — 무료·프로 비교, 눌러서 프로(30일), 결제 동의 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/pricing/page.tsx
+- No: 25 · 구분: 화면 · 앱: web · 메서드: GET · URL: /billing/mock · 설명: 시험 결제창 — 가짜 결제 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/billing/mock/page.tsx
+- No: 26 · 구분: 화면 · 앱: web · 메서드: GET · URL: /billing/success · 설명: 결제 확인 — 승인 결과 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/billing/success/page.tsx
+- No: 27 · 구분: 화면 · 앱: web · 메서드: GET · URL: /billing/fail · 설명: 결제 실패 — 실패·취소 안내 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/billing/fail/page.tsx
+- No: 28 · 구분: 화면 · 앱: web · 메서드: GET · URL: /worlds · 설명: 세계관 목록 — 공개 세계관 검색·목록, 내 세계관, 만들기 버튼 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/worlds/page.tsx
+- No: 29 · 구분: 화면 · 앱: web · 메서드: GET · URL: /worlds/:id · 설명: 세계관 소개 — 설정·등장인물·코퍼맵·파트 제목, 시작하기 · 인증 · 권한: 누구나 (공개 범위) · 담당 코드: apps/web/app/worlds/[id]/page.tsx
+- No: 30 · 구분: 화면 · 앱: web · 메서드: GET · URL: /worlds/:id/edit · 설명: 세계관 편집기 — 탭: 기본·등장인물·장소·파트·장면 그림·발행 · 인증 · 권한: 만든 사람 · 담당 코드: apps/web/app/worlds/[id]/edit/page.tsx
+- No: 31 · 구분: 화면 · 앱: web · 메서드: GET · URL: /worlds/:id/play · 설명: 월드 플레이 — 대화 방식 4가지 화면, 파트 띠, 코퍼맵, 이벤트 미니게임 창 · 인증 · 권한: 로그인 · 담당 코드: apps/web/app/worlds/[id]/play/page.tsx
+- No: 32 · 구분: 화면 · 앱: web · 메서드: GET · URL: /terms · 설명: 이용약관 — 약관 본문 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/terms/page.tsx
+- No: 33 · 구분: 화면 · 앱: web · 메서드: GET · URL: /privacy · 설명: 개인정보처리방침 — 처리방침 본문, 국외 이전 표 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/privacy/page.tsx
+- No: 34 · 구분: 화면 · 앱: web · 메서드: GET · URL: /business · 설명: 사업자 정보 — 사업자 표기 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/business/page.tsx
+- No: 35 · 구분: 화면 · 앱: web · 메서드: GET · URL: /support · 설명: 고객센터 — 문의·신고 안내 · 인증 · 권한: 누구나 · 담당 코드: apps/web/app/support/page.tsx
+- No: 36 · 구분: 화면 · 앱: console · 메서드: GET · URL: / · 설명: 대시보드 — 처리할 일, 이용자 숫자, 캐릭터·대화, AI 대기열 · 인증 · 권한: 운영자 · 담당 코드: console/app/page.tsx
+- No: 37 · 구분: 화면 · 앱: console · 메서드: GET · URL: /login · 설명: 운영자 로그인 — 이메일·비밀번호 · 인증 · 권한: 누구나 (운영자만 통과) · 담당 코드: console/app/login/page.tsx
+- No: 38 · 구분: 화면 · 앱: console · 메서드: GET · URL: /reports · 설명: 신고함 — 신고 많은 순 목록 · 인증 · 권한: 운영자 · 담당 코드: console/app/reports/page.tsx
+- No: 39 · 구분: 화면 · 앱: console · 메서드: GET · URL: /portraits · 설명: 초상 검수 — 검수 대기 초상 · 인증 · 권한: 운영자 · 담당 코드: console/app/portraits/page.tsx
+- No: 40 · 구분: 화면 · 앱: console · 메서드: GET · URL: /content · 설명: 그림 신고 — 코디포토넷·웹툰 신고 · 인증 · 권한: 운영자 · 담당 코드: console/app/content/page.tsx
+- No: 41 · 구분: 화면 · 앱: console · 메서드: GET · URL: /characters · 설명: 캐릭터 관리 — 모든 캐릭터 검색·상태 필터 · 인증 · 권한: 운영자 · 담당 코드: console/app/characters/page.tsx
+- No: 42 · 구분: 화면 · 앱: console · 메서드: GET · URL: /users · 설명: 계정 등급 — 이메일 검색, 등급·결제 내역 · 인증 · 권한: 운영자 · 담당 코드: console/app/users/page.tsx
+- No: 43 · 구분: 화면 · 앱: console · 메서드: GET · URL: /worlds · 설명: 세계관 목록 — 세계관 목록·통계 · 인증 · 권한: 운영자 · 담당 코드: console/app/worlds/page.tsx
+- No: 44 · 구분: 화면 · 앱: console · 메서드: GET · URL: /worlds/:id · 설명: 세계관 상세 — 세계관 내용·지도·그림 · 인증 · 권한: 운영자 · 담당 코드: console/app/worlds/[id]/page.tsx
+- No: 45 · 구분: 화면 · 앱: console · 메서드: GET · URL: /worlds/review · 설명: 그림 검수 — 검수 대기 장면 그림·지도 · 인증 · 권한: 운영자 · 담당 코드: console/app/worlds/review/page.tsx
+- No: 46 · 구분: 화면 · 앱: console · 메서드: GET · URL: /worlds/events · 설명: 이벤트 기록 — 이벤트 미니게임 결과 목록 · 인증 · 권한: 운영자 · 담당 코드: console/app/worlds/events/page.tsx
+- No: 47 · 구분: 화면 · 앱: console · 메서드: GET · URL: /worlds/settings · 설명: 월드 설정 — 보상 하루 횟수 등 운영 설정 · 인증 · 권한: 운영자 · 담당 코드: console/app/worlds/settings/page.tsx
+- No: 48 · 구분: 웹 중계 · 앱: web · 메서드: GET · URL: /api/characters/:id/portrait · 설명: 캐릭터 초상 그림 중계 (Nest로) · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/portrait/route.ts
+- No: 49 · 구분: 웹 중계 · 앱: web · 메서드: GET · URL: /api/characters/:id/photonet/:imageId · 설명: 코디포토넷 그림 본문 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/photonet/[imageId]/route.ts
+- No: 50 · 구분: 웹 중계 · 앱: web · 메서드: POST · URL: /api/characters/:id/chat · 설명: 대화 보내기 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/chat/route.ts
+- No: 51 · 구분: 웹 중계 · 앱: web · 메서드: POST · URL: /api/characters/:id/chat/suggestions · 설명: 대답 추천 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/chat/suggestions/route.ts
+- No: 52 · 구분: 웹 중계 · 앱: web · 메서드: POST · URL: /api/characters/:id/chat/:action · 설명: 대화 명령(다시·계속·되돌리기 등) 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/chat/[action]/route.ts
+- No: 53 · 구분: 웹 중계 · 앱: web · 메서드: GET · URL: /api/characters/:id/webtoon/:webtoonId/:index · 설명: 웹툰 컷 그림 본문 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/characters/[id]/webtoon/[webtoonId]/[index]/route.ts
+- No: 54 · 구분: 웹 중계 · 앱: web · 메서드: POST · URL: /api/csp-report · 설명: CSP 위반 보고를 받아 로그에 남김 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/csp-report/route.ts
+- No: 55 · 구분: 웹 중계 · 앱: web · 메서드: ALL · URL: /api/worlds/[...path] · 설명: 월드코퍼챗 API 전체 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/worlds/[...path]/route.ts
+- No: 56 · 구분: 웹 중계 · 앱: web · 메서드: POST · URL: /api/agent-chat · 설명: 에이전트 챗봇 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/agent-chat/route.ts
+- No: 57 · 구분: 웹 중계 · 앱: web · 메서드: GET · URL: /api/studio/:id/portrait · 설명: 공방 초안 초상 중계 · 인증 · 권한: 로그인 쿠키 → Bearer · 담당 코드: apps/web/app/api/studio/[id]/portrait/route.ts
+- No: 58 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /auth/me · 설명: 회원 탈퇴 { password, confirm: "탈퇴합니다" } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/account/account.controller.ts · remove()
+- No: 59 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/me/birthdate · 설명: 나이 확인 { birthDate: "YYYY-MM-DD" } (자기 신고). 프리미엄 모델을 연다. 성인 확인과 별개라 ADULT_MODE=off여도 받는다 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/account/account.controller.ts · setBirthDate()
+- No: 60 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/me/adult · 설명: 성인 확인 { birthDate: "YYYY-MM-DD", consent: true } (자기 신고. 본인인증은 하지 않으며, 도입 여부는 법률 검토) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/account/account.controller.ts · confirmAdult()
+- No: 61 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /auth/me/adult · 설명: 성인 콘텐츠 끄기 (동의만 거두고 생년월일은 남긴다) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/account/account.controller.ts · revokeAdult()
+- No: 62 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/stats · 설명: 운영자: 콘솔 대시보드 숫자 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/admin/admin.controller.ts · stats()
+- No: 63 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/characters · 설명: 운영자: 모든 캐릭터(비공개·내려간 것까지) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/admin/admin.controller.ts · characters()
+- No: 64 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/characters/:id/portrait · 설명: 운영자: 캐릭터 초상(비공개·내려간 것 포함) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/admin/admin.controller.ts · portrait()
+- No: 65 · 구분: Nest API · 앱: api · 메서드: POST · URL: /agent-chat/messages · 설명: 에이전트(코디컴퍼챗 안내 챗봇) { message(~2000자), history?(최근 20턴) } · 인증 · 권한: 공개 · 담당 코드: apps/api/src/agent-chat/agent-chat.controller.ts · send()
+- No: 66 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/signup · 설명: 이메일 회원가입 { email, password, displayName }. 인증 메일을 보낸다 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · signup()
+- No: 67 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/login · 설명: 로그인 { email, password } · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · login()
+- No: 68 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/logout · 설명: 로그아웃 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · logout()
+- No: 69 · 구분: Nest API · 앱: api · 메서드: GET · URL: /auth/me · 설명: 내 계정 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/auth/auth.controller.ts · me()
+- No: 70 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /auth/me · 설명: 표시 이름 변경 { displayName } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/auth/auth.controller.ts · updateMe()
+- No: 71 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/me/password · 설명: 비밀번호 변경 { currentPassword, newPassword }. 다른 기기의 로그인은 끊긴다 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/auth/auth.controller.ts · changePassword()
+- No: 72 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/me/verify-email · 설명: 인증 메일 다시 보내기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/auth/auth.controller.ts · requestVerification()
+- No: 73 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/verify-email · 설명: 메일 링크의 토큰으로 이메일 인증 { token } (24시간, 한 번만) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · verifyEmail()
+- No: 74 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/password/forgot · 설명: 비밀번호 재설정 링크 메일 { email } · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · forgotPassword()
+- No: 75 · 구분: Nest API · 앱: api · 메서드: POST · URL: /auth/password/reset · 설명: 새 비밀번호 { token, newPassword } (30분, 한 번만). 모든 기기의 로그인이 끊긴다 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/auth/auth.controller.ts · resetPassword()
+- No: 76 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/users · 설명: 운영자: 계정 찾기 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/billing/admin-users.controller.ts · find()
+- No: 77 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/users/birthdate · 설명: 운영자가 생년월일을 고치거나 지운다 { email, birthDate: "YYYY-MM-DD" | null, reason }. 성인 동의도 지운다 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/billing/admin-users.controller.ts · setBirthDate()
+- No: 78 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/users/plan · 설명: 운영자: 등급 직접 변경 { email, plan: "PRO" | "FREE", days? } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/billing/admin-users.controller.ts · setPlan()
+- No: 79 · 구분: Nest API · 앱: api · 메서드: GET · URL: /billing/products · 설명: 상품표와 지금 켜진 결제 방식 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/billing/billing.controller.ts · products()
+- No: 80 · 구분: Nest API · 앱: api · 메서드: POST · URL: /billing/pro-click · 설명: 결제 없이 프로로 바꾸기 (정식 서비스 전 임시, PRO_CLICK) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/billing/billing.controller.ts · proClick()
+- No: 81 · 구분: Nest API · 앱: api · 메서드: POST · URL: /billing/checkout · 설명: 주문 만들기 { productId } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/billing/billing.controller.ts · checkout()
+- No: 82 · 구분: Nest API · 앱: api · 메서드: POST · URL: /billing/confirm · 설명: 결제창이 돌려준 결제 승인 { orderId, paymentKey, amount } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/billing/billing.controller.ts · confirm()
+- No: 83 · 구분: Nest API · 앱: api · 메서드: GET · URL: /billing/orders · 설명: 내 결제 내역(최근 50건)과 프로 만료 시각 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/billing/billing.controller.ts · orders()
+- No: 84 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/orders · 설명: 운영자: 계정의 결제(결제됨·환불됨) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/billing/billing.controller.ts · list()
+- No: 85 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/orders/:id/refund · 설명: 운영자: 전액 환불 { reason } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/billing/billing.controller.ts · refund()
+- No: 86 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/story · 설명: 지금 대화의 이야기 상태 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/campaign-state/campaign-story.controller.ts · view()
+- No: 87 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /characters/:id/chat/story/hooks/:hookId · 설명: 잘못 잡힌 복선 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/campaign-state/campaign-story.controller.ts · removeHook()
+- No: 88 · 구분: Nest API · 앱: api · 메서드: POST · URL: /campaigns · 설명: 캠페인 시작 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · create()
+- No: 89 · 구분: Nest API · 앱: api · 메서드: GET · URL: /campaigns/:id · 설명: 상태 포함 캠페인 조회 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · findOne()
+- No: 90 · 구분: Nest API · 앱: api · 메서드: POST · URL: /campaigns/:id/sessions · 설명: 세션 열기 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · openSession()
+- No: 91 · 구분: Nest API · 앱: api · 메서드: POST · URL: /campaigns/:id/messages · 설명: 유저 메시지 전송 + 스트림 응답 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · sendMessage()
+- No: 92 · 구분: Nest API · 앱: api · 메서드: POST · URL: /campaigns/:id/sessions/:sessionId/close · 설명: 세션 종료·요약 트리거 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · closeSession()
+- No: 93 · 구분: Nest API · 앱: api · 메서드: GET · URL: /campaigns/:id/logbook · 설명: 회차 목록 · 501 (실제 대화는 /characters/:id/chat*) · 인증 · 권한: 공개 · 담당 코드: apps/api/src/campaigns/campaigns.controller.ts · findLogbook()
+- No: 94 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat · 설명: 이 캐릭터와의 지금 대화 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · history()
+- No: 95 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat · 설명: 캐릭터와 대화 { message(~2000자), personaId, model? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · send()
+- No: 96 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/suggestions · 설명: 대답 추천 { personaId, avoid? } (대화 기록은 서버 저장본) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · suggest()
+- No: 97 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/regenerate · 설명: 대화 명령어 /다시: 마지막 내 말에 대한 답을 새로 쓴다 { personaId, model? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · regenerate()
+- No: 98 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/continue · 설명: 대화 명령어 /계속: 내 말 없이 캐릭터가 장면을 이어 간다 { personaId, model? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · continueScene()
+- No: 99 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/undo · 설명: 대화 명령어 /되돌리기: 마지막 내 말과 그 뒤의 답을 지운다 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · undo()
+- No: 100 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/new · 설명: 새로하기 { save } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · startNew()
+- No: 101 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/saved · 설명: 이어하기 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · listSaved()
+- No: 102 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/saved/:campaignId/resume · 설명: 이어하기 { saveCurrent } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · resume()
+- No: 103 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /characters/:id/chat/saved/:campaignId · 설명: 저장한 대화 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/character-chat/character-chat.controller.ts · removeSaved()
+- No: 104 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters · 설명: 홈·인기 캐릭터 목록 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/characters/characters.controller.ts · findPublished()
+- No: 105 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/popular · 설명: 인기 순위 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/characters/characters.controller.ts · popular()
+- No: 106 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/portrait · 설명: 흉상 초상 이미지 · 인증 · 권한: 토큰 확인 (서비스에서) · 담당 코드: apps/api/src/characters/characters.controller.ts · portrait()
+- No: 107 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id · 설명: 캐릭터 상세 · 인증 · 권한: 토큰 확인 (서비스에서) · 담당 코드: apps/api/src/characters/characters.controller.ts · findOne()
+- No: 108 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/state · 설명: 캐릭터 내 상태설정 조회 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/chat-state/chat-state.controller.ts · get()
+- No: 109 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /characters/:id/chat/state · 설명: 상태설정 저장 { relationshipValue?(0~100 정수), relationshipNote?(~200자), userNickname?(~20자), autoRelationship?(true/false) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/chat-state/chat-state.controller.ts · update()
+- No: 110 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/content-reports/reasons · 설명: 그림 신고 사유 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · reasons()
+- No: 111 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/content-reports · 설명: 내 코디포토넷 그림·웹툰 신고 { target: PHOTONET|WEBTOON, targetId, reason: MINOR|PHOTOREAL|NONCONSENT|REAL_PERSON|OTHER, detail? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · report()
+- No: 112 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/content-reports · 설명: 운영자: 그림 신고 대기·접근을 막은 목록 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · list()
+- No: 113 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/content-reports/:id/image · 설명: 운영자: 신고된 그림 본문 (?panel= 웹툰 컷) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · image()
+- No: 114 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/content-reports/:id/block · 설명: 운영자: 접근 차단 { note, suspend? } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · block()
+- No: 115 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/content-reports/:id/dismiss · 설명: 운영자: 그 신고만 기각 { note? } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · dismiss()
+- No: 116 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/users/:id/unsuspend · 설명: 운영자: 계정 정지 해제 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/content-reports/content-reports.controller.ts · unsuspend()
+- No: 117 · 구분: Nest API · 앱: api · 메서드: GET · URL: /me/conversations · 설명: 대화 목록(최근 대화 순, 캐릭터마다 한 줄) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/conversations/conversations.controller.ts · list()
+- No: 118 · 구분: Nest API · 앱: api · 메서드: GET · URL: /me/credits · 설명: 내 코레딧 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/credits/credits.controller.ts · summary()
+- No: 119 · 구분: Nest API · 앱: api · 메서드: POST · URL: /me/attendance · 설명: 출석 (하루 한 번, 한국 시각) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/credits/credits.controller.ts · attend()
+- No: 120 · 구분: Nest API · 앱: api · 메서드: GET · URL: /me/extras · 설명: 내 엑스트라 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · list()
+- No: 121 · 구분: Nest API · 앱: api · 메서드: POST · URL: /me/extras · 설명: 엑스트라 만들기 { name(~20, 필수), summary(~60, 필수), personality?(~200), relation?(~120), situation?(~200), place?(~120) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · create()
+- No: 122 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /me/extras/:extraId · 설명: 엑스트라 고치기 (같은 본문) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · update()
+- No: 123 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /me/extras/:extraId · 설명: 엑스트라 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · remove()
+- No: 124 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/extras · 설명: 지금 대화의 엑스트라 설정 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · view()
+- No: 125 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /characters/:id/chat/extras/:extraId · 설명: 지금 대화에 적용·조건 바꾸기 { triggers: ["relation" | "situation" | "place", ...] } (셋 다 = 모두) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · apply()
+- No: 126 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /characters/:id/chat/extras/:extraId · 설명: 지금 대화에서 빼기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/extras/extras.controller.ts · unapply()
+- No: 127 · 구분: Nest API · 앱: api · 메서드: GET · URL: /health · 설명: 헬스체크 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/health/health.controller.ts · check()
+- No: 128 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/memories · 설명: 이 대화에서 캐릭터가 기억하는 것(최신 순) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/memories/memories.controller.ts · list()
+- No: 129 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /characters/:id/chat/memories/:memoryId · 설명: 기억 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/memories/memories.controller.ts · remove()
+- No: 130 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/memories/refresh · 설명: 지금 정리하기(아직 정리 안 된 대화를 바로 기억으로) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/memories/memories.controller.ts · refresh()
+- No: 131 · 구분: Nest API · 앱: api · 메서드: GET · URL: /models · 설명: 대화에서 고를 수 있는 모델 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/models/models.controller.ts · list()
+- No: 132 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/mind · 설명: 오퍼레이션 · 심리 탐구 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · mind()
+- No: 133 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/mind · 설명: 심리 탐구: 지금 장면의 속마음 엿보기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · readMind()
+- No: 134 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/diary · 설명: 오퍼레이션 · 일기 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · diary()
+- No: 135 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/diary · 설명: 일기: 캐릭터가 새 일기 한 편을 쓴다 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · writeDiary()
+- No: 136 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/messages · 설명: 오퍼레이션 · 메시지 기록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · messages()
+- No: 137 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/messages · 설명: 메시지: 문자 보내기 { text(~500자) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · sendMessage()
+- No: 138 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/board · 설명: 오퍼레이션 · 커뮤니티 게시판 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · board()
+- No: 139 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/board/refresh · 설명: 커뮤니티: 주민 새 글 3개 불러오기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · refreshBoard()
+- No: 140 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/board/posts · 설명: 커뮤니티: 내 글 쓰기 { title(~60자), body(~1000자), anonymous?(기본 true) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · writePost()
+- No: 141 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/photonet · 설명: 코디포토넷 상태 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · photonet()
+- No: 142 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/photonet/:imageId · 설명: 코디포토넷 그림 본문 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · photonetImage()
+- No: 143 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/photonet · 설명: 코디포토넷: 그림 만들기 { prompt(~300자), style(애니메이션·웹툰·수채화·실사풍), ratio(정사각·세로·가로), rating?(sfw 기본·nsfw), messageId?(그릴 대사) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/operations.controller.ts · createPhotonet()
+- No: 144 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/webtoon · 설명: 웹툰 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/webtoon.controller.ts · view()
+- No: 145 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/webtoon · 설명: 웹툰 콘티 만들기 { prompt?(~300자, 비우면 최근 대화), panels(2~6), rating?(sfw·nsfw) } (무료, 그림은 그리지 않는다) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/webtoon.controller.ts · create()
+- No: 146 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/chat/ops/webtoon/:webtoonId/panels/:index · 설명: 웹툰 한 컷 그리기 (45 코레딧, 실패하면 환불) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/webtoon.controller.ts · draw()
+- No: 147 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/ops/webtoon/:webtoonId/panels/:index · 설명: 웹툰 컷 그림 본문 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/operations/webtoon.controller.ts · image()
+- No: 148 · 구분: Nest API · 앱: api · 메서드: GET · URL: /me/personas · 설명: 내 프로필 캐릭터(주인공) 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/personas/personas.controller.ts · list()
+- No: 149 · 구분: Nest API · 앱: api · 메서드: POST · URL: /me/personas · 설명: 프로필 캐릭터 생성 { name(1~20자), description?(~300자) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/personas/personas.controller.ts · create()
+- No: 150 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /me/personas/:id · 설명: 수정 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/personas/personas.controller.ts · update()
+- No: 151 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /me/personas/:id · 설명: 삭제 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/personas/personas.controller.ts · remove()
+- No: 152 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/chat/quest · 설명: 비밀 퀘스트 상태 (plan/SECRET_QUEST.md) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/quests/quests.controller.ts · view()
+- No: 153 · 구분: Nest API · 앱: api · 메서드: GET · URL: /characters/:id/report/reasons · 설명: 신고 사유 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/reports/reports.controller.ts · reasons()
+- No: 154 · 구분: Nest API · 앱: api · 메서드: POST · URL: /characters/:id/report · 설명: 캐릭터 신고 { reason, detail?(~500자) } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/reports/reports.controller.ts · report()
+- No: 155 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/reports · 설명: 운영자 신고함 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/reports/reports.controller.ts · list()
+- No: 156 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/characters/:id/take-down · 설명: 캐릭터 내리기 { note(~300자, 필수) } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/reports/reports.controller.ts · takeDown()
+- No: 157 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/characters/:id/dismiss-reports · 설명: 신고 기각 { note? } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/reports/reports.controller.ts · dismiss()
+- No: 158 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/characters/:id/restore · 설명: 내린 캐릭터 복구 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/reports/reports.controller.ts · restore()
+- No: 159 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/portraits · 설명: 운영자: 검수 대기 초상 목록 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/studio/admin-portraits.controller.ts · list()
+- No: 160 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/portraits/:draftId/image · 설명: 운영자: 검수 대기 그림 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/studio/admin-portraits.controller.ts · image()
+- No: 161 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/portraits/:draftId · 설명: 운영자: 승인·반려 { decision: "approve" | "reject", note } · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/studio/admin-portraits.controller.ts · decide()
+- No: 162 · 구분: Nest API · 앱: api · 메서드: GET · URL: /studio/characters · 설명: 내 공방 초안 목록 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · list()
+- No: 163 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters · 설명: 빈 초안 만들기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · create()
+- No: 164 · 구분: Nest API · 앱: api · 메서드: GET · URL: /studio/characters/:id · 설명: 초안 열기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · get()
+- No: 165 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /studio/characters/:id · 설명: 초안 저장 { card } (카드 7층 전체를 통째로) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · save()
+- No: 166 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /studio/characters/:id · 설명: 초안 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · remove()
+- No: 167 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/test/chat · 설명: 3턴 테스트 한 턴 { message, personaId? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · testChat()
+- No: 168 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/test/critique · 설명: 3턴 판정 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · testCritique()
+- No: 169 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /studio/characters/:id/portrait · 설명: 1분에 10번 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · setPortrait()
+- No: 170 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/portrait/generate · 설명: AI로 초상 만들기 { style(애니메이션·웹툰·수채화·실사풍), options: { gender, age(20s~50s), hairColor, hairStyle, eyeColor, outfit, expression, background }, extra?(~100자), useCard?(기본 true) } (25 코레딧) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · generatePortrait()
+- No: 171 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /studio/characters/:id/portrait · 설명: 초상 지우기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · removePortrait()
+- No: 172 · 구분: Nest API · 앱: api · 메서드: GET · URL: /studio/characters/:id/portrait · 설명: 내 초안의 초상 미리보기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · portrait()
+- No: 173 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/draft-field · 설명: "이 칸만 AI로 초안" { field } (예: campaign.scene, personality.habits) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · draftField()
+- No: 174 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/draft-quest · 설명: 비밀 퀘스트를 카드 설정을 읽고 한 번에 AI로 제안 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · draftQuest()
+- No: 175 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/samples · 설명: 말투 샘플 답 2개 (성격·말투 단계) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · samples()
+- No: 176 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/test/reset · 설명: 테스트 다시 시작 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · testReset()
+- No: 177 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/publish · 설명: 발행 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · publish()
+- No: 178 · 구분: Nest API · 앱: api · 메서드: PATCH · URL: /studio/characters/:id/visibility · 설명: 공개 범위 { visibility: "PUBLIC" | "UNLISTED" | "PRIVATE" } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · setVisibility()
+- No: 179 · 구분: Nest API · 앱: api · 메서드: POST · URL: /studio/characters/:id/unpublish · 설명: 내리기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/studio/studio.controller.ts · unpublish()
+- No: 180 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/world-stats · 설명: 운영자: 월드코퍼챗 대시보드 숫자 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · stats()
+- No: 181 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/worlds · 설명: 운영자: 세계관 목록 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · list()
+- No: 182 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/worlds/:id · 설명: 운영자: 세계관 상세 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · detail()
+- No: 183 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/worlds/:id/takedown · 설명: 운영자: 세계관 내리기 (사유 필수) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · takedown()
+- No: 184 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/worlds/:id/restore · 설명: 운영자: 세계관 복구 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · restore()
+- No: 185 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/worlds/:id/map-review · 설명: 운영자: 코퍼맵 지도 검수 결정 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · decideMap()
+- No: 186 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/worlds/:id/map · 설명: 운영자: 코퍼맵 지도 그림 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · map()
+- No: 187 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/worlds/:id/images/:imageId · 설명: 운영자: 장면 그림 본문 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · image()
+- No: 188 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/world-review · 설명: 운영자: 검수 대기 그림 목록 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · reviewQueue()
+- No: 189 · 구분: Nest API · 앱: api · 메서드: POST · URL: /admin/world-images/:imageId · 설명: 운영자: 장면 그림 승인·반려 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · decideImage()
+- No: 190 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/world-events · 설명: 운영자: 이벤트 미니게임 기록 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · events()
+- No: 191 · 구분: Nest API · 앱: api · 메서드: GET · URL: /admin/world-settings · 설명: 운영자: 월드 운영 설정 보기 · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · getSettings()
+- No: 192 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /admin/world-settings · 설명: 운영자: 월드 운영 설정 바꾸기 (보상 하루 횟수 등) · 인증 · 권한: 운영자 · 담당 코드: apps/api/src/worlds/admin-worlds.controller.ts · setSettings()
+- No: 193 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds · 설명: 공개 목록 60개 · 인증 · 권한: 공개 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · list()
+- No: 194 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/mine · 설명: 내 세계관 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · mine()
+- No: 195 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds · 설명: 새 세계관(계정당 30개) → { id } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · create()
+- No: 196 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/cast-candidates · 설명: 데려올 수 있는 캐릭터 30개 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · candidates()
+- No: 197 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/:id · 설명: 상세. 파트는 제목만. 못 보면 404 · 인증 · 권한: 토큰 확인 (서비스에서) · 담당 코드: apps/api/src/worlds/worlds.controller.ts · detail()
+- No: 198 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/:id/edit · 설명: 편집기 전부 + problems (남이면 403) · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · edit()
+- No: 199 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /worlds/:id · 설명: { world: { title, oneLiner, setting, rules, opening, mode, cast[], places[], parts[] } } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · save()
+- No: 200 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds/:id/publish · 설명: { visibility }. 조건이 빠지면 400(빠진 것을 말한다), 내려간 것은 403 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · publish()
+- No: 201 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds/:id/unpublish · 설명: 발행 거두기 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · unpublish()
+- No: 202 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /worlds/:id · 설명: 204 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · remove()
+- No: 203 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /worlds/:id/images · 설명: 본문 = 그림 원본(webp·jpeg·png, 290KB). 자동 검수: 막힘 400, 애매 PENDING · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · uploadImage()
+- No: 204 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /worlds/:id/images/:imageId · 설명: 204 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · deleteImage()
+- No: 205 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/:id/images/:imageId · 설명: 그림 본문(private, max-age=300, sandbox CSP) · 인증 · 권한: 토큰 확인 (서비스에서) · 담당 코드: apps/api/src/worlds/worlds.controller.ts · image()
+- No: 206 · 구분: Nest API · 앱: api · 메서드: PUT · URL: /worlds/:id/map · 설명: 코퍼맵 지도 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · setMap()
+- No: 207 · 구분: Nest API · 앱: api · 메서드: DELETE · URL: /worlds/:id/map · 설명: 코퍼맵 지도 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · deleteMap()
+- No: 208 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/:id/map · 설명: 코퍼맵 지도 · 인증 · 권한: 토큰 확인 (서비스에서) · 담당 코드: apps/api/src/worlds/worlds.controller.ts · map()
+- No: 209 · 구분: Nest API · 앱: api · 메서드: GET · URL: /worlds/:id/play · 설명: 플레이 상태 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · state()
+- No: 210 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds/:id/play · 설명: { personaId, restart? } · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · start()
+- No: 211 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds/:id/play/turn · 설명: { text } 1000자. 기본 모델 사용량을 잡고 실패하면 돌려준다 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · turn()
+- No: 212 · 구분: Nest API · 앱: api · 메서드: POST · URL: /worlds/:id/play/events/:eventId · 설명: 게임 입력. 끝난 이벤트 409, 남의 것 404 · 인증 · 권한: 로그인 · 담당 코드: apps/api/src/worlds/worlds.controller.ts · event()
+- No: 213 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /assist · 설명: 에이전트 페이지 안내 챗봇. 코디컴퍼챗 사용법·대화 요령으로 범위를 좁힌 시스템 프롬프트 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/assist.py · assist_chat()
+- No: 214 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /critique-test · 설명: 공방 3턴 테스트 판정 { character, turns, facts } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/critique_test.py · critique_test()
+- No: 215 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /draft-field · 설명: 카드 칸 하나의 초안 { sheet, label, guide, kind, maxChars, maxItems, current } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/draft.py · draft_field()
+- No: 216 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /draft-quest · 설명: 비밀 퀘스트 한 번에 제안 { sheet, maxChars, titleMax } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/draft.py · draft_quest()
+- No: 217 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /ground-check · 설명: 답의 개인사 단정 검사 { reply, topics, facts } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/ground.py · ground_check()
+- No: 218 · 구분: FastAPI · 앱: ai · 메서드: GET · URL: /health · 설명: 헬스체크 · 인증 · 권한: 내부 · 담당 코드: services/ai/app/routes/health.py · check()
+- No: 219 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /infer · 설명: 입력은 이미 조립된 컨텍스트 + 유저 턴 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/infer.py · infer()
+- No: 220 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /moderate-image · 설명: 초상 그림 검수 { image(base64), mime } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/moderate.py · moderate_image()
+- No: 221 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /mind · 설명: 오퍼레이션 심리 탐구(속마음·기분·유저에 대한 생각) · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/operations.py · mind()
+- No: 222 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /diary · 설명: 오퍼레이션 일기 생성 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/operations.py · diary()
+- No: 223 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /board-posts · 설명: 오퍼레이션 커뮤니티 글 생성 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/operations.py · board_posts()
+- No: 224 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /board-comments · 설명: 오퍼레이션 커뮤니티 댓글 생성 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/operations.py · board_comments()
+- No: 225 · 구분: FastAPI · 앱: ai · 메서드: GET · URL: /photonet/status · 설명: 그림 엔진 준비 여부 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/photonet.py · photonet_status()
+- No: 226 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /photonet · 설명: 코디포토넷: 장면 → 그림 { context, prompt, style, ratio, rating(sfw·nsfw), cast, focus } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/photonet.py · create()
+- No: 227 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /portrait · 설명: 공방 초상 AI 만들기 { style, options, appearance, extra, maxBytes } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/portrait.py · create()
+- No: 228 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /remember · 설명: 대화 턴 + 기존 기억 → 캐릭터가 다음에도 기억할 짧은 문장 0~3개(사실·약속·관계 변화만, 잡담 제외, 기존과 중복 제외) · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/remember.py · remember_turns()
+- No: 229 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /suggest-replies · 설명: 컨텍스트 + avoid → 유저(주인공)가 다음에 할 말 3개. 매번 태도를 무작위로 섞는다 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/suggest.py · suggest_replies()
+- No: 230 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /summarize · 설명: 대화 조각 요약·상태 갱신 { context, sessionTurns, quest?: { offer, objective, offered } } (기획서 13.4장) · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/summarize.py · summarize()
+- No: 231 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /train · 설명: 학습 시작 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/train.py · start_training()
+- No: 232 · 구분: FastAPI · 앱: ai · 메서드: GET · URL: /train/{job_id} · 설명: 학습 진행률 · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/train.py · get_training_status()
+- No: 233 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /webtoon/plan · 설명: 웹툰 콘티 { context, prompt, rating, panels(2~6), cast, focus } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/webtoon.py · plan()
+- No: 234 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /webtoon/panel · 설명: 웹툰 한 컷 그리기 { plan, rating, ratio } · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/webtoon.py · panel()
+- No: 235 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /world/turn · 설명: 월드코퍼챗 진행자 한 턴 (여러 인물 연기, 그림 고르기·장소 이동 제어 줄) · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/world.py · world_turn()
+- No: 236 · 구분: FastAPI · 앱: ai · 메서드: POST · URL: /world/part-check · 설명: 월드 파트 목표 판정 — 근거 인용이 대화에 그대로 있어야 done · 인증 · 권한: 내부 (AI_SERVICE_TOKEN) · 담당 코드: services/ai/app/routes/world.py · world_part_check()
+
+## 스프레드시트 시트: 화면_설계
+- 화면 ID: SCR-W01 · 앱: web · 영역: 탐색 · 화면명: 홈 · URL: / · 접근: 누구나 · 주요 구성 요소: 히어로(소개·둘러보기·직접 만들기), 이어서 대화하기(최근 3개), 시작할 캐릭터 목록 · 주요 동작 · 규칙: 캐릭터 카드를 누르면 상세로. 로그인하면 최근 대화가 맨 위 · 호출 API: GET /characters, GET /me/conversations · 비고: 기획서 §8 1번
+- 화면 ID: SCR-W02 · 앱: web · 영역: 탐색 · 화면명: 인기 · URL: /popular · 접근: 누구나 · 주요 구성 요소: 요약 숫자, 종류 탭(전체·공식·유저 제작), TOP 3 시상대, 순위 목록 · 주요 동작 · 규칙: ?kind= 로 거르기 · 호출 API: GET /characters/popular
+- 화면 ID: SCR-W03 · 앱: web · 영역: 탐색 · 화면명: 캐릭터 상세 · URL: /characters/:id · 접근: 누구나 · 주요 구성 요소: 초상·이름·한 줄·태그, 시작하기, 신고(맨 아래) · 주요 동작 · 규칙: 비밀 필드는 응답에서 뺀다 · 호출 API: GET /characters/:id, …/portrait, …/report
+- 화면 ID: SCR-W04 · 앱: web · 영역: 대화 · 화면명: 대화 · URL: /characters/:id/chat · 접근: 로그인 · 주요 구성 요소: 초상 말풍선, 입력창(Shift+Enter 줄바꿈), 대답 추천 ✦, 모델 고르기, 오퍼레이션 메뉴, 코디포토넷 버튼, 지난 이야기·엑스트라·비밀 퀘스트 패널, ⋮ 메뉴 · 주요 동작 · 규칙: 명령어 /다시 /계속 /되돌리기, 새로하기(저장/안 함), 내 프로필 고정, 추천 프로필 카드 · 호출 API: GET·POST /characters/:id/chat, …/suggestions, …/story, …/quest, GET /models · 비고: 답은 한 번에(스트리밍 없음)
+- 화면 ID: SCR-W05 · 앱: web · 영역: 대화 · 화면명: 저장한 대화 · URL: /characters/:id/chat/saved · 접근: 로그인 · 주요 구성 요소: 저장한 대화 목록 · 주요 동작 · 규칙: 이어하기·지우기 · 호출 API: GET …/chat/saved, POST …/saved/:campaignId/resume
+- 화면 ID: SCR-W06 · 앱: web · 영역: 대화 · 화면명: 메모리 기록 · URL: /characters/:id/chat/memories · 접근: 로그인 · 주요 구성 요소: 캐릭터가 기억하는 문장 목록 · 주요 동작 · 규칙: 지우기·다시 정리 · 호출 API: GET …/memories, DELETE …/memories/:id, POST …/memories/refresh
+- 화면 ID: SCR-W07 · 앱: web · 영역: 대화 · 화면명: 캐릭터 내 상태설정 · URL: /characters/:id/chat/settings · 접근: 로그인 · 주요 구성 요소: 친밀도·관계 메모·호칭, 자동 변화 끄기 · 주요 동작 · 규칙: 저장하면 다음 턴부터 반영 · 호출 API: GET·PATCH …/chat/state
+- 화면 ID: SCR-W08 · 앱: web · 영역: 오퍼레이션 · 화면명: 심리 탐구 · URL: /characters/:id/chat/mind · 접근: 로그인 · 주요 구성 요소: 속마음·기분·유저에 대한 생각 카드 · 주요 동작 · 규칙: 한 번 30 코레딧, 실패하면 환불 · 호출 API: GET·POST …/chat/ops/mind
+- 화면 ID: SCR-W09 · 앱: web · 영역: 오퍼레이션 · 화면명: 일기 · URL: /characters/:id/chat/diary · 접근: 로그인 · 주요 구성 요소: 캐릭터 일기 목록 · 주요 동작 · 규칙: 한 편 20 코레딧 · 호출 API: GET·POST …/ops/diary
+- 화면 ID: SCR-W10 · 앱: web · 영역: 오퍼레이션 · 화면명: 메시지 · URL: /characters/:id/chat/messages · 접근: 로그인 · 주요 구성 요소: 문자 주고받기 화면 · 주요 동작 · 규칙: 무료, 대화와 따로 · 호출 API: GET·POST …/ops/messages
+- 화면 ID: SCR-W11 · 앱: web · 영역: 오퍼레이션 · 화면명: 커뮤니티 · URL: /characters/:id/chat/community · 접근: 로그인 · 주요 구성 요소: 세계 속 익명 게시판 글·댓글 · 주요 동작 · 규칙: 새 글 20, 글쓰기 10 코레딧 · 호출 API: GET …/ops/board, POST …/board/refresh, …/board/posts
+- 화면 ID: SCR-W12 · 앱: web · 영역: 그림 · 화면명: 웹툰 · URL: /characters/:id/chat/webtoon · 접근: 로그인 · 주요 구성 요소: 콘티(컷마다 장면·해설·대사), 컷 그리기, 성인 토글(열림 상자) · 주요 동작 · 규칙: 콘티 무료, 컷 하나 45 코레딧 · 호출 API: GET·POST …/ops/webtoon, …/webtoon/:webtoonId/panels/:index · 비고: GPU 없으면 준비 중
+- 화면 ID: SCR-W13 · 앱: web · 영역: 계정 · 화면명: 대화 목록 (라이브러리) · URL: /library · 접근: 로그인 · 주요 구성 요소: 진행 중·저장한 대화 목록 · 주요 동작 · 규칙: 기획서의 세션 로그북 자리 · 호출 API: GET /me/conversations
+- 화면 ID: SCR-W14 · 앱: web · 영역: 제작 · 화면명: 캐릭터 공방 목록 · URL: /studio · 접근: 로그인 · 주요 구성 요소: 내 초안(작성 중·필수 완료·발행됨), 새 캐릭터 만들기 · 호출 API: GET·POST /studio/characters
+- 화면 ID: SCR-W15 · 앱: web · 영역: 제작 · 화면명: 캐릭터 공방 편집기 · URL: /studio/:id · 접근: 로그인 (만든 사람) · 주요 구성 요소: 왼쪽 8단계 / 가운데 폼 / 오른쪽 미리보기·토큰 예상·테스트 3턴, 위쪽 초안저장·발행 · 주요 동작 · 규칙: 칸별 AI 초안, 말투 샘플, AI 초상(25), 발행 조건(이메일 인증+필수 단계+테스트 통과) · 호출 API: GET·PATCH /studio/characters/:id, …/test/*, …/publish, …/portrait* · 비고: 모바일은 미리보기를 하단 시트로
+- 화면 ID: SCR-W16 · 앱: web · 영역: 안내 · 화면명: 에이전트 · URL: /agents · 접근: 누구나 · 주요 구성 요소: 사용 안내 챗봇 · 주요 동작 · 규칙: 범위를 묶어 범용 비서가 되지 않게 · 호출 API: POST /agent-chat/messages · 비고: 캐릭터 탐색 화면이 아니다
+- 화면 ID: SCR-W17 · 앱: web · 영역: 계정 · 화면명: 마이페이지 · URL: /me · 접근: 로그인 · 주요 구성 요소: 내 정보, 이메일 인증 안내, 코레딧 카드(출석·잔액·내역), 내 프로필 10개 · 호출 API: GET /auth/me, POST /me/attendance, GET /me/credits, /me/personas
+- 화면 ID: SCR-W18 · 앱: web · 영역: 계정 · 화면명: 설정 · URL: /settings · 접근: 누구나 (로그인 시 추가 칸) · 주요 구성 요소: 화면(테마), 계정·비밀번호·로그인·나이·콘텐츠 수위·회원 탈퇴 · 주요 동작 · 규칙: 비로그인은 테마만 · 호출 API: PATCH /auth/me, POST /auth/me/password, DELETE /auth/me, POST·DELETE /auth/me/adult
+- 화면 ID: SCR-W19 · 앱: web · 영역: 계정 · 화면명: 로그인 · URL: /login · 접근: 누구나 · 주요 구성 요소: 이메일·비밀번호, 비밀번호 찾기 링크 · 주요 동작 · 규칙: ?next= 로 원래 화면 복귀 · 호출 API: POST /auth/login
+- 화면 ID: SCR-W20 · 앱: web · 영역: 계정 · 화면명: 회원가입 · URL: /signup · 접근: 누구나 · 주요 구성 요소: 이메일·비밀번호·표시 이름 · 주요 동작 · 규칙: 약한 비밀번호 거절, 인증 메일 발송 · 호출 API: POST /auth/signup
+- 화면 ID: SCR-W21 · 앱: web · 영역: 계정 · 화면명: 비밀번호 찾기 · URL: /forgot-password · 접근: 누구나 · 주요 구성 요소: 이메일 입력 · 주요 동작 · 규칙: 가입 여부를 드러내지 않는다 · 호출 API: POST /auth/password/forgot
+- 화면 ID: SCR-W22 · 앱: web · 영역: 계정 · 화면명: 새 비밀번호 정하기 · URL: /reset-password?token=… · 접근: 메일 링크 · 주요 구성 요소: 새 비밀번호 · 주요 동작 · 규칙: 30분, 한 번만 · 호출 API: POST /auth/password/reset
+- 화면 ID: SCR-W23 · 앱: web · 영역: 계정 · 화면명: 이메일 인증 · URL: /verify-email?token=… · 접근: 메일 링크 · 주요 구성 요소: 인증 버튼 · 주요 동작 · 규칙: 버튼을 눌러야 인증(메일 검사기 대비) · 호출 API: POST /auth/verify-email
+- 화면 ID: SCR-W24 · 앱: web · 영역: 요금 · 화면명: 요금 안내 · URL: /pricing · 접근: 누구나 · 주요 구성 요소: 무료·프로 비교, 눌러서 프로(30일), 결제 동의 · 주요 동작 · 규칙: 결제는 보류, PRO_CLICK으로 대신 · 호출 API: GET /billing/products, POST /billing/pro-click
+- 화면 ID: SCR-W25 · 앱: web · 영역: 요금 · 화면명: 시험 결제창 · URL: /billing/mock · 접근: 로그인 · 주요 구성 요소: 가짜 결제 · 주요 동작 · 규칙: 개발·시험일 때만 · 호출 API: POST /billing/confirm · 비고: 운영 미사용
+- 화면 ID: SCR-W26 · 앱: web · 영역: 요금 · 화면명: 결제 확인 · URL: /billing/success · 접근: 로그인 · 주요 구성 요소: 승인 결과 · 호출 API: POST /billing/confirm · 비고: 운영 미사용
+- 화면 ID: SCR-W27 · 앱: web · 영역: 요금 · 화면명: 결제 실패 · URL: /billing/fail · 접근: 로그인 · 주요 구성 요소: 실패·취소 안내 · 호출 API: - · 비고: 운영 미사용
+- 화면 ID: SCR-W28 · 앱: web · 영역: 월드 · 화면명: 세계관 목록 · URL: /worlds · 접근: 누구나 · 주요 구성 요소: 공개 세계관 검색·목록, 내 세계관, 만들기 버튼 · 호출 API: GET /worlds, /worlds/mine, POST /worlds
+- 화면 ID: SCR-W29 · 앱: web · 영역: 월드 · 화면명: 세계관 소개 · URL: /worlds/:id · 접근: 누구나 (공개 범위) · 주요 구성 요소: 설정·등장인물·코퍼맵·파트 제목, 시작하기 · 호출 API: GET /worlds/:id, /worlds/:id/map
+- 화면 ID: SCR-W30 · 앱: web · 영역: 월드 · 화면명: 세계관 편집기 · URL: /worlds/:id/edit · 접근: 만든 사람 · 주요 구성 요소: 탭: 기본·등장인물·장소·파트·장면 그림·발행 · 주요 동작 · 규칙: 발행 조건 부족 시 빠진 것을 알려 줌 · 호출 API: GET /worlds/:id/edit, PUT /worlds/:id, …/images, …/publish
+- 화면 ID: SCR-W31 · 앱: web · 영역: 월드 · 화면명: 월드 플레이 · URL: /worlds/:id/play · 접근: 로그인 · 주요 구성 요소: 대화 방식 4가지 화면, 파트 띠, 코퍼맵, 이벤트 미니게임 창 · 주요 동작 · 규칙: 3턴마다 파트 판정, 이벤트 보상 하루 3번 · 호출 API: GET·POST /worlds/:id/play, …/play/turn, …/play/events/:eventId
+- 화면 ID: SCR-W32 · 앱: web · 영역: 법적 · 화면명: 이용약관 · URL: /terms · 접근: 누구나 · 주요 구성 요소: 약관 본문 · 주요 동작 · 규칙: 법률 검토 전 초안 · 호출 API: - · 비고: U06
+- 화면 ID: SCR-W33 · 앱: web · 영역: 법적 · 화면명: 개인정보처리방침 · URL: /privacy · 접근: 누구나 · 주요 구성 요소: 처리방침 본문, 국외 이전 표 · 주요 동작 · 규칙: 국외 이전 표가 실제 구성과 다름 · 호출 API: - · 비고: 공개 전 수정 필요 (U11)
+- 화면 ID: SCR-W34 · 앱: web · 영역: 법적 · 화면명: 사업자 정보 · URL: /business · 접근: 누구나 · 주요 구성 요소: 사업자 표기 · 호출 API: -
+- 화면 ID: SCR-W35 · 앱: web · 영역: 법적 · 화면명: 고객센터 · URL: /support · 접근: 누구나 · 주요 구성 요소: 문의·신고 안내 · 호출 API: -
+- 화면 ID: SCR-C01 · 앱: console · 영역: 운영 · 화면명: 대시보드 · URL: / · 접근: 운영자 · 주요 구성 요소: 처리할 일, 이용자 숫자, 캐릭터·대화, AI 대기열 · 호출 API: GET /admin/stats
+- 화면 ID: SCR-C02 · 앱: console · 영역: 운영 · 화면명: 운영자 로그인 · URL: /login · 접근: 누구나 (운영자만 통과) · 주요 구성 요소: 이메일·비밀번호 · 주요 동작 · 규칙: console_session 쿠키 · 호출 API: POST /auth/login
+- 화면 ID: SCR-C03 · 앱: console · 영역: 운영 · 화면명: 신고함 · URL: /reports · 접근: 운영자 · 주요 구성 요소: 신고 많은 순 목록 · 주요 동작 · 규칙: 내리기(사유 필수)·기각·복구 · 호출 API: GET /admin/reports, POST …/take-down, …/dismiss-reports, …/restore
+- 화면 ID: SCR-C04 · 앱: console · 영역: 운영 · 화면명: 초상 검수 · URL: /portraits · 접근: 운영자 · 주요 구성 요소: 검수 대기 초상 · 주요 동작 · 규칙: 승인·반려(사유 필수) · 호출 API: GET·POST /admin/portraits
+- 화면 ID: SCR-C05 · 앱: console · 영역: 운영 · 화면명: 그림 신고 · URL: /content · 접근: 운영자 · 주요 구성 요소: 코디포토넷·웹툰 신고 · 주요 동작 · 규칙: 접근 차단·계정 정지·기각 · 호출 API: GET /admin/content-reports, POST …/block, …/dismiss
+- 화면 ID: SCR-C06 · 앱: console · 영역: 운영 · 화면명: 캐릭터 관리 · URL: /characters · 접근: 운영자 · 주요 구성 요소: 모든 캐릭터 검색·상태 필터 · 주요 동작 · 규칙: 바로 내리기·복구 · 호출 API: GET /admin/characters
+- 화면 ID: SCR-C07 · 앱: console · 영역: 운영 · 화면명: 계정 등급 · URL: /users · 접근: 운영자 · 주요 구성 요소: 이메일 검색, 등급·결제 내역 · 주요 동작 · 규칙: 프로(일수)·무료, 환불, 생년월일 고치기 · 호출 API: GET /admin/users, POST /admin/users/plan, …/birthdate
+- 화면 ID: SCR-C08 · 앱: console · 영역: 월드 · 화면명: 세계관 목록 · URL: /worlds · 접근: 운영자 · 주요 구성 요소: 세계관 목록·통계 · 호출 API: GET /admin/worlds, /admin/world-stats
+- 화면 ID: SCR-C09 · 앱: console · 영역: 월드 · 화면명: 세계관 상세 · URL: /worlds/:id · 접근: 운영자 · 주요 구성 요소: 세계관 내용·지도·그림 · 주요 동작 · 규칙: 내리기·복구, 지도 검수 · 호출 API: GET /admin/worlds/:id, POST …/takedown, …/restore, …/map-review
+- 화면 ID: SCR-C10 · 앱: console · 영역: 월드 · 화면명: 그림 검수 · URL: /worlds/review · 접근: 운영자 · 주요 구성 요소: 검수 대기 장면 그림·지도 · 주요 동작 · 규칙: 승인·반려 · 호출 API: GET /admin/world-review, POST /admin/world-images/:imageId
+- 화면 ID: SCR-C11 · 앱: console · 영역: 월드 · 화면명: 이벤트 기록 · URL: /worlds/events · 접근: 운영자 · 주요 구성 요소: 이벤트 미니게임 결과 목록 · 호출 API: GET /admin/world-events
+- 화면 ID: SCR-C12 · 앱: console · 영역: 월드 · 화면명: 월드 설정 · URL: /worlds/settings · 접근: 운영자 · 주요 구성 요소: 보상 하루 횟수 등 운영 설정 · 주요 동작 · 규칙: DB app_settings에 저장 · 호출 API: GET·PUT /admin/world-settings
+
+## 스프레드시트 시트: 간트_차트
+- 구분: 1. 기획·기반 · 작업: 기획 원본 합의·저장소 초기화·문서 허브 · 시작: 2026-09-15 · 종료: 2026-09-15 · 기간(일): 1 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: CodiComperChat_project_plan.md, SKILL.md
+- 구분: 1. 기획·기반 · 작업: 모노레포 뼈대 (web 셸·Nest·FastAPI 라우트) · 시작: 2026-09-15 · 종료: 2026-09-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/monorepo-scaffold, api-scaffold, ai-scaffold
+- 구분: 1. 기획·기반 · 작업: Prisma 코어 스키마·공식 캐릭터 유지성 카드·시드 · 시작: 2026-09-16 · 종료: 2026-09-16 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/prisma-schema, character-card, character-seed
+- 구분: 2. 대화 핵심 · 작업: 캐릭터 목록·상세·채팅 화면, /infer LLM 연결 · 시작: 2026-09-16 · 종료: 2026-09-16 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/character-*-web, infer-llm, character-chat-relay
+- 구분: 2. 대화 핵심 · 작업: 이메일 로그인·내 프로필·대답 추천 · 시작: 2026-09-25 · 종료: 2026-09-25 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth, user-personas, reply-suggestions
+- 구분: 2. 대화 핵심 · 작업: LLM 교체(Gemini→Ollama gemma4)·페르소나 지식 RAG · 시작: 2026-09-25 · 종료: 2026-09-26 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ollama-llm, persona-*
+- 구분: 2. 대화 핵심 · 작업: 대화 기록·장기 기억·상태설정·⋮ 메뉴 · 시작: 2026-09-27 · 종료: 2026-09-27 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/chat-history, chat-memory, chat-state
+- 구분: 3. 공방·상태 · 작업: 캐릭터 공방(초안·3턴 테스트·발행·공개 범위·AI 초안·초상) · 시작: 2026-10-15 · 종료: 2026-10-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-*
+- 구분: 3. 공방·상태 · 작업: 캠페인 상태(요약·친밀도·복선)·새로하기·엑스트라·개인사 가드 · 시작: 2026-10-15 · 종료: 2026-10-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/campaign-state, chat-sessions, chat-extras, chat-grounding
+- 구분: 3. 공방·상태 · 작업: 신고·초상 자동 검수 · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-reports, image-moderation, moderation-evals
+- 구분: 4. 계정·보안 · 작업: 보안 강화(요청 한도·CSP·약한 비밀번호)·AI 대기열 · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/security-hardening, strict-csp, perf-limits, shared-limits
+- 구분: 4. 계정·보안 · 작업: 이메일 인증·비밀번호 찾기·탈퇴·요금 등급·결제(토스, 보류) · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth-email, pro-plan, billing, toss-verify, account-delete
+- 구분: 4. 계정·보안 · 작업: 시험·CI (Playwright e2e·evals·GitHub Actions) · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-e2e, quality-eval, ci, ci-verify
+- 구분: 4. 계정·보안 · 작업: 디자인 개편·문서 갱신 · 시작: 2026-10-15 · 종료: 2026-10-17 · 기간(일): 3 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-redesign, design-polish, docs-refresh
+- 구분: 5. 확장 기능 · 작업: 운영 콘솔 분리·모델 고르기·코레딧·명령어·글 꾸미기 · 시작: 2026-10-21 · 종료: 2026-10-21 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/admin-console, model-select, credits-commands, chat-format
+- 구분: 5. 확장 기능 · 작업: 테마 자동 전환·인기 페이지 · 시작: 2026-10-22 · 종료: 2026-10-22 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/theme-schedule, popular-polish
+- 구분: 5. 확장 기능 · 작업: 오퍼레이션(심리 탐구·일기·메시지·커뮤니티) · 시작: 2026-10-23 · 종료: 2026-10-23 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ops-*
+- 구분: 5. 확장 기능 · 작업: 코디포토넷·성인 가드·웹툰·비밀 퀘스트 · 시작: 2026-10-23 · 종료: 2026-10-24 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/photonet*, adult-guard, webtoon, secret-quest
+- 구분: 5. 확장 기능 · 작업: 공식 캐릭터 이세연·추천 프로필·출시 안전·LICENSE · 시작: 2026-10-25 · 종료: 2026-10-25 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/official-iseyeon, launch-safety, docs-overall-update
+- 구분: 6. 출시 준비 · 작업: GPU 배포 구성·프리미엄 연동·눌러서 프로·나이 제한·이세연 퀘스트 · 시작: 2026-11-03 · 종료: 2026-11-03 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/deploy-gpu, premium-adapters, pro-click, premium-age-gate
+- 구분: 6. 출시 준비 · 작업: 시험 안정화(운영 빌드 e2e)·품질 평가 확대·지출 상한 · 시작: 2026-11-04 · 종료: 2026-11-04 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/e2e-production-build, ai-quality, premium-spend-cap
+- 구분: 6. 출시 준비 · 작업: README·문서 고도화·trainings·mermaid 그림 · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/readme-*, docs-*
+- 구분: 6. 출시 준비 · 작업: 나레이션·보상 장면 개선·대화 수위(성인 대화) · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/narration-reward-scene, adult-chat
+- 구분: 7. 월드코퍼챗 · 작업: 월드코퍼챗(세계관·진행자·파트·코퍼맵·이벤트) · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/world-core, readme-world, docs-overhaul-world
+- 구분: 8. 배포 · 작업: Oracle Cloud(API·DB·AI) + Vercel(웹) 실제 배포 · 시작: 2026-11-06 · 종료: 2026-11-07 · 기간(일): 2 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: feature/oracle-backend-deploy, web-vercel-deploy, deploy-log-2026-11-07.md
+- 구분: 8. 배포 · 작업: 배포 기록·문서 보강·ERD 문서 · 시작: 2026-11-07 · 종료: 2026-11-07 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/docs-final-update, docs-gap-fill, ERD PR #5
+- 구분: 9. 공개 전 (가안) · 작업: 키·WEB_PROXY_TOKEN 교체 (U10) · 시작: 2026-11-09 · 종료: 2026-11-10 · 기간(일): 2 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: TASKS.md U10
+- 구분: 9. 공개 전 (가안) · 작업: 저장소 비공개·gh 로그인·GitHub 설정 확인 (U01·U02·T02) · 시작: 2026-11-09 · 종료: 2026-11-11 · 기간(일): 3 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U01, U02, T02
+- 구분: 9. 공개 전 (가안) · 작업: 처리방침 국외 이전 표·호스팅 API 약관 확인 (U11·U12) · 시작: 2026-11-09 · 종료: 2026-11-20 · 기간(일): 12 · 상태: 예정 · 담당: 사용자(법률) · 근거 · 산출물: TASKS.md U11, U12
+- 구분: 9. 공개 전 (가안) · 작업: Oracle 서버 마무리(지식 파일·백업 cron·SMTP·콘솔) (T04) · 시작: 2026-11-10 · 종료: 2026-11-14 · 기간(일): 5 · 상태: 예정 · 담당: 에이전트 (U05·U08 뒤) · 근거 · 산출물: TASKS.md T04
+- 구분: 9. 공개 전 (가안) · 작업: 호스팅 API에서 성인 모드 막는 코드 (T05, 방향 확인) · 시작: 2026-11-11 · 종료: 2026-11-13 · 기간(일): 3 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T05
+- 구분: 9. 공개 전 (가안) · 작업: 강화 무료 모델 고르기 정리 (T06, 방향 확인) · 시작: 2026-11-13 · 종료: 2026-11-14 · 기간(일): 2 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T06
+- 구분: 10. 품질 (가안) · 작업: 호스팅 31B 모델로 평가 다시 돌리기 (Q08) · 시작: 2026-11-16 · 종료: 2026-11-20 · 기간(일): 5 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q08
+- 구분: 10. 품질 (가안) · 작업: 좁은 화면(390px) 고치기 (Q07) · 시작: 2026-11-17 · 종료: 2026-11-18 · 기간(일): 2 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q07
+- 구분: 10. 품질 (가안) · 작업: 퀘스트 판정·웹툰 옷 색·그림 가드·SDXL 속도 (Q03~Q06) · 시작: 2026-11-18 · 종료: 2026-11-27 · 기간(일): 10 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q03~Q06
+- 구분: 10. 품질 (가안) · 작업: 월드코퍼챗 개선 (W01~W05) · 시작: 2026-11-23 · 종료: 2026-12-04 · 기간(일): 12 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md W01~W05
+- 구분: 11. 확장 (가안) · 작업: GPU 서버 계약·설치·그림 엔진 공개 (U04·T03) · 시작: 2026-12-01 · 종료: 2026-12-11 · 기간(일): 11 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U04, T03
+- 구분: 11. 확장 (가안) · 작업: LICENSE 마무리 (U03·T01) · 시작: 2026-12-07 · 종료: 2026-12-09 · 기간(일): 3 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U03, T01
+- 구분: 11. 확장 (가안) · 작업: 정식 공개 판단 (공개 전 필수 체크리스트) · 시작: 2026-12-14 · 종료: 2026-12-18 · 기간(일): 5 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: SECURITY.md 공개 전 필수
+- 구분: 범례 · 시작: 편집: 시작·종료(날짜)와 상태(목록)만 고치면 된다. 새 작업은 마지막 행 아래에 같은 형식으로 더하고 E열 수식을 복사한다.
+- 작업: 완료
+- 작업: 진행 중
+- 작업: 예정 (가안)
+- 작업: 기준일
+- 작업: 주말
+
+## 스프레드시트 시트: 향후_계획
+- ID: U01 · 구분: 사용자만 · 할 일: 저장소 비공개 전환 · 왜 · 지금 상태: 2026-11-06 확인에서 아직 공개 상태 · 선행 조건: - · 끝난 기준: GitHub에서 비공개 확인 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: U02 · 구분: 사용자만 · 할 일: gh auth login · 왜 · 지금 상태: PR·저장소 설정·Actions 결과를 에이전트가 볼 수 없다 · 선행 조건: - · 끝난 기준: gh로 저장소 조회 가능 · 담당: 사용자 · 우선순위: 중간 · 상태: 대기
+- ID: U03 · 구분: 사용자만 · 할 일: LICENSE 권리자 이름·준거법 결정, 법률 검토 · 왜 · 지금 상태: T01을 막고 있다 · 선행 조건: - · 끝난 기준: 결정 전달 · 담당: 사용자 · 우선순위: 중간 · 상태: 대기
+- ID: U04 · 구분: 사용자만 · 할 일: GPU 서버(Hetzner GEX45) 계약 · 왜 · 지금 상태: 그림 엔진(코디포토넷·웹툰)은 GPU가 있어야 열린다 · 선행 조건: - · 끝난 기준: 서버 접속 정보 준비 · 담당: 사용자 · 우선순위: 중간 · 상태: 대기
+- ID: U05 · 구분: 사용자만 · 할 일: 운영 메일(SMTP) 서비스 선택 · 왜 · 지금 상태: 인증·재설정 메일이 안 간다 · 선행 조건: - · 끝난 기준: SMTP 값 준비 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: U06 · 구분: 사용자만 · 할 일: 약관·처리방침 [운영자 기재] 기입과 법률 검토 · 왜 · 지금 상태: 공개 전 필수 · 선행 조건: - · 끝난 기준: 검토 완료 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: U07 · 구분: 사용자만 · 할 일: GitHub Actions·README 화면 원격 확인 · 왜 · 지금 상태: 한 번 보기 · 선행 조건: - · 끝난 기준: 확인 · 담당: 사용자 · 우선순위: 낮음 · 상태: 대기
+- ID: U08 · 구분: 사용자만 · 할 일: 운영 콘솔을 열 IP 결정 (CONSOLE_IP_ALLOWLIST) · 왜 · 지금 상태: 콘솔이 API에 연결되지 않았다 · 선행 조건: - · 끝난 기준: IP 전달 · 담당: 사용자 · 우선순위: 중간 · 상태: 대기
+- ID: U09 · 구분: 사용자만 · 할 일: 프리미엄(Claude·Grok) 키와 월 한도 · 왜 · 지금 상태: 열면 무료 코레딧이 실제 지출이 된다 · 선행 조건: - · 끝난 기준: 서버 .env에 직접 입력 · 담당: 사용자 · 우선순위: 낮음 · 상태: 대기
+- ID: U10 · 구분: 사용자만 · 할 일: 개인키·WEB_PROXY_TOKEN 교체 (권장) · 왜 · 지금 상태: 2026-11-07 작업 대화에 값이 드러났다 · 선행 조건: - · 끝난 기준: 서버·Vercel 함께 교체 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: U11 · 구분: 사용자만 · 할 일: 처리방침 국외 이전 표를 실제 구성에 맞춤 · 왜 · 지금 상태: NVIDIA·Vercel·Oracle이 표에 없다 · 선행 조건: - · 끝난 기준: 표 수정·법률 검토 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: U12 · 구분: 사용자만 · 할 일: 호스팅 API(NVIDIA)·Vercel·Oracle 약관 확인 · 왜 · 지금 상태: 입력 보관·학습 사용·상업적 이용 · 선행 조건: - · 끝난 기준: 확인 결과 기록 · 담당: 사용자 · 우선순위: 높음 · 상태: 대기
+- ID: T01 · 구분: 사용자 일 뒤 · 할 일: LICENSE 마무리 · 왜 · 지금 상태: 2.0판 이후 권리자·준거법 반영 · 선행 조건: U03 · 끝난 기준: 승인 문안 반영, README·SECURITY 일치 · 담당: 에이전트 · 우선순위: 중간 · 상태: 막힘
+- ID: T02 · 구분: 사용자 일 뒤 · 할 일: GitHub 설정 확인 (브랜치 보호·비밀 스캔·Actions 시간) · 왜 · 지금 상태: 비공개 저장소 요금제에서 되는지 · 선행 조건: U01, U02 · 끝난 기준: SECURITY.md·pre-deploy.md에 기록 · 담당: 에이전트 · 우선순위: 중간 · 상태: 막힘
+- ID: T03 · 구분: 사용자 일 뒤 · 할 일: GPU 서버 설치와 확인 · 왜 · 지금 상태: docker-deploy.md 순서대로 · 선행 조건: U04, U05 · 끝난 기준: post-deploy 확인, 재부팅 복귀, 백업 복구 연습, image_speed 측정 · 담당: 에이전트 · 우선순위: 중간 · 상태: 막힘
+- ID: T04 · 구분: 사용자 일 뒤 · 할 일: Oracle 서버 마무리 · 왜 · 지금 상태: 지식 파일 볼륨 이동, 백업 cron, SMTP, 콘솔 연결 · 선행 조건: 메일 U05, 콘솔 U08 · 끝난 기준: 로그인 대화 한 턴·인증 메일·백업 파일·콘솔 로그인 · 담당: 에이전트 · 우선순위: 높음 · 상태: 일부 가능
+- ID: T05 · 구분: 방향 확인 · 할 일: 호스팅 API 서버에서 성인 모드를 막는 코드 장치 · 왜 · 지금 상태: 성인 대화는 로컬 모델에서만이라는 약속이 코드로 지켜지지 않는다 · 선행 조건: 방식(시작 거부 vs 호출 거부) 결정 · 끝난 기준: 단위 시험·문서 갱신 · 담당: 에이전트 · 우선순위: 높음 · 상태: 방향 확인 필요
+- ID: T06 · 구분: 방향 확인 · 할 일: 호스팅 API에서 강화 무료 모델 정리 · 왜 · 지금 상태: 기본·강화가 같은 모델인데 한도·코레딧은 매겨진다 · 선행 조건: 선택지 (가)(나)(다) 결정 · 끝난 기준: 단위 시험, 호스팅 막힌 상태에서 한 턴 정상 · 담당: 에이전트 · 우선순위: 중간 · 상태: 방향 확인 필요
+- ID: Q03 · 구분: 품질 개선 · 할 일: 유지성 퀘스트 판정이 끝까지 풀기 장면을 놓침 · 왜 · 지금 상태: 2026-11-06 15/16 · 선행 조건: - · 끝난 기준: evals.quest_yujiseong 전부 맞음, 잘못 통과 0 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: Q04 · 구분: 품질 개선 · 할 일: 웹툰 컷 사이 옷 색 맞추기 · 왜 · 지금 상태: 앞치마 색이 컷마다 다르다 · 선행 조건: - · 끝난 기준: 눈으로 비교 결과 기록 · 담당: 에이전트 · 우선순위: 낮음 · 상태: 대기
+- ID: Q05 · 구분: 품질 개선 · 할 일: SDXL 속도 다시 재기 · 왜 · 지금 상태: 메모리 부족으로 흔들렸다 · 선행 조건: - · 끝난 기준: image_speed 두 번 비슷 · 담당: 에이전트 · 우선순위: 낮음 · 상태: 대기
+- ID: Q06 · 구분: 품질 개선 · 할 일: 성인 그림 가드 오탐 줄이기 · 왜 · 지금 상태: 2번 중 1번 잘못 막음 · 선행 조건: - · 끝난 기준: photonet_guard 반복 측정 · 담당: 에이전트 · 우선순위: 낮음 · 상태: 대기
+- ID: Q07 · 구분: 품질 개선 · 할 일: 좁은 화면(390px) 모델 고르기·공방 AI 초상 칸 · 왜 · 지금 상태: 글자가 안 보인다 · 선행 조건: - · 끝난 기준: 스크린샷 확인, e2e 통과 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: Q08 · 구분: 품질 개선 · 할 일: 호스팅 31B 모델로 평가 다시 돌리기 · 왜 · 지금 상태: 운영은 31B인데 평가는 e4b 기준 · 선행 조건: - · 끝난 기준: 말투·퀘스트·환각·월드 형식 같은 기준 통과 · 담당: 에이전트 · 우선순위: 높음 · 상태: 대기
+- ID: W01 · 구분: 월드코퍼챗 · 할 일: 인물의 장소 이동 · 왜 · 지금 상태: evals.world_turn 0/24 · 선행 조건: - · 끝난 기준: 이동 사례 평가 기준 통과 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: W02 · 구분: 월드코퍼챗 · 할 일: 긴 플레이의 앞일 요약 · 왜 · 지금 상태: 최근 16개 메시지만 넘긴다 · 선행 조건: - · 끝난 기준: 30턴 플레이로 기억 확인 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: W03 · 구분: 월드코퍼챗 · 할 일: 세계관 신고 화면 · 왜 · 지금 상태: 운영자가 직접 내림 · 선행 조건: - · 끝난 기준: 상세 신고 → 콘솔 처리, e2e · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: W04 · 구분: 월드코퍼챗 · 할 일: 파트 판정 실측(실제 모델) · 왜 · 지금 상태: 단위 시험·가짜 판정만 · 선행 조건: - · 끝난 기준: 장면 묶음 잘못 통과 0 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
+- ID: W05 · 구분: 월드코퍼챗 · 할 일: 메신저형 줄바꿈 흔들림 · 왜 · 지금 상태: 형식 5/6 · 선행 조건: - · 끝난 기준: 메신저 6/6 이상 두 번 · 담당: 에이전트 · 우선순위: 낮음 · 상태: 대기
+- ID: D01 · 구분: 방향 확인 · 할 일: 스트리밍 응답 · 왜 · 지금 상태: 개인사 가드와 맞추는 방법 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 공개 뒤 결정 권장
+- ID: D02 · 구분: 방향 확인 · 할 일: 캐릭터당 퀘스트 여러 개 · 왜 · 지금 상태: 코레딧 보상 규칙 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 급하지 않음
+- ID: D03 · 구분: 방향 확인 · 할 일: 프리미엄 키 연결과 실제 호출 · 왜 · 지금 상태: 돈이 나간다 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 대기
+- ID: D04 · 구분: 방향 확인 · 할 일: 성인 모드 공개 · 왜 · 지금 상태: 법률 검토 뒤 · 선행 조건: 법률 검토 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 공개 서버에선 끈 채로
+- ID: D05 · 구분: 방향 확인 · 할 일: 정식 서비스 전환 (PRO_CLICK off, 토스 결제, 가격) · 왜 · 지금 상태: 시기와 가격 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 중간 · 상태: 대기
+- ID: D06 · 구분: 방향 확인 · 할 일: main 병합 방식 (release/* 사용 여부) · 왜 · 지금 상태: 지금까지 develop 직접 병합 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 혼자 운영 중엔 직접 병합 권장
+- ID: R1 · 구분: 로드맵 (기획서 §9.3) · 할 일: 공식 캐릭터 확장, 캠페인 템플릿 2~3갈래 · 왜 · 지금 상태: v1 이후 1순위 · 선행 조건: v1 증명 · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 후순위
+- ID: R2 · 구분: 로드맵 (기획서 §9.3) · 할 일: 유저 창작 공방 오픈 (발행 검수 포함) · 왜 · 지금 상태: 누구나 발행은 이미 일부 구현 · 선행 조건: R1 · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 일부 구현
+- ID: R3 · 구분: 로드맵 (기획서 §9.3) · 할 일: 로그 기반 말투 어댑터 · 왜 · 지금 상태: 로그가 쌓인 뒤의 무기 · 선행 조건: 로그 축적 · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 후순위
+- ID: R4 · 구분: 로드맵 (기획서 §9.3) · 할 일: 음성 · 왜 · 지금 상태: v1 제외 · 선행 조건: - · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 후순위
+- ID: R5 · 구분: 로드맵 (기획서 §9.3) · 할 일: 로그북을 시각 아카이브로 (컷, 엔딩 카드) · 왜 · 지금 상태: 웹툰 기능이 일부 선행 · 선행 조건: - · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 일부 구현
+- ID: R6 · 구분: 로드맵 (기획서 §9.3) · 할 일: 제한적 멀티 (같은 월드의 비동기 흔적) · 왜 · 지금 상태: 월드코퍼챗이 바탕 · 선행 조건: - · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 후순위
+- 구분: 우선순위 집계
+- 구분: 높음 · 할 일: 9
+- 구분: 중간 · 할 일: 15
+- 구분: 낮음 · 할 일: 11

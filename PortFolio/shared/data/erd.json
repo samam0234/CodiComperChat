@@ -1,0 +1,2698 @@
+{
+ "counts": {
+  "tables": 37,
+  "relations": 40
+ },
+ "groups": [
+  {
+   "key": "overview",
+   "title": "전체 관계도",
+   "mermaid": "erDiagram\n  direction LR\n  board_posts ||--o{ board_comments : \"postId · CASCADE\"\n  campaigns ||--o{ board_posts : \"campaignId · CASCADE\"\n  campaigns ||--o{ campaign_extras : \"campaignId · CASCADE\"\n  campaigns ||--o| campaign_states : \"campaignId · CASCADE\"\n  campaigns ||--o{ diary_entries : \"campaignId · CASCADE\"\n  campaigns ||--o{ direct_messages : \"campaignId · CASCADE\"\n  campaigns ||--o{ memory_chunks : \"campaignId · CASCADE\"\n  campaigns ||--o{ mind_readings : \"campaignId · CASCADE\"\n  campaigns ||--o{ photonet_images : \"campaignId · CASCADE\"\n  campaigns ||--o{ sessions : \"campaignId · CASCADE\"\n  campaigns ||--o{ webtoons : \"campaignId · CASCADE\"\n  characters ||--o{ campaigns : \"characterId · RESTRICT\"\n  characters |o--o| character_drafts : \"characterId · SET NULL\"\n  characters ||--o{ character_reports : \"characterId · CASCADE\"\n  characters |o--o{ world_cast : \"characterId · SET NULL\"\n  sessions ||--o{ messages : \"sessionId · CASCADE\"\n  user_extras ||--o{ campaign_extras : \"extraId · CASCADE\"\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ campaigns : \"userId · CASCADE\"\n  users ||--o{ character_drafts : \"ownerId · CASCADE\"\n  users ||--o{ character_reports : \"reporterId · CASCADE\"\n  users |o--o{ characters : \"ownerId · SET NULL\"\n  users ||--o{ content_reports : \"reporterId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_extras : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users ||--o{ world_plays : \"userId · CASCADE\"\n  users |o--o{ worlds : \"ownerId · SET NULL\"\n  webtoons ||--o{ webtoon_panels : \"webtoonId · CASCADE\"\n  world_plays ||--o{ world_events : \"playId · CASCADE\"\n  world_plays ||--o{ world_messages : \"playId · CASCADE\"\n  worlds ||--o{ world_cast : \"worldId · CASCADE\"\n  worlds ||--o{ world_images : \"worldId · CASCADE\"\n  worlds ||--o{ world_parts : \"worldId · CASCADE\"\n  worlds ||--o{ world_places : \"worldId · CASCADE\"\n  worlds ||--o{ world_plays : \"worldId · CASCADE\"\n  app_settings\n  rate_limit_buckets"
+  },
+  {
+   "key": "account",
+   "title": "계정 · 결제 · 코레딧",
+   "mermaid": "erDiagram\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users {\n    text id PK\n    text email UK\n    text displayName\n    text passwordHash \"NULL\"\n    UserRole role \"기본 USER\"\n    UserPlan plan \"기본 FREE\"\n    timestamp(3) planUntil \"NULL\"\n    timestamp(3) emailVerifiedAt \"NULL\"\n    date birthDate \"NULL\"\n    timestamp(3) adultConsentAt \"NULL\"\n    timestamp(3) suspendedAt \"NULL\"\n    text suspendReason \"NULL\"\n    integer sessionVersion \"기본 0\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n    integer credits \"기본 0\"\n  }\n  user_personas {\n    text id PK\n    text userId FK\n    text name\n    text description \"기본 ''\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  email_tokens {\n    text id PK\n    text userId FK\n    EmailTokenPurpose purpose\n    text tokenHash UK\n    timestamp(3) expiresAt\n    timestamp(3) usedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  payment_orders {\n    text id PK\n    text userId FK \"NULL\"\n    text buyerEmail \"NULL\"\n    text productId\n    integer amount\n    integer days\n    text provider\n    PaymentStatus status \"기본 PENDING\"\n    text paymentKey UK \"NULL\"\n    text failReason \"NULL\"\n    text receiptUrl \"NULL\"\n    timestamp(3) refundedAt \"NULL\"\n    text refundReason \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) paidAt \"NULL\"\n  }\n  credit_ledger {\n    text id PK\n    text userId FK\n    integer delta\n    integer balance\n    CreditReason reason\n    text modelId \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  attendances {\n    text userId PK,FK\n    text day PK\n    integer credits\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  model_usage {\n    text userId PK,FK\n    text modelId PK\n    text day PK\n    integer count \"기본 0\"\n  }\n  quest_rewards {\n    text id PK\n    text userId FK \"UK(userId+characterId)\"\n    text characterId \"UK(userId+characterId)\"\n    integer amount\n    timestamp(3) createdAt \"기본 now()\"\n  }"
+  },
+  {
+   "key": "chat",
+   "title": "캐릭터 · 대화",
+   "mermaid": "erDiagram\n  campaigns ||--o{ campaign_extras : \"campaignId · CASCADE\"\n  campaigns ||--o| campaign_states : \"campaignId · CASCADE\"\n  campaigns ||--o{ memory_chunks : \"campaignId · CASCADE\"\n  campaigns ||--o{ sessions : \"campaignId · CASCADE\"\n  characters ||--o{ campaigns : \"characterId · RESTRICT\"\n  characters |o--o| character_drafts : \"characterId · SET NULL\"\n  characters ||--o{ character_reports : \"characterId · CASCADE\"\n  sessions ||--o{ messages : \"sessionId · CASCADE\"\n  user_extras ||--o{ campaign_extras : \"extraId · CASCADE\"\n  users ||--o{ campaigns : \"userId · CASCADE\"\n  users ||--o{ character_drafts : \"ownerId · CASCADE\"\n  users ||--o{ character_reports : \"reporterId · CASCADE\"\n  users |o--o{ characters : \"ownerId · SET NULL\"\n  users ||--o{ content_reports : \"reporterId · CASCADE\"\n  users ||--o{ user_extras : \"userId · CASCADE\"\n  users {\n    text id PK \"계정 그림에 전체\"\n  }\n  characters {\n    text id PK\n    text name UK\n    text oneLiner\n    text role\n    text addressing\n    text personalityAxes\n    text speechStyle\n    text knows\n    text unknown\n    text goal\n    text conflictSeed\n    text secret\n    text secretUnlockCondition\n    text openingScene\n    jsonb quest \"NULL\"\n    jsonb recommendedPersona \"NULL\"\n    jsonb profile \"NULL\"\n    boolean published \"기본 false\"\n    CharacterVisibility visibility \"기본 PUBLIC\"\n    bytea portrait \"NULL\"\n    text portraitMime \"NULL\"\n    timestamp(3) takenDownAt \"NULL\"\n    text takedownReason \"NULL\"\n    text ownerId FK \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  character_drafts {\n    text id PK\n    text ownerId FK\n    jsonb card\n    jsonb lastTest \"NULL\"\n    bytea portrait \"NULL\"\n    text portraitMime \"NULL\"\n    PortraitReview portraitReview \"NULL\"\n    text portraitReviewNote \"NULL\"\n    CharacterVisibility visibility \"기본 PRIVATE\"\n    text characterId FK,UK \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  character_reports {\n    text id PK\n    text characterId FK\n    text reporterId FK\n    text reason\n    text detail\n    ReportStatus status \"기본 OPEN\"\n    text resolution \"NULL\"\n    timestamp(3) resolvedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  content_reports {\n    text id PK\n    text reporterId FK\n    ContentTarget target\n    text targetId\n    text reason\n    text detail\n    ContentReportStatus status \"기본 OPEN\"\n    text resolution \"NULL\"\n    timestamp(3) resolvedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  campaigns {\n    text id PK\n    text userId FK\n    text characterId FK\n    text title\n    CampaignStatus status \"기본 ACTIVE\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n    text personaId \"NULL\"\n    text personaName \"NULL\"\n    text personaDescription \"NULL\"\n    timestamp(3) savedAt \"NULL\"\n    timestamp(3) memorizedUntil \"NULL\"\n    text chatModel \"기본 basic\"\n  }\n  campaign_states {\n    text id PK\n    text campaignId FK,UK\n    integer relationshipValue \"기본 0\"\n    text relationshipNote \"NULL\"\n    text userNickname \"NULL\"\n    jsonb openHooks \"기본 []\"\n    jsonb unlockedSecrets \"기본 []\"\n    text briefForNextSession \"NULL\"\n    boolean autoRelationship \"기본 true\"\n    text relationshipReason \"NULL\"\n    jsonb relationshipLog \"기본 []\"\n    jsonb closedEvents \"기본 []\"\n    timestamp(3) digestedUntil \"NULL\"\n    jsonb questState \"NULL\"\n    timestamp(3) updatedAt\n  }\n  sessions {\n    text id PK\n    text campaignId FK \"UK(campaignId+index)\"\n    integer index \"UK(campaignId+index)\"\n    SessionStatus status \"기본 OPEN\"\n    timestamp(3) startedAt \"기본 now()\"\n    timestamp(3) closedAt \"NULL\"\n    text summaryBrief \"NULL\"\n  }\n  messages {\n    text id PK\n    text sessionId FK\n    MessageRole role\n    text content\n    text speaker \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  memory_chunks {\n    text id PK\n    text campaignId FK\n    text content\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  user_extras {\n    text id PK\n    text userId FK\n    text name\n    text summary\n    text personality\n    text relation\n    text situation\n    text place\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  campaign_extras {\n    text campaignId PK,FK\n    text extraId PK,FK\n    text[] triggers \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }"
+  },
+  {
+   "key": "ops",
+   "title": "오퍼레이션",
+   "mermaid": "erDiagram\n  board_posts ||--o{ board_comments : \"postId · CASCADE\"\n  campaigns ||--o{ board_posts : \"campaignId · CASCADE\"\n  campaigns ||--o{ diary_entries : \"campaignId · CASCADE\"\n  campaigns ||--o{ direct_messages : \"campaignId · CASCADE\"\n  campaigns ||--o{ mind_readings : \"campaignId · CASCADE\"\n  campaigns ||--o{ photonet_images : \"campaignId · CASCADE\"\n  campaigns ||--o{ webtoons : \"campaignId · CASCADE\"\n  webtoons ||--o{ webtoon_panels : \"webtoonId · CASCADE\"\n  campaigns {\n    text id PK \"대화 그림에 전체\"\n  }\n  mind_readings {\n    text id PK\n    text campaignId FK\n    text innerVoice\n    text feeling\n    text aboutUser\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  diary_entries {\n    text id PK\n    text campaignId FK\n    text title\n    text mood\n    text body\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  direct_messages {\n    text id PK\n    text campaignId FK\n    MessageRole role\n    text content\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  board_posts {\n    text id PK\n    text campaignId FK\n    BoardAuthor authorKind\n    text authorName\n    text title\n    text body\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  board_comments {\n    text id PK\n    text postId FK\n    BoardAuthor authorKind\n    text authorName\n    text body\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  photonet_images {\n    text id PK\n    text campaignId FK\n    text prompt\n    text promptUsed\n    text style\n    text ratio\n    text rating \"기본 sfw\"\n    timestamp(3) blockedAt \"NULL\"\n    text blockReason \"NULL\"\n    text mime\n    bytea data\n    integer width\n    integer height\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  webtoons {\n    text id PK\n    text campaignId FK\n    text title\n    text prompt\n    text rating \"기본 sfw\"\n    timestamp(3) blockedAt \"NULL\"\n    text blockReason \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  webtoon_panels {\n    text id PK\n    text webtoonId FK \"UK(webtoonId+index)\"\n    integer index \"UK(webtoonId+index)\"\n    jsonb plan\n    text caption\n    jsonb lines \"기본 []\"\n    text promptUsed \"NULL\"\n    text mime \"NULL\"\n    bytea data \"NULL\"\n    integer width \"NULL\"\n    integer height \"NULL\"\n    timestamp(3) drawnAt \"NULL\"\n  }"
+  },
+  {
+   "key": "world",
+   "title": "월드코퍼챗",
+   "mermaid": "erDiagram\n  characters |o--o{ world_cast : \"characterId · SET NULL\"\n  users ||--o{ world_plays : \"userId · CASCADE\"\n  users |o--o{ worlds : \"ownerId · SET NULL\"\n  world_plays ||--o{ world_events : \"playId · CASCADE\"\n  world_plays ||--o{ world_messages : \"playId · CASCADE\"\n  worlds ||--o{ world_cast : \"worldId · CASCADE\"\n  worlds ||--o{ world_images : \"worldId · CASCADE\"\n  worlds ||--o{ world_parts : \"worldId · CASCADE\"\n  worlds ||--o{ world_places : \"worldId · CASCADE\"\n  worlds ||--o{ world_plays : \"worldId · CASCADE\"\n  users {\n    text id PK \"계정 그림에 전체\"\n  }\n  characters {\n    text id PK \"대화 그림에 전체\"\n  }\n  worlds {\n    text id PK\n    text ownerId FK \"NULL\"\n    text title\n    text oneLiner \"기본 ''\"\n    text setting \"기본 ''\"\n    text rules \"기본 ''\"\n    text opening \"기본 ''\"\n    WorldMode mode \"기본 CHAT\"\n    CharacterVisibility visibility \"기본 PRIVATE\"\n    boolean published \"기본 false\"\n    bytea map \"NULL\"\n    text mapMime \"NULL\"\n    PortraitReview mapReview \"기본 APPROVED\"\n    timestamp(3) takenDownAt \"NULL\"\n    text takedownReason \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  world_cast {\n    text id PK\n    text worldId FK \"UK(worldId+name)\"\n    text characterId FK \"NULL\"\n    text name \"UK(worldId+name)\"\n    text summary\n    text speech \"기본 ''\"\n    text startPlace \"기본 ''\"\n    text homePlace \"기본 ''\"\n    integer order \"기본 0\"\n  }\n  world_places {\n    text id PK\n    text worldId FK \"UK(worldId+name)\"\n    text name \"UK(worldId+name)\"\n    float8 x\n    float8 y\n    text note \"기본 ''\"\n    integer order \"기본 0\"\n  }\n  world_parts {\n    text id PK\n    text worldId FK \"UK(worldId+order)\"\n    integer order \"UK(worldId+order)\"\n    text title\n    text goal\n    text opening \"기본 ''\"\n  }\n  world_images {\n    text id PK\n    text worldId FK \"UK(worldId+label)\"\n    text label \"UK(worldId+label)\"\n    text character \"기본 ''\"\n    text mime\n    bytea data\n    PortraitReview review \"기본 APPROVED\"\n    text reviewNote \"NULL\"\n    timestamp(3) blockedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  world_plays {\n    text id PK\n    text userId FK \"UK(userId+worldId)\"\n    text worldId FK \"UK(userId+worldId)\"\n    text personaName\n    text personaDescription \"기본 ''\"\n    integer partIndex \"기본 0\"\n    boolean finished \"기본 false\"\n    jsonb locations \"기본 {}\"\n    integer turns \"기본 0\"\n    integer turnsSinceEvent \"기본 0\"\n    text eventNote \"NULL\"\n    text storySoFar \"기본 ''\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  world_messages {\n    text id PK\n    text playId FK\n    MessageRole role\n    text content\n    text imageId \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  world_events {\n    text id PK\n    text playId FK\n    text userId\n    WorldEventKind kind\n    WorldEventStatus status \"기본 OPEN\"\n    jsonb setup\n    jsonb outcome \"NULL\"\n    integer reward \"기본 0\"\n    boolean rewarded \"기본 false\"\n    text rewardDay \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) resolvedAt \"NULL\"\n  }"
+  },
+  {
+   "key": "standalone",
+   "title": "독립 테이블",
+   "mermaid": "erDiagram\n  rate_limit_buckets {\n    text key PK\n    integer count\n    timestamp(3) resetAt\n  }\n  app_settings {\n    text key PK\n    jsonb value\n    timestamp(3) updatedAt\n  }"
+  }
+ ],
+ "tables": [
+  {
+   "name": "app_settings",
+   "group": "standalone",
+   "columns": [
+    {
+     "name": "key",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "value",
+     "type": "jsonb",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "attendances",
+   "group": "account",
+   "columns": [
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "PK",
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "day",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "credits",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "board_comments",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "postId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "authorKind",
+     "type": "BoardAuthor",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "authorName",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "body",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "board_posts",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "authorKind",
+     "type": "BoardAuthor",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "authorName",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "body",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "campaign_extras",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "PK",
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "extraId",
+     "type": "text",
+     "keys": [
+      "PK",
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "triggers",
+     "type": "text[]",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "campaign_states",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK",
+      "UK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "relationshipValue",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "relationshipNote",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "userNickname",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "openHooks",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 []"
+    },
+    {
+     "name": "unlockedSecrets",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 []"
+    },
+    {
+     "name": "briefForNextSession",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "autoRelationship",
+     "type": "boolean",
+     "keys": [],
+     "note": "기본 true"
+    },
+    {
+     "name": "relationshipReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "relationshipLog",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 []"
+    },
+    {
+     "name": "closedEvents",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 []"
+    },
+    {
+     "name": "digestedUntil",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "questState",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "campaigns",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "characterId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "CampaignStatus",
+     "keys": [],
+     "note": "기본 ACTIVE"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "personaId",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "personaName",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "personaDescription",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "savedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "memorizedUntil",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "chatModel",
+     "type": "text",
+     "keys": [],
+     "note": "기본 basic"
+    }
+   ]
+  },
+  {
+   "name": "character_drafts",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "ownerId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "card",
+     "type": "jsonb",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "lastTest",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "portrait",
+     "type": "bytea",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "portraitMime",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "portraitReview",
+     "type": "PortraitReview",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "portraitReviewNote",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "visibility",
+     "type": "CharacterVisibility",
+     "keys": [],
+     "note": "기본 PRIVATE"
+    },
+    {
+     "name": "characterId",
+     "type": "text",
+     "keys": [
+      "FK",
+      "UK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "character_reports",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "characterId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "reporterId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "detail",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "ReportStatus",
+     "keys": [],
+     "note": "기본 OPEN"
+    },
+    {
+     "name": "resolution",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "resolvedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "characters",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "keys": [
+      "UK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "oneLiner",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "role",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "addressing",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "personalityAxes",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "speechStyle",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "knows",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "unknown",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "goal",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "conflictSeed",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "secret",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "secretUnlockCondition",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "openingScene",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "quest",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "recommendedPersona",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "profile",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "published",
+     "type": "boolean",
+     "keys": [],
+     "note": "기본 false"
+    },
+    {
+     "name": "visibility",
+     "type": "CharacterVisibility",
+     "keys": [],
+     "note": "기본 PUBLIC"
+    },
+    {
+     "name": "portrait",
+     "type": "bytea",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "portraitMime",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "takenDownAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "takedownReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "ownerId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "content_reports",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "reporterId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "target",
+     "type": "ContentTarget",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "targetId",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "detail",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "ContentReportStatus",
+     "keys": [],
+     "note": "기본 OPEN"
+    },
+    {
+     "name": "resolution",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "resolvedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "credit_ledger",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "delta",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "balance",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "reason",
+     "type": "CreditReason",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "modelId",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "diary_entries",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "mood",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "body",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "direct_messages",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "role",
+     "type": "MessageRole",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "content",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "email_tokens",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "purpose",
+     "type": "EmailTokenPurpose",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "tokenHash",
+     "type": "text",
+     "keys": [
+      "UK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "expiresAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "usedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "memory_chunks",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "content",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "messages",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "sessionId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "role",
+     "type": "MessageRole",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "content",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "speaker",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "mind_readings",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "innerVoice",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "feeling",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "aboutUser",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "model_usage",
+   "group": "account",
+   "columns": [
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "PK",
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "modelId",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "day",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "count",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    }
+   ]
+  },
+  {
+   "name": "payment_orders",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "buyerEmail",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "productId",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "amount",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "days",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "provider",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "PaymentStatus",
+     "keys": [],
+     "note": "기본 PENDING"
+    },
+    {
+     "name": "paymentKey",
+     "type": "text",
+     "keys": [
+      "UK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "failReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "receiptUrl",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "refundedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "refundReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "paidAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    }
+   ]
+  },
+  {
+   "name": "photonet_images",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "prompt",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "promptUsed",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "style",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "ratio",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "rating",
+     "type": "text",
+     "keys": [],
+     "note": "기본 sfw"
+    },
+    {
+     "name": "blockedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "blockReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "mime",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "data",
+     "type": "bytea",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "width",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "height",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "quest_rewards",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(userId+characterId)"
+    },
+    {
+     "name": "characterId",
+     "type": "text",
+     "keys": [],
+     "note": "UK(userId+characterId)"
+    },
+    {
+     "name": "amount",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "rate_limit_buckets",
+   "group": "standalone",
+   "columns": [
+    {
+     "name": "key",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "count",
+     "type": "integer",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "resetAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "sessions",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(campaignId+index)"
+    },
+    {
+     "name": "index",
+     "type": "integer",
+     "keys": [],
+     "note": "UK(campaignId+index)"
+    },
+    {
+     "name": "status",
+     "type": "SessionStatus",
+     "keys": [],
+     "note": "기본 OPEN"
+    },
+    {
+     "name": "startedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "closedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "summaryBrief",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    }
+   ]
+  },
+  {
+   "name": "user_extras",
+   "group": "chat",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "summary",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "personality",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "relation",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "situation",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "place",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "user_personas",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "description",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "users",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "email",
+     "type": "text",
+     "keys": [
+      "UK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "displayName",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "passwordHash",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "role",
+     "type": "UserRole",
+     "keys": [],
+     "note": "기본 USER"
+    },
+    {
+     "name": "plan",
+     "type": "UserPlan",
+     "keys": [],
+     "note": "기본 FREE"
+    },
+    {
+     "name": "planUntil",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "emailVerifiedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "birthDate",
+     "type": "date",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "adultConsentAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "suspendedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "suspendReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "sessionVersion",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "credits",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    }
+   ]
+  },
+  {
+   "name": "webtoon_panels",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "webtoonId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(webtoonId+index)"
+    },
+    {
+     "name": "index",
+     "type": "integer",
+     "keys": [],
+     "note": "UK(webtoonId+index)"
+    },
+    {
+     "name": "plan",
+     "type": "jsonb",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "caption",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "lines",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 []"
+    },
+    {
+     "name": "promptUsed",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "mime",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "data",
+     "type": "bytea",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "width",
+     "type": "integer",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "height",
+     "type": "integer",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "drawnAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    }
+   ]
+  },
+  {
+   "name": "webtoons",
+   "group": "ops",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "campaignId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "prompt",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "rating",
+     "type": "text",
+     "keys": [],
+     "note": "기본 sfw"
+    },
+    {
+     "name": "blockedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "blockReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "world_cast",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "worldId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(worldId+name)"
+    },
+    {
+     "name": "characterId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "keys": [],
+     "note": "UK(worldId+name)"
+    },
+    {
+     "name": "summary",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "speech",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "startPlace",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "homePlace",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "order",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    }
+   ]
+  },
+  {
+   "name": "world_events",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "playId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "kind",
+     "type": "WorldEventKind",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "WorldEventStatus",
+     "keys": [],
+     "note": "기본 OPEN"
+    },
+    {
+     "name": "setup",
+     "type": "jsonb",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "outcome",
+     "type": "jsonb",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "reward",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "rewarded",
+     "type": "boolean",
+     "keys": [],
+     "note": "기본 false"
+    },
+    {
+     "name": "rewardDay",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "resolvedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    }
+   ]
+  },
+  {
+   "name": "world_images",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "worldId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(worldId+label)"
+    },
+    {
+     "name": "label",
+     "type": "text",
+     "keys": [],
+     "note": "UK(worldId+label)"
+    },
+    {
+     "name": "character",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "mime",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "data",
+     "type": "bytea",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "review",
+     "type": "PortraitReview",
+     "keys": [],
+     "note": "기본 APPROVED"
+    },
+    {
+     "name": "reviewNote",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "blockedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "world_messages",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "playId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "role",
+     "type": "MessageRole",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "content",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "imageId",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
+   "name": "world_parts",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "worldId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(worldId+order)"
+    },
+    {
+     "name": "order",
+     "type": "integer",
+     "keys": [],
+     "note": "UK(worldId+order)"
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "goal",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "opening",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    }
+   ]
+  },
+  {
+   "name": "world_places",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "worldId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(worldId+name)"
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "keys": [],
+     "note": "UK(worldId+name)"
+    },
+    {
+     "name": "x",
+     "type": "float8",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "y",
+     "type": "float8",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "order",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    }
+   ]
+  },
+  {
+   "name": "world_plays",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(userId+worldId)"
+    },
+    {
+     "name": "worldId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "UK(userId+worldId)"
+    },
+    {
+     "name": "personaName",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "personaDescription",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "partIndex",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "finished",
+     "type": "boolean",
+     "keys": [],
+     "note": "기본 false"
+    },
+    {
+     "name": "locations",
+     "type": "jsonb",
+     "keys": [],
+     "note": "기본 {}"
+    },
+    {
+     "name": "turns",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "turnsSinceEvent",
+     "type": "integer",
+     "keys": [],
+     "note": "기본 0"
+    },
+    {
+     "name": "eventNote",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "storySoFar",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "name": "worlds",
+   "group": "world",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "ownerId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": "NULL"
+    },
+    {
+     "name": "title",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "oneLiner",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "setting",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "rules",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "opening",
+     "type": "text",
+     "keys": [],
+     "note": "기본 ''"
+    },
+    {
+     "name": "mode",
+     "type": "WorldMode",
+     "keys": [],
+     "note": "기본 CHAT"
+    },
+    {
+     "name": "visibility",
+     "type": "CharacterVisibility",
+     "keys": [],
+     "note": "기본 PRIVATE"
+    },
+    {
+     "name": "published",
+     "type": "boolean",
+     "keys": [],
+     "note": "기본 false"
+    },
+    {
+     "name": "map",
+     "type": "bytea",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "mapMime",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "mapReview",
+     "type": "PortraitReview",
+     "keys": [],
+     "note": "기본 APPROVED"
+    },
+    {
+     "name": "takenDownAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "takedownReason",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    },
+    {
+     "name": "updatedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": ""
+    }
+   ]
+  }
+ ],
+ "relations": [
+  {
+   "parent": "board_posts",
+   "child": "board_comments",
+   "card": "||--o{",
+   "fk": "postId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "board_posts",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "campaign_extras",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "campaign_states",
+   "card": "||--o|",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "diary_entries",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "direct_messages",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "memory_chunks",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "mind_readings",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "photonet_images",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "sessions",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "campaigns",
+   "child": "webtoons",
+   "card": "||--o{",
+   "fk": "campaignId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "characters",
+   "child": "campaigns",
+   "card": "||--o{",
+   "fk": "characterId",
+   "onDelete": "RESTRICT"
+  },
+  {
+   "parent": "characters",
+   "child": "character_drafts",
+   "card": "|o--o|",
+   "fk": "characterId",
+   "onDelete": "SET NULL"
+  },
+  {
+   "parent": "characters",
+   "child": "character_reports",
+   "card": "||--o{",
+   "fk": "characterId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "characters",
+   "child": "world_cast",
+   "card": "|o--o{",
+   "fk": "characterId",
+   "onDelete": "SET NULL"
+  },
+  {
+   "parent": "sessions",
+   "child": "messages",
+   "card": "||--o{",
+   "fk": "sessionId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "user_extras",
+   "child": "campaign_extras",
+   "card": "||--o{",
+   "fk": "extraId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "attendances",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "campaigns",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "character_drafts",
+   "card": "||--o{",
+   "fk": "ownerId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "character_reports",
+   "card": "||--o{",
+   "fk": "reporterId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "characters",
+   "card": "|o--o{",
+   "fk": "ownerId",
+   "onDelete": "SET NULL"
+  },
+  {
+   "parent": "users",
+   "child": "content_reports",
+   "card": "||--o{",
+   "fk": "reporterId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "credit_ledger",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "email_tokens",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "model_usage",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "payment_orders",
+   "card": "|o--o{",
+   "fk": "userId",
+   "onDelete": "SET NULL"
+  },
+  {
+   "parent": "users",
+   "child": "quest_rewards",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "user_extras",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "user_personas",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "world_plays",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "worlds",
+   "card": "|o--o{",
+   "fk": "ownerId",
+   "onDelete": "SET NULL"
+  },
+  {
+   "parent": "webtoons",
+   "child": "webtoon_panels",
+   "card": "||--o{",
+   "fk": "webtoonId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "world_plays",
+   "child": "world_events",
+   "card": "||--o{",
+   "fk": "playId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "world_plays",
+   "child": "world_messages",
+   "card": "||--o{",
+   "fk": "playId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "worlds",
+   "child": "world_cast",
+   "card": "||--o{",
+   "fk": "worldId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "worlds",
+   "child": "world_images",
+   "card": "||--o{",
+   "fk": "worldId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "worlds",
+   "child": "world_parts",
+   "card": "||--o{",
+   "fk": "worldId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "worlds",
+   "child": "world_places",
+   "card": "||--o{",
+   "fk": "worldId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "worlds",
+   "child": "world_plays",
+   "card": "||--o{",
+   "fk": "worldId",
+   "onDelete": "CASCADE"
+  }
+ ]
+}

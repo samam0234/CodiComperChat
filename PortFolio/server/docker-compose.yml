@@ -1,0 +1,91 @@
+# 포트폴리오 서버: Rails 백엔드 + Flask AI 서비스를 한 기계에 함께 올린다(사용자 요청: 둘을 묶어 배포).
+# 바깥에는 Caddy의 80·443만 열리고, Rails만 Caddy 뒤에 있다. Flask와 Ollama는 내부망에만 있다.
+#
+#   cp .env.example .env    # 값 채우기 (비밀값은 openssl rand -hex 32 로 만든다)
+#   docker compose up -d --build                      # Ollama가 다른 곳에 있을 때(OLLAMA_BASE_URL)
+#   docker compose --profile ollama up -d --build     # Ollama도 이 기계에서 (gemma4:12b는 RAM 12GB 이상 권장)
+#
+# 프론트(Astro)는 Vercel·Netlify에 따로 올리고 PUBLIC_API_BASE=https://<API_DOMAIN> 으로 빌드한다.
+name: portfolio
+
+x-always: &always
+  restart: always
+  logging:
+    driver: json-file
+    options: { max-size: 10m, max-file: '3' }
+
+services:
+  caddy:
+    <<: *always
+    image: caddy:2.10-alpine
+    depends_on: [backend]
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+
+  backend:
+    <<: *always
+    build: ./backend
+    depends_on:
+      ai: { condition: service_healthy }
+    environment:
+      RAILS_ENV: production
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?}
+      AI_SERVICE_URL: http://ai:5001
+      AI_INTERNAL_TOKEN: ${AI_INTERNAL_TOKEN:?}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:?}
+      # TLS는 Caddy가 끝낸다
+      FORCE_SSL: 'true'
+      RAILS_LOG_TO_STDOUT: '1'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/up']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [edge, internal]
+
+  ai:
+    <<: *always
+    build: ./ai_services
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      CHAT_MODEL: ${CHAT_MODEL:-gemma4:12b}
+      FALLBACK_MODEL: ${FALLBACK_MODEL:-gemma4:e4b}
+      AI_INTERNAL_TOKEN: ${AI_INTERNAL_TOKEN:?}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-180}
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://127.0.0.1:5001/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks: [internal]
+
+  ollama:
+    <<: *always
+    profiles: [ollama]
+    image: ollama/ollama:0.40.13
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+      OLLAMA_NUM_PARALLEL: '1'
+    volumes:
+      - ollama_models:/root/.ollama
+    networks: [internal]
+
+volumes:
+  caddy_data:
+  caddy_config:
+  ollama_models:
+
+networks:
+  edge:
+  # 바깥에서 들어올 수 없지만, 모델 받기(ollama pull)를 위해 나가는 길은 둔다
+  internal:

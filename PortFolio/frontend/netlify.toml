@@ -1,0 +1,15 @@
+# Netlify로 올릴 때: 사이트 설정의 Base directory를 PortFolio/frontend 로 둔다
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # Rails API 주소. Netlify 화면의 환경변수로 덮어쓴다
+  PUBLIC_API_BASE = "http://localhost:3000"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

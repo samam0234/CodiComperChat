@@ -1,0 +1,12 @@
+/.bundle
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+/vendor/bundle
+# 비밀값: 이 서버는 credentials를 쓰지 않는다(운영은 SECRET_KEY_BASE 환경변수)
+/config/master.key
+/config/credentials/*.key
+.env

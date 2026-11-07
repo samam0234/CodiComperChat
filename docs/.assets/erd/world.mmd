@@ -1,0 +1,114 @@
+erDiagram
+  characters |o--o{ world_cast : "characterId · SET NULL"
+  users ||--o{ world_plays : "userId · CASCADE"
+  users |o--o{ worlds : "ownerId · SET NULL"
+  world_plays ||--o{ world_events : "playId · CASCADE"
+  world_plays ||--o{ world_messages : "playId · CASCADE"
+  worlds ||--o{ world_cast : "worldId · CASCADE"
+  worlds ||--o{ world_images : "worldId · CASCADE"
+  worlds ||--o{ world_parts : "worldId · CASCADE"
+  worlds ||--o{ world_places : "worldId · CASCADE"
+  worlds ||--o{ world_plays : "worldId · CASCADE"
+  users {
+    text id PK "계정 그림에 전체"
+  }
+  characters {
+    text id PK "대화 그림에 전체"
+  }
+  worlds {
+    text id PK
+    text ownerId FK "NULL"
+    text title
+    text oneLiner "기본 ''"
+    text setting "기본 ''"
+    text rules "기본 ''"
+    text opening "기본 ''"
+    WorldMode mode "기본 CHAT"
+    CharacterVisibility visibility "기본 PRIVATE"
+    boolean published "기본 false"
+    bytea map "NULL"
+    text mapMime "NULL"
+    PortraitReview mapReview "기본 APPROVED"
+    timestamp(3) takenDownAt "NULL"
+    text takedownReason "NULL"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  world_cast {
+    text id PK
+    text worldId FK "UK(worldId+name)"
+    text characterId FK "NULL"
+    text name "UK(worldId+name)"
+    text summary
+    text speech "기본 ''"
+    text startPlace "기본 ''"
+    text homePlace "기본 ''"
+    integer order "기본 0"
+  }
+  world_places {
+    text id PK
+    text worldId FK "UK(worldId+name)"
+    text name "UK(worldId+name)"
+    float8 x
+    float8 y
+    text note "기본 ''"
+    integer order "기본 0"
+  }
+  world_parts {
+    text id PK
+    text worldId FK "UK(worldId+order)"
+    integer order "UK(worldId+order)"
+    text title
+    text goal
+    text opening "기본 ''"
+  }
+  world_images {
+    text id PK
+    text worldId FK "UK(worldId+label)"
+    text label "UK(worldId+label)"
+    text character "기본 ''"
+    text mime
+    bytea data
+    PortraitReview review "기본 APPROVED"
+    text reviewNote "NULL"
+    timestamp(3) blockedAt "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  world_plays {
+    text id PK
+    text userId FK "UK(userId+worldId)"
+    text worldId FK "UK(userId+worldId)"
+    text personaName
+    text personaDescription "기본 ''"
+    integer partIndex "기본 0"
+    boolean finished "기본 false"
+    jsonb locations "기본 {}"
+    integer turns "기본 0"
+    integer turnsSinceEvent "기본 0"
+    text eventNote "NULL"
+    text storySoFar "기본 ''"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  world_messages {
+    text id PK
+    text playId FK
+    MessageRole role
+    text content
+    text imageId "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  world_events {
+    text id PK
+    text playId FK
+    text userId
+    WorldEventKind kind
+    WorldEventStatus status "기본 OPEN"
+    jsonb setup
+    jsonb outcome "NULL"
+    integer reward "기본 0"
+    boolean rewarded "기본 false"
+    text rewardDay "NULL"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) resolvedAt "NULL"
+  }

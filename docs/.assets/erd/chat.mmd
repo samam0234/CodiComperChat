@@ -1,0 +1,157 @@
+erDiagram
+  campaigns ||--o{ campaign_extras : "campaignId · CASCADE"
+  campaigns ||--o| campaign_states : "campaignId · CASCADE"
+  campaigns ||--o{ memory_chunks : "campaignId · CASCADE"
+  campaigns ||--o{ sessions : "campaignId · CASCADE"
+  characters ||--o{ campaigns : "characterId · RESTRICT"
+  characters |o--o| character_drafts : "characterId · SET NULL"
+  characters ||--o{ character_reports : "characterId · CASCADE"
+  sessions ||--o{ messages : "sessionId · CASCADE"
+  user_extras ||--o{ campaign_extras : "extraId · CASCADE"
+  users ||--o{ campaigns : "userId · CASCADE"
+  users ||--o{ character_drafts : "ownerId · CASCADE"
+  users ||--o{ character_reports : "reporterId · CASCADE"
+  users |o--o{ characters : "ownerId · SET NULL"
+  users ||--o{ content_reports : "reporterId · CASCADE"
+  users ||--o{ user_extras : "userId · CASCADE"
+  users {
+    text id PK "계정 그림에 전체"
+  }
+  characters {
+    text id PK
+    text name UK
+    text oneLiner
+    text role
+    text addressing
+    text personalityAxes
+    text speechStyle
+    text knows
+    text unknown
+    text goal
+    text conflictSeed
+    text secret
+    text secretUnlockCondition
+    text openingScene
+    jsonb quest "NULL"
+    jsonb recommendedPersona "NULL"
+    jsonb profile "NULL"
+    boolean published "기본 false"
+    CharacterVisibility visibility "기본 PUBLIC"
+    bytea portrait "NULL"
+    text portraitMime "NULL"
+    timestamp(3) takenDownAt "NULL"
+    text takedownReason "NULL"
+    text ownerId FK "NULL"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  character_drafts {
+    text id PK
+    text ownerId FK
+    jsonb card
+    jsonb lastTest "NULL"
+    bytea portrait "NULL"
+    text portraitMime "NULL"
+    PortraitReview portraitReview "NULL"
+    text portraitReviewNote "NULL"
+    CharacterVisibility visibility "기본 PRIVATE"
+    text characterId FK,UK "NULL"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  character_reports {
+    text id PK
+    text characterId FK
+    text reporterId FK
+    text reason
+    text detail
+    ReportStatus status "기본 OPEN"
+    text resolution "NULL"
+    timestamp(3) resolvedAt "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  content_reports {
+    text id PK
+    text reporterId FK
+    ContentTarget target
+    text targetId
+    text reason
+    text detail
+    ContentReportStatus status "기본 OPEN"
+    text resolution "NULL"
+    timestamp(3) resolvedAt "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  campaigns {
+    text id PK
+    text userId FK
+    text characterId FK
+    text title
+    CampaignStatus status "기본 ACTIVE"
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+    text personaId "NULL"
+    text personaName "NULL"
+    text personaDescription "NULL"
+    timestamp(3) savedAt "NULL"
+    timestamp(3) memorizedUntil "NULL"
+    text chatModel "기본 basic"
+  }
+  campaign_states {
+    text id PK
+    text campaignId FK,UK
+    integer relationshipValue "기본 0"
+    text relationshipNote "NULL"
+    text userNickname "NULL"
+    jsonb openHooks "기본 []"
+    jsonb unlockedSecrets "기본 []"
+    text briefForNextSession "NULL"
+    boolean autoRelationship "기본 true"
+    text relationshipReason "NULL"
+    jsonb relationshipLog "기본 []"
+    jsonb closedEvents "기본 []"
+    timestamp(3) digestedUntil "NULL"
+    jsonb questState "NULL"
+    timestamp(3) updatedAt
+  }
+  sessions {
+    text id PK
+    text campaignId FK "UK(campaignId+index)"
+    integer index "UK(campaignId+index)"
+    SessionStatus status "기본 OPEN"
+    timestamp(3) startedAt "기본 now()"
+    timestamp(3) closedAt "NULL"
+    text summaryBrief "NULL"
+  }
+  messages {
+    text id PK
+    text sessionId FK
+    MessageRole role
+    text content
+    text speaker "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }
+  memory_chunks {
+    text id PK
+    text campaignId FK
+    text content
+    timestamp(3) createdAt "기본 now()"
+  }
+  user_extras {
+    text id PK
+    text userId FK
+    text name
+    text summary
+    text personality
+    text relation
+    text situation
+    text place
+    timestamp(3) createdAt "기본 now()"
+    timestamp(3) updatedAt
+  }
+  campaign_extras {
+    text campaignId PK,FK
+    text extraId PK,FK
+    text[] triggers "NULL"
+    timestamp(3) createdAt "기본 now()"
+  }

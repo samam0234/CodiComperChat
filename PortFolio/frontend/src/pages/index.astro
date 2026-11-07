@@ -1,0 +1,395 @@
+---
+import Base from "../layouts/Base.astro";
+import { site, project, toc } from "../lib/content";
+const icons: Record<string, string> = { memory: "◷", quest: "✦", world: "◎", studio: "✎", image: "▣", shield: "⛨" };
+---
+
+<Base>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="reveal">
+        <p class="eyebrow">Full-stack · AI · 1인 프로젝트</p>
+        <h1>
+          어제의 이야기를 <span class="hl">기억하는</span><br />캐릭터와 이어 가는 캠페인
+        </h1>
+        <p class="lead">{site.intro}</p>
+        <div class="cta">
+          <a class="btn primary" href="#toc">목차 보기 →</a>
+          <a class="btn copper" href="/chat">AI 가이드에게 물어보기</a>
+          <a class="btn" href={site.service} target="_blank" rel="noopener">서비스 열기 ↗</a>
+        </div>
+        <p class="meta">{site.period} · {site.author}</p>
+      </div>
+      <figure class="hero-shot reveal">
+        <img src="/shots/chat.jpg" alt="코디컴퍼챗 대화 화면" />
+        <img class="float" src="/shots/mobile-chat.jpg" alt="좁은 화면 대화" />
+      </figure>
+    </div>
+    <div class="container stats reveal" aria-label="프로젝트 규모">
+      {site.stats.map((s) => (
+        <div class="stat">
+          <b data-count={s.value}>{s.value}</b>
+          <span>{s.label}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container block reveal" id="about">
+    <p class="eyebrow">About this site</p>
+    <h2>이 포트폴리오 사이트는</h2>
+    <div class="about-grid">
+      <div class="card pad">
+        <h3>무엇을 보여 주나</h3>
+        <p>한 서비스를 <b>프론트엔드 · 어드민 콘솔 · 백엔드 · AI 서비스</b> 네 층으로 나눠, 각 층의 엔진 · 기능 · API 연결 · 화면 · 디자인 · 문제와 개선 · 미래를 같은 순서로 정리했습니다.</p>
+      </div>
+      <div class="card pad">
+        <h3>어떻게 만들었나</h3>
+        <p>이 사이트 자체도 작은 풀스택입니다. <b>Astro</b>(정적 화면) · <b>Ruby on Rails</b>(콘텐츠 · 검색 API, 챗봇 중계) · <b>Flask</b>(LangChain · LangGraph RAG 챗봇, Ollama gemma4:12b).</p>
+      </div>
+      <div class="card pad">
+        <h3>무엇을 믿어도 되나</h3>
+        <p>숫자는 저장소의 시험 결과와 실측 노트(<code>docs/trainings</code>)에서 옮겼고, 잘 안 된 것도 그대로 적었습니다. 챗봇은 근거 문서 번호를 달아 답합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container block" id="toc">
+    <p class="eyebrow reveal">Contents</p>
+    <h2 class="reveal">목차</h2>
+    <ol class="toc">
+      {toc.map((t) => (
+        <li class="reveal">
+          <a class="card toc-card" href={`/${t.slug}`}>
+            <span class="no">{t.no}</span>
+            <span class="tt"><b>{t.title}</b><small>{t.sub}</small></span>
+            <span class="go" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="container block" id="project">
+    <div class="split">
+      <div class="reveal">
+        <p class="eyebrow">Project</p>
+        <h2>코디컴퍼챗은</h2>
+        <p class="lead">{project.oneLine}</p>
+        <p>보통의 캐릭터 채팅에서 반복되는 문제는 네 가지였습니다.</p>
+        <ul class="problems">{project.problem.map((p) => <li>{p}</li>)}</ul>
+        <p class="answer"><b>그래서</b> {project.answer}</p>
+      </div>
+      <div class="card compare reveal">
+        <table class="grid">
+          <thead><tr><th>보통의 캐릭터 채팅</th><th>코디컴퍼챗</th></tr></thead>
+          <tbody>{project.compare.map(([a, b]) => <tr><td class="muted">{a}</td><td>{b}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="container block" id="features">
+    <p class="eyebrow reveal">Features</p>
+    <h2 class="reveal">간단한 기능 소개</h2>
+    <div class="features">
+      {project.features.map((f) => (
+        <article class="card feature reveal">
+          <span class="ico" aria-hidden="true">{icons[f.icon] ?? "•"}</span>
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="container block" id="stack">
+    <div class="split">
+      <div class="reveal">
+        <p class="eyebrow">Architecture</p>
+        <h2>웹은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다</h2>
+        <p>이 원칙 하나로 인증 · 권한 · 코레딧 · 맥락 조립을 백엔드 한 곳에 모았습니다. 판단은 순수 함수로 모아 DB 없이 시험합니다.</p>
+        <table class="grid stack card">
+          <tbody>{project.stack.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <figure class="reveal arch">
+        <img src="/shots/architecture.png" alt="시스템 구조도" loading="lazy" />
+        <figcaption class="muted">시스템 구조: 브라우저 → Next → Nest → PostgreSQL · FastAPI</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="container block reveal" id="detail">
+    <div class="detail card">
+      <div>
+        <p class="eyebrow">Deep dive</p>
+        <h2>층별 상세 페이지로 들어가기</h2>
+        <p class="muted">각 페이지는 개요 → 엔진 → 기능 → API → 화면 → 디자인 → 문제와 개선 → 미래 순서로 읽힙니다.</p>
+      </div>
+      <div class="detail-btns">
+        <a class="btn primary" href="/frontend">프론트엔드</a>
+        <a class="btn primary" href="/console">어드민 콘솔</a>
+        <a class="btn primary" href="/backend">백엔드 서버</a>
+        <a class="btn primary" href="/ai">AI 서비스</a>
+        <a class="btn" href="/erd">ERD</a>
+        <a class="btn" href="/data">기획 스프레드시트</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // 숫자 올라가기 (한 번만)
+  const nums = document.querySelectorAll<HTMLElement>("[data-count]");
+  const io = new IntersectionObserver((es) =>
+    es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target as HTMLElement;
+      const end = Number(el.dataset.count);
+      if (!Number.isFinite(end) || matchMedia("(prefers-reduced-motion: reduce)").matches) return io.unobserve(el);
+      const t0 = performance.now();
+      const step = (t: number) => {
+        const k = Math.min(1, (t - t0) / 1100);
+        el.textContent = String(Math.round(end * (1 - Math.pow(1 - k, 3))));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      io.unobserve(el);
+    }),
+  );
+  nums.forEach((n) => io.observe(n));
+</script>
+
+<style>
+  .hero {
+    background: var(--hero);
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+  .hl {
+    background: linear-gradient(90deg, var(--copper), var(--teal));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 26px 0 14px;
+  }
+  .meta {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .hero-shot {
+    position: relative;
+    margin: 0;
+  }
+  .hero-shot img {
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+  }
+  .hero-shot .float {
+    position: absolute;
+    width: 30%;
+    right: -18px;
+    bottom: -36px;
+    border-radius: 18px;
+    border: 4px solid var(--surface);
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 64px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .stat b {
+    display: block;
+    font-size: 1.9rem;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .stat span {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .block {
+    padding-top: 88px;
+  }
+  .block > h2,
+  .split h2,
+  .detail h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+  }
+  .about-grid,
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .pad {
+    padding: 22px;
+  }
+  .pad h3 {
+    font-size: 1.1rem;
+  }
+  .pad p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .toc {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .toc-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .toc-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--copper);
+  }
+  .no {
+    font: 700 22px/1 var(--mono);
+    color: var(--copper);
+    width: 44px;
+  }
+  .tt {
+    flex: 1;
+    display: grid;
+  }
+  .tt small {
+    color: var(--muted);
+  }
+  .go {
+    color: var(--copper);
+    font-size: 20px;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .problems {
+    padding-left: 18px;
+    color: var(--ink-2);
+  }
+  .answer {
+    padding: 14px 16px;
+    border-left: 3px solid var(--copper);
+    background: var(--copper-soft);
+    border-radius: 0 10px 10px 0;
+  }
+  .compare {
+    overflow: hidden;
+  }
+  .compare th {
+    position: static;
+  }
+  .feature {
+    padding: 22px;
+    transition: transform 0.2s;
+  }
+  .feature:hover {
+    transform: translateY(-3px);
+  }
+  .feature p {
+    color: var(--ink-2);
+    margin: 0;
+  }
+  .ico {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--copper-soft);
+    color: var(--copper);
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+  .stack {
+    margin-top: 18px;
+    overflow: hidden;
+  }
+  .stack th {
+    position: static;
+    width: 28%;
+    color: var(--ink);
+  }
+  .arch {
+    margin: 0;
+  }
+  .arch img {
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    background: #fff;
+  }
+  .detail {
+    padding: 34px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: center;
+    background: linear-gradient(135deg, var(--surface), var(--copper-soft));
+  }
+  .detail-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  @media (max-width: 900px) {
+    .hero-grid,
+    .split,
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .about-grid,
+    .features,
+    .toc {
+      grid-template-columns: 1fr;
+    }
+    .hero-shot .float {
+      display: none;
+    }
+    .detail-btns {
+      justify-content: flex-start;
+    }
+  }
+</style>
