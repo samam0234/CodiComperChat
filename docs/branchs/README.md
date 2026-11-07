@@ -444,5 +444,6 @@ flowchart LR
 | 2026-11-07 | `e499efd` | feature/portfolio | Astro 포트폴리오 사이트(메인·층별 상세·스프레드시트·ERD·AI 챗봇·문서)를 만든다 | [261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md](commits/261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md) |
 | 2026-11-07 | `dfd7e57` | feature/portfolio | 포트폴리오 문서(docx·pdf·pptx)를 콘텐츠 정본에서 만든다 | [261107_2048_dfd7e57_portfolio-portfile-docs_feature-portfolio.md](commits/261107_2048_dfd7e57_portfolio-portfile-docs_feature-portfolio.md) |
 | 2026-11-07 | `fcbb9eb` | feature/portfolio | 배포 구성(Vercel·Netlify, Rails+Flask compose)과 포트폴리오 안내를 더한다 | [261107_2050_fcbb9eb_portfolio-deploy-config_feature-portfolio.md](commits/261107_2050_fcbb9eb_portfolio-deploy-config_feature-portfolio.md) |
+| 2026-11-07 | `da17813` | feature/project-intro | 푸터에 '프로젝트 소개'를 더하고 사업 소개 톤의 /project 페이지를 만든다 | [261107_2054_da17813_web-project-intro_feature-project-intro.md](commits/261107_2054_da17813_web-project-intro_feature-project-intro.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
