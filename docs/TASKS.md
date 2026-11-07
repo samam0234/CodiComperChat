@@ -66,6 +66,8 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | U08 | 운영 콘솔을 열 IP 결정(`CONSOLE_IP_ALLOWLIST`). Vercel `codicomperchat-console`은 있으나 API에 연결하지 않았다 | T04 |
 | U09 | 프리미엄(Claude·Grok) 키와 월 한도. 각 콘솔에서 사용 한도를 먼저 걸고 서버 `.env`에 직접 넣는다(채팅에 붙이지 않는다) | 프리미엄 공개 |
 | U10 | (권장) 2026-11-07 작업 대화에 개인키 내용과 `WEB_PROXY_TOKEN` 값이 한 번씩 드러났다. 새 키로 바꾸고 토큰을 서버·Vercel 함께 교체 | 없음 |
+| U11 | **처리방침(`apps/web/app/privacy/page.tsx`)의 국외 이전 표를 지금 구성에 맞춘다.** 표에는 Anthropic·xAI만 있고, 실제로 이용자 내용이 가는 NVIDIA(대화·판정·그림 검수), Vercel(모든 웹 요청), Oracle(저장 데이터)이 없다. 법률 검토 때 함께 고친다. 에이전트는 처리방침 문구를 대신 쓰지 않는다 | 공개 |
+| U12 | 호스팅 API(NVIDIA) 약관 확인: 입력 보관·학습 사용 여부, 무료 티어의 상업적 이용과 한도. Vercel 무료 요금제의 상업적 이용, Oracle 무료 한도 유지 조건 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) 1장·2-0장) | 공개 |
 
 ## 2. 사용자 일이 끝난 뒤
 
@@ -86,6 +88,13 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 - **선행:** 메일은 U05, 콘솔은 U08. 나머지는 없음.
 - **할 일:** 공식 캐릭터 지식 파일(`apps/api/data/personas/유지성.json`, `이세연.json`)을 서버 볼륨 `personas`로 옮긴다. `scripts/db-backup.sh`를 서버 cron에 건다(하루 한 번, 14일). U05가 끝나면 `MAIL_SMTP_URL`·`MAIL_FROM`·`WEB_BASE_URL`을 서버 `.env`에 넣고 api를 다시 띄운다. U08이 끝나면 콘솔 Vercel 환경변수(`API_BASE_URL`, `CONSOLE_IP_ALLOWLIST`)를 넣고 다시 배포한다. 다시 띄울 때 compose 파일 두 개를 함께 준다.
 - **끝난 기준:** 로그인한 상태의 대화 한 턴이 운영에서 돈다(시험 계정), 인증 메일 도착, 백업 파일 생김, 콘솔 로그인. 결과를 [web_management/oracle-backend.md](web_management/oracle-backend.md)에 적는다.
+
+### T05. 호스팅 API 서버에서 성인 모드를 막는 코드 장치
+
+- **선행:** 없음. 방향 확인: 막는 방식(시작 거부 vs 호출 거부)을 만들기 전에 사용자에게 묻는다.
+- **왜:** `LLM_BACKEND=openai`이면 프리미엄이 아닌 모든 호출이 호스팅 API로 간다. 그런데 "성인 대화는 로컬 모델에서만"이라는 약속은 코드로 지켜지지 않는다. 지금은 운영 compose 기본값 `ADULT_MODE=off`에만 기대고 있다([../services/ai/README.md](../services/ai/README.md), [../SECURITY.md](../SECURITY.md)).
+- **할 일:** `apps/api/src/security/production.ts`에 `NODE_ENV=production`이고 `ADULT_MODE`가 켜졌는데 AI 쪽이 `openai`이면 시작하지 않는 검사를 더하거나, 성인 수위 호출을 `provider=ollama` 로컬로만 보내게 한다. Nest는 AI의 `LLM_BACKEND`를 모르므로 어느 쪽에서 막을지가 설계 결정이다.
+- **끝난 기준:** 그 조합에서 시작이 거부되거나 성인 호출이 호스팅 API로 가지 않는 단위 시험, 문서 갱신.
 
 ### T03. GPU 서버 설치와 확인
 
