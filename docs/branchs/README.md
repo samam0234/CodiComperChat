@@ -417,5 +417,6 @@ flowchart LR
 | 2026-11-07 | `7c853b1` | feature/docs-final-update | 소유자 체크리스트와 브랜치 지도에 2026-11-07 상태를 반영 | [261107_0958_7c853b1_owner-branchmap-status_feature-docs-final-update.md](commits/261107_0958_7c853b1_owner-branchmap-status_feature-docs-final-update.md) |
 | 2026-11-07 | `f9e425f` | claude/project-thread-pz0x5f | 병합 뒤 main 기준으로 배포 안내를 고친다 | [261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md](commits/261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md) |
 | 2026-11-07 | `6dfc0b3` | develop (merge) | feature/docs-final-update into develop | [261107_0958_6dfc0b3_merge-docs-final-update_develop.md](commits/261107_0958_6dfc0b3_merge-docs-final-update_develop.md) |
+| 2026-11-07 | `1b98333` | develop (merge) | origin/claude/project-thread-pz0x5f into develop | [261107_0958_1b98333_merge-pz0x5f-leftover_develop.md](commits/261107_0958_1b98333_merge-pz0x5f-leftover_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
