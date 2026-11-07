@@ -15,7 +15,7 @@
 | 백엔드(API+DB+Caddy) | Oracle VM에 배포 완료 (`ssh codicomper-oci`, 서버 폴더 `~/codicomperchat`) |
 | 웹·콘솔 | Vercel, 바꿀 것 없음 |
 | AI 서버 | **이 문서의 할 일.** 대화는 NVIDIA NIM 무료 API(Gemma 4 31B), 막히면 VM의 CPU Ollama `gemma4:e4b` |
-| 코드 위치 | PR #3 브랜치 `claude/project-thread-pz0x5f` (병합 전). 병합 후엔 `origin/main` (스크립트가 자동 선택) |
+| 코드 위치 | `origin/main` (PR #3 병합됨, 스크립트가 자동 선택) |
 | 그림 기능 | GPU가 없어 "준비 중"으로 잠김. 정상 |
 
 ## 2. 스크립트 두 개
@@ -31,9 +31,9 @@
 
 ```bash
 cd D:/vscode/CodiComperChat
-git fetch origin claude/project-thread-pz0x5f
-git worktree list | grep ccc-ai-deploy || git worktree add ../ccc-ai-deploy origin/claude/project-thread-pz0x5f
-cd ../ccc-ai-deploy && git checkout --detach origin/claude/project-thread-pz0x5f
+git fetch origin main
+git worktree list | grep ccc-ai-deploy || git worktree add ../ccc-ai-deploy origin/main
+cd ../ccc-ai-deploy && git checkout --detach origin/main
 ```
 
 ### 3-2. 키 확인
@@ -98,10 +98,9 @@ node scripts/deploy-ai-oracle.mjs
 
 ## 6. 끝났을 때
 
-1. 사용자에게 마지막 `== 완료 ==` 줄과 `NVIDIA 응답` 줄만 간결히 보고한다. 병합은 하지 않는다.
+1. 사용자에게 마지막 `== 완료 ==` 줄과 `NVIDIA 응답` 줄만 간결히 보고한다. 병합은 사용자가 말할 때만 한다.
 2. 사용자에게 Vercel 웹에서 캐릭터와 대화해 보도록 안내한다.
 3. 정리(선택): `cd D:/vscode/CodiComperChat && git worktree remove ../ccc-ai-deploy`
 4. 실제로 서버 설정이 바뀌었다면(예: `LLM_API_MODEL`) 사용자가 원할 때 `deploy/oracle/.env.example`·가이드에 반영하는 커밋을 `feature/*` 규칙대로 만든다(커밋 기록 포함).
-5. 사용자가 "병합"이라고 하면 그때 `develop`→`main`(`--no-ff`)으로 PR #3을 처리한다.
 
 설명서(사용자용): `docs/web_management/ai-deploy-handover.html`

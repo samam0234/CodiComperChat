@@ -37,8 +37,8 @@ if (!dry) {
   if (f.status !== 0) fail('git fetch 실패. 저장소 폴더 안에서 실행했는지, 인터넷이 되는지 확인한다.');
 }
 
-// 2) 올릴 참조: 배포 스크립트가 들어 있는 첫 후보 (병합 전엔 PR #3 브랜치, 병합 후엔 main)
-const candidates = val('--ref') ? [val('--ref')] : ['origin/main', 'origin/claude/project-thread-pz0x5f'];
+// 2) 올릴 참조: 기본은 origin/main (--ref로 다른 브랜치를 지정할 수 있다)
+const candidates = val('--ref') ? [val('--ref')] : ['origin/main'];
 const ref = candidates.find((r) => run('git', ['cat-file', '-e', `${r}:${NEED}`]).status === 0);
 if (!ref) fail(`${candidates.join(', ')} 어디에도 ${NEED}가 없다. 'git fetch origin' 후 다시 시도한다.`);
 const sha = run('git', ['rev-parse', '--short', ref]).stdout.trim();
