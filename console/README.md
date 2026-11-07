@@ -111,6 +111,20 @@ flowchart LR
 | `WEB_BASE_URL` | `http://localhost:3000` | 이용자 사이트 주소 (캐릭터 이름을 누르면 실제 화면으로) |
 | `NEXT_DIST_DIR` | `.next` | e2e는 `.next-e2e` |
 
+## Vercel에 올릴 때 (2026-11-07, 아직 API에 연결 안 됨)
+
+Vercel 프로젝트 `codicomperchat-console`이 있고 빌드 설정은 [`vercel.json`](vercel.json)(`nextjs`, `icn1`)이다. **하지만 `API_BASE_URL`과 `CONSOLE_IP_ALLOWLIST`가 없어 API에 연결돼 있지 않다.** 운영자 화면이라 허용할 IP를 사용자가 정한 뒤에 연결한다([../docs/TASKS.md](../docs/TASKS.md) U08, T04).
+
+| 환경변수(Vercel) | 지금 | 연결할 때 |
+|------------------|------|-----------|
+| `WEB_BASE_URL` | 이용자 사이트 주소 | 그대로 |
+| `REQUIRE_HTTPS` | `1` | 그대로 |
+| `API_BASE_URL` | **없음** | `https://api.168-110-61-178.sslip.io` |
+| `CONSOLE_IP_ALLOWLIST` | **없음** | 운영자 IP(쉼표). 없으면 공개 호스트는 403 |
+
+- GPU 서버 구성과 달리 Vercel에는 앞단 Caddy가 없어 **IP 거르기가 앱 한 겹뿐이다.** 앱은 `X-Forwarded-For`의 첫 값을 본다(`lib/https.ts`). Vercel이 이 헤더를 클라이언트 IP로 덮어쓰는지는 이 작업에서 확인하지 못했다. 확인 전에는 `CONSOLE_ALLOW_PUBLIC`을 켜지 않는다.
+- 콘솔은 API의 프록시 토큰 경로(`WEB_PROXY_TOKEN`)를 쓰지 않는다. 콘솔이 API를 부를 때 API 쪽 요청 한도에는 Vercel 주소가 보인다.
+
 ## 폴더
 
 ```text

@@ -32,6 +32,21 @@ cp .env.example .env
 
 로컬 [Ollama](https://ollama.com)가 `ollama serve`로 떠 있어야 한다 (기본 `http://localhost:11434`). 연결이 안 되면 `POST /infer`는 503을 돌려준다. `.env`를 고친 뒤에는 서버를 재시작한다.
 
+### 대화 모델 백엔드 두 가지
+
+`LLM_BACKEND`가 대화·요약·판정 호출(프리미엄 공급자를 고른 `/infer`만 빼고 전부)을 어디로 보낼지 정한다. 코드: `app/services/llm.py`.
+
+| `LLM_BACKEND` | 어디서 도나 | 쓰는 곳 |
+|---------------|-------------|---------|
+| `ollama` (기본) | 로컬·서버의 Ollama(`OLLAMA_MODEL`, 기본 `gemma4:e4b`) | 개발 PC, GPU 서버 |
+| `openai` | **OpenAI 호환 호스팅 API**(`LLM_API_BASE`·`LLM_API_MODEL`·`LLM_API_KEY`). 운영 Oracle 서버는 NVIDIA `google/gemma-4-31b-it` | GPU 없는 서버, PC를 켜 두지 않을 때 |
+
+`openai`에서 `LLM_FALLBACK_OLLAMA=1`이면 호스팅 API가 한도 초과(429)·서버 오류·시간 초과(`LLM_API_TIMEOUT_SECONDS`)·연결 불가일 때 Ollama가 대신 답한다. 기동 때 예비 모델을 미리 올리려면 `OLLAMA_WARMUP=1`. 운영 실측: NVIDIA 응답 19.0초, 예비 CPU 응답 32.1초([../../docs/trainings/oracle-deploy-latency.md](../../docs/trainings/oracle-deploy-latency.md)).
+
+> **`openai`일 때 무엇이 서비스 밖으로 나가나.** 연기 대화뿐 아니라 요약·기억·"지어냈나" 판정·퀘스트 판정·초안 같은 **모든 대화 모델 호출의 시스템 지시와 대화 내용이 호스팅 API 공급자에게 간다.** 로컬 모델만 쓴다는 전제의 문구(성인 대화는 로컬 모델에서만 등)는 `ollama`일 때만 맞다. 그래서 **`LLM_BACKEND=openai`인 서버는 `ADULT_MODE=off`로 둔다**(운영 compose 기본값). 이를 막는 코드 장치는 아직 없다([../../docs/TASKS.md](../../docs/TASKS.md) T05). 이용자에게 알리는 문구와 법률 검토는 [../../SECURITY.md](../../SECURITY.md) "제3자에게 나가는 데이터".
+
+`LLM_FAKE=1`(시험용)이 켜져 있으면 어느 백엔드든 부르지 않는다. 키 값은 로그에 찍지 않는다.
+
 - 대화형 API 문서: `http://localhost:8000/docs`
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
@@ -211,6 +226,10 @@ flowchart LR
 | 키 | 기본 | 무엇 |
 |----|------|------|
 | `OLLAMA_BASE_URL` · `OLLAMA_MODEL` | `http://localhost:11434` · `gemma4:e4b` | 로컬 LLM |
+| `LLM_BACKEND` | `ollama` | `openai`면 대화 호출을 호스팅 API로(위 "대화 모델 백엔드") |
+| `LLM_API_BASE` · `LLM_API_MODEL` · `LLM_API_KEY` | — | `openai`일 때 필수. 키는 비밀값(서버 `.env`에만) |
+| `LLM_FALLBACK_OLLAMA` · `LLM_API_TIMEOUT_SECONDS` · `OLLAMA_WARMUP` · `OLLAMA_READ_TIMEOUT_SECONDS` | 꺼짐 · 120 · 꺼짐 · 600 | 예비 Ollama, API 응답 제한(초), 기동 때 예비 모델 올리기, Ollama 토큰 사이 공백 제한 |
+| `ANTHROPIC_API_KEY` · `XAI_API_KEY` | 비움 | 프리미엄 공급자 키. 열지 말지는 Nest의 `PREMIUM_PROVIDERS`·`PREMIUM_MONTHLY_CREDITS` |
 | `IMAGE_ENGINE` | `local` | 그림 엔진: `local`(diffusers, 이 프로세스) / `webui`(외부 WebUI) |
 | `SD_MODEL_DIR` · `SD_OFFLOAD` | `services/ai/models/` · 꺼짐 | 체크포인트 폴더, 그래픽 메모리 절약(느려짐) |
 | `SD_WEBUI_URL` · `SD_ANIME_MODEL` · `SD_BASE_MODEL` | — | `webui` 주소, 화풍별 체크포인트 파일 이름 |

@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-10-24): **아래 경로는 실제로 동작한다.** 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -101,6 +101,8 @@ sequenceDiagram
 |----|----------|------|
 | api (Nest.js) | `http://localhost:4000` | 기동 확인됨 (`npm run dev:api`) |
 | ai (FastAPI, 내부 전용) | `http://localhost:8000` | 기동 확인됨. Nest만 호출, 웹은 직접 호출 금지. 대화형 문서 `/docs` |
+| **api — 운영(Oracle)** | `https://api.168-110-61-178.sslip.io` | 2026-11-07부터 운영 중. 웹(Vercel)이 서버에서 부른다. `/health`, `/characters`(공개 목록) 확인됨. 운영은 http를 https로 308 리다이렉트한다 |
+| ai — 운영 | (바깥에 열리지 않음) | 내부망 `http://ai:8000`. 바깥에서 4000·8000·5432·11434는 닫혀 있다(2026-11-07 확인) |
 
 ## Nest.js — 웹이 치는 엔드포인트
 

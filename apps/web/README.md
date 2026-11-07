@@ -154,6 +154,22 @@ flowchart LR
 - 코퍼맵(`copper-map.tsx`)은 소개·편집기(누르면 핀)·플레이(지금 위치)가 같이 쓴다.
 - 정본 [../../docs/plan/WORLD_COPPERCHAT.md](../../docs/plan/WORLD_COPPERCHAT.md).
 
+## Vercel 배포 (2026-11-07)
+
+운영 웹은 Vercel 프로젝트 `codicomperchat-web`(팀 saman, 리전 `icn1`)에서 `main`을 빌드해 돈다. 주소 `https://codicomperchat-web.vercel.app`. 빌드·리전 설정은 [`vercel.json`](vercel.json)(`framework: nextjs`, `regions: ["icn1"]`). 이 저장소는 모노레포라 Vercel 프로젝트의 Root Directory가 `apps/web`이어야 한다(`vercel.json`이 그 폴더에 있다). 이 설정값은 2026-11-07에 Vercel 화면에서 직접 확인하지 못했고, `main`에서 빌드가 성공한 것으로만 확인했다.
+
+| 환경변수(Vercel) | 값 | 비고 |
+|------------------|-----|------|
+| `API_BASE_URL` | `https://api.168-110-61-178.sslip.io` | **`api.` 접두사 필수.** 빠지면 Caddy 사이트 이름과 안 맞아 연결되지 않는다(2026-11-07에 실제로 틀려 있었다) |
+| `WEB_PROXY_TOKEN` | (sensitive) | 서버 `.env`와 같은 값. 있으면 실제 이용자 IP와 함께 보내 Caddy가 그 IP를 믿는다(`lib/client-ip.ts`) |
+| `CONSOLE_BASE_URL` | 콘솔 Vercel 주소 | 빌드할 때 `/admin` 리다이렉트에 박힌다. 바꾸면 다시 배포한다 |
+| `REQUIRE_HTTPS` | `1` | 운영 필수. 없으면 공개 호스트가 503 |
+
+- 웹 서버(함수)가 API를 부르므로 브라우저는 API 주소를 모르고, CORS 설정도 없다.
+- 함수 실행 시간 상한은 요금제에 따라 다르다. API의 AI 대기 제한(`AI_TIMEOUT_MS`, 기본 280초)은 이 상한보다 짧게 둔다.
+- 환경변수를 바꾼 뒤에는 **다시 배포해야** 적용된다.
+- 연결 확인: 홈·인기 화면에 API의 캐릭터가 그려지면 웹 → API → DB가 이어진 것이다. 절차와 상태: [../../docs/web_management/oracle-backend.md](../../docs/web_management/oracle-backend.md).
+
 ## 문서
 
 - 라우트·내비게이션 구조: [../../docs/plan/NAVIGATION_IA.md](../../docs/plan/NAVIGATION_IA.md)
