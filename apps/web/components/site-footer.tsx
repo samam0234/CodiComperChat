@@ -3,6 +3,7 @@ import BrandMark from "./brand-mark";
 import styles from "./site-footer.module.css";
 
 const FOOTER_LINKS = [
+  { href: "/project", label: "프로젝트 소개" },
   { href: "/terms", label: "이용약관" },
   { href: "/privacy", label: "개인정보처리방침" },
   { href: "/business", label: "사업자 정보확인" },
@@ -17,7 +18,7 @@ export default function SiteFooter() {
           <BrandMark size={24} id="footer-brand" />
           <span className={styles.tagline}>캐릭터와 이어지는 나만의 이야기</span>
         </div>
-        <nav className={styles.links} aria-label="약관 및 정책">
+        <nav className={styles.links} aria-label="프로젝트 소개와 약관">
           {FOOTER_LINKS.map((item) => (
             <Link key={item.href} href={item.href} className={styles.link}>
               {item.label}
