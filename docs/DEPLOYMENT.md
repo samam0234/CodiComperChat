@@ -5,7 +5,8 @@
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
-| 지금 올라가 있는 서버(Oracle) | [web_management/oracle-backend.md](web_management/oracle-backend.md), [web_management/ai-deploy-handover.md](web_management/ai-deploy-handover.md) |
+| **지금 올라가 있는 서버(Oracle) — 상태·올리기·점검** | [web_management/oracle-backend.md](web_management/oracle-backend.md), AI 스크립트 [web_management/ai-deploy-handover.md](web_management/ai-deploy-handover.md) |
+| 처음 올린 과정과 막힌 곳 전부 (2026-11-07) | [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md) |
 | (대안, 서버에 안 올림) Vercel 웹 + Oracle 한 compose 구성 | [web_management/deploy-guide.html](web_management/deploy-guide.html), [web_management/oracle-console-guide.html](web_management/oracle-console-guide.html). 이 안내와 `deploy/oracle/bootstrap.sh`는 다른 compose(프록시 토큰 `WEB_PROXY_TOKEN` 포함)를 전제로 쓰였다. 지금 서버의 `deploy/oracle/docker-compose.yml`과 맞지 않으니 그대로 돌리지 않는다. Vercel에 웹을 올릴 때 참고 |
 | 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |
 | 서버에 올리기 (절차·서버 조건·실측) | [web_management/docker-deploy.md](web_management/docker-deploy.md) |
@@ -19,27 +20,34 @@
 
 ![운영 배포 구성](.assets/readme/deploy-topology.png)
 
-<sub>deploy/docker-compose.prod.yml을 그대로 옮긴 그림. 바깥에는 Caddy만 열린다</sub>
+<sub>deploy/docker-compose.prod.yml(GPU 서버 목표)을 그대로 옮긴 그림. 바깥에는 Caddy만 열린다. 지금 운영 중인 구성은 아래 "지금 운영 중" 그림</sub>
 
 <!-- logic-structure -->
 ## 로직 구조
 
-```text
-개발 PC (지금)                         운영 (아직 올리지 않음)
-  npm run dev:* + uvicorn                GPU 서버 한 대 (Hetzner GEX45 권장)
-        │                                     │ deploy/server-setup.sh
-        │ 커밋 → develop → main               ▼
-        └──────────── git ──────────▶ docker compose -f deploy/docker-compose.prod.yml up -d
-                                              │
-                                              ├─ migrate: prisma migrate deploy (34개)
-                                              ├─ caddy → web · console (HTTPS)
-                                              ├─ api → postgres · ai → ollama
-                                              └─ cron: scripts/db-backup.sh (14일 보관)
+```mermaid
+flowchart LR
+  DEV["개발 PC<br/>npm run dev:* + uvicorn"] -->|"커밋 → develop → main<br/>(--no-ff, 푸시는 요청 때)"| GH["GitHub main"]
+  GH -->|"Vercel이 main을 빌드"| VW["Vercel · web<br/>지금 운영"]
+  DEV -->|"git archive | ssh"| OR["Oracle ARM VM<br/>caddy · api · postgres · ai · ollama<br/>지금 운영"]
+  VW -->|"API_BASE_URL + WEB_PROXY_TOKEN"| OR
+  GH -.->|"계약 뒤"| GPU["GPU 서버 (Hetzner GEX45)<br/>docker-compose.prod.yml<br/>그림 엔진 포함 · 목표"]
 ```
 
 <!-- logic-mermaid -->
 
-### 배포 구성
+### 지금 운영 중 (2026-11-07)
+
+```mermaid
+flowchart LR
+  U(("이용자")) -->|"HTTPS"| V["Vercel web"]
+  V -->|"HTTPS · X-Web-Proxy-Token"| CA["caddy<br/>api.168-110-61-178.sslip.io"]
+  CA --> API["api"] --> PG[("postgres")]
+  API --> AI["ai (CPU)"] --> OL["ollama 예비"]
+  AI --> NIM["NVIDIA 호스팅 API"]
+```
+
+### 배포 구성 (GPU 서버 목표)
 
 ```mermaid
 flowchart TB
@@ -58,7 +66,7 @@ flowchart TB
   end
 ```
 
-### 올리는 순서
+### 올리는 순서 (GPU 서버 목표)
 
 ```mermaid
 flowchart LR
