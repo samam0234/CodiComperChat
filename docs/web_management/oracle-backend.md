@@ -12,7 +12,7 @@
 | 바깥 주소 | `https://api.168-110-61-178.sslip.io` (Caddy가 Let's Encrypt 인증서 자동 발급·갱신) |
 | 대화 모델 | NVIDIA 호스팅 API `google/gemma-4-31b-it`, 막히면 CPU Ollama `gemma4:e4b` |
 | 웹 | Vercel `codicomperchat-web` → `https://codicomperchat-web.vercel.app` (푸터 `/project` 소개 페이지 포함, `PORTFOLIO_URL`로 포트폴리오 사이트 버튼) |
-| 포트폴리오 사이트 | Vercel `codicomperchat-portfolio` → `https://codicomperchat-portfolio.vercel.app` (Astro 정적 10페이지. 챗봇·빠른 찾기용 Rails·Flask 서버는 **아직 없다**) |
+| 포트폴리오 사이트 | Vercel `codicomperchat-portfolio` → `https://codicomperchat-portfolio.vercel.app` (Astro 정적 10페이지. 챗봇·빠른 찾기용 Rails·Flask 서버는 **아직 없다**. 그 챗봇 코드의 모델은 `gemma4:e4b` 하나) |
 | 비밀값 | 서버 `~/codicomperchat/deploy/oracle/.env`(root, 권한 600). 키 목록은 [../guidance/environment.md](../guidance/environment.md) "운영에서 실제로 쓰는 값" |
 
 ## 배포 상태 (2026-11-07)

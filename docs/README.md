@@ -4,7 +4,7 @@
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재(2026-11-07) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 28개), Redis는 쓰지 않는다. **2026-11-07에 실제로 배포했다**: 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM. 지금 서버의 정본은 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). GPU 서버 절차(`docker-deploy.md`)는 그림 엔진용 목표 문서로 남는다.
+> 현재(2026-11-07) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 37개, [plan/DATABASE.md](plan/DATABASE.md)), Redis는 쓰지 않는다. 월드코퍼챗과 푸터 프로젝트 소개(`/project`)가 웹에 있다. 포트폴리오 사이트는 별도 Astro이고 제품 웹이 아니다. 코드에 있는 기능과 지금 열리는 범위는 [STATUS.md](STATUS.md)에서 나눈다. **2026-11-07에 실제로 배포했다**: 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM. 지금 서버의 정본은 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). GPU 서버 절차(`docker-deploy.md`)는 그림 엔진용 목표 문서로 남는다.
 >
 > **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(지금 상태), [TASKS.md](TASKS.md)(할 일), [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
 
@@ -83,7 +83,8 @@ docs/
 ├── README.md                 ← 이 파일 (허브 인덱스)
 ├── AGENT_HANDOVER.md         ← 에이전트 인수인계 (현재 상태·작업 약속·함정)
 ├── TASKS.md                  ← 작업 지시서 (다음에 할 일, 선행 조건, 끝난 기준)
-├── FEATURES.md               ← 전체 기능 카탈로그 (화면·API·코드·시험)
+├── FEATURES.md               ← 전체 기능 카탈로그 (화면·API·코드·시험, 코드 기준)
+├── STATUS.md                 ← 그 기능 중 지금 공개 주소에서 열리는 범위
 ├── API_DOCUMENTATION.md      ← API 전체 (Nest·FastAPI 경로, 요청 한도, 보안 헤더, 메일, 결제)
 ├── DEPLOYMENT.md             ← 배포 짧은 진입 + 배포 때 꼭 할 것
 ├── WORKFLOW.md               ← AI 호출 파이프라인 요약 (대화 한 턴, AI 대기열)
@@ -133,6 +134,7 @@ docs/
 | 다음에 할 일 | [TASKS.md](TASKS.md) |
 | 스택, 버전, 포트 | [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) |
 | 구현된 기능과 한계 | [FEATURES.md](FEATURES.md) |
+| 기능과 운영 현황의 구분 | [STATUS.md](STATUS.md) |
 | 시험 수, 시험 방법 | [plan/TESTING.md](plan/TESTING.md) |
 | 실측 결과와 판단 | [trainings/](trainings/README.md) |
 | 테이블 | [plan/DATABASE.md](plan/DATABASE.md) · 개체 관계도 [plan/ERD.md](plan/ERD.md) |
@@ -164,7 +166,7 @@ docs/
 ## 빠른 링크
 
 - 기획 원본: [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)
-- **인수인계: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **할 일: [TASKS.md](TASKS.md)** · **전체 기능: [FEATURES.md](FEATURES.md)**
+- **인수인계: [AGENT_HANDOVER.md](AGENT_HANDOVER.md)** · **할 일: [TASKS.md](TASKS.md)** · **전체 기능: [FEATURES.md](FEATURES.md)** · **기능과 현황: [STATUS.md](STATUS.md)**
 - 저장소 라이선스·보안·제3자 고지: [../LICENSE](../LICENSE) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
 - 기여 순서: [../CONTRIBUTING.md](../CONTRIBUTING.md) · 에이전트 규칙 정본: [.agents/skills/codicomperchat/SKILL.md](../.agents/skills/codicomperchat/SKILL.md)
 - 현재 스택: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md)
