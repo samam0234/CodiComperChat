@@ -416,6 +416,9 @@ flowchart LR
 | 2026-11-07 | `e42f066` | feature/docs-final-update | 배포 뒤 확인 결과와 운영 비밀값 상태를 남은 문서에 반영 | [261107_0957_e42f066_postdeploy-security-status_feature-docs-final-update.md](commits/261107_0957_e42f066_postdeploy-security-status_feature-docs-final-update.md) |
 | 2026-11-07 | `7c853b1` | feature/docs-final-update | 소유자 체크리스트와 브랜치 지도에 2026-11-07 상태를 반영 | [261107_0958_7c853b1_owner-branchmap-status_feature-docs-final-update.md](commits/261107_0958_7c853b1_owner-branchmap-status_feature-docs-final-update.md) |
 | 2026-11-07 | `f9e425f` | claude/project-thread-pz0x5f | 병합 뒤 main 기준으로 배포 안내를 고친다 | [261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md](commits/261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md) |
+| 2026-11-07 | `6dfc0b3` | develop (merge) | feature/docs-final-update into develop | [261107_0958_6dfc0b3_merge-docs-final-update_develop.md](commits/261107_0958_6dfc0b3_merge-docs-final-update_develop.md) |
+| 2026-11-07 | `1b98333` | develop (merge) | origin/claude/project-thread-pz0x5f into develop | [261107_0958_1b98333_merge-pz0x5f-leftover_develop.md](commits/261107_0958_1b98333_merge-pz0x5f-leftover_develop.md) |
+| 2026-11-07 | `9b85c9a` | main (merge) | develop into main | [261107_0958_9b85c9a_merge-develop-main-docs-final_main.md](commits/261107_0958_9b85c9a_merge-develop-main-docs-final_main.md) |
 | 2026-11-07 | `2befb55` | feature/contributing | 기여 절차를 CONTRIBUTING에 모으다 | [261107_1001_2befb55_contributing-guide_feature-contributing.md](commits/261107_1001_2befb55_contributing-guide_feature-contributing.md) |
 | 2026-11-07 | `3ceae06` | develop (merge) | feature/contributing into develop (no-ff) | [261107_1002_3ceae06_merge-contributing_develop.md](commits/261107_1002_3ceae06_merge-contributing_develop.md) |
 | 2026-11-07 | `60df6ab` | feature/docs-gap-fill | 대화 모델 백엔드 두 가지와 호스팅 API일 때 나가는 데이터를 적는다 | [261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md](commits/261107_1412_60df6ab_ai-readme-llm-backends_feature-docs-gap-fill.md) |
@@ -432,5 +435,8 @@ flowchart LR
 | 2026-11-07 | `94848fd` | feature/docs-gap-fill | 라우트 대조 결과와 운영 Base URL을 API 문서에 적는다 | [261107_1416_94848fd_api-doc-route-audit_feature-docs-gap-fill.md](commits/261107_1416_94848fd_api-doc-route-audit_feature-docs-gap-fill.md) |
 | 2026-11-07 | `24057e3` | feature/docs-gap-fill | API 사용 문서에 운영 서버를 부르는 법과 주의를 더한다 | [261107_1416_24057e3_api-usage-production_feature-docs-gap-fill.md](commits/261107_1416_24057e3_api-usage-production_feature-docs-gap-fill.md) |
 | 2026-11-07 | `4d56c38` | feature/docs-gap-fill | 문서 보강으로 드러난 개인정보·성인 모드·모델 고르기·품질 빈틈을 인수인계에 남긴다 | [261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md](commits/261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md) |
+| 2026-11-07 | `ea1339d` | develop (merge) | feature/docs-gap-fill into develop | [261107_1416_ea1339d_merge-docs-gap-fill_develop.md](commits/261107_1416_ea1339d_merge-docs-gap-fill_develop.md) |
+| 2026-11-07 | `8a8ba49` | main (merge) | develop into main | [261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md](commits/261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md) |
+| 2026-11-07 | `75c3020` | feature/official-world | 공식 세계관 「코퍼 시티: 멈춘 시계탑」과 지도·장면 그림을 시드에 더한다 | [261107_1620_75c3020_official-world-copper-city_feature-official-world.md](commits/261107_1620_75c3020_official-world-copper-city_feature-official-world.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

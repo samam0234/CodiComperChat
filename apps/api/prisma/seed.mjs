@@ -105,9 +105,65 @@ async function main() {
       data: { portrait: new Uint8Array(data), portraitMime: 'image/webp' },
     });
   }
+
+  // 공식 캐릭터를 먼저 심어야 세계관 등장인물이 그들과 이어진다
+  await seedOfficialWorld();
 }
 
 const ASSETS = join(dirname(fileURLToPath(import.meta.url)), 'assets', 'portraits');
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+// 공식 세계관 (2026-11-07 사용자 요청: 시험용이면서 사이트 공식인 월드맵 하나)
+// 정본은 worlds/copper-city.json, 지도·장면 그림은 scripts/world-art/build.mjs가 같은 좌표로 굽는다.
+// 만든 사람이 없는(ownerId null) 공식 세계관이라 운영자만 내릴 수 있다. 이미 있으면 글은 건드리지 않고, 빠진 그림만 채운다.
+async function seedOfficialWorld() {
+  const doc = JSON.parse(readFileSync(join(HERE, 'worlds', 'copper-city.json'), 'utf8'));
+  const art = join(HERE, 'assets', 'worlds', 'copper-city');
+  const official = await prisma.character.findMany({ where: { ownerId: null, name: { in: doc.cast.map((c) => c.official).filter(Boolean) } }, select: { id: true, name: true } });
+  const idOf = new Map(official.map((c) => [c.name, c.id]));
+
+  let world = await prisma.world.findFirst({ where: { ownerId: null, title: doc.title }, select: { id: true, mapMime: true } });
+  if (!world) {
+    world = await prisma.world.create({
+      data: {
+        ownerId: null,
+        title: doc.title,
+        oneLiner: doc.oneLiner,
+        setting: doc.setting,
+        rules: doc.rules,
+        opening: doc.opening,
+        mode: doc.mode,
+        visibility: doc.visibility,
+        published: true,
+        places: { create: doc.places.map((p, order) => ({ name: p.name, x: p.x, y: p.y, note: p.note, order })) },
+        cast: {
+          create: doc.cast.map((c, order) => ({
+            name: c.name,
+            summary: c.summary,
+            speech: c.speech,
+            startPlace: c.startPlace,
+            homePlace: c.homePlace,
+            characterId: c.official ? (idOf.get(c.official) ?? null) : null,
+            order,
+          })),
+        },
+        parts: { create: doc.parts.map((p, order) => ({ title: p.title, goal: p.goal, opening: p.opening, order })) },
+      },
+      select: { id: true, mapMime: true },
+    });
+    console.log(`공식 세계관을 만들었다: ${doc.title}`);
+  }
+  if (!world.mapMime) {
+    await prisma.world.update({ where: { id: world.id }, data: { map: new Uint8Array(readFileSync(join(art, 'map.jpg'))), mapMime: 'image/jpeg' } });
+  }
+  for (const img of doc.images) {
+    const exists = await prisma.worldImage.findFirst({ where: { worldId: world.id, label: img.label }, select: { id: true } });
+    if (exists) continue;
+    await prisma.worldImage.create({
+      data: { worldId: world.id, label: img.label, character: img.character, mime: 'image/jpeg', data: new Uint8Array(readFileSync(join(art, `scene-${img.art}.jpg`))) },
+    });
+  }
+}
 
 const SEYEON = {
   name: '이세연',
