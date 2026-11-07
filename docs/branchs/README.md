@@ -395,5 +395,6 @@ flowchart LR
 | 2026-11-06 | `cecff1a` | claude/project-thread-po3i10 | Oracle 콘솔 화면 안내 페이지 추가 | [261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md](commits/261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md) |
 | 2026-11-06 | `4af9b40` | claude/project-thread-po3i10 | Oracle 가이드에 기존 VCN 선택·VCN 만들기 화면 추가 | [261106_1440_4af9b40_oracle-vcn-guide_claude-project-thread-po3i10.md](commits/261106_1440_4af9b40_oracle-vcn-guide_claude-project-thread-po3i10.md) |
 | 2026-11-06 | `c335479` | claude/project-thread-po3i10 | Oracle VM 원커맨드 부트스트랩 스크립트 추가 | [261106_1507_c335479_oracle-bootstrap_claude-project-thread-po3i10.md](commits/261106_1507_c335479_oracle-bootstrap_claude-project-thread-po3i10.md) |
+| 2026-11-07 | `f027a56` | develop (merge) | origin/claude/project-thread-po3i10 into develop | [261107_0912_f027a56_merge-vercel-web-ai-timeout_develop.md](commits/261107_0912_f027a56_merge-vercel-web-ai-timeout_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
