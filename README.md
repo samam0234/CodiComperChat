@@ -411,6 +411,8 @@ stateDiagram-v2
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
 | 스트리밍 응답, 본인인증 | | 없음 |
 
+이 표의 **동작**은 코드가 로컬에서 된다는 뜻이다. 공개 주소에서 지금 열리는 범위는 [docs/STATUS.md](docs/STATUS.md)에 따로 있다.
+
 **2026-11-07에 실제로 올렸습니다.** 웹은 Vercel(https://codicomperchat-web.vercel.app), API·DB·AI는 Oracle Cloud(https://api.168-110-61-178.sslip.io)에서 돕니다. 올린 과정과 막힌 곳 전부: [deploy-log-2026-11-07](docs/web_management/deploy-log-2026-11-07.md). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [소유자 체크리스트](docs/guidance/owner-checklist.md)에 있습니다.
 
 ## 구조

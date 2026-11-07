@@ -49,6 +49,8 @@ flowchart LR
   A --> G["diffusers<br/>Animagine · SD 1.5"]
 ```
 
+이 그림은 로컬 개발 모양이다. 지금 공개 주소에서 열리는 범위는 [STATUS.md](STATUS.md), 서버 값은 [web_management/oracle-backend.md](web_management/oracle-backend.md).
+
 ### 데이터 관계
 
 ```mermaid
@@ -117,11 +119,12 @@ erDiagram
 1. `.agents/skills/codicomperchat/SKILL.md` — 정본 규칙. **§0 원본 보존: 루트 `CodiComperChat_project_plan.md`는 사용자 승인 없이 수정하지 않는다.**
 2. 이 문서
 3. [TASKS.md](TASKS.md) — **다음에 할 일**(선행 조건·끝난 기준)
-4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험)
-5. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
-6. 프롬프트·판정·그림을 고치려면: [trainings/](trainings/README.md)
-7. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
-8. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
+4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험). 코드 기준이다
+5. [STATUS.md](STATUS.md) — **그 기능 중 지금 공개 주소에서 열리는 것**
+6. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
+7. 프롬프트·판정·그림을 고치려면: [trainings/](trainings/README.md)
+8. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
+9. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
 
 ## 3. 작업 약속 (사용자와 합의된 것)
 
