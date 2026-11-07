@@ -114,6 +114,7 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | Q04 | 웹툰 컷 사이 옷 색. 같은 시드로 머리와 얼굴은 비슷해졌지만 앞치마 색이 컷마다 다르다. 외모 태그에 옷 색을 넣는 방법을 본다 | 눈으로 비교함 | 같은 콘티의 컷을 눈으로 비교한 결과를 [plan/OPERATIONS.md](plan/OPERATIONS.md)에 적음 |
 | Q06 | 성인 모드 그림 가드가 애니메이션 그림을 잘못 막는 경우. 공개 서버는 성인 모드를 끄므로 켜기 전에 본다 | 2번 중 1번 잘못 막음(표본 작음) | `python -m evals.photonet_guard`를 여러 번 돌려 잘못 막는 비율을 재고 줄인다 |
 | Q07 | 좁은 화면(390px) 대화의 모델 고르기 칸이 눌려 글자가 안 보이고, 공방 AI 초상 칸이 좁다. README 화면을 찍다 발견했다 | 고치지 않음 | 좁은 화면 스크린샷으로 확인, e2e 통과 |
+| Q08 | **호스팅 31B 모델(NVIDIA `gemma-4-31b-it`)로 평가를 다시 돌린다.** 운영 대화가 이 모델로 나가는데 평가 11묶음과 프롬프트·판정은 `gemma4:e4b`로 맞췄다. 말투, 퀘스트 판정(잘못 통과 0), 개인사 환각, 월드 형식이 같은 기준을 넘는지 모른다 | 안 잼 | `LLM_BACKEND=openai`로 `python -m evals.run --repeat 2 -v`와 퀘스트 평가 2종, 결과를 [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md)에 적음. 미달이면 기준을 낮추지 않고 항목으로 남김 |
 | Q05 | SDXL 속도를 메모리가 넉넉한 상태에서 다시 잰다. 개발 PC는 남은 RAM이 약 400MB라 같은 작업이 29초에서 수 분까지 흔들렸다 | 원인 일부만 확인 | `evals.image_speed` 결과가 두 번 비슷하게 나옴 |
 
 ### 월드코퍼챗 (2026-11-06)
