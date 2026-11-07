@@ -459,5 +459,6 @@ flowchart LR
 | 2026-11-07 | `e50bd23` | feature/docs-live-status | 기능과 운영 현황을 나누는 문서를 추가 | [261107_2310_e50bd23_live-status-doc_feature-docs-live-status.md](commits/261107_2310_e50bd23_live-status-doc_feature-docs-live-status.md) |
 | 2026-11-07 | `e76020f` | feature/docs-live-status | 프로젝트 소개 화면을 기능 목록에 넣다 | [261107_2310_e76020f_features-project-page_feature-docs-live-status.md](commits/261107_2310_e76020f_features-project-page_feature-docs-live-status.md) |
 | 2026-11-07 | `02c1450` | feature/docs-live-status | 허브가 기능과 현황을 나눠 가리키게 하다 | [261107_2311_02c1450_hub-points-at-status_feature-docs-live-status.md](commits/261107_2311_02c1450_hub-points-at-status_feature-docs-live-status.md) |
+| 2026-11-07 | `d3e2ff4` | feature/docs-live-status | 안내의 테이블 수를 37개로 맞추다 | [261107_2311_d3e2ff4_db-table-count_feature-docs-live-status.md](commits/261107_2311_d3e2ff4_db-table-count_feature-docs-live-status.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
