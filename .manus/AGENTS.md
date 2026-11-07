@@ -7,7 +7,7 @@
 - 매 커밋마다 `docs/branchs/commits/`에 기록(`docs/branchs/TEMPLATE.md`) — 생략 금지.
 - 브랜치: `feature/*`에서 작업, `develop`/`main` 병합은 `--no-ff`만.
 - 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`), 프론트→FastAPI 직접 호출 금지.
-- 시작 전: `docs/AGENT_HANDOVER.md`(지금 상태·함정), `docs/TASKS.md`(할 일)를 읽는다.
+- 시작 전: `docs/AGENT_HANDOVER.md`(지금 상태·함정), `docs/TASKS.md`(할 일), `docs/STATUS.md`(코드에 있는 기능과 지금 열리는 범위)를 읽는다.
 - 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만 한다.
 - 사용자의 개발 서버를 켜거나 끄지 않는다. 켜져 있을 때 `npm run build:api`를 하지 않는다.
 - 시험을 통과시키려고 시간 제한을 늘리거나 건너뛰지 않는다.
