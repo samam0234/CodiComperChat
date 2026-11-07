@@ -11,6 +11,7 @@ import json
 import os
 import re
 
+from app.services.korean import fix_parenthetical_josa
 from app.schemas.world import (
     PartCheckRequest,
     PartCheckResponse,
@@ -176,6 +177,7 @@ def turn(request: WorldTurnRequest) -> WorldTurnResponse:
     result = parse_controls(raw.replace("{{user}}", user_name), request)
     if not result.reply:
         result.reply = "@: 잠시 정적이 흐른다."
+    result.reply = fix_parenthetical_josa(result.reply)
     return result
 
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { fillUser, parseChat, type Block, type Inline } from "@/lib/chat-format";
+import { fixParentheticalJosa } from "@/lib/korean-josa";
 import styles from "./chat-text.module.css";
 
 // 대화 글을 꾸며 그린다. 표기 규칙은 lib/chat-format.ts. 글을 HTML로 넣지 않고 React 요소로만 만든다
@@ -111,5 +112,5 @@ function block(b: Block, i: number): ReactNode {
 }
 
 export default function ChatText({ text, userName }: { text: string; userName: string }) {
-  return <div className={styles.root}>{parseChat(fillUser(text, userName)).map(block)}</div>;
+  return <div className={styles.root}>{parseChat(fillUser(fixParentheticalJosa(text), userName)).map(block)}</div>;
 }

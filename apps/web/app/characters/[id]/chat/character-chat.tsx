@@ -7,6 +7,7 @@ import CharacterAvatar from "@/components/character-avatar";
 import ChatInput from "@/components/chat-input";
 import ChatText from "@/components/chat-text";
 import ChoiceDialog from "@/components/choice-dialog";
+import { josa } from "@/lib/korean-josa";
 import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
@@ -32,6 +33,10 @@ type DisplayMessage = Turn & {
 };
 
 export type InitialMessage = { id: string; role: "user" | "character"; text: string; speaker: string | null };
+
+type Scene = { time: string | null; place: string | null };
+
+const RECENT_LINES = 12;
 
 type PersonaOption = { id: string; name: string };
 
@@ -88,6 +93,7 @@ export default function CharacterChat({
   characterName,
   portrait,
   initialMessages,
+  initialScene,
   personas,
   lockedPersona: initialLocked,
   savedCount: initialSavedCount,
@@ -103,6 +109,7 @@ export default function CharacterChat({
   portrait?: { hasPortrait: boolean; version?: string };
   // 서버에 저장된 이 캐릭터와의 지금 대화 (처음이면 시작 장면 하나)
   initialMessages: InitialMessage[];
+  initialScene?: Scene;
   personas: PersonaOption[];
   // 이 대화에 고정된 프로필. 첫 메시지 뒤로는 새로하기 전까지 바꿀 수 없다
   lockedPersona: PersonaOption | null;
@@ -121,6 +128,12 @@ export default function CharacterChat({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>(initialMessages);
+  const [scene, setScene] = useState<Scene>(initialScene ?? { time: null, place: null });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [rewriteId, setRewriteId] = useState<string | null>(null);
+  const [direction, setDirection] = useState("");
+  const [lineBusy, setLineBusy] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   // 대화 전에 반드시 직접 골라야 한다 — 기본값을 미리 채우지 않는다
@@ -153,6 +166,91 @@ export default function CharacterChat({
       label: `${m.role === "user" ? (m.speaker ?? "나") : characterName}: ${m.text.replace(/s+/g, " ").trim().slice(0, 40)}`,
     }));
   const lastCharacterLine = [...messages].reverse().find((m) => m.role === "character" && !m.error)?.text.replace(/s+/g, " ").trim() ?? "";
+  const recentIds = new Set(
+    messages
+      .filter((m) => typeof m.id === "string" && m.id !== "opening" && !m.error && !m.unsaved)
+      .slice(-RECENT_LINES)
+      .map((m) => String(m.id)),
+  );
+  const sceneLabel = [scene.place, scene.time].filter(Boolean).join(" · ");
+
+  const applyThread = (data: { messages?: InitialMessage[]; scene?: Scene }) => {
+    if (Array.isArray(data.messages)) {
+      setMessages(data.messages.map((m) => ({ id: m.id, role: m.role, text: m.text, speaker: m.speaker ?? null })));
+    }
+    if (data.scene) setScene(data.scene);
+  };
+
+  const editLine = async (messageId: string) => {
+    const content = draft.trim();
+    if (content === "" || lineBusy) return;
+    setLineBusy(messageId);
+    try {
+      const res = await fetch(`/api/characters/${characterId}/chat/messages/${encodeURIComponent(messageId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice({ ok: false, text: data.message ?? "메시지를 고치지 못했어요." });
+        return;
+      }
+      applyThread(data);
+      setEditingId(null);
+      setNotice({ ok: true, text: "메시지를 고쳤어요." });
+    } catch {
+      setNotice({ ok: false, text: "API에 연결할 수 없습니다." });
+    } finally {
+      setLineBusy(null);
+    }
+  };
+
+  const removeLine = async (messageId: string) => {
+    if (lineBusy || !window.confirm("이 메시지를 지울까요?")) return;
+    setLineBusy(messageId);
+    try {
+      const res = await fetch(`/api/characters/${characterId}/chat/messages/${encodeURIComponent(messageId)}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice({ ok: false, text: data.message ?? "메시지를 지우지 못했어요." });
+        return;
+      }
+      applyThread(data);
+      setNotice({ ok: true, text: "메시지를 지웠어요." });
+    } catch {
+      setNotice({ ok: false, text: "API에 연결할 수 없습니다." });
+    } finally {
+      setLineBusy(null);
+    }
+  };
+
+  const rewriteLine = async (messageId: string) => {
+    const text = direction.trim();
+    if (text === "" || lineBusy || !persona) return;
+    setLineBusy(messageId);
+    try {
+      const res = await fetch(`/api/characters/${characterId}/chat/messages/${encodeURIComponent(messageId)}/rewrite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ direction: text, personaId: persona.id, model }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice({ ok: false, text: data.message ?? "추천 방향으로 고치지 못했어요." });
+        return;
+      }
+      applyThread(data);
+      applyUsage(data);
+      setRewriteId(null);
+      setDirection("");
+      setNotice({ ok: true, text: "적은 방향으로 고쳤어요." });
+    } catch {
+      setNotice({ ok: false, text: "API에 연결할 수 없습니다." });
+    } finally {
+      setLineBusy(null);
+    }
+  };
 
   const startNew = async (save: boolean) => {
     setResetting(true);
@@ -164,6 +262,9 @@ export default function CharacterChat({
       return;
     }
     setMessages(result.data.messages);
+    setScene(result.data.scene ?? { time: null, place: null });
+    setEditingId(null);
+    setRewriteId(null);
     setLocked(null);
     setPersonaId("");
     setModel("basic");
@@ -285,9 +386,16 @@ export default function CharacterChat({
         setNotice({ ok: false, text: data.message ?? `명령을 처리하지 못했어요 (HTTP ${res.status})` });
         return;
       }
+      if (data.scene) setScene(data.scene);
       if (action === "undo") {
         setMessages(data.messages);
         setNotice({ ok: true, text: "마지막 내 말과 답을 되돌렸어요." });
+        return;
+      }
+      if (Array.isArray(data.messages)) {
+        setMessages(data.messages);
+        applyUsage(data);
+        setNotice(null);
         return;
       }
       applyUsage(data);
@@ -377,7 +485,9 @@ export default function CharacterChat({
 
       nextId.current += 1;
       if (res.ok) {
-        setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
+        if (Array.isArray(data.messages)) setMessages(data.messages);
+        else setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
+        if (data.scene) setScene(data.scene);
         applyUsage(data);
         // 첫 메시지가 저장되면 이 대화의 프로필로 고정된다 (서버도 같은 규칙으로 막는다)
         setLocked((current) => current ?? persona);
@@ -468,7 +578,12 @@ export default function CharacterChat({
       <div className={styles.chat}>
         <ChatMenu characterId={characterId} />
         <div className={styles.log} role="log" aria-live="polite" ref={logRef}>
-          {messages.map((message) => (
+          {sceneLabel && <p className={styles.sceneNow}>{sceneLabel}</p>}
+          {messages.map((message) => {
+            const messageId = typeof message.id === "string" ? message.id : "";
+            const canEdit = recentIds.has(messageId) && !sending;
+            const busy = lineBusy === messageId;
+            return (
             <div key={message.id} className={`${styles.row} ${message.role === "character" ? styles.rowCharacter : styles.rowUser}`}>
               {message.role === "character" && (
                 <CharacterAvatar characterId={characterId} name={characterName} hasPortrait={!!portrait?.hasPortrait} version={portrait?.version} size="sm" />
@@ -476,11 +591,77 @@ export default function CharacterChat({
               <div className={`${styles.message} ${styles[message.role]} ${message.error ? styles.error : ""}`}>
                 {message.role === "character" && <span className={styles.speaker}>{characterName}</span>}
                 {message.role === "user" && message.speaker && <span className={styles.userSpeaker}>{message.speaker}</span>}
-                {message.error ? message.text : <ChatText text={message.text} userName={persona?.name ?? "나"} />}
+                {editingId === messageId ? (
+                  <textarea className={styles.lineEdit} value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} maxLength={2000} />
+                ) : message.error ? (
+                  message.text
+                ) : (
+                  <ChatText text={message.text} userName={persona?.name ?? "나"} />
+                )}
                 {message.unsaved && <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>}
+                {canEdit && (
+                  <div className={styles.lineActions}>
+                    {editingId === messageId ? (
+                      <>
+                        <button type="button" className={styles.lineAction} disabled={busy} onClick={() => void editLine(messageId)}>저장</button>
+                        <button type="button" className={styles.lineAction} disabled={busy} onClick={() => setEditingId(null)}>취소</button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.lineAction}
+                        disabled={busy}
+                        onClick={() => {
+                          setRewriteId(null);
+                          setEditingId(messageId);
+                          setDraft(message.text);
+                        }}
+                      >
+                        수정
+                      </button>
+                    )}
+                    {rewriteId === messageId ? (
+                      <div className={styles.rewriteBox}>
+                        <label className={styles.rewriteLabel} htmlFor={`rewrite-${messageId}`}>변경사항 추천</label>
+                        <textarea
+                          id={`rewrite-${messageId}`}
+                          className={styles.lineEdit}
+                          value={direction}
+                          onChange={(event) => setDirection(event.target.value)}
+                          rows={2}
+                          maxLength={400}
+                          placeholder="어떤 방향으로 바꿀지 적어 주세요"
+                        />
+                        <div className={styles.lineActions}>
+                          <button type="button" className={styles.lineAction} disabled={busy || !persona} onClick={() => void rewriteLine(messageId)}>이 방향으로</button>
+                          <button type="button" className={styles.lineAction} disabled={busy} onClick={() => setRewriteId(null)}>닫기</button>
+                        </div>
+                      </div>
+                    ) : (
+                      editingId !== messageId && (
+                        <button
+                          type="button"
+                          className={styles.lineAction}
+                          disabled={busy}
+                          onClick={() => {
+                            setEditingId(null);
+                            setRewriteId(messageId);
+                            setDirection("");
+                          }}
+                        >
+                          변경사항 추천
+                        </button>
+                      )
+                    )}
+                    {editingId !== messageId && rewriteId !== messageId && (
+                      <button type="button" className={styles.lineAction} disabled={busy} onClick={() => void removeLine(messageId)}>삭제</button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+            );
+          })}
 
           {sending && (
             <div className={`${styles.row} ${styles.rowCharacter}`}>
@@ -491,7 +672,7 @@ export default function CharacterChat({
                   <span />
                   <span />
                 </span>
-                {characterName}가 답하는 중…
+                {josa(characterName, "이/가")} 답하는 중…
               </div>
             </div>
           )}

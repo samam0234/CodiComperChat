@@ -1,5 +1,6 @@
 // 캐릭터 페르소나 지식(RAG 원천) JSON 형식. 실제 파일은 apps/api/data/personas/ 에 두고
 // git에는 올리지 않는다(.gitignore). 형식 예시는 data/personas/_example.json.
+import { josa } from '../common/korean-josa.js';
 
 export const SCHEMA_VERSION = 1;
 
@@ -42,11 +43,11 @@ function fail(source: string, message: string): never {
 
 function str(value: unknown, source: string, label: string, max: number): string {
   if (typeof value !== 'string' || value.trim() === '') {
-    fail(source, `${label}은(는) 비어 있지 않은 문자열이어야 한다`);
+    fail(source, `${josa(label, '은/는')} 비어 있지 않은 문자열이어야 한다`);
   }
   const text = value.trim();
   if (text.length > max) {
-    fail(source, `${label}이(가) 너무 길다 (${text.length}자, 최대 ${max}자)`);
+    fail(source, `${josa(label, '이/가')} 너무 길다 (${text.length}자, 최대 ${max}자)`);
   }
   return text;
 }
@@ -77,7 +78,7 @@ export function parsePersonaKnowledge(raw: unknown, source: string): PersonaKnow
   const seen = new Set<string>();
   const chunks = data.chunks.map((item, i): PersonaChunk => {
     const at = `chunks[${i}]`;
-    if (typeof item !== 'object' || item === null) fail(source, `${at}은(는) 객체여야 한다`);
+    if (typeof item !== 'object' || item === null) fail(source, `${josa(at, '은/는')} 객체여야 한다`);
     const c = item as Record<string, unknown>;
 
     const id = str(c.id, source, `${at}.id`, 60);

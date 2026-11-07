@@ -217,6 +217,9 @@ model CampaignState {
   closedEvents        Json      @default("[]")
   /// 이 시각까지의 메시지는 이야기 상태(요약·친밀도·복선)에 반영했다
   digestedUntil       DateTime?
+  /// 지금 장면의 때와 곳. 대화 흐름에서 단서가 있을 때만 바꾸고, 비어 있으면 화면에 숨긴다
+  sceneTime           String?
+  scenePlace          String?
   /// 비밀 퀘스트 진행 { status: offered|done, at } — 아직 건네지 않았으면 비어 있다
   questState          Json?
   updatedAt           DateTime  @updatedAt
@@ -271,6 +274,8 @@ model MemoryChunk {
   campaignId String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   content    String
+  /// 유저가 직접 적은 장기 기억. 매 턴 맥락에 넣고, 상황과 맞을 때만 말하게 한다
+  pinned     Boolean  @default(false)
   createdAt  DateTime @default(now())
 
   @@index([campaignId, createdAt])
@@ -828,6 +833,9 @@ model WorldPlay {
   turnsSinceEvent    Int            @default(0)
   /// 방금 끝난 이벤트 결과 (다음 답에서 인물이 반응한다)
   eventNote          String?
+  /// 지금 장면의 때와 곳. 진행자 답과 유저 말에서 단서가 있을 때만 바꾼다
+  sceneTime          String?
+  scenePlace         String?
   storySoFar         String         @default("")
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt

@@ -161,8 +161,9 @@
   max-width: min(78%, 560px);
   padding: 10px 14px;
   border-radius: 18px 18px 4px 18px;
-  background: var(--gradient);
-  color: #fff;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
 }
 
 .MESSENGER .userBubble {

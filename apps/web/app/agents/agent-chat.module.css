@@ -73,8 +73,10 @@
 .user {
   align-self: flex-end;
   border-bottom-right-radius: 6px;
-  background: var(--gradient);
-  color: #ffffff;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .agent {

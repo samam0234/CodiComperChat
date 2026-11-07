@@ -1,6 +1,7 @@
 // 월드코퍼챗 (2026-11-06): 세계관 문서 검증, 공개 범위, 이벤트 미니게임 판정. 순수 함수만 둔다(시험하기 쉽게).
 // 미니게임 결과는 전부 서버가 정한다 — 화면에는 고를 것만 보내고, 숨긴 값(당첨 위치·커브·미로 출구 판정)은 setup에만 둔다.
 import { BadRequestException } from '@nestjs/common';
+import { josa } from '../common/korean-josa.js';
 import { CharacterVisibility, WorldEventKind, WorldMode } from '@prisma/client';
 
 export const WORLD_LIMITS = {
@@ -51,15 +52,15 @@ export type WorldDocument = {
 
 const text = (v: unknown, max: number, label: string): string => {
   if (v === undefined || v === null) return '';
-  if (typeof v !== 'string') throw new BadRequestException(`${label}은(는) 글이어야 해요.`);
+  if (typeof v !== 'string') throw new BadRequestException(`${josa(label, '은/는')} 글이어야 해요.`);
   const t = v.trim();
-  if (t.length > max) throw new BadRequestException(`${label}은(는) ${max}자 이하로 써 주세요.`);
+  if (t.length > max) throw new BadRequestException(`${josa(label, '은/는')} ${max}자 이하로 써 주세요.`);
   return t;
 };
 const list = (v: unknown, max: number, label: string): unknown[] => {
   if (v === undefined || v === null) return [];
   if (!Array.isArray(v)) throw new BadRequestException(`${label} 목록 형식이 맞지 않아요.`);
-  if (v.length > max) throw new BadRequestException(`${label}은(는) ${max}개까지예요.`);
+  if (v.length > max) throw new BadRequestException(`${josa(label, '은/는')} ${max}개까지예요.`);
   return v;
 };
 const record = (v: unknown): Record<string, unknown> => (typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
@@ -71,7 +72,7 @@ const percent = (v: unknown, label: string): number => {
 const unique = (names: string[], label: string) => {
   const seen = new Set<string>();
   for (const n of names) {
-    if (seen.has(n)) throw new BadRequestException(`${label} 이름 "${n}"이(가) 겹쳐요.`);
+    if (seen.has(n)) throw new BadRequestException(`${label} 이름 ${josa(`"${n}"`, '이/가')} 겹쳐요.`);
     seen.add(n);
   }
 };
@@ -92,7 +93,7 @@ export function parseWorldDocument(raw: unknown): WorldDocument {
   const placeNames = new Set(places.map((p) => p.name));
   const place = (v: unknown, who: string, label: string) => {
     const name = text(v, L.placeName, `${who} ${label}`);
-    if (name && !placeNames.has(name)) throw new BadRequestException(`${who}의 ${label} "${name}"이(가) 장소 목록에 없어요.`);
+    if (name && !placeNames.has(name)) throw new BadRequestException(`${who}의 ${label} ${josa(`"${name}"`, '이/가')} 장소 목록에 없어요.`);
     return name;
   };
   const cast: CastInput[] = list(o.cast, L.cast, '등장인물').map((c, i) => {
@@ -185,7 +186,7 @@ export function parseWorldSettings(raw: unknown, base: WorldSettings = DEFAULT_W
   const int = (v: unknown, fallback: number, min: number, max: number, label: string) => {
     if (v === undefined) return fallback;
     const n = Number(v);
-    if (!Number.isInteger(n) || n < min || n > max) throw new BadRequestException(`${label}은(는) ${min}~${max} 사이 정수예요.`);
+    if (!Number.isInteger(n) || n < min || n > max) throw new BadRequestException(`${josa(label, '은/는')} ${min}~${max} 사이 정수예요.`);
     return n;
   };
   const chance = o.eventChance === undefined ? base.eventChance : Number(o.eventChance);
@@ -364,7 +365,7 @@ export function resolveEvent(setup: EventSetup, input: unknown, rng: Rng, elapse
 export function eventNote(kind: WorldEventKind, won: boolean, reward: number, rewarded: boolean, userName: string): string {
   const result = won ? '이겼다' : '아쉽게 졌다';
   const prize = rewarded ? ` (보상 ${reward} 코레딧)` : '';
-  return `${userName}이(가) 갑자기 열린 ${EVENT_LABELS[kind]}에 참여해 ${result}${prize}`;
+  return `${josa(userName, '이/가')} 갑자기 열린 ${EVENT_LABELS[kind]}에 참여해 ${result}${prize}`;
 }
 
 // 한국 시각 날짜 (YYYY-MM-DD)

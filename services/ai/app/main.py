@@ -20,6 +20,7 @@ from app.routes import (
     photonet,
     portrait,
     remember,
+    rewrite,
     suggest,
     summarize,
     train,
@@ -57,6 +58,7 @@ app.include_router(infer.router)
 app.include_router(assist.router)
 app.include_router(suggest.router)
 app.include_router(remember.router)
+app.include_router(rewrite.router)
 app.include_router(summarize.router)
 app.include_router(critique_test.router)
 app.include_router(ground.router)

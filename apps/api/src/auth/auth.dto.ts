@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { josa } from '../common/korean-josa.js';
 
 export type SignupInput = {
   email: string;
@@ -28,7 +29,7 @@ function asRecord(body: unknown): Record<string, unknown> {
 
 function text(value: unknown, label: string): string {
   if (typeof value !== 'string') {
-    throw new BadRequestException(`${label}을(를) 입력해 주세요.`);
+    throw new BadRequestException(`${josa(label, '을/를')} 입력해 주세요.`);
   }
   return value;
 }

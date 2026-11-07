@@ -12,6 +12,7 @@ import re
 from app.schemas.context import Hook
 from app.schemas.summarize import RelationDelta, SummarizeRequest, SummarizeResponse
 from app.services import llm
+from app.services.korean import josa
 
 MAX_OUTPUT_TOKENS = 900
 # 한 번에 오를 수 있는 폭. 3번 오가는 동안 +8이면 "아주 큰 사건"이다
@@ -112,10 +113,10 @@ def _verify(request: SummarizeRequest, kind: str) -> bool:
     character = ctx.character.name
     if kind == "offer":
         speaker, role = character, "character"
-        condition = f"{character}이(가) 유저에게 다음 부탁을 실제로 꺼냈다: {quest.offer}"
+        condition = f"{josa(character, '이/가')} 유저에게 다음 부탁을 실제로 꺼냈다: {quest.offer}"
     else:
         speaker, role = user, "user"
-        condition = f"{user}(유저)이(가) 다음을 해냈다: {quest.objective}"
+        condition = f"{user}(유저)가 다음을 해냈다: {quest.objective}"
     lines = [f"{user if t.role == 'user' else character}: {t.text}" for t in request.session_turns]
     raw = llm.generate(
         system=VERIFY_SYSTEM,

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { particle } from "@/lib/korean-josa";
 import {
   MODE_LABELS,
   VISIBILITY_LABELS,
@@ -94,7 +95,7 @@ export default function WorldEditor({ initial }: { initial: WorldEdit }) {
   }
 
   async function remove() {
-    if (!confirm(`「${world.title}」을(를) 지울까요? 플레이 기록과 그림도 모두 사라져요.`)) return;
+    if (!confirm(`「${world.title}」${particle(world.title, "을/를")} 지울까요? 플레이 기록과 그림도 모두 사라져요.`)) return;
     const res = await fetch(api(world.id), { method: "DELETE" });
     if (!res.ok) return say("error", await message(res, "지우지 못했어요."));
     router.push("/worlds");

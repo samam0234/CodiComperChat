@@ -465,5 +465,10 @@ flowchart LR
 | 2026-11-07 | `d2e2346` | feature/readme-status-sync | 미리보기 배포와 공개 전을 나누다 | [261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md](commits/261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md) |
 | 2026-11-07 | `8acc868` | feature/readme-status-sync | 읽는 순서에 현황 문서를 넣다 | [261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md](commits/261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md) |
 | 2026-11-07 | `c677d61` | develop (merge) | feature/readme-status-sync into develop (no-ff) | [261107_2317_c677d61_merge-readme-status_develop.md](commits/261107_2317_c677d61_merge-readme-status_develop.md) |
+| 2026-11-07 | `63a2430` | main (merge) | develop into main (no-ff) | [261107_2317_63a2430_merge-develop-into-main-docs_main.md](commits/261107_2317_63a2430_merge-develop-into-main-docs_main.md) |
+| 2026-11-08 | `a3f0e29` | feature/chat-edit-memory | 괄호 조사를 받침에 맞게 고치다 | [261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md](commits/261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md) |
+| 2026-11-08 | `acd5167` | feature/chat-edit-memory | 내 말풍선 색을 맞추고 안내 글 잘림을 없애다 | [261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md](commits/261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md) |
+| 2026-11-08 | `d40ceba` | feature/chat-edit-memory | 최근 대사를 고치고 기억과 때·곳을 남기다 | [261108_0049_d40ceba_chat-edit-memory-scene_feature-chat-edit-memory.md](commits/261108_0049_d40ceba_chat-edit-memory-scene_feature-chat-edit-memory.md) |
+| 2026-11-08 | `99d1921` | feature/chat-edit-memory | 대사 수정·기억·때와 곳 경로를 적다 | [261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md](commits/261108_0049_99d1921_chat-tools-docs_feature-chat-edit-memory.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

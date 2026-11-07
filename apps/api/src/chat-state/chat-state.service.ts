@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { josa } from '../common/korean-josa.js';
 import type { Conversation } from '../conversations/conversations.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -61,9 +62,9 @@ export function parseStatePatch(body: unknown): Partial<ChatState> {
       patch[key] = null;
       continue;
     }
-    if (typeof raw !== 'string') throw new BadRequestException(`${label}은(는) 문자열이어야 합니다.`);
+    if (typeof raw !== 'string') throw new BadRequestException(`${josa(label, '은/는')} 문자열이어야 합니다.`);
     const text = raw.trim();
-    if (text.length > max) throw new BadRequestException(`${label}은(는) ${max}자 이하여야 합니다.`);
+    if (text.length > max) throw new BadRequestException(`${josa(label, '은/는')} ${max}자 이하여야 합니다.`);
     patch[key] = text === '' ? null : text;
   }
 

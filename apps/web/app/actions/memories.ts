@@ -34,6 +34,29 @@ export async function deleteMemory(_prev: FormState, formData: FormData): Promis
   return result.error ? { error: result.error } : { success: "기억을 지웠습니다." };
 }
 
+export async function createMemory(_prev: FormState, formData: FormData): Promise<FormState> {
+  const characterId = String(formData.get("characterId") ?? "");
+  const content = String(formData.get("content") ?? "");
+  const token = await getSessionToken();
+  const base = `/characters/${encodeURIComponent(characterId)}/chat/memories`;
+  if (!token) redirect(`/login?next=${encodeURIComponent(base)}`);
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${base}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+      cache: "no-store",
+    });
+  } catch {
+    return { error: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요." };
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) return { error: data?.message ?? `요청이 실패했습니다 (HTTP ${res.status}).` };
+  revalidatePath(base);
+  return { success: "기억을 적어 두었습니다. 대화할 때 상황에 맞으면 꺼내 씁니다." };
+}
+
 export async function refreshMemories(_prev: FormState, formData: FormData): Promise<FormState> {
   const characterId = String(formData.get("characterId") ?? "");
   const result = await call(characterId, "/refresh", "POST");

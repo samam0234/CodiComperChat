@@ -211,7 +211,8 @@ flowchart LR
 | 묶음 | 경로 | 하는 일 |
 |------|------|---------|
 | 대화 | `POST /infer` · `/suggest-replies` · `/ground-check` | 캐릭터 연기(`*행동*`·`@:` 나레이션), 대답 추천, 개인사 환각 검사 |
-| 이야기 상태 | `POST /summarize` · `/remember` | 요약·친밀도·복선, 장기 기억. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
+| 이야기 상태 | `POST /summarize` · `/remember` · `/notice-facts` | 요약·친밀도·복선, 장기 기억. `/notice-facts`는 유저가 밝힌 프로필·상대 설정만. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
+| 한 줄 다시 쓰기 | `POST /rewrite-line` | 메시지 한 줄을 유저가 적은 방향으로 고친다 |
 | 공방 | `POST /draft-field` · `/draft-quest` · `/critique-test` · `/moderate-image` | AI 초안·퀘스트 제작, 3턴 판정, 초상 검수 |
 | 오퍼레이션 | `POST /mind` · `/diary` · `/board-posts` · `/board-comments` | 속마음·일기·커뮤니티 |
 | 그림 | `GET /photonet/status` · `POST /photonet` · `/webtoon/plan` · `/webtoon/panel` | 장면 설계 → 프롬프트 조립 → 그림 엔진 → 그림 검수 |

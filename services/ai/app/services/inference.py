@@ -3,9 +3,10 @@ import re
 from app.schemas.context import ContextSlice
 from app.schemas.infer import InferRequest, InferResponse
 from app.services import llm
+from app.services.korean import fix_parenthetical_josa, josa
 from app.services.minors import minor_in
 
-MAX_OUTPUT_TOKENS = 1200
+MAX_OUTPUT_TOKENS = 800
 
 # 오퍼레이션 · 메시지: 대화 장면이 아니라 휴대폰 메신저로 주고받는 문자
 MESSAGE_STYLE = """지금은 장면 속 대화가 아니라 휴대폰 메신저로 주고받는 문자다. 위의 "2~4문장" 대신 아래를 따른다.
@@ -231,7 +232,7 @@ def _build_system_prompt(context: ContextSlice) -> str:
     if context.retrieved_memories:
         memories = "\n".join(f"- {m.text}" for m in context.retrieved_memories)
         lines.append(
-            "지난 대화에서 쌓인 기억(이 유저와 실제로 있었던 일이다. 사실로 다루고, 자연스러울 때 꺼내 쓴다):\n"
+            "장기 기억(매 턴 참고하되, 지금 말과 맞을 때만 자연스럽게 꺼낸다. 목록을 줄줄 말하지 않는다):\n"
             + memories
         )
 
@@ -257,13 +258,17 @@ def _build_system_prompt(context: ContextSlice) -> str:
     # 호칭은 카드 규칙과 부딪힌다. 뒤에 둘수록 작은 모델이 잘 따르므로 규칙 바로 앞에 둔다
     if context.address_override:
         lines.append(
-            f"호칭: 이 대화에서는 유저를 반드시 '{context.address_override}'(이)라고 부른다. "
+            f"호칭: 이 대화에서는 유저를 반드시 {josa(context.address_override, '이라고/라고')} 부른다. "
             "캐릭터 설정의 호칭 규칙보다 이것이 우선한다. 호칭은 문장마다 넣지 말고 자연스러울 때만 쓴다. "
             "호칭만 바뀌는 것이고 말투(존댓말·반말)는 바꾸지 않는다 — 예: 존댓말 캐릭터라면 "
             f"'{context.address_override}, 오늘은 이것부터 봐요'처럼 호칭 뒤에도 존댓말을 쓴다."
         )
 
     # 작은 로컬 모델은 프롬프트 끝의 지시를 가장 잘 따른다. 흐름과 환각 방지 규칙은 맨 끝에 둔다
+    lines.append(
+        "주고받기: 유저가 방금 한 말에 먼저 반응하고, 그 말을 받아 한두 걸음만 이어 간다. "
+        "설명이나 독백을 길게 늘어놓지 않는다. 기억은 지금 말과 맞을 때만 자연스럽게 쓰고, 기억 목록을 읊지 않는다."
+    )
     lines.append(GROUNDING_RULES)
     if context.extras:
         lines.append(_extras_directive(context))
@@ -334,4 +339,4 @@ def run(request: InferRequest) -> InferResponse:
         model=request.model,
         provider=request.provider,
     )
-    return InferResponse(reply=reply)
+    return InferResponse(reply=fix_parenthetical_josa(reply))

@@ -7,6 +7,7 @@ import {
   Headers,
   HttpCode,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { RateLimit } from '../security/rate-limit.js';
@@ -102,6 +103,45 @@ export class CharacterChatController {
   @RateLimit('chat')
   continueScene(@Param('id') id: string, @Body() body: ChatBody, @Headers('authorization') authorization?: string) {
     return this.characterChatService.continueScene(id, { personaId: requirePersonaId(body?.personaId), model: modelOf(body), authorization });
+  }
+
+  // 최근 메시지 한 줄을 고친다 { content }
+  @Patch('messages/:messageId')
+  editMessage(
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+    @Body() body: { content?: unknown },
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.characterChatService.editMessage(id, messageId, body?.content, authorization);
+  }
+
+  // 최근 메시지 한 줄을 지운다
+  @Delete('messages/:messageId')
+  @HttpCode(200)
+  deleteMessage(
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.characterChatService.deleteMessage(id, messageId, authorization);
+  }
+
+  // 유저가 적은 방향으로 최근 메시지 한 줄을 다시 쓴다 { direction, personaId, model? }
+  @Post('messages/:messageId/rewrite')
+  @HttpCode(200)
+  @RateLimit('chat')
+  rewriteMessage(
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+    @Body() body: ChatBody & { direction?: unknown },
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.characterChatService.rewriteMessage(id, messageId, body?.direction, {
+      personaId: requirePersonaId(body?.personaId),
+      model: modelOf(body),
+      authorization,
+    });
   }
 
   // 대화 명령어 /되돌리기: 마지막 내 말과 그 답을 지운다

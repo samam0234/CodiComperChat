@@ -131,6 +131,8 @@ export type PlayState = {
     finished: boolean;
     turns: number;
     locations: Record<string, string>;
+    sceneTime?: string | null;
+    scenePlace?: string | null;
     messages: PlayMessage[];
     event: OpenEvent | null;
   };
