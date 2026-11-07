@@ -1,11 +1,13 @@
 # Docker 토폴로지
 
-저장소에는 compose가 두 개 있다.
+저장소에는 compose가 네 개 있다. 지금 실제로 돌고 있는 것은 `deploy/oracle/` 두 파일이다(2026-11-07).
 
 | 파일 | 용도 | 서비스 |
 |------|------|--------|
 | `docker-compose.yml` | 로컬 개발 보조 | `postgres`(설치형이 없을 때만), `mailpit` |
-| `deploy/docker-compose.prod.yml` | 운영 (2026-11-03) | 아래 |
+| `deploy/docker-compose.prod.yml` | 운영 목표: NVIDIA GPU 서버 한 대 (2026-11-03) | 아래 "운영 구성" |
+| `deploy/oracle/docker-compose.yml` | **지금 운영 중**: Oracle ARM VM의 백엔드 | `caddy`, `api`, `migrate`, `postgres` |
+| `deploy/oracle/docker-compose.ai.yml` | 위에 덧붙인다: CPU AI | `ai`(FastAPI, CPU 이미지), `ollama` |
 
 ![운영 배포 구성](../.assets/readme/deploy-topology.png)
 
@@ -96,3 +98,29 @@ flowchart LR
 ## 월드코퍼챗과 구성 (2026-11-06)
 
 새 컨테이너는 없다. 월드코퍼챗은 기존 `api`(Nest)·`ai`(FastAPI)·`web`·`console`·`db` 안에서 돈다. 진행자와 파트 판정은 같은 Ollama 모델을 쓰고, AI 대기열(동시 수 제한)을 1:1 대화와 나눠 쓴다. 장면 그림·지도는 DB에 들어가 `db` 볼륨이 커진다(세계관당 최대 약 12MB).
+
+## 지금 운영 중인 구성 (Oracle + Vercel, 2026-11-07)
+
+```mermaid
+flowchart LR
+  U(("이용자")) -->|"HTTPS"| V["Vercel<br/>web (Next.js)"]
+  V -->|"HTTPS + X-Web-Proxy-Token"| CA
+  subgraph VM["Oracle A1.Flex · 2 OCPU · 12GB · 스왑 4GB"]
+    subgraph edge["edge 망"]
+      CA["caddy :80 :443<br/>api.168-110-61-178.sslip.io"]
+    end
+    subgraph internal["internal 망"]
+      API["api :4000"] --> PG[("postgres<br/>볼륨 postgres_data")]
+      MIG["migrate<br/>기동 때 한 번"] --> PG
+      API -->|"X-AI-Token"| AI["ai :8000 (CPU)"]
+      AI --> OL["ollama<br/>볼륨 ollama_models"]
+    end
+    CA --> API
+  end
+  AI -->|"OpenAI 호환"| NIM["NVIDIA 호스팅 API"]
+```
+
+- `api`는 `edge`와 `internal` 둘 다에 붙는다(caddy가 부른다). 바깥에 열리는 것은 caddy의 80·443뿐이다.
+- 다시 띄울 때는 두 파일을 함께 준다: `docker compose --env-file deploy/oracle/.env -f deploy/oracle/docker-compose.yml -f deploy/oracle/docker-compose.ai.yml up -d --build`. 하나만 주면 `ai`·`ollama`가 고아 컨테이너로 남는다.
+- 그림 엔진은 GPU가 없어 잠긴다. 운영 콘솔은 아직 이 API에 연결되지 않았다.
+- 절차와 상태: [../web_management/oracle-backend.md](../web_management/oracle-backend.md), 과정: [../web_management/deploy-log-2026-11-07.md](../web_management/deploy-log-2026-11-07.md).
