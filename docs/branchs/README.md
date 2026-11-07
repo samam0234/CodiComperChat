@@ -390,5 +390,10 @@ flowchart LR
 | 2026-11-07 | `b85ac64` | claude/project-thread-pz0x5f | Oracle 서버 배포 상태를 문서에 반영 | [261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md](commits/261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md) |
 | 2026-11-07 | `0235ccc` | develop (merge) | claude/project-thread-pz0x5f into develop | [261107_0902_0235ccc_merge-ai-oracle-deploy_develop.md](commits/261107_0902_0235ccc_merge-ai-oracle-deploy_develop.md) |
 | 2026-11-07 | `a1d87be` | main (merge) | develop into main | [261107_0902_a1d87be_merge-develop-main-ai-oracle_main.md](commits/261107_0902_a1d87be_merge-develop-main-ai-oracle_main.md) |
+| 2026-11-06 | `fae510e` | claude/project-thread-po3i10 | Ollama 타임아웃 방지와 Vercel·Oracle·GPU 노드 배포 구성 추가 | [261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md](commits/261106_1311_fae510e_deploy-split-timeout_claude-project-thread-po3i10.md) |
+| 2026-11-06 | `9f5eb22` | claude/project-thread-po3i10 | PC 없이 무료로 24시간 돌리는 무료 호스팅 API 백엔드와 예비 Ollama 추가 | [261106_1401_9f5eb22_free-api-ai-backend_claude-project-thread-po3i10.md](commits/261106_1401_9f5eb22_free-api-ai-backend_claude-project-thread-po3i10.md) |
+| 2026-11-06 | `cecff1a` | claude/project-thread-po3i10 | Oracle 콘솔 화면 안내 페이지 추가 | [261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md](commits/261106_1414_cecff1a_oracle-console-guide_claude-project-thread-po3i10.md) |
+| 2026-11-06 | `4af9b40` | claude/project-thread-po3i10 | Oracle 가이드에 기존 VCN 선택·VCN 만들기 화면 추가 | [261106_1440_4af9b40_oracle-vcn-guide_claude-project-thread-po3i10.md](commits/261106_1440_4af9b40_oracle-vcn-guide_claude-project-thread-po3i10.md) |
+| 2026-11-06 | `c335479` | claude/project-thread-po3i10 | Oracle VM 원커맨드 부트스트랩 스크립트 추가 | [261106_1507_c335479_oracle-bootstrap_claude-project-thread-po3i10.md](commits/261106_1507_c335479_oracle-bootstrap_claude-project-thread-po3i10.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

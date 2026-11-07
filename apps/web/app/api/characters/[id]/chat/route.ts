@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
+// AI 답을 기다리는 중계라 함수 시간을 최대로 둔다 (app/layout.tsx의 maxDuration과 같은 이유)
+export const maxDuration = 300;
+
 // Nest로 넘기기만 하는 얇은 중계다. 추론은 하지 않는다 (계획서 §7.1).
 // 로그인 토큰은 httpOnly 쿠키에서 서버가 꺼내 붙인다 — 브라우저 JS는 토큰을 모른다.
 export async function POST(

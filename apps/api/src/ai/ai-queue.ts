@@ -106,4 +106,10 @@ export function concurrencyFromEnv(): number {
   return Number.isInteger(n) && n >= 1 ? n : 2;
 }
 
-export const aiQueue = new AiQueue({ concurrency: concurrencyFromEnv() });
+// 기다리는 답이 대기열에서 기다릴 수 있는 시간(ms). 느린 서버(CPU·큰 모델)에서는 한 답이 오래 걸려 앞사람을 기다리는 시간도 길다
+export function maxWaitFromEnv(): number {
+  const n = Number(process.env.AI_QUEUE_WAIT_MS ?? 60_000);
+  return Number.isFinite(n) && n > 0 ? n : 60_000;
+}
+
+export const aiQueue = new AiQueue({ concurrency: concurrencyFromEnv(), maxWaitMs: maxWaitFromEnv() });
