@@ -438,5 +438,6 @@ flowchart LR
 | 2026-11-07 | `ea1339d` | develop (merge) | feature/docs-gap-fill into develop | [261107_1416_ea1339d_merge-docs-gap-fill_develop.md](commits/261107_1416_ea1339d_merge-docs-gap-fill_develop.md) |
 | 2026-11-07 | `8a8ba49` | main (merge) | develop into main | [261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md](commits/261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md) |
 | 2026-11-07 | `dfabbc3` | feature/portfolio | 포트폴리오 폴더와 콘텐츠 정본·데이터 생성기를 만든다 | [261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md](commits/261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md) |
+| 2026-11-07 | `ec3b9dc` | feature/portfolio | Flask AI 가이드 챗봇을 LangChain·LangGraph·BM25 RAG로 만든다 | [261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md](commits/261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
