@@ -201,7 +201,7 @@ MERMAID = """flowchart LR
   R -- 프로젝트 --> C[condense]
   C --> RT[retrieve<br/>BM25 2-gram]
   RT --> GR{grade}
-  GR -- 근거 있음 --> GEN[generate<br/>gemma4:12b]
+  GR -- 근거 있음 --> GEN[generate<br/>gemma4:e4b]
   GR -- 근거 없음 --> N[no_context]
   G --> E([답])
   GEN --> E
