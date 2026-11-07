@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
+// AI 답을 기다리는 중계라 함수 시간을 최대로 둔다 (app/layout.tsx의 maxDuration과 같은 이유)
+export const maxDuration = 300;
+
 // 대화 명령어(/다시·/계속·/되돌리기)를 Nest로 넘기기만 하는 얇은 중계다. 정해 둔 이름만 받는다
 const ACTIONS = new Set(["regenerate", "continue", "undo"]);
 

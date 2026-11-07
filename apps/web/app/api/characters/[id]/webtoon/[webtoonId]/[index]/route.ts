@@ -1,5 +1,8 @@
 import { API_BASE_URL, getSessionToken } from "@/lib/auth";
 
+// AI 답을 기다리는 중계라 함수 시간을 최대로 둔다 (app/layout.tsx의 maxDuration과 같은 이유)
+export const maxDuration = 300;
+
 // 웹툰 컷 그림 중계. 브라우저의 <img>는 Authorization 헤더를 못 붙이므로 로그인 쿠키의 토큰을 서버가 꺼내 붙인다 —
 // 그 대화를 하는 사람에게만 보인다 (Nest가 확인한다, 성인 웹툰은 성인 확인이 살아 있을 때만)
 export async function GET(

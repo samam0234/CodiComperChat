@@ -6,6 +6,7 @@
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
 | 지금 올라가 있는 서버(Oracle) | [web_management/oracle-backend.md](web_management/oracle-backend.md), [web_management/ai-deploy-handover.md](web_management/ai-deploy-handover.md) |
+| (대안, 서버에 안 올림) Vercel 웹 + Oracle 한 compose 구성 | [web_management/deploy-guide.html](web_management/deploy-guide.html), [web_management/oracle-console-guide.html](web_management/oracle-console-guide.html). 이 안내와 `deploy/oracle/bootstrap.sh`는 다른 compose(프록시 토큰 `WEB_PROXY_TOKEN` 포함)를 전제로 쓰였다. 지금 서버의 `deploy/oracle/docker-compose.yml`과 맞지 않으니 그대로 돌리지 않는다. Vercel에 웹을 올릴 때 참고 |
 | 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |
 | 서버에 올리기 (절차·서버 조건·실측) | [web_management/docker-deploy.md](web_management/docker-deploy.md) |
 | 올리기 전 체크 | [web_management/pre-deploy.md](web_management/pre-deploy.md) |

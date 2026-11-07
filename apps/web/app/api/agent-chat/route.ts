@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/auth";
 import { forwardedFor } from "@/lib/client-ip";
 
+// AI 답을 기다리는 중계라 함수 시간을 최대로 둔다 (app/layout.tsx의 maxDuration과 같은 이유)
+export const maxDuration = 300;
+
 // Nest로 넘기기만 하는 얇은 중계다. 추론을 여기서 하지 않는다 (계획서 §7.1).
 // 브라우저에 API 주소를 노출하지 않으려고 둔 것이다.
 export async function POST(request: Request) {
