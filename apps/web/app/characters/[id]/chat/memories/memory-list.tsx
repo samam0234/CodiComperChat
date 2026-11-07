@@ -2,12 +2,13 @@
 
 import { useActionState } from "react";
 import type { FormState } from "@/app/actions/auth";
-import { deleteMemory, refreshMemories } from "@/app/actions/memories";
+import { createMemory, deleteMemory, refreshMemories } from "@/app/actions/memories";
 import form from "@/components/form.module.css";
+import { josa } from "@/lib/korean-josa";
 import { formatDay } from "@/lib/format-time";
 import styles from "../subpage.module.css";
 
-type Memory = { id: string; content: string; createdAt: string };
+type Memory = { id: string; content: string; pinned?: boolean; createdAt: string };
 
 function Status({ state }: { state: FormState }) {
   if (state?.error) return <p className={form.error} role="alert">{state.error}</p>;
@@ -21,7 +22,7 @@ function MemoryItem({ characterId, memory }: { characterId: string; memory: Memo
     <li className={styles.memory}>
       <p className={styles.memoryText}>{memory.content}</p>
       <div className={styles.memoryMeta}>
-        <span>{formatDay(memory.createdAt)}</span>
+        <span>{memory.pinned ? "직접 적음" : "자동"} · {formatDay(memory.createdAt)}</span>
         <form action={action}>
           <input type="hidden" name="characterId" value={characterId} />
           <input type="hidden" name="memoryId" value={memory.id} />
@@ -47,9 +48,31 @@ export default function MemoryList({
   started: boolean;
 }) {
   const [state, action, pending] = useActionState(refreshMemories, undefined);
+  const [writeState, write, writing] = useActionState(createMemory, undefined);
 
   return (
     <>
+      {started && (
+        <form action={write} className={styles.writer}>
+          <label className={styles.writerLabel} htmlFor="memory-note">
+            직접 기억 적기
+          </label>
+          <textarea
+            id="memory-note"
+            name="content"
+            className={styles.writerInput}
+            rows={3}
+            maxLength={200}
+            required
+            placeholder="이 대화에서 오래 기억할 사실을 적어 주세요. 매 턴 불러 오되, 상황이 맞을 때만 말합니다."
+          />
+          <input type="hidden" name="characterId" value={characterId} />
+          <button type="submit" className={form.secondary} disabled={writing}>
+            {writing ? "적는 중…" : "기억에 남기기"}
+          </button>
+          <Status state={writeState} />
+        </form>
+      )}
       <div className={styles.toolbar}>
         <span className={styles.count}>기억 {memories.length}개</span>
         {started && (
@@ -66,8 +89,8 @@ export default function MemoryList({
       {memories.length === 0 ? (
         <p className={styles.empty}>
           {started
-            ? `아직 ${characterName}가 기억하는 내용이 없습니다. 대화가 3번 오갈 때마다 자동으로 정리되고, "지금 정리하기"로 바로 정리할 수도 있어요.`
-            : `${characterName}와 대화를 시작하면 기억이 쌓이기 시작합니다.`}
+            ? `아직 ${josa(characterName, "이/가")} 기억하는 내용이 없습니다. 위에서 직접 적거나, 대화가 쌓이면 자동으로 정리됩니다.`
+            : `${josa(characterName, "과/와")} 대화를 시작하면 기억이 쌓이기 시작합니다.`}
         </p>
       ) : (
         <ul className={styles.memories}>

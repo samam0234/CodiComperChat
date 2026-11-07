@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { postToAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -7,9 +7,11 @@ import { CampaignStoryService } from '../campaign-state/campaign-story.service.j
 import { QuestsService } from '../quests/quests.service.js';
 import { ChatStateService } from '../chat-state/chat-state.service.js';
 import { CharactersService } from '../characters/characters.service.js';
+import { fixParentheticalJosa } from '../common/korean-josa.js';
 import {
   ConversationsService,
   DISPLAY_MESSAGES,
+  RECENT_EDIT_COUNT,
   type Conversation,
   type LockedPersona,
 } from '../conversations/conversations.service.js';
@@ -20,6 +22,7 @@ import { ModelsService, type Ticket } from '../models/models.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
+import { noticeScene, type Scene } from './scene.js';
 import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from './grounding.js';
 import type { ChatTurn } from './character-chat.types.js';
 
@@ -29,6 +32,10 @@ type Prepared = Awaited<ReturnType<CharacterChatService['prepare']>>;
 
 // /계속: 유저가 말하지 않았다는 장면 지시. 괄호 속 말은 유저의 장면 지시로 읽게 해 두었다 (services/ai inference.py)
 const CONTINUE_TURN = '(아무 말 없이 기다린다. 방금 장면에서 자연스럽게 이어서 계속해 줘)';
+const MESSAGE_LIMIT = 2000;
+const DIRECTION_LIMIT = 400;
+
+const EMPTY_SCENE: Scene = { time: null, place: null };
 
 @Injectable()
 export class CharacterChatService {
@@ -107,6 +114,7 @@ export class CharacterChatService {
         model: DEFAULT_MODEL_ID,
         persona: null,
         savedCount,
+        scene: EMPTY_SCENE,
         messages: [{ id: 'opening', role: 'character', text: character.openingScene, speaker: null }],
       };
     }
@@ -115,6 +123,7 @@ export class CharacterChatService {
       model: findModel(conversation.chatModel) ? conversation.chatModel : DEFAULT_MODEL_ID,
       persona: conversation.persona ? { id: conversation.persona.id, name: conversation.persona.name } : null,
       savedCount,
+      scene: await this.readScene(conversation.campaignId),
       messages: await this.conversations.messages(conversation.sessionId, DISPLAY_MESSAGES),
     };
   }
@@ -225,8 +234,8 @@ export class CharacterChatService {
     try {
       const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime, provider: model.provider });
       // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
-      const reply = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime, model.provider);
-      return { reply, ticket };
+      const grounded = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime, model.provider);
+      return { reply: fixParentheticalJosa(grounded), ticket };
     } catch (error) {
       await this.models.release(userId, ticket);
       throw error;
@@ -234,11 +243,20 @@ export class CharacterChatService {
   }
 
   // 답을 저장한 뒤: 대화가 충분히 쌓였으면 뒤에서 기억·이야기 상태(지난 이야기 요약·친밀도·복선)를 정리한다 (답 속도에 영향 없음)
-  private async finish(prep: Prepared, conversation: Conversation, reply: string, ticket: Ticket) {
+  private async finish(prep: Prepared, conversation: Conversation, reply: string, ticket: Ticket, userTurn: string | null) {
     const { character, persona, userId } = prep;
-    this.memories.memorizeInBackground(conversation, { characterName: character.name, userName: persona.name });
+    const names = { characterName: character.name, userName: persona.name };
+    const scene = await this.observeScene(conversation.campaignId, `${userTurn ?? ''}\n${reply}`);
+    this.memories.memorizeInBackground(conversation, names);
+    if (userTurn) this.memories.noticeInBackground(conversation, names, userTurn, reply);
     this.story.digestInBackground(conversation, { character, persona });
-    return { reply, model: ticket.model.id, ...(await this.models.usage(userId, ticket)) };
+    return {
+      reply,
+      scene,
+      messages: await this.conversations.messages(conversation.sessionId, DISPLAY_MESSAGES),
+      model: ticket.model.id,
+      ...(await this.models.usage(userId, ticket)),
+    };
   }
 
   async send(characterId: string, userTurn: string, options: SendOptions) {
@@ -247,7 +265,7 @@ export class CharacterChatService {
     // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
     const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
     await this.conversations.appendExchange(conversation, userTurn, prep.persona.name, reply);
-    return this.finish(prep, conversation, reply, ticket);
+    return this.finish(prep, conversation, reply, ticket, userTurn);
   }
 
   // /다시: 마지막 내 말에 대한 답을 새로 쓴다 (이전 답은 지운다)
@@ -260,7 +278,7 @@ export class CharacterChatService {
     const { reply, ticket } = await this.compose({ ...prep, history }, last.userText, options.model);
     const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
     await this.conversations.replaceReplies(conversation, last.replyIds, reply);
-    return this.finish(prep, conversation, reply, ticket);
+    return this.finish(prep, conversation, reply, ticket, last.userText);
   }
 
   // /계속: 내가 말하지 않고 캐릭터가 장면을 이어 간다
@@ -270,7 +288,7 @@ export class CharacterChatService {
     const { reply, ticket } = await this.compose(prep, CONTINUE_TURN, options.model);
     const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
     await this.conversations.appendReply(conversation, reply);
-    return this.finish(prep, conversation, reply, ticket);
+    return this.finish(prep, conversation, reply, ticket, null);
   }
 
   // /되돌리기: 마지막 내 말과 그 뒤의 답을 지운다. 이미 정리된 기억은 그대로 둔다
@@ -281,6 +299,96 @@ export class CharacterChatService {
     const removed = conversation ? await this.conversations.undoLast(conversation) : 0;
     if (removed === 0) throw new ConflictException('되돌릴 대화가 없어요.');
     return { removed, ...(await this.history(characterId, authorization)) };
+  }
+
+  async editMessage(characterId: string, messageId: string, raw: unknown, authorization?: string) {
+    const content = this.cleanLine(raw);
+    const { conversation } = await this.recentMessage(characterId, messageId, authorization);
+    await this.conversations.updateMessage(conversation, messageId, content);
+    return this.history(characterId, authorization);
+  }
+
+  async deleteMessage(characterId: string, messageId: string, authorization?: string) {
+    const { conversation } = await this.recentMessage(characterId, messageId, authorization);
+    await this.conversations.deleteMessage(conversation, messageId);
+    return this.history(characterId, authorization);
+  }
+
+  // 유저가 적은 방향으로 그 메시지 한 줄을 다시 쓴다
+  async rewriteMessage(characterId: string, messageId: string, rawDirection: unknown, options: SendOptions) {
+    const direction = typeof rawDirection === 'string' ? rawDirection.trim() : '';
+    if (direction === '') throw new BadRequestException('어떤 방향으로 바꿀지 적어 주세요.');
+    if (direction.length > DIRECTION_LIMIT) throw new BadRequestException(`방향은 ${DIRECTION_LIMIT}자 이하로 적어 주세요.`);
+    const prep = await this.prepare(characterId, options);
+    if (!prep.conversation) throw new ConflictException('먼저 말을 걸어 주세요.');
+    const { message } = await this.recentMessage(characterId, messageId, options.authorization);
+    const model = options.model
+      ? await this.models.authorize(prep.userId, options.model)
+      : await this.models.usableOrDefault(prep.userId, prep.conversation.chatModel);
+    const ticket = await this.models.reserve(prep.userId, model);
+    try {
+      const speakerName = message.role === 'USER' ? (message.speaker ?? prep.persona.name) : prep.character.name;
+      const { text } = await postToAi<{ text: string }>('/rewrite-line', {
+        characterName: prep.character.name,
+        speakerName,
+        role: message.role === 'USER' ? 'user' : 'character',
+        original: message.content,
+        direction,
+        model: model.runtime,
+        provider: model.provider,
+      });
+      const next = fixParentheticalJosa(text).trim();
+      if (next === '') throw new ConflictException('바꾼 문장을 받지 못했어요. 다시 시도해 주세요.');
+      await this.conversations.updateMessage(prep.conversation, messageId, next.slice(0, MESSAGE_LIMIT));
+      return {
+        text: next.slice(0, MESSAGE_LIMIT),
+        ...(await this.history(characterId, options.authorization)),
+        model: ticket.model.id,
+        ...(await this.models.usage(prep.userId, ticket)),
+      };
+    } catch (error) {
+      await this.models.release(prep.userId, ticket);
+      throw error;
+    }
+  }
+
+  private cleanLine(raw: unknown): string {
+    const content = typeof raw === 'string' ? fixParentheticalJosa(raw).trim() : '';
+    if (content === '') throw new BadRequestException('내용을 적어 주세요.');
+    if (content.length > MESSAGE_LIMIT) throw new BadRequestException(`메시지는 ${MESSAGE_LIMIT}자 이하로 적어 주세요.`);
+    return content;
+  }
+
+  private async recentMessage(characterId: string, messageId: string, authorization?: string) {
+    const userId = await this.resolveUser(authorization);
+    await this.charactersService.findOnePublished(characterId, userId);
+    const conversation = await this.conversations.find(userId, characterId);
+    if (!conversation) throw new NotFoundException('대화를 찾을 수 없습니다.');
+    const recent = await this.conversations.recentMessageIds(conversation.sessionId, RECENT_EDIT_COUNT);
+    if (!recent.has(messageId)) throw new ConflictException('최근 대화만 고치거나 지울 수 있어요.');
+    const message = await this.conversations.findSessionMessage(conversation.sessionId, messageId);
+    if (!message) throw new NotFoundException('메시지를 찾을 수 없습니다.');
+    return { conversation, message };
+  }
+
+  private async readScene(campaignId: string): Promise<Scene> {
+    const state = await this.prisma.campaignState.findUnique({
+      where: { campaignId },
+      select: { sceneTime: true, scenePlace: true },
+    });
+    return { time: state?.sceneTime ?? null, place: state?.scenePlace ?? null };
+  }
+
+  private async observeScene(campaignId: string, text: string): Promise<Scene> {
+    const prev = await this.readScene(campaignId);
+    const next = noticeScene(text, prev);
+    if (next.time === prev.time && next.place === prev.place) return next;
+    await this.prisma.campaignState.upsert({
+      where: { campaignId },
+      create: { campaignId, sceneTime: next.time, scenePlace: next.place },
+      update: { sceneTime: next.time, scenePlace: next.place },
+    });
+    return next;
   }
 
   async suggest(characterId: string, avoid: string[], options: PersonaOptions) {

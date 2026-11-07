@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { BadRequestException } from '@nestjs/common';
+import { josa } from '../common/korean-josa.js';
 import { PERSONA_DESCRIPTION_MAX, PERSONA_NAME_MAX } from '../personas/personas.service.js';
 import { EMPTY_QUEST, QUEST_TITLE_MAX, type Quest } from '../quests/quest.js';
 
@@ -130,24 +131,24 @@ const obj = (v: unknown): Obj => (typeof v === 'object' && v !== null && !Array.
 // same: 이 칸에 이미 저장돼 있던 값. 그대로이면 상한을 넘어도 받는다 — 프로 등급이 끝난 뒤에도 다른 칸을 고쳐 저장할 수 있게
 function text(v: unknown, max: number, label: string, same?: string): string {
   if (v === undefined || v === null) return '';
-  if (typeof v !== 'string') throw new BadRequestException(`${label}은(는) 글이어야 합니다.`);
+  if (typeof v !== 'string') throw new BadRequestException(`${josa(label, '은/는')} 글이어야 합니다.`);
   const t = v.trim();
-  if (t.length > max && t !== same) throw new BadRequestException(`${label}은(는) ${max}자 이하로 써 주세요 (지금 ${t.length}자).`);
+  if (t.length > max && t !== same) throw new BadRequestException(`${josa(label, '은/는')} ${max}자 이하로 써 주세요 (지금 ${t.length}자).`);
   return t;
 }
 
 function list(v: unknown, maxItems: number, maxLen: number, label: string, keep: string[] = []): string[] {
   if (v === undefined || v === null) return [];
-  if (!Array.isArray(v)) throw new BadRequestException(`${label}은(는) 목록이어야 합니다.`);
+  if (!Array.isArray(v)) throw new BadRequestException(`${josa(label, '은/는')} 목록이어야 합니다.`);
   const items = v.map((x, i) => text(x, maxLen, `${label} ${i + 1}번`, typeof x === 'string' && keep.includes(x.trim()) ? x.trim() : undefined)).filter(Boolean);
-  if (items.length > maxItems) throw new BadRequestException(`${label}은(는) ${maxItems}개까지입니다.`);
+  if (items.length > maxItems) throw new BadRequestException(`${josa(label, '은/는')} ${maxItems}개까지입니다.`);
   return [...new Set(items)];
 }
 
 function axis(v: unknown, label: string): number {
   if (v === undefined || v === null) return 50;
   if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || v > 100) {
-    throw new BadRequestException(`${label}은(는) 0~100 사이의 정수여야 합니다.`);
+    throw new BadRequestException(`${josa(label, '은/는')} 0~100 사이의 정수여야 합니다.`);
   }
   return v;
 }

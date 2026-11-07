@@ -1,4 +1,6 @@
 import {
+  Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -32,6 +34,22 @@ export class MemoriesController {
       started: conversation !== null,
       memories: conversation ? await this.memories.list(conversation.campaignId) : [],
     };
+  }
+
+  // 유저가 직접 적은 장기 기억 { content }
+  @Post()
+  @RateLimit('memory')
+  @HttpCode(201)
+  async create(
+    @Param('id') characterId: string,
+    @CurrentUserId() userId: string,
+    @Body() body: { content?: unknown },
+  ) {
+    await this.characters.findOnePublished(characterId, userId);
+    const conversation = await this.conversations.find(userId, characterId);
+    if (!conversation) throw new ConflictException('먼저 이 캐릭터와 대화를 시작해 주세요.');
+    const content = typeof body?.content === 'string' ? body.content : '';
+    return this.memories.add(conversation.campaignId, content);
   }
 
   @Delete(':memoryId')

@@ -42,6 +42,7 @@ export type ChatHistory = {
   model: string;
   savedCount: number;
   messages: HistoryMessage[];
+  scene?: { time: string | null; place: string | null };
 };
 
 // 이 캐릭터와의 지금 대화. 못 불러오면 null → 호출부가 시작 장면으로 대신한다
@@ -78,7 +79,7 @@ export async function getMyConversations(): Promise<ConversationSummary[] | null
 export type MemoriesView = {
   character: { id: string; name: string };
   started: boolean;
-  memories: { id: string; content: string; createdAt: string }[];
+  memories: { id: string; content: string; pinned: boolean; createdAt: string }[];
 };
 
 export async function getMemories(characterId: string): Promise<MemoriesView | null> {

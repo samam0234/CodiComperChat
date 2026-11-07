@@ -11,6 +11,7 @@ import os
 
 from app.schemas.moderate import ModerateImageRequest, ModerateImageResponse
 from app.services import llm
+from app.services.korean import josa
 
 MAX_OUTPUT_TOKENS = 200
 
@@ -53,7 +54,7 @@ def decide(data: dict) -> ModerateImageResponse:
     blocked = [f for f in flags if f in BLOCK]
     if blocked:
         return ModerateImageResponse(
-            verdict="block", flags=flags, reason=f"{', '.join(LABELS[f] for f in blocked)}이(가) 보여 올릴 수 없어요."
+            verdict="block", flags=flags, reason=f"{josa(', '.join(LABELS[f] for f in blocked), '이/가')} 보여 올릴 수 없어요."
         )
     if flags:
         return ModerateImageResponse(

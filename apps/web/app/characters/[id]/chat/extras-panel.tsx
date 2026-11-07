@@ -11,6 +11,7 @@ import {
 } from "@/app/actions/extras";
 import ChoiceDialog from "@/components/choice-dialog";
 import { EMPTY_EXTRA, TRIGGER_OPTIONS, type Extra, type ExtraFields, type ExtrasView, type Trigger } from "@/lib/extras";
+import { particle } from "@/lib/korean-josa";
 import styles from "./extras-panel.module.css";
 
 const FIELDS: { key: keyof ExtraFields; label: string; hint?: string; rows?: number; required?: boolean }[] = [
@@ -82,7 +83,7 @@ function Keywords({ extra, triggers }: { extra: Extra; triggers: Trigger[] }) {
   const words = triggers.flatMap((t) => extra.keywords[t]);
   return (
     <p className={styles.keywords}>
-      이런 말이 나오면 등장: {words.length > 0 ? words.join(" · ") : "(조건 단어 없음)"} · 이름 &apos;{extra.name}&apos;을(를) 부르면 언제든
+      이런 말이 나오면 등장: {words.length > 0 ? words.join(" · ") : "(조건 단어 없음)"} · 이름 &apos;{extra.name}&apos;{particle(extra.name, "을/를")} 부르면 언제든
     </p>
   );
 }

@@ -2,6 +2,8 @@ import { randomInt } from 'node:crypto';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreditReason, MessageRole, PortraitReview, WorldEventStatus, type Prisma, type WorldEventKind } from '@prisma/client';
 import { adultBlock } from '../account/adult.js';
+import { particle } from '../common/korean-josa.js';
+import { noticeScene } from '../character-chat/scene.js';
 import { postToAi } from '../ai/ai-client.js';
 import { DEFAULT_MODEL_ID, findModel } from '../models/models.js';
 import { ModelsService } from '../models/models.service.js';
@@ -156,6 +158,8 @@ export class WorldPlayService {
         finished: play.finished,
         turns: play.turns,
         locations: asLocations(play.locations),
+        sceneTime: play.sceneTime,
+        scenePlace: play.scenePlace,
         messages: messages.reverse().map((m) => ({
           id: m.id,
           role: m.role,
@@ -247,7 +251,15 @@ export class WorldPlayService {
       ],
     });
     const turns = play.turns + 1;
-    const update: Prisma.WorldPlayUpdateInput = { turns, turnsSinceEvent: play.turnsSinceEvent + 1, eventNote: null, locations };
+    const scene = noticeScene(`${text}\n${result.reply}`, { time: play.sceneTime ?? null, place: play.scenePlace ?? null });
+    const update: Prisma.WorldPlayUpdateInput = {
+      turns,
+      turnsSinceEvent: play.turnsSinceEvent + 1,
+      eventNote: null,
+      locations,
+      sceneTime: scene.time,
+      scenePlace: scene.place,
+    };
 
     if (part && turns % PART_CHECK_EVERY === 0) {
       const advanced = await this.checkPart(play.id, play.personaName, play.storySoFar, part, play.partIndex, world.parts, now + 2);
@@ -305,7 +317,7 @@ export class WorldPlayService {
       messages.push({ playId, role: MessageRole.SYSTEM, content: '모든 파트를 마쳤어요. 이야기는 자유롭게 이어 갈 수 있어요.', createdAt: new Date(at + 1) });
     }
     await this.prisma.worldMessage.createMany({ data: messages });
-    const story = `${storySoFar}\n- ${index + 1}부 「${part.title}」을(를) 마쳤다: ${check.evidence}`.trim().slice(-STORY_MAX);
+    const story = `${storySoFar}\n- ${index + 1}부 「${part.title}」${particle(part.title, '을/를')} 마쳤다: ${check.evidence}`.trim().slice(-STORY_MAX);
     return { partIndex: index + 1, finished: !next, storySoFar: story };
   }
 

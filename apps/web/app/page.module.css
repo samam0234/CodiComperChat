@@ -149,8 +149,9 @@
 .bubbleUser {
   justify-self: end;
   border-bottom-right-radius: 6px;
-  background: var(--gradient);
-  color: #fff;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
 }
 
 .bubbleName {

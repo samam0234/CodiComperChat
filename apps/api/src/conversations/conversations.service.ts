@@ -8,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export const CONTEXT_TURNS = 30;
 // 화면에 처음 보여 줄 메시지 수
 export const DISPLAY_MESSAGES = 200;
+// 고치거나 지울 수 있는 최근 메시지 수 (지금 열린 대화 안에서)
+export const RECENT_EDIT_COUNT = 12;
 
 export type StoredMessage = {
   id: string;
@@ -339,6 +341,42 @@ export class ConversationsService {
       this.prisma.message.create({ data: { sessionId: conversation.sessionId, role: MessageRole.CHARACTER, content: reply, createdAt: now } }),
       this.prisma.campaign.update({ where: { id: conversation.campaignId }, data: { updatedAt: now } }),
     ]);
+  }
+
+  // 최근 N개 메시지 id. 이 안에 있는 것만 고치거나 지운다
+  async recentMessageIds(sessionId: string, take = RECENT_EDIT_COUNT): Promise<Set<string>> {
+    const rows = await this.prisma.message.findMany({
+      where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+      select: { id: true },
+    });
+    return new Set(rows.map((row) => row.id));
+  }
+
+  async findSessionMessage(sessionId: string, messageId: string) {
+    return this.prisma.message.findFirst({
+      where: { id: messageId, sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },
+      select: { id: true, role: true, content: true, speaker: true },
+    });
+  }
+
+  async updateMessage(conversation: Conversation, messageId: string, content: string): Promise<void> {
+    const now = new Date();
+    const { count } = await this.prisma.message.updateMany({
+      where: { id: messageId, sessionId: conversation.sessionId },
+      data: { content },
+    });
+    if (count === 0) throw new NotFoundException('메시지를 찾을 수 없습니다.');
+    await this.prisma.campaign.update({ where: { id: conversation.campaignId }, data: { updatedAt: now } });
+  }
+
+  async deleteMessage(conversation: Conversation, messageId: string): Promise<void> {
+    const { count } = await this.prisma.message.deleteMany({
+      where: { id: messageId, sessionId: conversation.sessionId },
+    });
+    if (count === 0) throw new NotFoundException('메시지를 찾을 수 없습니다.');
+    await this.prisma.campaign.update({ where: { id: conversation.campaignId }, data: { updatedAt: new Date() } });
   }
 
   // /되돌리기: 마지막 내 말부터 끝까지 지운다. 지운 메시지 수 (없으면 0)
