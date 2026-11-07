@@ -156,7 +156,7 @@ flowchart LR
 
 ## Vercel 배포 (2026-11-07)
 
-운영 웹은 Vercel 프로젝트 `codicomperchat-web`(팀 saman, 리전 `icn1`)에서 `main`을 빌드해 돈다. 주소 `https://codicomperchat-web.vercel.app`. 빌드·리전 설정은 [`vercel.json`](vercel.json)(`framework: nextjs`, `regions: ["icn1"]`). 이 저장소는 모노레포라 Vercel 프로젝트는 `apps/web` 폴더를 빌드 대상으로 삼는다.
+운영 웹은 Vercel 프로젝트 `codicomperchat-web`(팀 saman, 리전 `icn1`)에서 `main`을 빌드해 돈다. 주소 `https://codicomperchat-web.vercel.app`. 빌드·리전 설정은 [`vercel.json`](vercel.json)(`framework: nextjs`, `regions: ["icn1"]`). 이 저장소는 모노레포라 Vercel 프로젝트의 Root Directory가 `apps/web`이어야 한다(`vercel.json`이 그 폴더에 있다). 이 설정값은 2026-11-07에 Vercel 화면에서 직접 확인하지 못했고, `main`에서 빌드가 성공한 것으로만 확인했다.
 
 | 환경변수(Vercel) | 값 | 비고 |
 |------------------|-----|------|
