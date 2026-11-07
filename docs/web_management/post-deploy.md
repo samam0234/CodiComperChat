@@ -1,16 +1,16 @@
 # 배포 후 확인
 
-아직 실제 배포 전이다. 처음 올린 뒤 위에서부터 확인한다.
+처음 올린 뒤 위에서부터 확인한다. **2026-11-07 Oracle 서버(API·DB·AI) + Vercel 웹에서 확인한 결과를 체크로 남겼다.** GPU·콘솔·메일이 필요한 항목은 그 서버에서 할 수 없어 비워 두었다. 지금 서버의 점검 명령: [oracle-backend.md](oracle-backend.md).
 
 **연결**
-- [ ] `docker compose ... ps`: 상시 서비스 모두 running/healthy, `migrate`는 `Exited (0)`
-- [ ] 바깥에서 `http://도메인` → https 308, 인증서 정상, HSTS 헤더 있음
-- [ ] 바깥에서 4000·8000·5432·11434 포트가 닫혀 있음
-- [ ] 콘솔 도메인: 허용 IP에서만 열림
+- [x] `docker compose ... ps`: 상시 서비스 모두 running/healthy, `migrate`는 `Exited (0)` (2026-11-07, compose 두 파일)
+- [x] 바깥에서 `http://도메인` → https 308, 인증서 정상, HSTS 헤더 있음 (2026-11-07, `api.168-110-61-178.sslip.io`, `max-age=15552000; includeSubDomains`)
+- [x] 바깥에서 4000·8000·5432·11434 포트가 닫혀 있음 (2026-11-07. 열린 것은 22·80·443뿐)
+- [ ] 콘솔 도메인: 허용 IP에서만 열림 (2026-11-07 기준 콘솔은 API에 연결 안 함, 허용 IP 결정 대기)
 
 **기능**
 - [ ] 가입 → 인증 메일 수신 → 로그인
-- [ ] 홈에 유지성·이세연과 초상이 보임
+- [x] 홈에 유지성·이세연과 초상이 보임 (2026-11-07, Vercel 웹 HTML에 두 캐릭터 렌더링. 초상은 눈으로 보지 않았다)
 - [ ] 프로필 선택 → 대화 한 턴, 답이 옴
 - [ ] 대화 3번 뒤 "지난 이야기"가 갱신됨
 - [ ] `/photonet/status`가 ready, 코디포토넷 한 장 + 웹툰 한 컷, 코레딧이 빠지고 실패하면 돌아옴
@@ -20,7 +20,7 @@
 - [ ] 성인 그림과 성인 확인이 막혀 있음 (`ADULT_MODE=off`)
 
 **운영**
-- [ ] `docker compose ... exec ai python -c "import torch; print(torch.cuda.is_available())"` True
+- [ ] `docker compose ... exec ai python -c "import torch; print(torch.cuda.is_available())"` True (GPU 서버에서만. Oracle은 CPU라 해당 없음)
 - [ ] 서버 재부팅 뒤 전부 자동 복귀
 - [ ] `scripts/db-backup.sh` 실행, cron 등록, 새 DB에 복구 연습
 - [ ] [../vaildates/mvp-checklist.md](../vaildates/mvp-checklist.md) 재확인

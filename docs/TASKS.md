@@ -1,6 +1,6 @@
 # 작업 지시서
 
-다음에 할 일의 정본이다. 에이전트나 사람이 이 문서만 보고 일을 고르고 끝낼 수 있게 쓴다. 기준 시점 2026-11-06.
+다음에 할 일의 정본이다. 에이전트나 사람이 이 문서만 보고 일을 고르고 끝낼 수 있게 쓴다. 기준 시점 2026-11-07. 이날 Vercel(웹) + Oracle Cloud(API·DB·AI 대화)에 실제로 올렸다([web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md)).
 
 규칙은 [SKILL.md](../.agents/skills/codicomperchat/SKILL.md), 지금 상태와 함정은 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)에 있다. 일을 시작하기 전에 둘 다 읽는다.
 
@@ -59,10 +59,13 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | U01 | 저장소 비공개 전환. 2026-11-06 확인에서 아직 공개 상태다 | T01, T02 |
 | U02 | `gh auth login` | T02 |
 | U03 | `LICENSE` 권리자 이름과 준거법을 어떻게 할지 결정, 라이선스 문안 법률 검토 | T01 |
-| U04 | Hetzner GEX45 계약 | T03 |
-| U05 | 도메인 구매, 운영 메일(SMTP) 서비스 선택 | T03 |
+| U04 | GPU 서버(Hetzner GEX45) 계약. 그림 엔진(코디포토넷·웹툰)은 GPU가 있어야 열린다. 지금 Oracle 서버는 GPU가 없다 | T03 |
+| U05 | 운영 메일(SMTP) 서비스 선택. 지금 서버는 메일 설정이 비어 인증·재설정 메일이 안 간다. 도메인은 선택(지금은 `sslip.io`) | T03, T04 |
 | U06 | 약관·처리방침의 `[운영자 기재]` 기입과 법률 검토 | 공개 |
 | U07 | GitHub Actions와 README 화면이 원격에서 제대로 보이는지 한 번 보기 | 없음 |
+| U08 | 운영 콘솔을 열 IP 결정(`CONSOLE_IP_ALLOWLIST`). Vercel `codicomperchat-console`은 있으나 API에 연결하지 않았다 | T04 |
+| U09 | 프리미엄(Claude·Grok) 키와 월 한도. 각 콘솔에서 사용 한도를 먼저 걸고 서버 `.env`에 직접 넣는다(채팅에 붙이지 않는다) | 프리미엄 공개 |
+| U10 | (권장) 2026-11-07 작업 대화에 개인키 내용과 `WEB_PROXY_TOKEN` 값이 한 번씩 드러났다. 새 키로 바꾸고 토큰을 서버·Vercel 함께 교체 | 없음 |
 
 ## 2. 사용자 일이 끝난 뒤
 
@@ -78,10 +81,16 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 - **할 일:** 브랜치 보호(`main`·`develop`)와 비밀 스캔이 지금 요금제의 비공개 저장소에서 되는지 읽어 본다. 설정을 바꾸는 것은 사용자 승인 뒤에 한다. 비공개 저장소의 Actions 무료 시간도 본다. e2e까지 도는 CI가 있다.
 - **끝난 기준:** 되는 것·안 되는 것을 [SECURITY.md](../SECURITY.md) "공개 전 필수"와 [web_management/pre-deploy.md](web_management/pre-deploy.md)에 적는다.
 
-### T03. 실서버 설치와 확인
+### T04. Oracle 서버 마무리
+
+- **선행:** 메일은 U05, 콘솔은 U08. 나머지는 없음.
+- **할 일:** 공식 캐릭터 지식 파일(`apps/api/data/personas/유지성.json`, `이세연.json`)을 서버 볼륨 `personas`로 옮긴다. `scripts/db-backup.sh`를 서버 cron에 건다(하루 한 번, 14일). U05가 끝나면 `MAIL_SMTP_URL`·`MAIL_FROM`·`WEB_BASE_URL`을 서버 `.env`에 넣고 api를 다시 띄운다. U08이 끝나면 콘솔 Vercel 환경변수(`API_BASE_URL`, `CONSOLE_IP_ALLOWLIST`)를 넣고 다시 배포한다. 다시 띄울 때 compose 파일 두 개를 함께 준다.
+- **끝난 기준:** 로그인한 상태의 대화 한 턴이 운영에서 돈다(시험 계정), 인증 메일 도착, 백업 파일 생김, 콘솔 로그인. 결과를 [web_management/oracle-backend.md](web_management/oracle-backend.md)에 적는다.
+
+### T03. GPU 서버 설치와 확인
 
 - **선행:** U04, U05.
-- **할 일:** [web_management/docker-deploy.md](web_management/docker-deploy.md) 순서대로 진행한다. 배포 키, `deploy/server-setup.sh`, 운영 모드의 `PRO_CLICK`은 **실서버에서 돌려 본 적이 없다.** 페르소나 지식 파일(`apps/api/data/personas/유지성.json`, `이세연.json`)은 git에 없으니 서버 볼륨으로 옮긴다.
+- **할 일:** [web_management/docker-deploy.md](web_management/docker-deploy.md) 순서대로 진행한다. Oracle 서버에서 배운 것(CRLF, sslip.io, 프록시 토큰)은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md)에 있다. 배포 키, `deploy/server-setup.sh`, 운영 모드의 `PRO_CLICK`은 **실서버에서 돌려 본 적이 없다.** 페르소나 지식 파일(`apps/api/data/personas/유지성.json`, `이세연.json`)은 git에 없으니 서버 볼륨으로 옮긴다.
 - **끝난 기준:** [web_management/post-deploy.md](web_management/post-deploy.md) 전체 확인, 재부팅 복귀, 백업 복구 연습. 서버 GPU에서 `evals.image_speed`를 재서 [guidance/photonet-engine.md](guidance/photonet-engine.md)에 적는다.
 
 ## 3. 결정 없이 할 수 있는 품질 개선

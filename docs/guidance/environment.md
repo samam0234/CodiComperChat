@@ -109,6 +109,7 @@ flowchart LR
 | `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·웹소켓)을 빼고 쿠키를 https 전용으로. 공개 호스트는 `REQUIRE_HTTPS=1`이 없으면 503 |
 | `REQUIRE_HTTPS` | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 HSTS를 붙인다. 루프백은 그대로 |
 | `CONSOLE_BASE_URL` | `http://localhost:3001` | 운영 콘솔 주소(마이페이지의 "운영 콘솔 열기", 예전 `/admin/*` 이동) |
+| `WEB_PROXY_TOKEN` | 비움 | **비밀값.** 웹과 API가 다른 기계일 때(웹 Vercel, API Oracle) API 앞 Caddy와 나눠 갖는 값. 있으면 웹이 실제 이용자 IP를 `X-Forwarded-For`로 넘길 때 함께 보내고, Caddy는 이 값이 맞을 때만 그 IP를 믿는다(`apps/web/lib/client-ip.ts`, `deploy/oracle/Caddyfile`). 같은 기계·사설망 구성에서는 비워 둔다 |
 
 ## `console` (운영 콘솔, Next.js)
 
@@ -134,6 +135,18 @@ flowchart LR
 e2e 서버(`e2e/servers/*.mjs`)는 위 값을 스스로 정한다: 가짜 LLM, 가짜 결제(토스 키 비움), 메일은 폴더로, 요청 한도 1000배 + DB 저장소, 전용 포트 3101/4101/8101.
 
 관련: [getting-started.md](getting-started.md), [../plan/CURRENT_STACK.md](../plan/CURRENT_STACK.md)
+
+## 운영에서 실제로 쓰는 값 (2026-11-07)
+
+값은 적지 않는다. 어디에 무엇이 있는지만 적는다.
+
+| 어디 | 키 |
+|------|-----|
+| Oracle 서버 `deploy/oracle/.env` (권한 600, git 제외) | `API_DOMAIN`, `POSTGRES_*`, `AUTH_SECRET`, `AI_SERVICE_TOKEN`, `WEB_PROXY_TOKEN`, `LLM_BACKEND=openai`, `LLM_API_BASE`, `LLM_API_MODEL`, `LLM_API_KEY`, `AI_CONCURRENCY`, `OLLAMA_MODEL`, `PRO_CLICK`, `ADULT_MODE=off`. 비어 있음: `MAIL_SMTP_URL`, `MAIL_FROM`, `WEB_BASE_URL`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`, `PREMIUM_PROVIDERS`(`PREMIUM_MONTHLY_CREDITS=0`) |
+| Vercel `codicomperchat-web` | `API_BASE_URL=https://api.168-110-61-178.sslip.io`(**`api.` 접두사 필수**), `WEB_PROXY_TOKEN`(sensitive), `CONSOLE_BASE_URL`, `REQUIRE_HTTPS=1` |
+| Vercel `codicomperchat-console` | `WEB_BASE_URL`, `REQUIRE_HTTPS=1`. **`API_BASE_URL`·`CONSOLE_IP_ALLOWLIST` 없음 → API에 연결 안 됨** |
+
+샘플: [`deploy/oracle/.env.example`](../../deploy/oracle/.env.example). 서버 값을 바꾼 뒤에는 compose 파일 두 개를 함께 줘서 다시 띄운다([../web_management/oracle-backend.md](../web_management/oracle-backend.md)).
 
 ## 월드코퍼챗 (2026-11-06)
 

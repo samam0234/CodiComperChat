@@ -60,31 +60,58 @@
 <!-- logic-structure -->
 ## 로직 구조
 
-```text
-┌─────────────── 브라우저 ───────────────┐      ┌──── 운영자 브라우저 ────┐
-│ apps/web (Next.js :3000)               │      │ console (Next.js :3001) │
-│ 서버 컴포넌트·서버 액션·/api 중계만    │      │ 서버 액션·그림 중계     │
-└───────────────┬────────────────────────┘      └───────────┬─────────────┘
-                │ Authorization: Bearer (httpOnly 쿠키 → 서버가 붙임)
-                ▼                                           ▼
-┌──────────────────────── apps/api (Nest.js :4000) — 신뢰 경계 ─────────────────────────┐
-│ Guard(로그인·운영자·요청 한도) → Service(권한·소유·코레딧·모델 조건·맥락 조립)       │
-│ → 순수 함수(quest.ts·world.ts·card.ts·adult.ts …) → Prisma                           │
-└───────┬───────────────────────────────────────────────────┬─────────────────────────┘
-        │ Prisma                                            │ AI 대기열 + AI_SERVICE_TOKEN
-        ▼                                                   ▼
-┌─ PostgreSQL 16 ─┐                      ┌──── services/ai (FastAPI :8000, 내부망) ────┐
-│ 테이블 37개     │                      │ /infer /summarize /remember /ground-check  │
-│ 그림도 bytea    │                      │ /world/turn /world/part-check /photonet …   │
-└─────────────────┘                      │ DB를 보지 않고 Nest가 조립한 맥락만 쓴다    │
-                                         └──────┬───────────────────────┬──────────────┘
-                                                ▼                       ▼
-                                      Ollama gemma4:e4b       diffusers (Animagine·SD 1.5, GPU)
+계층은 네 칸입니다. **웹은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모릅니다.**
 
-한 턴(1:1 대화):  확인 → 맥락 조립(카드 핵심·지식 조각·기억·이야기 상태) → /infer
-                 → (개인사 질문이면 /ground-check, 지어냈으면 다시) → 저장 → 6개마다 뒤에서 정리
-한 턴(월드):     확인 → 맥락(세계관·인물·장소·그림 이름표·파트) → /world/turn → 제어 줄 검사
-                 → 저장 → 3턴마다 파트 판정 → 확률로 이벤트 → 서버가 결과·보상
+```mermaid
+flowchart TB
+  subgraph CLIENT["① 화면 — 판단하지 않는다"]
+    direction LR
+    WEB["apps/web<br/>Next.js 16 · :3000<br/>서버 컴포넌트 · 서버 액션 · /api 중계"]
+    CON["console<br/>Next.js 16 · :3001<br/>운영자 전용"]
+  end
+  subgraph TRUST["② apps/api — Nest.js 12 · :4000 · 유일한 신뢰 경계"]
+    direction LR
+    G["Guard<br/>로그인 · 운영자 · 요청 한도"] --> S["Service<br/>권한 · 소유 · 코레딧 · 모델 조건 · 맥락 조립"]
+    S --> P["순수 함수<br/>quest · world · card · adult …"]
+  end
+  subgraph DATA["③ 저장"]
+    DB[("PostgreSQL 16<br/>테이블 37개 · 그림도 bytea")]
+  end
+  subgraph AI["④ services/ai — FastAPI · :8000 · 내부망 전용"]
+    direction LR
+    EP["/infer · /summarize · /remember · /ground-check<br/>/world/turn · /world/part-check · /photonet …"]
+    LLM["대화 모델<br/>NVIDIA API gemma-4-31b<br/>↳ 막히면 Ollama gemma4:e4b"]
+    IMG["그림<br/>diffusers · Animagine · SD 1.5<br/>(NVIDIA GPU 필요)"]
+    EP --> LLM
+    EP --> IMG
+  end
+  WEB -- "Bearer (httpOnly 쿠키 → 서버가 붙임)" --> G
+  CON -- "Bearer" --> G
+  S -- "Prisma" --> DB
+  S -- "AI 대기열 + X-AI-Token" --> EP
+```
+
+한 턴이 거치는 단계를 스크립트처럼 적으면 이렇습니다. 각 단계는 Nest가 하고, AI는 `call:` 줄만 합니다.
+
+```yaml
+chat_turn:                    # 1:1 대화 한 턴 — apps/api/src/chat
+  - check:   [로그인, 캐릭터 공개 범위, 성인 조건, 코레딧·모델 reserve]
+  - context: [카드 핵심, 지식 조각, 기억, 지난 이야기 요약, 친밀도·복선, 퀘스트 장면]
+  - call:    POST /infer
+  - guard:   # 설정에 없는 개인사를 물은 턴만
+      call:  POST /ground-check
+      retry: 지어냈으면 다시 쓰기 (최대 2번)
+  - save:    [유저 말, 답, 이야기 상태]
+  - every_6_messages_in_background: [POST /remember, POST /summarize]
+
+world_turn:                   # 월드코퍼챗 한 턴 — apps/api/src/worlds
+  - expire:  열린 이벤트 → EXPIRED
+  - context: [세계관, 등장인물, 장소, 그림 이름표, 지금 파트]
+  - call:    POST /world/turn
+  - verify:  제어 줄(image · move) 검사 후 떼어 내기
+  - save:    [메시지, 인물 위치]
+  - every_3_turns: { call: POST /world/part-check, on_done: 다음 파트 }
+  - maybe_event: 간격·확률을 넘기면 미니게임 → 서버가 결과·보상 (하루 3번)
 ```
 
 <!-- logic-mermaid -->
@@ -99,9 +126,26 @@ flowchart LR
   C -- "Bearer" --> N
   N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
-  A --> O["Ollama<br/>gemma4"]
+  A --> L["대화 모델<br/>NVIDIA API → Ollama 예비"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]
 ```
+
+### 지금 올라가 있는 배포 (2026-11-07)
+
+```mermaid
+flowchart LR
+  U(("이용자")) -->|"HTTPS"| V["Vercel · icn1<br/>codicomperchat-web"]
+  V -->|"HTTPS · Bearer<br/>X-Web-Proxy-Token"| CA
+  subgraph OCI["Oracle Cloud A1.Flex · 도쿄 · ARM · GPU 없음"]
+    CA["Caddy 2.10<br/>api.168-110-61-178.sslip.io<br/>80 · 443만 열림"] --> API["api<br/>Nest"]
+    API --> PG[("postgres 16")]
+    API -->|"X-AI-Token"| AI["ai<br/>FastAPI (CPU)"]
+    AI --> OL["ollama<br/>gemma4:e4b 예비"]
+  end
+  AI -->|"OpenAI 호환"| NIM["NVIDIA 호스팅 API<br/>gemma-4-31b-it"]
+```
+
+그림 엔진은 GPU가 없어 잠겨 있고, 운영 콘솔은 API에 연결하지 않았습니다. 자세한 상태: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ### 1:1 대화 한 턴
 
@@ -360,12 +404,14 @@ stateDiagram-v2
 | 코레딧 | 출석, 차감, 실패 시 환불 | 동작 |
 | 프로 등급 | 눌러서 30일 프로로 바꾸기 | 정식 서비스 전 임시 |
 | 운영 | 운영 콘솔(세계관 검수·내리기·이벤트 기록·운영 설정 포함), 요청 한도, CSP, 신고, 백업 | 동작 |
-| 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다 |
+| 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다. 서버 `.env`에 자리는 있다 |
+| 대화 모델 백엔드 | NVIDIA 호스팅 API(OpenAI 호환, `gemma-4-31b-it`)를 기본으로, 막히면 CPU Ollama가 대신 답한다 | 동작 (2026-11-07, 서버에서 실측) |
+| 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 동작 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직 |
 | 성인 모드 | 수위 분리(그림·대화), 성인 확인, 미성년자·강제 단서 차단, 그림 가드, 신고. 성인 대화는 로컬 모델에서만 | 코드 있음, 공개 서버에서는 끈다 |
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
 | 스트리밍 응답, 본인인증 | | 없음 |
 
-배포 구성은 개발 PC에서 끝까지 띄워 확인했고, **실제 서버에는 아직 올리지 않았습니다**. 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [소유자 체크리스트](docs/guidance/owner-checklist.md)에 있습니다.
+**2026-11-07에 실제로 올렸습니다.** 웹은 Vercel(https://codicomperchat-web.vercel.app), API·DB·AI는 Oracle Cloud(https://api.168-110-61-178.sslip.io)에서 돕니다. 올린 과정과 막힌 곳 전부: [deploy-log-2026-11-07](docs/web_management/deploy-log-2026-11-07.md). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [소유자 체크리스트](docs/guidance/owner-checklist.md)에 있습니다.
 
 ## 구조
 
@@ -390,7 +436,7 @@ stateDiagram-v2
   </tr>
   <tr>
     <td><b>계층.</b> 웹은 FastAPI를 모르고, FastAPI는 DB를 모릅니다. 판단은 Nest의 순수 함수에 모아 DB 없이 시험합니다.</td>
-    <td><b>운영 배포.</b> GPU 서버 한 대, 바깥에는 Caddy의 80·443만 열립니다.</td>
+    <td><b>운영 배포(목표).</b> GPU 서버 한 대, 바깥에는 Caddy의 80·443만 열립니다. 지금 올라가 있는 구성은 위 "로직 구조"의 배포 그림입니다.</td>
   </tr>
   <tr>
     <td><a href="docs/.assets/readme/data-map.png"><img src="docs/.assets/readme/data-map.png" alt="데이터 지도: 테이블 37개"></a></td>
@@ -415,7 +461,7 @@ CodiComperChat/
 ├── services/
 │   └── ai/           FastAPI 추론·그림 엔진          :8000 (내부망 전용)
 ├── e2e/              Playwright 화면 자동 테스트
-├── deploy/           운영 구성 (Docker, Caddy, GPU 서버 한 대)
+├── deploy/           운영 구성 (GPU 서버 한 대 · oracle/ 지금 서버 · ai-node/ GPU 노드)
 ├── scripts/          로컬 CI·커밋 기록·DB 백업·비밀값 생성·README 그림 만들기
 ├── docs/             문서 허브 (기획·아키텍처·Git 기록·가이드·실측 노트)
 ├── .agents/          AI 에이전트 공통 규칙 정본
@@ -432,7 +478,7 @@ CodiComperChat/
 | `apps/api` | Nest.js 12 (ESM), Prisma 7, PostgreSQL 16 | 유일한 공개 백엔드이자 신뢰 경계 | [README](apps/api/README.md) |
 | `services/ai` | FastAPI, Python 3.12, Ollama, diffusers | 연기, 요약, 판정, 그림. `/train`은 정책상 403 | [README](services/ai/README.md) |
 | `e2e` | Playwright | 가짜 LLM과 운영 빌드로 화면 흐름 시험 | [README](e2e/README.md) |
-| `deploy` | Docker Compose, Caddy | NVIDIA GPU 서버 한 대 구성 | [DEPLOYMENT](docs/DEPLOYMENT.md) |
+| `deploy` | Docker Compose, Caddy | GPU 서버 한 대 구성(`docker-compose.prod.yml`)과 지금 운영 중인 Oracle 구성(`oracle/`) | [DEPLOYMENT](docs/DEPLOYMENT.md) |
 
 ## 품질을 어떻게 재나
 
@@ -490,10 +536,11 @@ cp .env.example .env
 ### 시험
 
 ```bash
-npm run test:api             # API 단위·통합 226개 (vitest, 실제 PostgreSQL)
+npm run test:api             # API 단위·통합 232개, 파일 31개 (vitest, 실제 PostgreSQL)
 npm run typecheck:api
 npm run test:e2e             # 웹 화면 자동 테스트 123개 (운영 빌드, 가짜 LLM·가짜 그림 엔진). 개발 서버를 켜 둬도 된다
 npm run test:e2e:adult-off   # 성인 모드를 끈 서버의 화면
+(cd services/ai && ./.venv/Scripts/python.exe -m unittest discover tests)   # AI 규칙 71개 (모델 없음)
 npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클론에서
 ```
 
@@ -512,7 +559,7 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 | API | [API_DOCUMENTATION](docs/API_DOCUMENTATION.md) |
 | 구조와 데이터 흐름 | [Architecture](docs/Architecture/overview.md) · [WORKFLOW](docs/WORKFLOW.md) |
 | 실제로 돌려 본 결과 | [trainings](docs/trainings/README.md) |
-| 배포 | [DEPLOYMENT](docs/DEPLOYMENT.md) |
+| 배포 (지금 상태·절차) | [DEPLOYMENT](docs/DEPLOYMENT.md) · [oracle-backend](docs/web_management/oracle-backend.md) · [배포 기록 2026-11-07](docs/web_management/deploy-log-2026-11-07.md) |
 | 보안과 공개 전 필수 | [SECURITY.md](SECURITY.md) |
 | 라이선스와 제3자 고지 | [LICENSE](LICENSE) · [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) |
 | 제품 기획 원본 | [CodiComperChat_project_plan.md](CodiComperChat_project_plan.md) |

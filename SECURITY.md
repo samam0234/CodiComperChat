@@ -198,7 +198,7 @@ flowchart TD
 - [x] **FastAPI를 외부에서 못 닿게** (코드·구성): 토큰 또는 루프백. 운영 compose는 포트를 열지 않고 토큰을 필수로 요구한다. 토큰 없이 401을 실제로 확인했다.
 - [x] **TLS** (구성, 2026-11-03): Caddy가 인증서를 받고 `X-Forwarded-*`를 덮어쓴다. 앱은 `REQUIRE_HTTPS=1`일 때 공개 호스트의 http를 https로 보내고 HSTS를 붙인다. 내부 호스트만 `REQUIRE_HTTPS_EXEMPT_HOSTS`로 뺀다. 남은 일 — 실제 도메인에서 인증서 발급 확인.
 - [x] **운영 콘솔** (코드): 운영의 공개 호스트는 `CONSOLE_IP_ALLOWLIST`에 있는 IP만. `CONSOLE_ALLOW_PUBLIC=1`이 아니면 막는다. 남은 일 — 허용 목록을 운영 값으로 넣기. 쿠키 SameSite=Strict는 보조다.
-- [ ] **비밀값 점검**: 생성기 `node scripts/generate-prod-secrets.mjs` (출력만, 파일에 쓰지 않음). `AUTH_SECRET`·`AI_SERVICE_TOKEN`·DB 비밀번호·SMTP·토스 키를 운영용으로 새로 만들고 저장소에 남기지 않는다. 개발 값 재사용 금지. 배포 전이므로 값은 아직 발급하지 않았다.
+- [ ] **비밀값 점검**: 생성기 `node scripts/generate-prod-secrets.mjs` (출력만, 파일에 쓰지 않음). `AUTH_SECRET`·`AI_SERVICE_TOKEN`·DB 비밀번호·SMTP·토스 키를 운영용으로 새로 만들고 저장소에 남기지 않는다. 개발 값 재사용 금지. **2026-11-07 Oracle 서버용 `AUTH_SECRET`·`AI_SERVICE_TOKEN`·DB 비밀번호·`WEB_PROXY_TOKEN`은 서버에서 새로 만들어 서버 `.env`(권한 600)와 Vercel(sensitive)에만 두었다.** SMTP·토스 키는 아직 없다. 작업 대화에 개인키 내용과 `WEB_PROXY_TOKEN` 값이 한 번씩 드러났으니 교체를 권한다([docs/TASKS.md](docs/TASKS.md) U10).
 - [x] **개발용 스위치** (코드): `NODE_ENV=production` / `APP_ENV=production`이면 `LLM_FAKE`, `IMAGE_FAKE`, `MODEL_PREMIUM_FAKE`, `BILLING_PROVIDER=mock`, `MAIL_OUTBOX_DIR`이 있으면 시작하지 않는다. Mailpit은 개발 compose 전용이다.
 - [x] **서버 대수**: 한 대로 정했다(2026-11-03). 여러 대로 늘리면 `RATE_LIMIT_STORE=db`, AI 대기열은 서버 대수만큼 따로 센다는 점을 감안한다.
 - [ ] **성인 확인의 법률 검토**: 방식은 자기 신고를 유지한다(2026-10-25). 본인인증을 넣을지는 변호사 검토. 신고·검토·접근 차단·계정 정지는 콘솔 「그림 신고」에 있다.

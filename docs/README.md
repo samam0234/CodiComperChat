@@ -4,7 +4,7 @@
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재(2026-11-06) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 28개), Redis는 쓰지 않는다. **배포는 아직이다.** `web_management/`·`DEPLOYMENT.md`의 배포 절차는 아직 목표 문서이고, 그렇게 표시해 두었다.
+> 현재(2026-11-07) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 28개), Redis는 쓰지 않는다. **2026-11-07에 실제로 배포했다**: 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM. 지금 서버의 정본은 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). GPU 서버 절차(`docker-deploy.md`)는 그림 엔진용 목표 문서로 남는다.
 >
 > **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(지금 상태), [TASKS.md](TASKS.md)(할 일), [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
 
@@ -140,7 +140,7 @@ docs/
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 공개 전 보안·법률 체크 | [../SECURITY.md](../SECURITY.md) |
 | 모델·라이선스 | [plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md), [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) |
-| 배포 | [DEPLOYMENT.md](DEPLOYMENT.md), [web_management/](web_management/) |
+| 배포 | [DEPLOYMENT.md](DEPLOYMENT.md), 지금 서버 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md), [web_management/](web_management/) |
 
 `branchs/commits/`, `find_debug/`, 날짜가 붙은 `trainings/` 결과 노트는 그때의 기록이라 지금 상태에 맞춰 고치지 않는다.
 
