@@ -390,5 +390,6 @@ flowchart LR
 | 2026-11-07 | `b85ac64` | claude/project-thread-pz0x5f | Oracle 서버 배포 상태를 문서에 반영 | [261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md](commits/261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md) |
 | 2026-11-07 | `0235ccc` | develop (merge) | claude/project-thread-pz0x5f into develop | [261107_0902_0235ccc_merge-ai-oracle-deploy_develop.md](commits/261107_0902_0235ccc_merge-ai-oracle-deploy_develop.md) |
 | 2026-11-07 | `a1d87be` | main (merge) | develop into main | [261107_0902_a1d87be_merge-develop-main-ai-oracle_main.md](commits/261107_0902_a1d87be_merge-develop-main-ai-oracle_main.md) |
+| 2026-11-07 | `f9e425f` | claude/project-thread-pz0x5f | 병합 뒤 main 기준으로 배포 안내를 고친다 | [261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md](commits/261107_0008_f9e425f_handover-main-ref_claude-project-thread-pz0x5f.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
