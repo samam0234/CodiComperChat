@@ -428,5 +428,6 @@ flowchart LR
 | 2026-11-07 | `ada68a9` | feature/docs-gap-fill | 호스팅 31B 모델 평가(Q08)를 품질 개선 표에 더한다 | [261107_1414_ada68a9_tasks-q08-hosted-eval_feature-docs-gap-fill.md](commits/261107_1414_ada68a9_tasks-q08-hosted-eval_feature-docs-gap-fill.md) |
 | 2026-11-07 | `b5c1826` | feature/docs-gap-fill | Vercel Root Directory 설정은 직접 확인하지 못했다고 단서를 단다 | [261107_1414_b5c1826_web-readme-rootdir-caveat_feature-docs-gap-fill.md](commits/261107_1414_b5c1826_web-readme-rootdir-caveat_feature-docs-gap-fill.md) |
 | 2026-11-07 | `86d9552` | feature/docs-gap-fill | 호스팅 API 백엔드에서는 무료 모델 고르기가 사라지는 점을 모델 전략에 적는다 | [261107_1415_86d9552_strategy-hosted-model-choice_feature-docs-gap-fill.md](commits/261107_1415_86d9552_strategy-hosted-model-choice_feature-docs-gap-fill.md) |
+| 2026-11-07 | `8292226` | feature/docs-gap-fill | 호스팅 서버의 강화 무료 모델 고르기 정리(T06)를 더한다 | [261107_1415_8292226_tasks-t06-model-choice_feature-docs-gap-fill.md](commits/261107_1415_8292226_tasks-t06-model-choice_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
