@@ -455,5 +455,6 @@ flowchart LR
 | 2026-11-07 | `9ab35bc` | develop (merge) | feature/deploy-status-1107b into develop | [261107_2213_9ab35bc_merge-deploy-status-1107b_develop.md](commits/261107_2213_9ab35bc_merge-deploy-status-1107b_develop.md) |
 | 2026-11-07 | `db81c7c` | main (merge) | develop into main | [261107_2213_db81c7c_merge-develop-main-deploy-status_main.md](commits/261107_2213_db81c7c_merge-develop-main-deploy-status_main.md) |
 | 2026-11-07 | `dee911f` | feature/portfolio-site-model | 포트폴리오 챗봇을 e4b 하나로 맞추다 | [261107_2253_dee911f_portfolio-e4b-only_feature-portfolio-site-model.md](commits/261107_2253_dee911f_portfolio-e4b-only_feature-portfolio-site-model.md) |
+| 2026-11-07 | `36ff895` | develop (merge) | feature/portfolio-site-model into develop (no-ff) | [261107_2254_36ff895_merge-portfolio-e4b_develop.md](commits/261107_2254_36ff895_merge-portfolio-e4b_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
