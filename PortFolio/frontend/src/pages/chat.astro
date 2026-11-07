@@ -1,0 +1,583 @@
+---
+// AI 가이드 챗봇: 브라우저 → Rails(/api/v1/chat) → Flask(LangGraph · RAG) → Ollama gemma4:12b
+// 대화 기록은 이 브라우저의 localStorage에만 있다(서버는 저장하지 않는다).
+import Base from "../layouts/Base.astro";
+const suggestions = [
+  "코디컴퍼챗은 어떤 서비스이고, 보통의 캐릭터 채팅과 무엇이 다른가요?",
+  "비밀 퀘스트 판정에서 잘못 통과 0건은 어떻게 만들었나요?",
+  "웹, Nest, FastAPI를 왜 이렇게 나눴나요?",
+  "무료 서버에 배포하면서 어디서 막혔나요?",
+  "작은 모델의 나레이션 점수를 7/12에서 48/48로 올린 방법은?",
+  "월드코퍼챗 미니게임 보상은 누가 정하나요?",
+];
+const steps = [
+  ["route", "질문 분류"],
+  ["condense", "후속 질문 정리"],
+  ["retrieve", "BM25 검색"],
+  ["grade", "근거 선별"],
+  ["generate", "답 쓰기"],
+];
+---
+
+<Base title="AI 가이드 챗봇" description="코디컴퍼챗이 어떻게 만들어졌는지 저장소 문서를 근거로 설명하는 AI 가이드 (LangChain · LangGraph · RAG · gemma4:12b)" active="chat">
+  <div class="chat-app container">
+    <aside class="convs card" aria-label="대화 목록">
+      <button class="btn primary new" id="new">＋ 새 대화</button>
+      <ul id="conv-list"></ul>
+      <div class="conv-tools">
+        <button class="mini" id="export">내보내기</button>
+        <button class="mini danger" id="clear">모두 지우기</button>
+      </div>
+      <p class="muted tiny">대화는 이 브라우저(localStorage)에만 저장되고 서버에는 남지 않습니다.</p>
+    </aside>
+
+    <section class="pane card">
+      <header class="pane-head">
+        <div>
+          <p class="eyebrow">08 · AI GUIDE</p>
+          <h1>코디컴퍼챗 가이드에게 물어보기</h1>
+        </div>
+        <div class="status" id="status"><span class="dot"></span><span id="status-text">연결 확인 중…</span></div>
+      </header>
+
+      <ol class="pipeline" aria-label="LangGraph 처리 단계">
+        {steps.map(([id, label]) => <li data-step={id}><b>{id}</b><span>{label}</span></li>)}
+      </ol>
+
+      <div class="messages" id="messages" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <h2>무엇이 궁금하세요?</h2>
+          <p class="muted">저장소 문서 22개 · 기획 스프레드시트 · 포트폴리오 콘텐츠를 근거로 답하고, 문장 끝에 근거 번호를 답니다. 근거가 없으면 지어내지 않습니다.</p>
+          <div class="chips">{suggestions.map((s) => <button class="chip" data-ask={s}>{s}</button>)}</div>
+        </div>
+      </div>
+
+      <form class="composer" id="form">
+        <textarea id="input" rows="2" maxlength="1000" placeholder="질문을 입력하세요 (Enter 보내기 · Shift+Enter 줄바꿈)" aria-label="질문"></textarea>
+        <button class="btn copper" id="send" type="submit">보내기</button>
+      </form>
+      <p class="muted tiny foot">모델 <code>gemma4:12b</code>(예비 <code>gemma4:e4b</code>) · 로컬 GPU에서 한 번에 10~60초 걸릴 수 있어요. 1분에 6번까지 물을 수 있습니다.</p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  type Source = { n: number; source: string; heading: string; score: number; snippet: string };
+  type Msg = { role: "user" | "assistant"; content: string; sources?: Source[]; steps?: { node: string; ms: number }[]; model?: string; ms?: number; error?: boolean; at: number };
+  type Conv = { id: string; title: string; messages: Msg[]; updated: number };
+  const KEY = "pf-chat-v1";
+  const api = document.body.dataset.api;
+
+  // ── 저장소(localStorage) ──
+  const load = (): { convs: Conv[]; active: string | null } => {
+    try { return JSON.parse(localStorage.getItem(KEY) || "") ?? { convs: [], active: null }; } catch { return { convs: [], active: null }; }
+  };
+  let state = load();
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 저장 공간이 꽉 차면 가장 오래된 대화를 버린다 */ state.convs = state.convs.slice(0, Math.max(1, state.convs.length - 3)); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} } };
+  const active = () => state.convs.find((c) => c.id === state.active) ?? null;
+  const newConv = () => { const c: Conv = { id: crypto.randomUUID(), title: "새 대화", messages: [], updated: Date.now() }; state.convs.unshift(c); state.active = c.id; save(); render(); return c; };
+
+  // ── 화면 ──
+  const list = document.getElementById("conv-list")!;
+  const box = document.getElementById("messages")!;
+  const welcome = document.getElementById("welcome")!;
+  const input = document.getElementById("input") as HTMLTextAreaElement;
+  const send = document.getElementById("send") as HTMLButtonElement;
+  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+  // 아주 작은 마크다운: 굵게·코드·목록·표·[n] 근거 (먼저 이스케이프해서 HTML이 끼어들지 않는다)
+  function md(text: string, sources: Source[] = []) {
+    const lines = esc(text).split("\n");
+    let html = "", inList = false, table: string[] = [];
+    const flushTable = () => {
+      if (!table.length) return;
+      const rows = table.filter((r) => !/^\|\s*-/.test(r)).map((r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim()));
+      html += `<table class="grid"><thead><tr>${rows[0].map((c) => `<th>${c}</th>`).join("")}</tr></thead><tbody>${rows.slice(1).map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      table = [];
+    };
+    for (const raw of lines) {
+      const l = raw.trimEnd();
+      if (/^\|.*\|$/.test(l.trim())) { table.push(l.trim()); continue; }
+      flushTable();
+      const li = l.match(/^\s*(?:[*-]|\d+\.)\s+(.*)/);
+      if (li) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${li[1]}</li>`; continue; }
+      if (inList) { html += "</ul>"; inList = false; }
+      if (/^#{1,4}\s/.test(l)) { html += `<h4>${l.replace(/^#+\s/, "")}</h4>`; continue; }
+      if (l.trim()) html += `<p>${l}</p>`;
+    }
+    flushTable();
+    if (inList) html += "</ul>";
+    return html
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/(\/(?:frontend|console|backend|ai|future|data|erd))\b/g, '<a href="$1">$1</a>')
+      .replace(/\[(\d+(?:\s*,\s*\d+)*)\]/g, (_, nums: string) =>
+        nums.split(",").map((n) => { const k = Number(n.trim()); const s = sources.find((x) => x.n === k); return s ? `<button class="cite" data-cite="${k}" title="${esc(s.source)}">${k}</button>` : `[${k}]`; }).join(""),
+      );
+  }
+
+  function msgHtml(m: Msg, i: number) {
+    if (m.role === "user") return `<div class="msg user"><div class="bubble">${esc(m.content).replace(/\n/g, "<br>")}</div></div>`;
+    const steps = (m.steps ?? []).map((s) => `<span>${s.node}<em>${s.ms >= 1000 ? (s.ms / 1000).toFixed(1) + "s" : s.ms + "ms"}</em></span>`).join("");
+    const src = m.sources?.length
+      ? `<details class="sources"><summary>근거 ${m.sources.length}개</summary><ol>${m.sources.map((s) => `<li id="m${i}-s${s.n}"><b>[${s.n}] ${esc(s.source)}</b>${s.heading ? `<span class="muted"> · ${esc(s.heading)}</span>` : ""}<p>${esc(s.snippet)}</p></li>`).join("")}</ol></details>`
+      : "";
+    return `<div class="msg bot${m.error ? " error" : ""}" data-i="${i}"><div class="avatar" aria-hidden="true">C</div><div class="body">
+      <div class="answer">${md(m.content, m.sources)}</div>${src}
+      ${m.error ? `<button class="mini retry" data-retry="${i}">다시 묻기</button>` : `<div class="trace">${m.model ? `<span class="model">${esc(m.model)}</span>` : ""}${steps}${m.ms ? `<span class="total">${(m.ms / 1000).toFixed(1)}초</span>` : ""}<button class="mini copy" data-copy="${i}">복사</button></div>`}
+    </div></div>`;
+  }
+
+  function render() {
+    list.innerHTML = state.convs
+      .sort((a, b) => b.updated - a.updated)
+      .map((c) => `<li><button class="${c.id === state.active ? "on" : ""}" data-conv="${c.id}"><span>${esc(c.title)}</span><small>${new Date(c.updated).toLocaleDateString("ko-KR")}</small></button><button class="del" data-del="${c.id}" aria-label="${esc(c.title)} 지우기">✕</button></li>`)
+      .join("") || `<li class="muted tiny">아직 대화가 없어요.</li>`;
+    const c = active();
+    box.querySelectorAll(".msg, .pending").forEach((n) => n.remove());
+    welcome.hidden = !!c?.messages.length;
+    c?.messages.forEach((m, i) => box.insertAdjacentHTML("beforeend", msgHtml(m, i)));
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ── 처리 단계 표시 (응답이 오기 전에는 시간으로 추정해 보여 준다) ──
+  const pipe = [...document.querySelectorAll<HTMLElement>(".pipeline li")];
+  let pipeTimer = 0;
+  const pipeline = (on: boolean, done?: string[]) => {
+    clearInterval(pipeTimer);
+    pipe.forEach((p) => p.classList.remove("run", "ok"));
+    if (done) return pipe.forEach((p) => done.includes(p.dataset.step!) && p.classList.add("ok"));
+    if (!on) return;
+    let k = 0;
+    pipe[0].classList.add("run");
+    pipeTimer = window.setInterval(() => { if (k < 3) { pipe[k].classList.replace("run", "ok"); pipe[++k].classList.add("run"); } }, 450);
+  };
+
+  async function ask(text: string, retryIndex?: number) {
+    const c = active() ?? newConv();
+    if (retryIndex === undefined) {
+      c.messages.push({ role: "user", content: text, at: Date.now() });
+      if (c.title === "새 대화") c.title = text.slice(0, 28) + (text.length > 28 ? "…" : "");
+    } else c.messages.splice(retryIndex, 1);
+    c.updated = Date.now();
+    save(); render();
+    const history = c.messages.slice(0, -1).filter((m) => !m.error).slice(-12).map(({ role, content }) => ({ role, content }));
+    const t0 = Date.now();
+    box.insertAdjacentHTML("beforeend", `<div class="pending msg bot"><div class="avatar">C</div><div class="body"><span class="typing"><i></i><i></i><i></i></span> <span class="muted" id="elapsed">근거를 찾고 답을 쓰는 중… 0초</span></div></div>`);
+    box.scrollTop = box.scrollHeight;
+    const tick = window.setInterval(() => { const el = document.getElementById("elapsed"); if (el) el.textContent = `근거를 찾고 답을 쓰는 중… ${Math.round((Date.now() - t0) / 1000)}초`; }, 1000);
+    send.disabled = true; input.disabled = true; pipeline(true);
+    try {
+      const res = await fetch(`${api}/api/v1/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text, history }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `서버 오류 (${res.status})`);
+      c.messages.push({ role: "assistant", content: data.answer, sources: data.sources, steps: data.steps, model: data.model, ms: data.ms, at: Date.now() });
+      pipeline(false, (data.steps ?? []).map((s: { node: string }) => s.node));
+    } catch (e) {
+      const msg = e instanceof TypeError ? "서버(Rails)에 연결하지 못했어요. 로컬이면 bin/rails server와 Flask(run.py)를 켜 주세요." : (e as Error).message;
+      c.messages.push({ role: "assistant", content: msg, error: true, at: Date.now() });
+      pipeline(false);
+    } finally {
+      clearInterval(tick);
+      c.updated = Date.now();
+      save(); render();
+      send.disabled = false; input.disabled = false; input.focus();
+    }
+  }
+
+  // ── 이벤트 ──
+  document.getElementById("form")!.addEventListener("submit", (e) => { e.preventDefault(); const t = input.value.trim(); if (!t || send.disabled) return; input.value = ""; ask(t); });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); (document.getElementById("form") as HTMLFormElement).requestSubmit(); } });
+  document.getElementById("new")!.addEventListener("click", () => { newConv(); input.focus(); });
+  document.getElementById("clear")!.addEventListener("click", () => { if (confirm("이 브라우저에 저장된 대화를 모두 지울까요? 되돌릴 수 없어요.")) { state = { convs: [], active: null }; save(); render(); } });
+  document.getElementById("export")!.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state.convs, null, 2)], { type: "application/json" });
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `codicomperchat-guide-${new Date().toISOString().slice(0, 10)}.json` });
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  document.addEventListener("click", (e) => {
+    const t = e.target as HTMLElement;
+    const conv = t.closest<HTMLElement>("[data-conv]"); if (conv) { state.active = conv.dataset.conv!; save(); render(); return; }
+    const del = t.closest<HTMLElement>("[data-del]"); if (del) { state.convs = state.convs.filter((c) => c.id !== del.dataset.del); if (state.active === del.dataset.del) state.active = state.convs[0]?.id ?? null; save(); render(); return; }
+    const chip = t.closest<HTMLElement>("[data-ask]"); if (chip) { ask(chip.dataset.ask!); return; }
+    const retry = t.closest<HTMLElement>("[data-retry]"); if (retry) { const c = active(); const i = Number(retry.dataset.retry); const q = c?.messages[i - 1]?.content; if (q) ask(q, i); return; }
+    const copy = t.closest<HTMLElement>("[data-copy]"); if (copy) { const m = active()?.messages[Number(copy.dataset.copy)]; if (m) navigator.clipboard?.writeText(m.content).then(() => (copy.textContent = "복사됨")); return; }
+    const cite = t.closest<HTMLElement>("[data-cite]");
+    if (cite) { const msg = cite.closest<HTMLElement>(".msg")!; const d = msg.querySelector("details"); if (d) { d.open = true; msg.querySelector(`#m${msg.dataset.i}-s${cite.dataset.cite}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }
+  });
+
+  // ── 연결 상태 ──
+  (async () => {
+    const dot = document.querySelector<HTMLElement>("#status .dot")!; const txt = document.getElementById("status-text")!;
+    try {
+      const h = await (await fetch(`${api}/api/v1/health`)).json();
+      const ok = h.ai?.reachable && h.ai?.ollama?.reachable;
+      dot.className = `dot ${ok ? "ok" : "warn"}`;
+      txt.textContent = ok ? `연결됨 · ${h.ai.model} · 자료 조각 ${h.ai.chunks}개` : "Rails 연결됨 · AI 서비스 꺼짐";
+    } catch { dot.className = "dot bad"; txt.textContent = "서버 꺼짐 (데모 모드: 질문을 보낼 수 없어요)"; }
+  })();
+
+  if (!state.active && state.convs[0]) state.active = state.convs[0].id;
+  render();
+  const preset = new URLSearchParams(location.search).get("q");
+  if (preset) { history.replaceState(null, "", "/chat"); newConv(); ask(preset); }
+</script>
+
+<style>
+  .chat-app {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 18px;
+    padding-top: 26px;
+    height: calc(100vh - 68px);
+    min-height: 640px;
+  }
+  .convs {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .new {
+    justify-content: center;
+  }
+  #conv-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 2px;
+  }
+  #conv-list :global(li) {
+    display: flex;
+    align-items: center;
+  }
+  #conv-list :global(button[data-conv]) {
+    all: unset;
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: grid;
+  }
+  #conv-list :global(button[data-conv] span) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+  #conv-list :global(button[data-conv] small) {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  #conv-list :global(button.on),
+  #conv-list :global(button[data-conv]:hover) {
+    background: var(--copper-soft);
+  }
+  #conv-list :global(.del) {
+    all: unset;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 6px;
+    font-size: 12px;
+  }
+  .conv-tools {
+    display: flex;
+    gap: 6px;
+  }
+  .mini,
+  :global(.mini) {
+    font: inherit;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .danger {
+    color: var(--danger);
+  }
+  .tiny {
+    font-size: 12px;
+    margin: 0;
+  }
+  .muted,
+  :global(.muted) {
+    color: var(--muted);
+  }
+  .pane {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .pane-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 14px;
+    padding: 18px 22px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .pane-head h1 {
+    font-size: 1.35rem;
+    margin: 6px 0 0;
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .status :global(.dot) {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .status :global(.dot.ok) {
+    background: var(--ok);
+    box-shadow: 0 0 0 4px rgb(47 127 79 / 0.15);
+  }
+  .status :global(.dot.warn) {
+    background: var(--warn);
+  }
+  .status :global(.dot.bad) {
+    background: var(--danger);
+  }
+  .pipeline {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 10px 22px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .pipeline li {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .pipeline li b {
+    font: 600 11px var(--mono);
+  }
+  .pipeline :global(li.run) {
+    background: var(--copper-soft);
+    color: var(--copper);
+    animation: pulse 1s infinite;
+  }
+  .pipeline :global(li.ok) {
+    background: color-mix(in srgb, var(--teal) 15%, transparent);
+    color: var(--teal);
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+  .messages {
+    flex: 1;
+    overflow: auto;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .welcome h2 {
+    font-size: 1.5rem;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .chip:hover {
+    border-color: var(--copper);
+  }
+  .messages :global(.msg) {
+    display: flex;
+    gap: 12px;
+  }
+  .messages :global(.msg.user) {
+    justify-content: flex-end;
+  }
+  .messages :global(.bubble) {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 11px 15px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 72%;
+  }
+  .messages :global(.avatar) {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--copper), #7a3d17);
+  }
+  .messages :global(.body) {
+    min-width: 0;
+    max-width: 82%;
+  }
+  .messages :global(.answer) {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: 12px 16px;
+    border-radius: 4px 16px 16px 16px;
+  }
+  .messages :global(.answer p) {
+    margin: 0.35em 0;
+  }
+  .messages :global(.answer ul) {
+    padding-left: 20px;
+    margin: 0.4em 0;
+  }
+  .messages :global(.answer table) {
+    margin: 8px 0;
+  }
+  .messages :global(.error .answer) {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .messages :global(.cite) {
+    all: unset;
+    cursor: pointer;
+    font: 700 10px/1 var(--mono);
+    padding: 2px 5px;
+    margin: 0 1px;
+    border-radius: 5px;
+    background: var(--copper);
+    color: #fff;
+    vertical-align: 2px;
+  }
+  .messages :global(.sources) {
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .messages :global(.sources summary) {
+    cursor: pointer;
+    color: var(--copper);
+  }
+  .messages :global(.sources ol) {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .messages :global(.sources li) {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .messages :global(.sources p) {
+    margin: 4px 0 0;
+    color: var(--muted);
+  }
+  .messages :global(.trace) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .messages :global(.trace span) {
+    font: 11px var(--mono);
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--muted);
+  }
+  .messages :global(.trace em) {
+    font-style: normal;
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+  .messages :global(.trace .model) {
+    background: var(--copper-soft);
+    color: var(--copper);
+  }
+  .messages :global(.typing i) {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 3px;
+    border-radius: 50%;
+    background: var(--copper);
+    animation: bounce 1.2s infinite;
+  }
+  .messages :global(.typing i:nth-child(2)) {
+    animation-delay: 0.15s;
+  }
+  .messages :global(.typing i:nth-child(3)) {
+    animation-delay: 0.3s;
+  }
+  @keyframes bounce {
+    40% {
+      transform: translateY(-5px);
+    }
+  }
+  .composer {
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px 6px;
+    border-top: 1px solid var(--line);
+  }
+  .composer textarea {
+    flex: 1;
+    font: inherit;
+    resize: none;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .foot {
+    padding: 0 18px 12px;
+  }
+  @media (max-width: 860px) {
+    .chat-app {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+    .convs {
+      max-height: 220px;
+    }
+    .pane {
+      min-height: 76vh;
+    }
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+// 층별 상세 페이지: 프론트엔드 · 어드민 콘솔 · 백엔드 · AI 서비스 · 미래 지향
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import { pages, toc, detailPages } from "../lib/content";
+
+export function getStaticPaths() {
+  return detailPages.map((slug) => ({ params: { slug } }));
+}
+const { slug } = Astro.params as { slug: (typeof detailPages)[number] };
+const page = pages[slug];
+const idx = toc.findIndex((t) => t.slug === slug);
+const prev = toc[idx - 1];
+const next = toc[idx + 1];
+---
+
+<Base title={toc[idx].title} description={page.summary} active={slug}>
+  <section class="head">
+    <div class="container">
+      <p class="eyebrow">{page.kicker}</p>
+      <h1>{page.title}</h1>
+      <p class="lead">{page.summary}</p>
+    </div>
+  </section>
+  <div class="container layout">
+    <aside class="side" aria-label="이 페이지 목차">
+      <p class="muted small">이 페이지</p>
+      <ol>
+        {page.sections.map((s, i) => (
+          <li>
+            <a href={`#${s.id}`} data-spy={s.id}><span>{String(i + 1).padStart(2, "0")}</span>{s.title}</a>
+          </li>
+        ))}
+      </ol>
+      <a class="btn copper ask" href={`/chat?q=${encodeURIComponent(`${toc[idx].title}에 대해 핵심만 알려 줘`)}`}>이 페이지를 AI에게 묻기</a>
+    </aside>
+    <article class="content">
+      {page.sections.map((s, i) => <Section section={s} index={i} />)}
+      <nav class="pager" aria-label="이전·다음 페이지">
+        {prev ? <a class="card" href={`/${prev.slug}`}><small>← 이전</small><b>{prev.title}</b></a> : <a class="card" href="/"><small>← 처음</small><b>메인</b></a>}
+        {next && <a class="card right" href={`/${next.slug}`}><small>다음 →</small><b>{next.title}</b></a>}
+      </nav>
+    </article>
+  </div>
+</Base>
+
+<script>
+  // 지금 보고 있는 절을 옆 목차에 표시
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>("[data-spy]")].map((a) => [a.dataset.spy!, a]));
+  const spy = new IntersectionObserver(
+    (es) => es.forEach((e) => e.isIntersecting && links.forEach((a, id) => a.classList.toggle("on", id === e.target.id))),
+    { rootMargin: "-30% 0px -60% 0px" },
+  );
+  links.forEach((_, id) => { const el = document.getElementById(id); if (el) spy.observe(el); });
+</script>
+
+<style>
+  .head {
+    background: var(--hero);
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 48px;
+    padding-top: 28px;
+  }
+  .side {
+    position: sticky;
+    top: 92px;
+    align-self: start;
+  }
+  .side ol {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 18px;
+    display: grid;
+    gap: 2px;
+    border-left: 2px solid var(--line);
+  }
+  .side ol a {
+    display: flex;
+    gap: 10px;
+    padding: 6px 12px;
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .side ol a span {
+    font: 600 12px/1.9 var(--mono);
+  }
+  .side ol a:hover,
+  .side ol a.on {
+    color: var(--ink);
+    border-left-color: var(--copper);
+  }
+  .ask {
+    font-size: 13px;
+    padding: 9px 14px;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .small {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    margin: 0;
+  }
+  .content {
+    min-width: 0;
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 48px;
+  }
+  .pager a {
+    display: grid;
+    padding: 18px 20px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .pager .right {
+    text-align: right;
+    grid-column: 2;
+  }
+  .pager small {
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .side {
+      position: static;
+    }
+  }
+</style>

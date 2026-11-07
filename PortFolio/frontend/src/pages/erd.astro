@@ -1,0 +1,444 @@
+---
+// ERD: 실제 DB(마이그레이션 34개 적용)에서 뽑은 ERD(docs/plan/ERD.md, docs/.assets/erd/*.svg)를 응용한 인터랙티브 화면
+import Base from "../layouts/Base.astro";
+import { erdData } from "../lib/content";
+
+const groupTitle = Object.fromEntries(erdData.groups.map((g) => [g.key, g.title]));
+const order = ["account", "chat", "ops", "world", "standalone"];
+const byGroup = order.map((k) => ({ key: k, title: groupTitle[k], tables: erdData.tables.filter((t) => t.group === k) }));
+const enums = 17;
+---
+
+<Base title="ERD" description="코디컴퍼챗 데이터베이스 ERD: 테이블 37 · 외래 키 40 · 열거형 17" active="erd">
+  <section class="head">
+    <div class="container">
+      <p class="eyebrow">07 · ENTITY RELATIONSHIP</p>
+      <h1>ERD — 데이터는 어떻게 이어지나</h1>
+      <p class="lead">마이그레이션을 모두 적용한 PostgreSQL 16을 직접 읽어 만든 ERD입니다(손으로 옮겨 적은 칸이 없습니다). 그림을 확대해 보거나, 아래에서 테이블을 골라 열과 관계를 따라가 보세요.</p>
+      <div class="kpis">
+        <div><b>{erdData.counts.tables}</b><span>테이블</span></div>
+        <div><b>{erdData.counts.relations}</b><span>외래 키</span></div>
+        <div><b>{enums}</b><span>열거형</span></div>
+        <div><b>34</b><span>마이그레이션</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="viewer card" aria-label="ERD 그림">
+      <div class="v-tabs" role="tablist">
+        {erdData.groups.map((g, i) => (
+          <button role="tab" aria-selected={i === 0 ? "true" : "false"} data-svg={`/erd/${g.key}.svg`}>{g.title}</button>
+        ))}
+      </div>
+      <div class="v-tools">
+        <button data-zoom="1.25" aria-label="확대">＋</button>
+        <button data-zoom="0.8" aria-label="축소">－</button>
+        <button data-zoom="reset" aria-label="처음 크기">⟲</button>
+        <a id="open-svg" href="/erd/overview.svg" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
+      </div>
+      <div class="stage" id="stage" tabindex="0" aria-label="끌어서 이동, 휠로 확대">
+        <img id="erd-img" src="/erd/overview.svg" alt="ERD 그림" draggable="false" />
+      </div>
+      <p class="muted small hint">끌어서 이동 · 휠로 확대 · 관계선 이름은 <code>외래 키 칸 · 부모를 지울 때 동작</code></p>
+    </section>
+
+    <section class="explorer" aria-label="테이블 탐색기">
+      <aside class="card list">
+        <input id="tq" type="search" placeholder="테이블 · 열 이름 찾기" aria-label="테이블 찾기" />
+        {byGroup.map((g) => (
+          <div class="grp">
+            <p class="g-title">{g.title}<span>{g.tables.length}</span></p>
+            <ul>
+              {g.tables.map((t) => (
+                <li><button data-table={t.name} data-cols={t.columns.map((c) => c.name).join(" ")}>{t.name}<small>{t.columns.length}</small></button></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </aside>
+      <div class="card detail" id="detail" aria-live="polite">
+        <p class="muted">왼쪽에서 테이블을 고르세요. 예: <button class="link" data-table="campaigns">campaigns</button> · <button class="link" data-table="worlds">worlds</button> · <button class="link" data-table="users">users</button></p>
+      </div>
+    </section>
+
+    <section class="legend card">
+      <h2>읽는 법</h2>
+      <table class="grid">
+        <tbody>
+          <tr><th>PK · FK · UK</th><td>기본 키 · 외래 키 · 고유 키. <code>UK(a+b)</code>는 여러 칸을 묶은 고유 키</td></tr>
+          <tr><th>CASCADE</th><td>부모를 지우면 자식도 지운다 (예: 대화를 지우면 메시지·기억·그림이 함께 지워진다)</td></tr>
+          <tr><th>SET NULL</th><td>부모를 지우면 자식의 외래 키만 비운다 (예: 계정을 지워도 그 사람이 만든 공개 캐릭터는 남는다)</td></tr>
+          <tr><th>RESTRICT</th><td>자식이 있으면 부모를 못 지운다 (대화가 남은 캐릭터는 지우지 않고 '내린다')</td></tr>
+          <tr><th>외래 키 없는 id 칸</th><td><code>content_reports.targetId</code> 등 6개는 그림이 지워져도 신고가 남게 일부러 제약을 두지 않았다</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script is:inline type="application/json" id="erd-data" set:html={JSON.stringify({ tables: erdData.tables, relations: erdData.relations, groups: groupTitle })} />
+</Base>
+
+<script>
+  type Col = { name: string; type: string; keys: string[]; note: string };
+  type Table = { name: string; group: string; columns: Col[] };
+  type Rel = { parent: string; child: string; card: string; fk: string; onDelete: string };
+  const data = JSON.parse(document.getElementById("erd-data")!.textContent!) as { tables: Table[]; relations: Rel[]; groups: Record<string, string> };
+  const byName = new Map(data.tables.map((t) => [t.name, t]));
+
+  // ── 그림 뷰어: 탭 · 확대 · 끌기 ──
+  const img = document.getElementById("erd-img") as HTMLImageElement;
+  const stage = document.getElementById("stage")!;
+  const openSvg = document.getElementById("open-svg") as HTMLAnchorElement;
+  let scale = 1, x = 0, y = 0;
+  const apply = () => (img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`);
+  const reset = () => { scale = 1; x = 0; y = 0; apply(); };
+  document.querySelectorAll<HTMLButtonElement>(".v-tabs button").forEach((b) =>
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".v-tabs button").forEach((o) => o.setAttribute("aria-selected", String(o === b)));
+      img.src = openSvg.href = b.dataset.svg!;
+      reset();
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>("[data-zoom]").forEach((b) =>
+    b.addEventListener("click", () => { if (b.dataset.zoom === "reset") return reset(); scale = Math.min(6, Math.max(0.3, scale * Number(b.dataset.zoom))); apply(); }),
+  );
+  stage.addEventListener("wheel", (e) => { e.preventDefault(); scale = Math.min(6, Math.max(0.3, scale * (e.deltaY < 0 ? 1.12 : 0.89))); apply(); }, { passive: false });
+  let drag: { sx: number; sy: number; ox: number; oy: number } | null = null;
+  stage.addEventListener("pointerdown", (e) => { drag = { sx: e.clientX, sy: e.clientY, ox: x, oy: y }; stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener("pointermove", (e) => { if (!drag) return; x = drag.ox + e.clientX - drag.sx; y = drag.oy + e.clientY - drag.sy; apply(); });
+  stage.addEventListener("pointerup", () => (drag = null));
+
+  // ── 테이블 탐색기 ──
+  const detail = document.getElementById("detail")!;
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const badge = (k: string) => `<span class="k k-${k.toLowerCase()}">${k}</span>`;
+  const action = (a: string) => `<span class="act act-${a.replace(" ", "").toLowerCase()}">${a}</span>`;
+
+  // 고른 테이블을 가운데에 두고 부모(위)·자식(아래)을 잇는 작은 관계도
+  function graph(name: string, parents: Rel[], children: Rel[]) {
+    const W = 640, rowH = 46;
+    const ps = [...new Set(parents.map((r) => r.parent))];
+    const cs = [...new Set(children.map((r) => r.child))];
+    const lines = Math.max(ps.length, cs.length, 1);
+    const per = 3; // 상자 폭 140 → 한 줄 3개까지 겹치지 않는다
+    const H = Math.max(200, 130 + (Math.ceil(ps.length / per) + Math.ceil(cs.length / per)) * rowH);
+    const place = (list: string[], yy: number) => list.map((n, i) => ({ n, x: (W / (Math.min(list.length, per) + 1)) * ((i % per) + 1), y: yy + Math.floor(i / per) * rowH }));
+    const P = place(ps, 30), C = place(cs, H - 40 - Math.floor((cs.length - 1) / per) * rowH);
+    const cy = 30 + Math.ceil(ps.length / per) * rowH + 20 + (ps.length ? 0 : -10);
+    const cx = W / 2;
+    const node = (n: string, nx: number, ny: number, main = false) =>
+      `<g class="node${main ? " main" : ""}" data-go="${n}" transform="translate(${nx} ${ny})"><rect x="-70" y="-15" width="140" height="30" rx="8"/><text text-anchor="middle" dy="5">${n}</text></g>`;
+    const edge = (x1: number, y1: number, x2: number, y2: number) => `<path d="M${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}"/>`;
+    return `<svg class="mini" viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} 관계도">
+      <g class="edges">${P.map((p) => edge(p.x, p.y + 15, cx, cy - 15)).join("")}${C.map((c) => edge(cx, cy + 15, c.x, c.y - 15)).join("")}</g>
+      ${P.map((p) => node(p.n, p.x, p.y)).join("")}${node(name, cx, cy, true)}${C.map((c) => node(c.n, c.x, c.y)).join("")}
+    </svg>${lines > 0 ? "" : ""}`;
+  }
+
+  function show(name: string) {
+    const t = byName.get(name);
+    if (!t) return;
+    const parents = data.relations.filter((r) => r.child === name);
+    const children = data.relations.filter((r) => r.parent === name);
+    document.querySelectorAll(".list button[data-table]").forEach((b) => b.classList.toggle("on", (b as HTMLElement).dataset.table === name));
+    detail.innerHTML = `
+      <div class="d-head"><h2>${esc(name)}</h2><span class="tag">${esc(data.groups[t.group] ?? t.group)}</span><span class="muted">열 ${t.columns.length} · 부모 ${parents.length} · 자식 ${children.length}</span></div>
+      ${parents.length || children.length ? graph(name, parents, children) : `<p class="muted">외래 키가 없는 독립 테이블입니다.</p>`}
+      <div class="tbl"><table class="grid"><thead><tr><th>열</th><th>타입</th><th>키</th><th>비고</th></tr></thead><tbody>
+        ${t.columns.map((c) => `<tr><td><code>${esc(c.name)}</code></td><td class="muted">${esc(c.type)}</td><td>${c.keys.map(badge).join(" ")}</td><td class="muted">${esc(c.note)}</td></tr>`).join("")}
+      </tbody></table></div>
+      ${parents.length ? `<h3>부모 (이 테이블이 가리킴)</h3><ul class="rels">${parents.map((r) => `<li><button class="link" data-table="${r.parent}">${r.parent}</button> ← <code>${esc(r.fk)}</code> ${action(r.onDelete)}</li>`).join("")}</ul>` : ""}
+      ${children.length ? `<h3>자식 (이 테이블을 가리킴)</h3><ul class="rels">${children.map((r) => `<li><button class="link" data-table="${r.child}">${r.child}</button>.<code>${esc(r.fk)}</code> ${action(r.onDelete)}</li>`).join("")}</ul>` : ""}`;
+    history.replaceState(null, "", `#${name}`);
+  }
+
+  document.addEventListener("click", (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>("[data-table],[data-go]");
+    if (el) show(el.dataset.table ?? el.dataset.go!);
+  });
+  const tq = document.getElementById("tq") as HTMLInputElement;
+  tq.addEventListener("input", () => {
+    const q = tq.value.trim().toLowerCase();
+    document.querySelectorAll<HTMLButtonElement>(".list button[data-table]").forEach((b) => {
+      b.parentElement!.hidden = !!q && !(b.dataset.table! + " " + b.dataset.cols).toLowerCase().includes(q);
+    });
+  });
+  if (location.hash && byName.has(location.hash.slice(1))) show(location.hash.slice(1));
+</script>
+
+<style>
+  .head {
+    background: var(--hero);
+    padding: 64px 0 36px;
+    border-bottom: 1px solid var(--line);
+  }
+  .kpis {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .kpis div {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 18px;
+    min-width: 120px;
+  }
+  .kpis b {
+    display: block;
+    font-size: 1.7rem;
+  }
+  .kpis span {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .viewer {
+    margin-top: 28px;
+    overflow: hidden;
+  }
+  .v-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .v-tabs button,
+  .v-tools button {
+    font: inherit;
+    font-size: 14px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .v-tabs button[aria-selected="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .v-tools {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 10px 12px 0;
+  }
+  .v-tools a {
+    margin-left: auto;
+    font-size: 14px;
+  }
+  .stage {
+    height: 560px;
+    overflow: hidden;
+    cursor: grab;
+    background: #fdfcf8;
+    margin: 10px 12px 0;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    touch-action: none;
+  }
+  .stage:active {
+    cursor: grabbing;
+  }
+  .stage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform-origin: center;
+    user-select: none;
+  }
+  .hint {
+    padding: 10px 14px 14px;
+    margin: 0;
+  }
+  .explorer {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    gap: 18px;
+    margin-top: 28px;
+    align-items: start;
+  }
+  .list {
+    padding: 14px;
+    max-height: 760px;
+    overflow: auto;
+    position: sticky;
+    top: 88px;
+  }
+  #tq {
+    width: 100%;
+    font: inherit;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .g-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--copper);
+    margin: 14px 4px 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .list button {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font: 13px/1.5 var(--mono);
+    cursor: pointer;
+    color: var(--ink-2);
+  }
+  .list button small {
+    color: var(--muted);
+  }
+  .list button:hover,
+  .list button.on {
+    background: var(--copper-soft);
+    color: var(--ink);
+  }
+  .detail {
+    padding: 22px;
+    min-height: 420px;
+  }
+  .detail :global(.d-head) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .detail :global(.d-head h2) {
+    margin: 0;
+    font-family: var(--mono);
+  }
+  .detail :global(.muted) {
+    color: var(--muted);
+  }
+  .detail :global(.tbl) {
+    overflow: auto;
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .detail :global(.k) {
+    font: 700 10px/1 var(--mono);
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+  .detail :global(.k-pk) {
+    background: var(--copper);
+    color: #fff;
+  }
+  .detail :global(.k-fk) {
+    background: var(--teal);
+    color: #fff;
+  }
+  .detail :global(.act) {
+    font: 600 11px/1 var(--mono);
+    padding: 3px 6px;
+    border-radius: 5px;
+    margin-left: 6px;
+    background: var(--surface-2);
+  }
+  .detail :global(.act-cascade) {
+    color: var(--danger);
+  }
+  .detail :global(.act-setnull) {
+    color: var(--warn);
+  }
+  .detail :global(.act-restrict) {
+    color: var(--teal);
+  }
+  .detail :global(.rels) {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  :global(.link) {
+    all: unset;
+    cursor: pointer;
+    color: var(--copper);
+    font-family: var(--mono);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .detail :global(.mini) {
+    width: 100%;
+    max-height: 420px;
+    margin: 14px 0 4px;
+    background: var(--surface-2);
+    border-radius: 12px;
+  }
+  .detail :global(.mini path) {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.4;
+  }
+  .detail :global(.mini rect) {
+    fill: var(--surface);
+    stroke: var(--line);
+  }
+  .detail :global(.mini text) {
+    font: 12px var(--mono);
+    fill: var(--ink);
+  }
+  .detail :global(.mini .node) {
+    cursor: pointer;
+  }
+  .detail :global(.mini .node:hover rect) {
+    stroke: var(--copper);
+  }
+  .detail :global(.mini .main rect) {
+    fill: var(--copper);
+    stroke: var(--copper);
+  }
+  .detail :global(.mini .main text) {
+    fill: #fff;
+    font-weight: 700;
+  }
+  .legend {
+    margin-top: 28px;
+    padding: 22px;
+  }
+  .legend th {
+    position: static;
+    width: 22%;
+    color: var(--ink);
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .small {
+    font-size: 13px;
+  }
+  @media (max-width: 900px) {
+    .explorer {
+      grid-template-columns: 1fr;
+    }
+    .list {
+      position: static;
+      max-height: 320px;
+    }
+    .stage {
+      height: 380px;
+    }
+  }
+</style>
