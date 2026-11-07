@@ -424,5 +424,6 @@ flowchart LR
 | 2026-11-07 | `a46a55b` | feature/docs-gap-fill | 처리방침·약관 확인(U11·U12)과 성인 모드 가드(T05)를 작업 지시서에 더한다 | [261107_1413_a46a55b_tasks-privacy-adult-guard_feature-docs-gap-fill.md](commits/261107_1413_a46a55b_tasks-privacy-adult-guard_feature-docs-gap-fill.md) |
 | 2026-11-07 | `e7d747e` | feature/docs-gap-fill | Oracle 서버 응답 속도 실측과 재지 못한 것을 노트로 남긴다 | [261107_1413_e7d747e_trainings-oracle-latency_feature-docs-gap-fill.md](commits/261107_1413_e7d747e_trainings-oracle-latency_feature-docs-gap-fill.md) |
 | 2026-11-07 | `db903ce` | feature/docs-gap-fill | 웹 README에 Vercel 배포와 환경변수를 적는다 | [261107_1414_db903ce_web-readme-vercel_feature-docs-gap-fill.md](commits/261107_1414_db903ce_web-readme-vercel_feature-docs-gap-fill.md) |
+| 2026-11-07 | `1f83511` | feature/docs-gap-fill | 콘솔 README에 Vercel 현황과 API 연결 조건을 적는다 | [261107_1414_1f83511_console-readme-vercel_feature-docs-gap-fill.md](commits/261107_1414_1f83511_console-readme-vercel_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
