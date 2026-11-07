@@ -37,6 +37,7 @@ flowchart LR
 | [memory-and-grounding.md](memory-and-grounding.md) | 페르소나 지식 검색, 개인사 환각 막기, 이야기 상태 정리 |
 | [quest-judging.md](quest-judging.md) | 비밀 퀘스트 판정: 코레딧이 나가는 판정을 어떻게 믿을 수 있게 했나 |
 | [image-pipeline.md](image-pipeline.md) | 그림 모델, 프롬프트 조립, 그림 검수, 속도, 그래픽 메모리 |
+| [oracle-deploy-latency.md](oracle-deploy-latency.md) | Oracle 서버의 호스팅 API(19.0초)·예비 CPU(32.1초) 응답 한 번씩, 시간 제한 사슬, **재지 못한 것**(31B 품질 평가 등) (2026-11-07) |
 | [test-infrastructure.md](test-infrastructure.md) | e2e 무작위 실패의 원인 찾기, 부하 측정, 평가 도구 자체의 결함 |
 
 ## 측정 환경
