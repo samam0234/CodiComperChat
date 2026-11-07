@@ -426,5 +426,6 @@ flowchart LR
 | 2026-11-07 | `db903ce` | feature/docs-gap-fill | 웹 README에 Vercel 배포와 환경변수를 적는다 | [261107_1414_db903ce_web-readme-vercel_feature-docs-gap-fill.md](commits/261107_1414_db903ce_web-readme-vercel_feature-docs-gap-fill.md) |
 | 2026-11-07 | `1f83511` | feature/docs-gap-fill | 콘솔 README에 Vercel 현황과 API 연결 조건을 적는다 | [261107_1414_1f83511_console-readme-vercel_feature-docs-gap-fill.md](commits/261107_1414_1f83511_console-readme-vercel_feature-docs-gap-fill.md) |
 | 2026-11-07 | `ada68a9` | feature/docs-gap-fill | 호스팅 31B 모델 평가(Q08)를 품질 개선 표에 더한다 | [261107_1414_ada68a9_tasks-q08-hosted-eval_feature-docs-gap-fill.md](commits/261107_1414_ada68a9_tasks-q08-hosted-eval_feature-docs-gap-fill.md) |
+| 2026-11-07 | `b5c1826` | feature/docs-gap-fill | Vercel Root Directory 설정은 직접 확인하지 못했다고 단서를 단다 | [261107_1414_b5c1826_web-readme-rootdir-caveat_feature-docs-gap-fill.md](commits/261107_1414_b5c1826_web-readme-rootdir-caveat_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
