@@ -1,6 +1,21 @@
 # API 사용 (curl로 직접 부르기)
 
-개발 중 Nest를 직접 불러 확인하는 법. 전체 목록·응답은 [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md). 최종 갱신 2026-11-04.
+개발 중 Nest를 직접 불러 확인하는 법. 전체 목록·응답은 [../API_DOCUMENTATION.md](../API_DOCUMENTATION.md). 최종 갱신 2026-11-07.
+
+## 운영 서버에 부르기 (2026-11-07)
+
+운영 API는 `https://api.168-110-61-178.sslip.io`다(Oracle, 웹은 Vercel). 로컬과 같은 경로다. 읽기만 하는 확인은 안전하다:
+
+```bash
+B=https://api.168-110-61-178.sslip.io
+curl -s $B/health          # {"status":"ok","service":"api","timestamp":"…","ai":{"inFlight":0,"waitingForeground":0,"waitingBackground":0,"concurrency":2}}
+curl -s $B/characters      # 공개 캐릭터 목록 (유지성·이세연)
+curl -sI http://api.168-110-61-178.sslip.io/health   # 308 → https
+```
+
+- `/health`의 `ai`는 **AI 요청 대기열 상태**(실행 중·기다리는 수·동시 처리 수)이지 AI 서버가 살아 있다는 뜻이 아니다. api→ai 확인은 서버 안에서 한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md) "자주 쓰는 점검").
+- **운영에는 `POST`로 계정을 만들거나 대화를 보내지 않는다.** 가입은 인증 메일이 필요한데 서버에 메일 설정이 없다(TASKS U05). 쓰기 시험은 로컬에서 한다.
+- 브라우저가 아닌 곳에서 부를 때 `X-Web-Proxy-Token`은 보내지 않는다. 그 헤더는 웹과 Caddy 사이의 비밀이다. 보내도 값이 틀리면 Caddy가 무시한다.
 
 <!-- logic-structure -->
 ## 로직 구조

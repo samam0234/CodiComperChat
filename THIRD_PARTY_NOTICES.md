@@ -34,6 +34,8 @@ flowchart LR
   MOD --> AN["Animagine XL 4.0"]
   MOD --> SD["SD 1.5"]
   APP -. "키가 있을 때만" .-> EXT["Claude · Grok API"]
+  APP -. "운영 대화(2026-11-07)" .-> NIM["NVIDIA 호스팅 API<br/>gemma-4-31b-it"]
+  APP -. "운영 호스팅" .-> HOST["Vercel · Oracle Cloud<br/>Let's Encrypt · sslip.io"]
   APP -. "넣지 않음" .-> WU["SD WebUI (AGPL)"]
 ```
 
@@ -44,6 +46,7 @@ flowchart LR
 | 모델 | 용도 | 라이선스(알고 있는 범위) | 확인할 것 |
 |------|------|--------------------------|-----------|
 | Gemma 4 (`gemma4:e4b`, `gemma4:12b`, Ollama로 실행) | 캐릭터 대화·요약·판정·그림 장면 설계·그림 검수 | **Apache License 2.0** | **2026-11-03 정정.** 2026-10-25에는 Gemma 이용약관의 [사용 금지 정책](https://ai.google.dev/gemma/prohibited_use_policy) 4항(성적 표현 생성 금지)이 적용된다고 적었는데 **틀렸다.** [Gemma 이용약관](https://ai.google.dev/gemma/terms)(2026-04-01 수정)은 부록의 Gemma 1~3n에만 적용되고 Gemma 4는 [별도 라이선스](https://ai.google.dev/gemma/docs/gemma_4_license)를 따른다고 적혀 있으며, 그 문서는 Apache 2.0 전문이다. `ollama show gemma4:e4b --license`도 Apache 2.0이고, [Google 발표](https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/)와 [모델 카드](https://huggingface.co/google/gemma-4-e4b-it)도 같다. 라이선스 사본과 고지를 함께 보관한다. Gemma 3 이하로 내리면 금지 정책이 다시 적용된다. 이 문단은 라이선스 확인이고 법률 자문이 아니며, 성인 모드의 국내법 문제와는 별개다(아래) |
+| **Gemma 4 31B (`google/gemma-4-31b-it`, NVIDIA 호스팅 API)** | 운영 서버(Oracle)의 대화·요약·판정·검수 호출(`LLM_BACKEND=openai`). 막히면 위 Ollama가 대신 답한다 | 모델은 Apache 2.0(위 줄과 같은 계열). **API 서비스는 NVIDIA의 이용약관·무료 티어 조건을 따른다** | **약관을 확인하지 못했다.** 입력 보관·학습 사용 여부, 무료 티어의 상업적 이용·한도, 개인 대화 내용을 보내도 되는지, 국외 이전 고지. 확인 전에는 공개하지 않는다([SECURITY.md](SECURITY.md) "제3자에게 나가는 데이터") |
 | Claude (Anthropic API) · Grok (xAI API) | 프리미엄 모델을 고른 대화의 답 | 각 공급자의 이용약관·사용 정책 | [Anthropic 사용 정책](https://www.anthropic.com/legal/aup)은 성적 콘텐츠 생성을 금지한다. 성인 모드 설계는 이쪽으로 보내지 않는다([AI_MODEL_STRATEGY.md](docs/plan/AI_MODEL_STRATEGY.md)). xAI 정책 원문은 접근이 막혀 읽지 못했으니 키를 넣기 전에 사람이 읽는다 |
 | Animagine XL 4.0 Opt | 애니메이션·웹툰 그림 | CreativeML Open RAIL++-M (모델 카드 기준) | RAIL 라이선스의 **사용 제한 목록**(미성년자 착취, 불법, 허위정보, 괴롭힘 등)과 파생물 고지 의무. 모델 카드에서 최신 조건 재확인 |
 | Stable Diffusion 1.5 (`v1-5-pruned-emaonly`) | 수채화·실사풍 그림 | CreativeML OpenRAIL-M | 위와 같은 사용 제한. 원 배포처가 바뀌었을 수 있어 받은 곳의 라이선스 원문 보관 |
@@ -62,6 +65,19 @@ flowchart LR
 | Mailpit | MIT | 개발용 메일 서버(docker compose) |
 | Stable Diffusion WebUI (AUTOMATIC1111) | **AGPL-3.0** | 개발 PC의 선택적 그림 엔진(`IMAGE_ENGINE=webui`). **배포물에 넣거나 서비스로 공개하지 않는다** — 기본 엔진(`local`, diffusers)은 WebUI 코드를 쓰지 않는다 |
 | Docker | 제품 약관 | 선택(개발 DB·메일) |
+
+## 2-0. 운영에서 쓰는 외부 서비스 (2026-11-07)
+
+배포물에 포함되지 않고, 이용약관·요금제를 따르는 서비스다. **이 저장소는 각 약관의 내용을 확인했다고 주장하지 않는다.** 공개 전에 소유자가 읽는다.
+
+| 서비스 | 쓰임 | 확인할 것 |
+|--------|------|-----------|
+| Vercel(Hobby 등 요금제) | 웹(Next.js) 호스팅 | 무료 요금제의 **상업적 이용 허용 여부**, 함수 실행 시간 상한(300초), 이용자 요청이 지나가는 국외 서버 |
+| Oracle Cloud Infrastructure(Always Free ARM, 도쿄) | API·DB·AI 호스팅 | 무료 한도 유지 조건(A1 총 4 OCPU·24GB를 계정의 다른 인스턴스와 나눠 쓴다), 이용 정책, 데이터가 놓이는 국외 서버 |
+| NVIDIA 호스팅 API | 대화 모델 호출 | 위 1장 표 |
+| Let's Encrypt | 서버 인증서 | 발급 한도, 이용 약관 |
+| sslip.io | 도메인이 없을 때 IP를 이름으로 푸는 무료 서비스 | **임시 방편**이다. 서비스가 사라지거나 한도에 걸리면 이름이 풀리지 않는다. 도메인을 산 뒤 바꾼다 |
+| GitHub | 저장소, Vercel 배포의 원천 | 저장소 공개 여부(지금 공개 상태, 비공개 전환 예정) |
 
 ## 2-1. 운영 컨테이너 이미지
 

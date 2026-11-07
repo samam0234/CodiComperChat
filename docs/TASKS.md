@@ -66,6 +66,8 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | U08 | 운영 콘솔을 열 IP 결정(`CONSOLE_IP_ALLOWLIST`). Vercel `codicomperchat-console`은 있으나 API에 연결하지 않았다 | T04 |
 | U09 | 프리미엄(Claude·Grok) 키와 월 한도. 각 콘솔에서 사용 한도를 먼저 걸고 서버 `.env`에 직접 넣는다(채팅에 붙이지 않는다) | 프리미엄 공개 |
 | U10 | (권장) 2026-11-07 작업 대화에 개인키 내용과 `WEB_PROXY_TOKEN` 값이 한 번씩 드러났다. 새 키로 바꾸고 토큰을 서버·Vercel 함께 교체 | 없음 |
+| U11 | **처리방침(`apps/web/app/privacy/page.tsx`)의 국외 이전 표를 지금 구성에 맞춘다.** 표에는 Anthropic·xAI만 있고, 실제로 이용자 내용이 가는 NVIDIA(대화·판정·그림 검수), Vercel(모든 웹 요청), Oracle(저장 데이터)이 없다. 법률 검토 때 함께 고친다. 에이전트는 처리방침 문구를 대신 쓰지 않는다 | 공개 |
+| U12 | 호스팅 API(NVIDIA) 약관 확인: 입력 보관·학습 사용 여부, 무료 티어의 상업적 이용과 한도. Vercel 무료 요금제의 상업적 이용, Oracle 무료 한도 유지 조건 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) 1장·2-0장) | 공개 |
 
 ## 2. 사용자 일이 끝난 뒤
 
@@ -87,6 +89,20 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 - **할 일:** 공식 캐릭터 지식 파일(`apps/api/data/personas/유지성.json`, `이세연.json`)을 서버 볼륨 `personas`로 옮긴다. `scripts/db-backup.sh`를 서버 cron에 건다(하루 한 번, 14일). U05가 끝나면 `MAIL_SMTP_URL`·`MAIL_FROM`·`WEB_BASE_URL`을 서버 `.env`에 넣고 api를 다시 띄운다. U08이 끝나면 콘솔 Vercel 환경변수(`API_BASE_URL`, `CONSOLE_IP_ALLOWLIST`)를 넣고 다시 배포한다. 다시 띄울 때 compose 파일 두 개를 함께 준다.
 - **끝난 기준:** 로그인한 상태의 대화 한 턴이 운영에서 돈다(시험 계정), 인증 메일 도착, 백업 파일 생김, 콘솔 로그인. 결과를 [web_management/oracle-backend.md](web_management/oracle-backend.md)에 적는다.
 
+### T05. 호스팅 API 서버에서 성인 모드를 막는 코드 장치
+
+- **선행:** 없음. 방향 확인: 막는 방식(시작 거부 vs 호출 거부)을 만들기 전에 사용자에게 묻는다.
+- **왜:** `LLM_BACKEND=openai`이면 프리미엄이 아닌 모든 호출이 호스팅 API로 간다. 그런데 "성인 대화는 로컬 모델에서만"이라는 약속은 코드로 지켜지지 않는다. 지금은 운영 compose 기본값 `ADULT_MODE=off`에만 기대고 있다([../services/ai/README.md](../services/ai/README.md), [../SECURITY.md](../SECURITY.md)).
+- **할 일:** `apps/api/src/security/production.ts`에 `NODE_ENV=production`이고 `ADULT_MODE`가 켜졌는데 AI 쪽이 `openai`이면 시작하지 않는 검사를 더하거나, 성인 수위 호출을 `provider=ollama` 로컬로만 보내게 한다. Nest는 AI의 `LLM_BACKEND`를 모르므로 어느 쪽에서 막을지가 설계 결정이다.
+- **끝난 기준:** 그 조합에서 시작이 거부되거나 성인 호출이 호스팅 API로 가지 않는 단위 시험, 문서 갱신.
+
+### T06. 호스팅 API 서버에서 "강화 무료" 모델 고르기 정리
+
+- **선행:** 없음. **방향 확인**이 필요하다(아래 선택지는 사용자가 정한다).
+- **왜:** 운영 서버(`LLM_BACKEND=openai`)에서는 기본·강화 무료가 같은 호스팅 31B 모델로 답하는데 강화의 하루 한도·코레딧은 그대로 매겨진다. 호스팅 API가 막혀 예비로 넘어가면 강화를 고른 요청은 서버에 없는 `gemma4:12b`를 찾는다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md) "호스팅 API 백엔드일 때"). 코드로만 확인했고 서버에서는 시험하지 않았다.
+- **할 일(선택지):** (가) 호스팅 서버에서 강화 무료를 숨기거나 한도·코레딧을 끈다. (나) 예비 Ollama에도 `gemma4:12b`를 받아 둔다(CPU에서 매우 느리다). (다) 예비로 넘어갈 때 모델이 없으면 `OLLAMA_MODEL`로 내린다.
+- **끝난 기준:** 선택한 방식의 단위 시험, 서버에서 호스팅 API를 일부러 막은 상태(잘못된 키)로 강화 모델 한 턴이 오류 없이 답함.
+
 ### T03. GPU 서버 설치와 확인
 
 - **선행:** U04, U05.
@@ -105,6 +121,7 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | Q04 | 웹툰 컷 사이 옷 색. 같은 시드로 머리와 얼굴은 비슷해졌지만 앞치마 색이 컷마다 다르다. 외모 태그에 옷 색을 넣는 방법을 본다 | 눈으로 비교함 | 같은 콘티의 컷을 눈으로 비교한 결과를 [plan/OPERATIONS.md](plan/OPERATIONS.md)에 적음 |
 | Q06 | 성인 모드 그림 가드가 애니메이션 그림을 잘못 막는 경우. 공개 서버는 성인 모드를 끄므로 켜기 전에 본다 | 2번 중 1번 잘못 막음(표본 작음) | `python -m evals.photonet_guard`를 여러 번 돌려 잘못 막는 비율을 재고 줄인다 |
 | Q07 | 좁은 화면(390px) 대화의 모델 고르기 칸이 눌려 글자가 안 보이고, 공방 AI 초상 칸이 좁다. README 화면을 찍다 발견했다 | 고치지 않음 | 좁은 화면 스크린샷으로 확인, e2e 통과 |
+| Q08 | **호스팅 31B 모델(NVIDIA `gemma-4-31b-it`)로 평가를 다시 돌린다.** 운영 대화가 이 모델로 나가는데 평가 11묶음과 프롬프트·판정은 `gemma4:e4b`로 맞췄다. 말투, 퀘스트 판정(잘못 통과 0), 개인사 환각, 월드 형식이 같은 기준을 넘는지 모른다 | 안 잼 | `LLM_BACKEND=openai`로 `python -m evals.run --repeat 2 -v`와 퀘스트 평가 2종, 결과를 [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md)에 적음. 미달이면 기준을 낮추지 않고 항목으로 남김 |
 | Q05 | SDXL 속도를 메모리가 넉넉한 상태에서 다시 잰다. 개발 PC는 남은 RAM이 약 400MB라 같은 작업이 29초에서 수 분까지 흔들렸다 | 원인 일부만 확인 | `evals.image_speed` 결과가 두 번 비슷하게 나옴 |
 
 ### 월드코퍼챗 (2026-11-06)
