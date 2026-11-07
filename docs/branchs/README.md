@@ -437,5 +437,6 @@ flowchart LR
 | 2026-11-07 | `4d56c38` | feature/docs-gap-fill | 문서 보강으로 드러난 개인정보·성인 모드·모델 고르기·품질 빈틈을 인수인계에 남긴다 | [261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md](commits/261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md) |
 | 2026-11-07 | `ea1339d` | develop (merge) | feature/docs-gap-fill into develop | [261107_1416_ea1339d_merge-docs-gap-fill_develop.md](commits/261107_1416_ea1339d_merge-docs-gap-fill_develop.md) |
 | 2026-11-07 | `8a8ba49` | main (merge) | develop into main | [261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md](commits/261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md) |
+| 2026-11-07 | `75c3020` | feature/official-world | 공식 세계관 「코퍼 시티: 멈춘 시계탑」과 지도·장면 그림을 시드에 더한다 | [261107_1620_75c3020_official-world-copper-city_feature-official-world.md](commits/261107_1620_75c3020_official-world-copper-city_feature-official-world.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
