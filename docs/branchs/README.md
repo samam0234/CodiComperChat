@@ -430,5 +430,6 @@ flowchart LR
 | 2026-11-07 | `86d9552` | feature/docs-gap-fill | 호스팅 API 백엔드에서는 무료 모델 고르기가 사라지는 점을 모델 전략에 적는다 | [261107_1415_86d9552_strategy-hosted-model-choice_feature-docs-gap-fill.md](commits/261107_1415_86d9552_strategy-hosted-model-choice_feature-docs-gap-fill.md) |
 | 2026-11-07 | `8292226` | feature/docs-gap-fill | 호스팅 서버의 강화 무료 모델 고르기 정리(T06)를 더한다 | [261107_1415_8292226_tasks-t06-model-choice_feature-docs-gap-fill.md](commits/261107_1415_8292226_tasks-t06-model-choice_feature-docs-gap-fill.md) |
 | 2026-11-07 | `94848fd` | feature/docs-gap-fill | 라우트 대조 결과와 운영 Base URL을 API 문서에 적는다 | [261107_1416_94848fd_api-doc-route-audit_feature-docs-gap-fill.md](commits/261107_1416_94848fd_api-doc-route-audit_feature-docs-gap-fill.md) |
+| 2026-11-07 | `24057e3` | feature/docs-gap-fill | API 사용 문서에 운영 서버를 부르는 법과 주의를 더한다 | [261107_1416_24057e3_api-usage-production_feature-docs-gap-fill.md](commits/261107_1416_24057e3_api-usage-production_feature-docs-gap-fill.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
