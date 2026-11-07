@@ -8,8 +8,21 @@
 | 서버 | `168.110.61.178`, Ubuntu 24.04, 사용자 `ubuntu` |
 | 구성 | [`deploy/oracle/docker-compose.yml`](../../deploy/oracle/docker-compose.yml): caddy → api, postgres, migrate |
 | 바깥 주소 | `https://api.168-110-61-178.sslip.io` (Caddy가 인증서 자동 발급) |
-| 안 올린 것 | AI(FastAPI·Ollama). 대화·그림 요청은 실패하고 나머지는 돈다 |
+| AI | 같은 VM에 올렸다(2026-11-07, `deploy/oracle/docker-compose.ai.yml`, `deploy/oracle/ai-deploy.sh`). 대화는 NVIDIA 호스팅 API(`google/gemma-4-31b-it`), 막히면 CPU Ollama(`gemma4:e4b`)가 대신 답한다. 그림은 GPU가 없어 잠겨 있다 |
 | 메일 | `MAIL_SMTP_URL`이 비면 인증 메일을 못 보내고 로그만 남긴다 |
+
+## 배포 상태 (2026-11-07)
+
+| 무엇 | 상태 |
+|------|------|
+| 컨테이너 | caddy · api · postgres · ai · ollama 실행 중 (api·postgres·ai healthy), migrate는 기동 때 한 번 |
+| 확인 | `/health` HTTPS 200, `/characters` 200, http는 https로 308. `ai-deploy.sh` 6단계 통과: api→ai 토큰 호출, NVIDIA 응답 19초, 예비 CPU 응답 32초 |
+| 서버 | 2 OCPU · 12GB, 스왑 4GB(`ai-deploy.sh`가 만듦) |
+| 비어 있는 값 | `MAIL_SMTP_URL`(인증 메일 안 감), `WEB_BASE_URL`(웹 미배포), `ANTHROPIC_API_KEY`·`XAI_API_KEY`·`PREMIUM_PROVIDERS`(프리미엄 "준비 중", `PREMIUM_MONTHLY_CREDITS=0`) |
+| 안 올린 것 | 웹·콘솔, 그림 엔진, 공식 캐릭터 지식 파일(`apps/api/data/personas/*.json`, 볼륨 `personas`가 비어 있다) |
+| 백업 | 아직 cron 없음 |
+
+프리미엄을 열 때는 서버 `.env`에 키·`PREMIUM_PROVIDERS`·`PREMIUM_MONTHLY_CREDITS`(0 초과)를 적고 `api`·`ai`를 다시 띄운다. 키는 채팅·커밋에 붙이지 않는다.
 
 ## 로직 구조
 

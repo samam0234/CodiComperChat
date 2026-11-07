@@ -1,9 +1,12 @@
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.internal_auth import assert_production_safety, internal_auth
+from app.services import llm
 
 from app.routes import (
     assist,
@@ -28,7 +31,17 @@ from app.routes import (
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 assert_production_safety()
 
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # 대화 모델 예열(OLLAMA_WARMUP=1일 때). 뒤에서 돌려 기동과 /health를 막지 않는다
+    threading.Thread(target=llm.warm_up, name="ollama-warmup", daemon=True).start()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="코디컴퍼챗 AI 서비스",
     description=(
         "캐릭터 연기·세션 요약 엔진. 내부망에서 Nest(apps/api)만 호출한다. "
