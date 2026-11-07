@@ -437,5 +437,6 @@ flowchart LR
 | 2026-11-07 | `4d56c38` | feature/docs-gap-fill | 문서 보강으로 드러난 개인정보·성인 모드·모델 고르기·품질 빈틈을 인수인계에 남긴다 | [261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md](commits/261107_1416_4d56c38_handover-doc-gap-findings_feature-docs-gap-fill.md) |
 | 2026-11-07 | `ea1339d` | develop (merge) | feature/docs-gap-fill into develop | [261107_1416_ea1339d_merge-docs-gap-fill_develop.md](commits/261107_1416_ea1339d_merge-docs-gap-fill_develop.md) |
 | 2026-11-07 | `8a8ba49` | main (merge) | develop into main | [261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md](commits/261107_1417_8a8ba49_merge-develop-main-gap-fill_main.md) |
+| 2026-11-07 | `da17813` | feature/project-intro | 푸터에 '프로젝트 소개'를 더하고 사업 소개 톤의 /project 페이지를 만든다 | [261107_2054_da17813_web-project-intro_feature-project-intro.md](commits/261107_2054_da17813_web-project-intro_feature-project-intro.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
