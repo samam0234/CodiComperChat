@@ -26,6 +26,8 @@ services:
       - '443:443'
     environment:
       API_DOMAIN: ${API_DOMAIN:?}
+      # 웹(Vercel)과 나눠 갖는 비밀. 맞는 요청만 실제 이용자 IP를 믿는다 (Caddyfile)
+      WEB_PROXY_TOKEN: ${WEB_PROXY_TOKEN:?}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

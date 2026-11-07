@@ -1,6 +1,6 @@
 # 배포 (짧은 진입)
 
-> 상태(2026-11-07): **Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄)에 API·DB·AI(대화만)를 올렸다.** 주소 `https://api.168-110-61-178.sslip.io`. 웹·콘솔과 그림 엔진은 아직이다. 상세: [web_management/oracle-backend.md](web_management/oracle-backend.md).
+> 상태(2026-11-07): **Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄)에 API·DB·AI(대화만)를 올렸다.** 주소 `https://api.168-110-61-178.sslip.io`. 웹은 Vercel(`https://codicomperchat-web.vercel.app`)에서 이 API에 연결돼 있다. 운영 콘솔 연결과 그림 엔진은 아직이다. 상세: [web_management/oracle-backend.md](web_management/oracle-backend.md).
 > 전체 운영 구성(GPU 서버 한 대, Hetzner GEX45)의 결정은 그대로이고 계약은 아직이다.
 
 | 무엇을 하려는가 | 문서 |
