@@ -103,6 +103,12 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
                 {partLabel}
               </span>{" "}
               · {world.modeLabel} · 주인공 {userName}
+              {(play.scenePlace || play.sceneTime) && (
+                <span>
+                  {" "}
+                  · {[play.scenePlace, play.sceneTime].filter(Boolean).join(" · ")}
+                </span>
+              )}
             </p>
           </div>
         </div>

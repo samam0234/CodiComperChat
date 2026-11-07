@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { MessageRole } from '@prisma/client';
 import { postToAi } from '../ai/ai-client.js';
 import type { ChatTurn } from '../character-chat/character-chat.types.js';
@@ -17,7 +17,19 @@ const RECENT_PICK = 3;
 // 중복 판단에 쓰도록 기존 기억을 넘기는 상한
 const EXISTING_FOR_DEDUP = 40;
 
-export type MemoryItem = { id: string; content: string; createdAt: Date };
+export type MemoryItem = { id: string; content: string; pinned: boolean; createdAt: Date };
+
+const MEMORY_MAX = 200;
+const PINNED_CAP = 12;
+const CONTEXT_CAP = 24;
+
+// 유저가 자기 이야기나 상대 설정을 말한 턴만 자동 기억으로 보낸다
+const FACT_CUE = /나는|난 |내가 |제가 |저는 |제 이름|내 이름|너는|넌 |네가 |상대는|사실은|직업은|살고|살아|약속|기억해|내 설정|캐릭터는|성격은|좋아하|싫어하/;
+
+export function looksLikeFact(text: string): boolean {
+  const trimmed = text.trim();
+  return trimmed.length >= 8 && FACT_CUE.test(trimmed);
+}
 
 type Names = { characterName: string; userName: string };
 
@@ -26,6 +38,7 @@ export class MemoriesService {
   private readonly logger = new Logger(MemoriesService.name);
   // 같은 대화를 동시에 두 번 정리하지 않게 막는다 (한 프로세스 안에서)
   private readonly running = new Set<string>();
+  private readonly noticing = new Set<string>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -33,7 +46,19 @@ export class MemoriesService {
     return this.prisma.memoryChunk.findMany({
       where: { campaignId },
       orderBy: { createdAt: 'desc' },
-      select: { id: true, content: true, createdAt: true },
+      select: { id: true, content: true, pinned: true, createdAt: true },
+    });
+  }
+
+  async add(campaignId: string, raw: string): Promise<MemoryItem> {
+    const content = raw.trim().replace(/\s+/g, ' ');
+    if (content.length < 2) throw new BadRequestException('기억은 두 글자 이상 적어 주세요.');
+    if (content.length > MEMORY_MAX) throw new BadRequestException(`기억은 ${MEMORY_MAX}자 이하로 적어 주세요.`);
+    const duplicate = await this.prisma.memoryChunk.findFirst({ where: { campaignId, content }, select: { id: true } });
+    if (duplicate) throw new BadRequestException('같은 기억이 이미 있어요.');
+    return this.prisma.memoryChunk.create({
+      data: { campaignId, content, pinned: true },
+      select: { id: true, content: true, pinned: true, createdAt: true },
     });
   }
 
@@ -49,17 +74,22 @@ export class MemoriesService {
     query: { message: string; recent: string[] },
   ): Promise<{ id: string; text: string }[]> {
     const all = await this.list(campaignId);
-    if (all.length <= INCLUDE_ALL_UNDER) {
-      return all.reverse().map((m) => ({ id: m.id, text: m.content }));
+    // 직접 적은 기억은 항상 넣는다. 자동 기억은 적으면 전부, 많으면 이번 말과 관련된 것 + 최근 것
+    const pinned = all.filter((m) => m.pinned).slice(0, PINNED_CAP);
+    const rest = all.filter((m) => !m.pinned);
+    const chosen = new Set(pinned.map((m) => m.id));
+    if (rest.length <= INCLUDE_ALL_UNDER) {
+      for (const m of rest) chosen.add(m.id);
+    } else {
+      const chunks = rest.map((m) => ({ id: m.id, type: 'memory', topic: '', keywords: [], text: m.content }));
+      const relevant = retrieve(chunks, query, { topK: RELEVANT_PICK, charBudget: 600 }).map((p) => p.chunk.id);
+      for (const id of relevant) chosen.add(id);
+      for (const m of rest.slice(0, RECENT_PICK)) chosen.add(m.id);
     }
-
-    const chunks = all.map((m) => ({ id: m.id, type: 'memory', topic: '', keywords: [], text: m.content }));
-    const relevant = retrieve(chunks, query, { topK: RELEVANT_PICK, charBudget: 600 }).map((p) => p.chunk.id);
-    const pick = new Set([...relevant, ...all.slice(0, RECENT_PICK).map((m) => m.id)]);
-    // 오래된 것부터 넣어 시간 순서를 지킨다
     return all
-      .filter((m) => pick.has(m.id))
+      .filter((m) => chosen.has(m.id))
       .reverse()
+      .slice(-CONTEXT_CAP)
       .map((m) => ({ id: m.id, text: m.content }));
   }
 
@@ -123,6 +153,42 @@ export class MemoriesService {
     } finally {
       this.running.delete(conversation.campaignId);
     }
+  }
+
+  // 유저가 자기 프로필이나 상대 설정을 말한 턴이면, 그 사실만 장기 기억으로 남긴다
+  async notice(conversation: Conversation, names: Names, userText: string, reply: string): Promise<number> {
+    if (!looksLikeFact(userText)) return 0;
+    if (this.noticing.has(conversation.campaignId)) return 0;
+    this.noticing.add(conversation.campaignId);
+    try {
+      const existing = (await this.list(conversation.campaignId)).slice(0, EXISTING_FOR_DEDUP).map((m) => m.content);
+      const turns: ChatTurn[] = [
+        { role: 'user', text: userText },
+        { role: 'character', text: reply },
+      ];
+      const { memories } = await postToAi<{ memories: string[] }>(
+        '/notice-facts',
+        { characterName: names.characterName, userName: names.userName, existing, turns },
+        { priority: 'background' },
+      );
+      const known = new Set(existing);
+      const fresh = (Array.isArray(memories) ? memories : [])
+        .map((m) => m.trim())
+        .filter((m) => m.length >= 4 && m.length <= 200 && !known.has(m));
+      if (fresh.length === 0) return 0;
+      await this.prisma.memoryChunk.createMany({
+        data: fresh.map((content) => ({ campaignId: conversation.campaignId, content, pinned: false })),
+      });
+      return fresh.length;
+    } finally {
+      this.noticing.delete(conversation.campaignId);
+    }
+  }
+
+  noticeInBackground(conversation: Conversation, names: Names, userText: string, reply: string): void {
+    this.notice(conversation, names, userText, reply).catch((error: unknown) => {
+      this.logger.warn(`사실 기억 실패 (다음 턴에 다시 보지 않고 넘어감): ${(error as Error).message}`);
+    });
   }
 
   // 답을 돌려준 뒤 뒤에서 조용히 정리한다 — 실패해도 대화는 멈추지 않고 다음 기회에 다시 한다

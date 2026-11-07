@@ -25,6 +25,31 @@
   color: var(--muted);
 }
 
+.writer {
+  display: grid;
+  gap: 8px;
+  max-width: 560px;
+  margin-top: 18px;
+}
+
+.writerLabel {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.writerInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
 .toolbar {
   display: flex;
   align-items: center;

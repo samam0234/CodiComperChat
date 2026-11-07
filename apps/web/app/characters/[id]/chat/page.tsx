@@ -80,6 +80,7 @@ export default async function CharacterChatPage({
         characterName={character.name}
         portrait={{ hasPortrait: !!character.portraitMime, version: character.updatedAt }}
         initialMessages={initialMessages}
+        initialScene={history?.scene}
         lockedPersona={history?.persona ?? null}
         savedCount={history?.savedCount ?? 0}
         models={models?.models ?? null}
