@@ -1,6 +1,6 @@
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-07.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-08.
 
 <!-- logic-structure -->
 ## 로직 구조
@@ -87,10 +87,17 @@ erDiagram
 | 병합 | 2026-11-07까지의 작업을 `develop`과 `main`에 병합했다: `feature/oracle-backend-deploy`, `claude/project-thread-pz0x5f`, `origin/claude/project-thread-po3i10`(충돌은 서버 구성 유지), `feature/web-vercel-deploy`, `feature/docs-final-update` |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-07에 푸시했다. Vercel 웹은 `main`에서 배포한다. 저장소는 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
-| DB | 마이그레이션 34개, 테이블 37개(월드코퍼챗 9개 포함, 2026-11-06). 개발 DB에는 월드 마이그레이션을 아직 적용하지 않았다(`npx prisma migrate deploy` 필요). e2e·데모 DB에서는 적용 확인 |
+| DB | 마이그레이션 35개, 테이블 37개(월드코퍼챗 9개 포함). `20261108123000_chat_memory_scene`은 기억 `pinned`와 대화·세계관의 때·곳. 이미 떠 있는 DB에는 `npx prisma migrate deploy`가 필요하다 |
 | 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 2026-11-07 병합 뒤: API vitest 232개(파일 31), AI unittest 71개, API·웹 타입 검사 통과. e2e는 그날 돌리지 않았다 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
+
+### 2026-11-08 — 대화 고치기·장기 기억·때와 곳
+
+- 1:1 대화의 최근 12줄은 수정·삭제할 수 있고, 그 사이에 "변경사항 추천"으로 방향을 적으면 그 줄만 다시 쓴다.
+- 기억 화면에서 직접 적을 수 있다. 직접 적은 기억은 매 턴 넣고, 모델은 지금 말과 맞을 때만 꺼낸다. 유저가 자기 프로필이나 상대 설정을 말한 턴은 뒤에서 `/notice-facts`로 자동 저장한다.
+- 때·곳은 대화(와 세계관) 위에 보이고, 시간·장소 단서가 있을 때만 바뀐다. 내 말풍선은 상대와 같은 면 색이다.
+- 조사는 코드와 답에서 `이(가)` 괄호를 쓰지 않고 받침에 맞게 고친다. 주고받기 문장을 시스템 프롬프트 끝 규칙 앞에 넣었다. **모델 평가 11묶음은 다시 돌리지 않았다.**
 
 ### 2026-11-07 — 실제 배포
 

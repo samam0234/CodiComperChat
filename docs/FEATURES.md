@@ -92,6 +92,8 @@ flowchart LR
 | 새로하기(저장/저장 안 함)·이어하기 | 대화 위 버튼 | `POST …/chat/new`, `GET …/chat/saved`, `POST …/saved/:campaignId/resume`, `DELETE …/saved/:campaignId` | api/character-chat | chat |
 | 대답 추천(3개) | 입력창 옆 ✦ | `POST …/chat/suggestions` | api/character-chat, ai/services/suggestion.py | chat |
 | 명령어 | 입력창 | `POST …/chat/regenerate` `continue` `undo` | api/character-chat | commands · `/다시` `/계속` `/되돌리기` `/상황 내용` `/도움말` |
+| 최근 대사 수정·삭제·방향 추천 | 최근 12개 말풍선 | `PATCH·DELETE …/chat/messages/:messageId`, `POST …/rewrite` | api/character-chat, ai/services/rewrite.py | 방향은 유저가 적은 문장으로 그 줄만 다시 씀 |
+| 때와 곳 | 대화 위 한 줄, 세계관 제목 옆 | 보내기 응답의 `scene` | api/character-chat/scene.ts | 시간·장소 단서가 있을 때만 갱신 |
 | 글 꾸미기 | 말풍선 | — | web/lib/chat-format.ts, web/components/chat-text.tsx | format · `*행동*`(40% 회색 기울임) `**굵게**` `~취소선~` 코드·제목·인용·상자·정보창·`@이름`, HTML은 실행되지 않음 |
 | **나레이션 `@:`** | 말풍선(가운데 상자) | — | 위와 같음 + ai/services/inference.py(규칙 8) | format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 |
 | 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
@@ -101,7 +103,7 @@ flowchart LR
 
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
 |------|------|-----|------|-------------|
-| 장기 기억(보기·지우기·정리) | `/chat/memories` | `GET …/memories`, `DELETE …/memories/:id`, `POST …/memories/refresh` | api/memories, ai/services/remember.py | chat |
+| 장기 기억(보기·직접 적기·지우기·정리) | `/chat/memories` | `GET·POST …/memories`, `DELETE …/memories/:id`, `POST …/memories/refresh` | api/memories, ai/services/remember.py | 직접 적은 것은 매 턴 넣고, 말은 상황과 맞을 때만. 프로필·상대 설명을 하면 `/notice-facts`로 자동 저장 |
 | 지난 이야기(요약·친밀도 자동 변화·복선) | 대화 아래 접이식 패널 | `GET …/chat/story`, `DELETE …/story/hooks/:hookId` | api/campaign-state, ai/services/summarization.py | chat · 대화 3번(메시지 6개)마다 뒤에서 정리 |
 | 상태설정(친밀도·메모·호칭·자동 변화 끄기) | `/chat/settings` | `GET·PATCH …/chat/state` | api/chat-state | chat |
 | 엑스트라(조연, 1인 20개·대화당 3명) | 대화 아래 패널 | `GET·POST·PATCH·DELETE /me/extras`, `GET·PUT·DELETE …/chat/extras` | api/extras | chat |
