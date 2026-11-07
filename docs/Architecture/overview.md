@@ -1,6 +1,6 @@
 # 시스템 개요
 
-정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-03 — **구현된 구조**(배포는 아직).
+정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-07 — **구현된 구조**. 2026-11-07부터 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM에서 운영한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md), 구성도 [docker-topology.md](docker-topology.md)).
 
 ```text
 브라우저
