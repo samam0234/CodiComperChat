@@ -14,6 +14,8 @@
 | 8 | [약관·처리방침 작성과 법률 검토](#8-약관처리방침-작성과-법률-검토) | 자문 비용 |
 | 9 | [서버에 올리기](#9-서버에-올리기) | 없음 |
 
+> **2026-11-07 진행 상황**: 무료 구성으로 먼저 올렸다 — 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM([../web_management/oracle-backend.md](../web_management/oracle-backend.md)). 그래서 5(도메인)는 `sslip.io`로 미뤘고, 7(GPU 서버 계약)은 그림 엔진을 열 때 필요하다. 지금 남은 소유자 일: 6 운영 메일, 운영 콘솔을 열 IP 결정, 프리미엄 키·월 한도, (권장) 개인키·`WEB_PROXY_TOKEN` 교체. 목록 정본은 [../TASKS.md](../TASKS.md) 1장.
+
 <!-- logic-structure -->
 ## 로직 구조
 
