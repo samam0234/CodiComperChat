@@ -19,7 +19,8 @@
 | 확인 | `/health` HTTPS 200, `/characters` 200, http는 https로 308. `ai-deploy.sh` 6단계 통과: api→ai 토큰 호출, NVIDIA 응답 19초, 예비 CPU 응답 32초 |
 | 서버 | 2 OCPU · 12GB, 스왑 4GB(`ai-deploy.sh`가 만듦) |
 | 비어 있는 값 | `MAIL_SMTP_URL`(인증 메일 안 감), `WEB_BASE_URL`(웹 미배포), `ANTHROPIC_API_KEY`·`XAI_API_KEY`·`PREMIUM_PROVIDERS`(프리미엄 "준비 중", `PREMIUM_MONTHLY_CREDITS=0`) |
-| 안 올린 것 | 웹·콘솔, 그림 엔진, 공식 캐릭터 지식 파일(`apps/api/data/personas/*.json`, 볼륨 `personas`가 비어 있다) |
+| 웹 | Vercel `codicomperchat-web`(팀 saman, 리전 icn1)에 `main`으로 배포(2026-11-07). 주소 `https://codicomperchat-web.vercel.app`. 환경변수 `API_BASE_URL=https://api.168-110-61-178.sslip.io`(**`api.` 접두사가 빠지면 연결되지 않는다**), `WEB_PROXY_TOKEN`(sensitive, 서버 `.env`와 같은 값), `CONSOLE_BASE_URL`, `REQUIRE_HTTPS=1`. 확인: 홈·인기 화면에 API의 캐릭터(유지성·이세연)가 렌더링됨, 런타임 오류 0 |
+| 안 올린 것 | 그림 엔진, 공식 캐릭터 지식 파일(`apps/api/data/personas/*.json`, 볼륨 `personas`가 비어 있다). 운영 콘솔(`codicomperchat-console`)은 Vercel에 있지만 `API_BASE_URL`·`CONSOLE_IP_ALLOWLIST`가 없어 API에 연결되지 않았다 |
 | 백업 | 아직 cron 없음 |
 
 프리미엄을 열 때는 서버 `.env`에 키·`PREMIUM_PROVIDERS`·`PREMIUM_MONTHLY_CREDITS`(0 초과)를 적고 `api`·`ai`를 다시 띄운다. 키는 채팅·커밋에 붙이지 않는다.
