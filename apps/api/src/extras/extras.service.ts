@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { josa } from '../common/korean-josa.js';
 import type { Conversation } from '../conversations/conversations.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -54,10 +55,10 @@ export function parseExtra(body: unknown): ExtraFields {
   const out = {} as ExtraFields;
   for (const key of Object.keys(EXTRA_LIMITS) as (keyof ExtraFields)[]) {
     const raw = data[key] ?? '';
-    if (typeof raw !== 'string') throw new BadRequestException(`${FIELD_LABELS[key]}은(는) 글이어야 합니다.`);
+    if (typeof raw !== 'string') throw new BadRequestException(`${josa(FIELD_LABELS[key], '은/는')} 글이어야 합니다.`);
     const text = raw.trim();
     if (text.length > EXTRA_LIMITS[key]) {
-      throw new BadRequestException(`${FIELD_LABELS[key]}은(는) ${EXTRA_LIMITS[key]}자 이하로 써 주세요.`);
+      throw new BadRequestException(`${josa(FIELD_LABELS[key], '은/는')} ${EXTRA_LIMITS[key]}자 이하로 써 주세요.`);
     }
     out[key] = text;
   }

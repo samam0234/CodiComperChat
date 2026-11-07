@@ -201,7 +201,7 @@ describe('기타', () => {
   });
 
   it('이벤트 결과 한 줄과 한국 날짜', () => {
-    expect(eventNote('DICE', true, 30, true, '이안')).toBe('이안이(가) 갑자기 열린 주사위 대결에 참여해 이겼다 (보상 30 코레딧)');
+    expect(eventNote('DICE', true, 30, true, '이안')).toBe('이안이 갑자기 열린 주사위 대결에 참여해 이겼다 (보상 30 코레딧)');
     expect(eventNote('MAZE', false, 0, false, '이안')).toContain('아쉽게 졌다');
     expect(kstDay(new Date('2026-11-06T15:30:00Z'))).toBe('2026-11-07');
   });

@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CharacterVisibility, PortraitReview, type Prisma } from '@prisma/client';
+import { josa } from '../common/korean-josa.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PortraitReviewService } from '../studio/portrait-review.service.js';
 import type { PortraitMime } from '../studio/portrait.js';
@@ -193,7 +194,7 @@ export class WorldsService {
     const character = typeof characterRaw === 'string' ? characterRaw.trim() : '';
     if (character) {
       const inCast = await this.prisma.worldCast.count({ where: { worldId: id, name: character } });
-      if (!inCast) throw new BadRequestException(`"${character}"은(는) 등장인물에 없어요. 먼저 등장인물을 저장해 주세요.`);
+      if (!inCast) throw new BadRequestException(`${josa(`"${character}"`, '은/는')} 등장인물에 없어요. 먼저 등장인물을 저장해 주세요.`);
     }
     const existing = await this.prisma.worldImage.findUnique({ where: { worldId_label: { worldId: id, label } }, select: { id: true } });
     if (!existing && (await this.prisma.worldImage.count({ where: { worldId: id } })) >= WORLD_LIMITS.images) {

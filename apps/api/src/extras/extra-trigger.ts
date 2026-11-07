@@ -1,3 +1,5 @@
+import { josa } from '../common/korean-josa.js';
+
 // 엑스트라 등장 조건 판정. 모델에게 "알아서 등장시켜"라고 맡기면 작은 모델은 아무 때나 끌어들이거나
 // 없는 사실을 지어낸다. 그래서 서버가 조건 단어로 먼저 고르고, 고른 엑스트라만 정보를 넘긴다.
 
@@ -85,7 +87,7 @@ export function selectActive(
   for (const extra of applied) {
     const name = extra.fields.name;
     if (name && userTurn.includes(name)) {
-      picked.push({ extra, reason: `유저가 '${name}'을(를) 언급했다`, cue: 'name', score: 3 });
+      picked.push({ extra, reason: `유저가 ${josa(`'${name}'`, '을/를')} 언급했다`, cue: 'name', score: 3 });
       continue;
     }
     const words = triggerKeywords(extra.fields, characterName);
@@ -106,7 +108,7 @@ export function selectActive(
       continue;
     }
     if (name && continuity.includes(name)) {
-      picked.push({ extra, reason: `방금 장면에 '${name}'이(가) 등장해 있다`, cue: 'continuity', score: 1 });
+      picked.push({ extra, reason: `방금 장면에 ${josa(`'${name}'`, '이/가')} 등장해 있다`, cue: 'continuity', score: 1 });
     }
   }
 
