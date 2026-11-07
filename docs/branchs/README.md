@@ -463,5 +463,6 @@ flowchart LR
 | 2026-11-07 | `b93f704` | develop (merge) | feature/docs-live-status into develop (no-ff) | [261107_2312_b93f704_merge-docs-live-status_develop.md](commits/261107_2312_b93f704_merge-docs-live-status_develop.md) |
 | 2026-11-07 | `a9c9e79` | feature/readme-status-sync | 앱 안내가 기능과 현황을 나누게 하다 | [261107_2316_a9c9e79_readme-status-split_feature-readme-status-sync.md](commits/261107_2316_a9c9e79_readme-status-split_feature-readme-status-sync.md) |
 | 2026-11-07 | `d2e2346` | feature/readme-status-sync | 미리보기 배포와 공개 전을 나누다 | [261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md](commits/261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md) |
+| 2026-11-07 | `8acc868` | feature/readme-status-sync | 읽는 순서에 현황 문서를 넣다 | [261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md](commits/261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
