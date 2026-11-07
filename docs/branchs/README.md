@@ -447,5 +447,6 @@ flowchart LR
 | 2026-11-07 | `da17813` | feature/project-intro | 푸터에 '프로젝트 소개'를 더하고 사업 소개 톤의 /project 페이지를 만든다 | [261107_2054_da17813_web-project-intro_feature-project-intro.md](commits/261107_2054_da17813_web-project-intro_feature-project-intro.md) |
 | 2026-11-07 | `aa20229` | claude/project-thread-gkkp1j | 실제 DB에서 뽑은 ERD와 생성기를 추가한다 | [261107_0644_aa20229_erd_claude-project-thread-gkkp1j.md](commits/261107_0644_aa20229_erd_claude-project-thread-gkkp1j.md) |
 | 2026-11-07 | `3dc0307` | develop (merge) | feature/official-world into develop | [261107_2055_3dc0307_merge-official-world_develop.md](commits/261107_2055_3dc0307_merge-official-world_develop.md) |
+| 2026-11-07 | `5339cf0` | develop (merge) | feature/portfolio into develop | [261107_2055_5339cf0_merge-portfolio_develop.md](commits/261107_2055_5339cf0_merge-portfolio_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
