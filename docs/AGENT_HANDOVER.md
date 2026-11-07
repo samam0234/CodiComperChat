@@ -77,12 +77,12 @@ erDiagram
 
 ## 1. 한 줄 요약
 
-캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **실제 서버 배포는 하지 않았다.** 서버 계약(Hetzner GEX45)을 기다린다.
+캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **2026-11-07에 Oracle Cloud(ARM, GPU 없음)에 API·DB·AI(대화만)를 올렸다**(`https://api.168-110-61-178.sslip.io`). 웹·콘솔·그림 엔진은 아직이고, 전체 운영 서버(Hetzner GEX45)는 계약을 기다린다.
 
 | 항목 | 지금 |
 |------|------|
-| 배포 | **안 함.** 구성은 있음([DEPLOYMENT.md](DEPLOYMENT.md)). 결정: Hetzner GEX45 한 대, 24시간, 성인 모드는 끈 채로. 계약 전 |
-| 병합 | 2026-11-06까지의 작업을 `develop`과 `main`에 병합했다. 미병합 브랜치는 없다 |
+| 배포 | **Oracle Cloud A1.Flex에 백엔드·AI(대화) 운영 중**(2026-11-07, [web_management/oracle-backend.md](web_management/oracle-backend.md)). 접속 키는 사용자 PC에만 있고 저장소·문서에 적지 않는다. 비어 있는 값: SMTP, 웹 주소, 프리미엄 키. 전체 운영(Hetzner GEX45, GPU)은 계약 전 |
+| 병합 | 2026-11-07까지의 작업(Oracle 배포 구성, AI 서버 배포 `claude/project-thread-pz0x5f`)을 `develop`과 `main`에 병합했다. 푸시는 하지 않았다 |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-06에 푸시했다. 저장소는 그날 확인에서 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
 | DB | 마이그레이션 34개, 테이블 37개(월드코퍼챗 9개 포함, 2026-11-06). 개발 DB에는 월드 마이그레이션을 아직 적용하지 않았다(`npx prisma migrate deploy` 필요). e2e·데모 DB에서는 적용 확인 |
