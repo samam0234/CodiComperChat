@@ -97,10 +97,10 @@ ssh codicomper-oci "echo 접속됨"</code></pre></div>
 <p>NVIDIA 키(<code>nvapi-…</code>)는 이미 만들어 두었으니 메모장 등에서 바로 복사할 수 있게 준비한다.</p>
 
 <h2 id="run">실행 <span class="where">PowerShell</span></h2>
-<p>아직 병합 전인 PR #3 브랜치를 쓰기 때문에, 지금 작업 폴더를 건드리지 않도록 <strong>별도 폴더(<code>D:\vscode\ccc-ai-deploy</code>)</strong>에 코드를 꺼낸다. 아래를 한 번에 붙여 넣는다.</p>
+<p>지금 작업 중인 폴더를 건드리지 않도록 <strong>별도 폴더(<code>D:\vscode\ccc-ai-deploy</code>)</strong>에 main 코드를 꺼낸다. 아래를 한 번에 붙여 넣는다.</p>
 <div class="code"><pre><code>cd D:\vscode\CodiComperChat
-git fetch origin claude/project-thread-pz0x5f
-git worktree add ../ccc-ai-deploy origin/claude/project-thread-pz0x5f
+git fetch origin main
+git worktree add ../ccc-ai-deploy origin/main
 cd ../ccc-ai-deploy
 node scripts/deploy-ai-oracle.mjs</code></pre></div>
 <ul>
@@ -114,7 +114,7 @@ node scripts/deploy-ai-oracle.mjs</code></pre></div>
 <p class="small">시간·숫자·답변 문장은 실제와 다를 수 있다. 구조와 ✓ 표시가 같으면 정상이다.</p>
 <div class="code"><pre><code>== PC → Oracle VM: AI 서버 배포 ==
 [1/3] git fetch
-  · 올릴 코드: origin/claude/project-thread-pz0x5f (2555a4d)
+  · 올릴 코드: origin/main (58028ce)
 [2/3] 코드 업로드
   ✓ 업로드 완료 (서버의 .env는 덮어쓰지 않았다)
 [3/3] 서버에서 배포 스크립트 실행 (전체)
@@ -196,7 +196,6 @@ node scripts/deploy-ai-oracle.mjs</code></pre></div>
   <label class="check"><input type="checkbox"> [6/6]의 NVIDIA 응답이 수 초~십수 초다</label>
   <label class="check"><input type="checkbox"> Vercel 웹에서 캐릭터와 대화하면 답이 온다</label>
   <label class="check"><input type="checkbox"> 그림 기능(코디포토넷·웹툰)은 "준비 중"으로 잠겨 있다 (GPU가 없어서 정상)</label>
-  <label class="check"><input type="checkbox"> 이 스레드에 "병합"이라고 말해 PR #3을 병합한다 (병합 후엔 스크립트가 main을 자동으로 쓴다)</label>
 </div>
 <p>임시 폴더 정리(선택): <code>cd D:\vscode\CodiComperChat</code> 후 <code>git worktree remove ../ccc-ai-deploy</code></p>
 
@@ -204,13 +203,13 @@ node scripts/deploy-ai-oracle.mjs</code></pre></div>
 <p>키만은 직접 넣어야 한다(채팅에 안 남기려고). 두 번에 나눈다.</p>
 <p><strong>1) PowerShell에서 키만 넣는다</strong> (위 실행 4줄과 같되 마지막 줄만 다르다)</p>
 <div class="code"><pre><code>cd D:\vscode\CodiComperChat
-git fetch origin claude/project-thread-pz0x5f
-git worktree add ../ccc-ai-deploy origin/claude/project-thread-pz0x5f
+git fetch origin main
+git worktree add ../ccc-ai-deploy origin/main
 cd ../ccc-ai-deploy
 node scripts/deploy-ai-oracle.mjs --key-only</code></pre></div>
 <p>키를 붙여 넣고 <code>✓ 키 확인됨</code>, <code>키 설정 끝</code>이 나오면 된다.</p>
 <p><strong>2) Code 창에 붙여 넣는다</strong></p>
-<div class="code"><pre><code>docs/web_management/ai-deploy-handover.md 를 git show origin/claude/project-thread-pz0x5f:docs/web_management/ai-deploy-handover.md 로 읽고 그대로 진행해 줘.
+<div class="code"><pre><code>docs/web_management/ai-deploy-handover.md 를 git show origin/main:docs/web_management/ai-deploy-handover.md 로 읽고 그대로 진행해 줘.
 키는 이미 서버에 넣어 뒀으니 묻거나 출력하지 마. 병합과 푸시는 하지 마.</code></pre></div>
 <p>Code 창은 같은 스크립트를 실행하고, 화면에 나온 ✓/✗를 요약해 알려 준다.</p>
 

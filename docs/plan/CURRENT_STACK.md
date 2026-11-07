@@ -2,7 +2,7 @@
 
 이 문서는 루트 `CodiComperChat_project_plan.md`(원본, §7·§9·§13)에서 파생된 개발용 요약이다. **원본과 모순되면 원본이 이긴다** — 이 문서를 먼저 고치고 원본을 나중에 맞추지 않는다.
 
-> 최종 갱신 2026-11-06. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
+> 최종 갱신 2026-11-07. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
 
 ![기술 스택](../.assets/readme/stack.png)
 
@@ -64,8 +64,9 @@ flowchart LR
 | 로그인 토큰 무효화 | 토큰에 계정의 세대(`sessionVersion`)를 싣고, 비밀번호 변경·재설정 때 올려 이전 토큰을 모두 끊는다 | `auth/session.ts` |
 | 메일 발송 | SMTP(`MAIL_SMTP_URL`) / 폴더(`MAIL_OUTBOX_DIR`, 시험용) / 개발 중 로그. **개발 메일 서버는 Mailpit**(docker compose, SMTP 1025·웹 8025). 운영 메일 서비스는 미정 | `mail/mail.service.ts`, 확인 `npm run mail:check --workspace api` |
 | 회원 탈퇴 | 계정·데이터 삭제, 발행 캐릭터는 먼저 내림, 결제 기록은 법정 보관(계정 연결만 끊음) | `account/` |
-| LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). 그림 인식(검수)도 같은 모델. Gemma 4는 Apache 2.0 — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
+| LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). **운영(2026-11-07)은 NVIDIA 호스팅 API `google/gemma-4-31b-it`(OpenAI 호환, `LLM_BACKEND=openai`)이 기본이고, 막히면 CPU Ollama `gemma4:e4b`가 대신 답한다(`LLM_FALLBACK_OLLAMA=1`).** 그림 인식(검수)도 같은 모델. Gemma 4는 Apache 2.0 — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
 | 배포 (2026-11-03) | **NVIDIA GPU 서버 한 대에서 24시간.** `deploy/docker-compose.prod.yml`: Caddy(TLS)·web·console·api·postgres·ai·ollama, 바깥 포트 80·443뿐, `restart: always`, 백업 `scripts/db-backup.sh`. **Hetzner GEX45로 결정, 계약 전**, 성인 모드는 끈 채로 연다 | [../web_management/docker-deploy.md](../web_management/docker-deploy.md) |
+| 지금 배포 (2026-11-07) | **웹은 Vercel(`codicomperchat-web`, icn1), API·DB·AI는 Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄).** `deploy/oracle/docker-compose.yml` + `docker-compose.ai.yml`. 도메인 대신 `api.168-110-61-178.sslip.io`. 웹→Caddy는 `WEB_PROXY_TOKEN`으로 이용자 IP를 넘긴다. GPU 서버(위 줄)는 그림 엔진용 목표로 남는다 | [../web_management/oracle-backend.md](../web_management/oracle-backend.md), [../web_management/deploy-log-2026-11-07.md](../web_management/deploy-log-2026-11-07.md) |
 | 저장소 비공개 (2026-11-03) | 비공개로 전환한다. 서버는 읽기 전용 배포 키로 받는다. 라이선스의 clone·복제·실행·호스팅 금지는 그대로다. 공개였던 동안 받아 간 사본은 되돌릴 수 없다 | [../../LICENSE](../../LICENSE) |
 | 그림 엔진 (2026-10-24) | **services/ai 안에서 diffusers로 직접 그린다**(`IMAGE_ENGINE=local`, 기본, 선택 설치 `requirements-image.txt`: PyTorch 2.10 CUDA 12.8 · diffusers 0.42). 애니메이션·웹툰 = Animagine XL 4.0, 수채화·실사풍 = SD 1.5, 체크포인트는 `services/ai/models/`(git 제외). 개발 PC 대안으로 기존 Stable Diffusion WebUI(`IMAGE_ENGINE=webui`). GPU 없으면 그림 기능만 "준비 중" | `services/ai/app/services/image_local.py`, `image_engine.py`, [../guidance/photonet-engine.md](../guidance/photonet-engine.md) |
 | 프리미엄 월 상한 (2026-11-04) | 서비스 전체가 한 달에 프리미엄으로 쓸 코레딧 `PREMIUM_MONTHLY_CREDITS`. 운영에서 값이 없으면 0이라 열리지 않는다 | `models/models.ts` |

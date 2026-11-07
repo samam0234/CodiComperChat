@@ -1,6 +1,6 @@
 # 개발·배포 가이드 (목표 절차)
 
-> 상태(2026-10-24): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다(컨테이너화·배포는 아직). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
+> 상태(2026-10-24): **개발 절차는 실제로 정해졌다** — 지금 따라 할 순서는 [../guidance/getting-started.md](../guidance/getting-started.md), 환경변수는 [../guidance/environment.md](../guidance/environment.md). 아래 "목표" 절은 계획서 §7.3·§7.4의 배포 목표로 남겨 둔다. 컨테이너화는 `deploy/`에 있고, **2026-11-07에 실제로 배포했다**(Vercel 웹 + Oracle API·DB·AI, [../web_management/oracle-backend.md](../web_management/oracle-backend.md)). 계획과 달라진 점: npm workspaces로 정함, Redis는 쓰지 않음, `.env`는 `apps/api`·`services/ai` 두 곳.
 
 <!-- logic-structure -->
 ## 로직 구조
