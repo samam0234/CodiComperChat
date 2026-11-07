@@ -403,5 +403,6 @@ flowchart LR
 | 2026-11-07 | `39a622e` | main (merge) | develop into main | [261107_0922_39a622e_merge-develop-main-web-vercel_main.md](commits/261107_0922_39a622e_merge-develop-main-web-vercel_main.md) |
 | 2026-11-07 | `1b1880b` | feature/docs-final-update | 2026-11-07 실제 배포 기록 문서 추가 | [261107_0951_1b1880b_deploy-log-doc_feature-docs-final-update.md](commits/261107_0951_1b1880b_deploy-log-doc_feature-docs-final-update.md) |
 | 2026-11-07 | `88a3a3e` | feature/docs-final-update | 로직 구조를 mermaid 계층도와 YAML 파이프라인으로 바꾸고 배포 상태를 반영 | [261107_0951_88a3a3e_readme-logic-mermaid_feature-docs-final-update.md](commits/261107_0951_88a3a3e_readme-logic-mermaid_feature-docs-final-update.md) |
+| 2026-11-07 | `9a953d4` | feature/docs-final-update | 2026-11-07 실제 배포 상태·결정·함정을 인수인계에 반영 | [261107_0952_9a953d4_handover-deploy-0711_feature-docs-final-update.md](commits/261107_0952_9a953d4_handover-deploy-0711_feature-docs-final-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
