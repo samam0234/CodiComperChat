@@ -440,5 +440,6 @@ flowchart LR
 | 2026-11-07 | `dfabbc3` | feature/portfolio | 포트폴리오 폴더와 콘텐츠 정본·데이터 생성기를 만든다 | [261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md](commits/261107_1624_dfabbc3_portfolio-scaffold-data_feature-portfolio.md) |
 | 2026-11-07 | `ec3b9dc` | feature/portfolio | Flask AI 가이드 챗봇을 LangChain·LangGraph·BM25 RAG로 만든다 | [261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md](commits/261107_1635_ec3b9dc_portfolio-ai-langgraph_feature-portfolio.md) |
 | 2026-11-07 | `942c4f3` | feature/portfolio | Rails 8 API 백엔드로 콘텐츠·시트·ERD·검색과 챗봇 프록시를 만든다 | [261107_1644_942c4f3_portfolio-rails-api_feature-portfolio.md](commits/261107_1644_942c4f3_portfolio-rails-api_feature-portfolio.md) |
+| 2026-11-07 | `e499efd` | feature/portfolio | Astro 포트폴리오 사이트(메인·층별 상세·스프레드시트·ERD·AI 챗봇·문서)를 만든다 | [261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md](commits/261107_1655_e499efd_portfolio-astro-site_feature-portfolio.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
