@@ -400,5 +400,6 @@ flowchart LR
 | 2026-11-07 | `7a0d58c` | feature/web-vercel-deploy | Caddy가 웹(Vercel)이 넘긴 이용자 IP를 공유 비밀로 믿게 한다 | [261107_0920_7a0d58c_caddy-web-proxy-token_feature-web-vercel-deploy.md](commits/261107_0920_7a0d58c_caddy-web-proxy-token_feature-web-vercel-deploy.md) |
 | 2026-11-07 | `ab6ce4f` | feature/web-vercel-deploy | 웹(Vercel) 배포와 API 연결 상태를 문서에 반영 | [261107_0921_ab6ce4f_web-deploy-status_feature-web-vercel-deploy.md](commits/261107_0921_ab6ce4f_web-deploy-status_feature-web-vercel-deploy.md) |
 | 2026-11-07 | `96a6ab0` | develop (merge) | feature/web-vercel-deploy into develop | [261107_0921_96a6ab0_merge-web-vercel-deploy_develop.md](commits/261107_0921_96a6ab0_merge-web-vercel-deploy_develop.md) |
+| 2026-11-07 | `39a622e` | main (merge) | develop into main | [261107_0922_39a622e_merge-develop-main-web-vercel_main.md](commits/261107_0922_39a622e_merge-develop-main-web-vercel_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
