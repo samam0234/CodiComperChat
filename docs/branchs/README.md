@@ -449,5 +449,6 @@ flowchart LR
 | 2026-11-07 | `3dc0307` | develop (merge) | feature/official-world into develop | [261107_2055_3dc0307_merge-official-world_develop.md](commits/261107_2055_3dc0307_merge-official-world_develop.md) |
 | 2026-11-07 | `5339cf0` | develop (merge) | feature/portfolio into develop | [261107_2055_5339cf0_merge-portfolio_develop.md](commits/261107_2055_5339cf0_merge-portfolio_develop.md) |
 | 2026-11-07 | `d30dc1b` | develop (merge) | feature/project-intro into develop | [261107_2055_d30dc1b_merge-project-intro_develop.md](commits/261107_2055_d30dc1b_merge-project-intro_develop.md) |
+| 2026-11-07 | `916bb09` | develop (merge) | claude/project-thread-gkkp1j into develop | [261107_2055_916bb09_merge-erd-gkkp1j_develop.md](commits/261107_2055_916bb09_merge-erd-gkkp1j_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
