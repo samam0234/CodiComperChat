@@ -467,5 +467,6 @@ flowchart LR
 | 2026-11-07 | `c677d61` | develop (merge) | feature/readme-status-sync into develop (no-ff) | [261107_2317_c677d61_merge-readme-status_develop.md](commits/261107_2317_c677d61_merge-readme-status_develop.md) |
 | 2026-11-07 | `63a2430` | main (merge) | develop into main (no-ff) | [261107_2317_63a2430_merge-develop-into-main-docs_main.md](commits/261107_2317_63a2430_merge-develop-into-main-docs_main.md) |
 | 2026-11-08 | `a3f0e29` | feature/chat-edit-memory | 괄호 조사를 받침에 맞게 고치다 | [261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md](commits/261108_0048_a3f0e29_korean-josa_feature-chat-edit-memory.md) |
+| 2026-11-08 | `acd5167` | feature/chat-edit-memory | 내 말풍선 색을 맞추고 안내 글 잘림을 없애다 | [261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md](commits/261108_0049_acd5167_chat-bubble-contrast_feature-chat-edit-memory.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
