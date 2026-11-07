@@ -387,5 +387,6 @@ flowchart LR
 | 2026-11-06 | `2555a4d` | claude/project-thread-pz0x5f | Code 창 인수인계 문서와 안내 HTML 추가 | [261106_2312_2555a4d_code-window-handover_claude-project-thread-pz0x5f.md](commits/261106_2312_2555a4d_code-window-handover_claude-project-thread-pz0x5f.md) |
 | 2026-11-06 | `5be5327` | claude/project-thread-pz0x5f | AI 서버 배포를 스크립트 한 개로 묶고 화면 예시를 더한다 | [261106_2320_5be5327_ai-deploy-script_claude-project-thread-pz0x5f.md](commits/261106_2320_5be5327_ai-deploy-script_claude-project-thread-pz0x5f.md) |
 | 2026-11-07 | `956d9ee` | claude/project-thread-pz0x5f | 프리미엄(Claude·Grok) 환경변수를 샘플 .env에 추가 | [261107_0832_956d9ee_premium-env-example_claude-project-thread-pz0x5f.md](commits/261107_0832_956d9ee_premium-env-example_claude-project-thread-pz0x5f.md) |
+| 2026-11-07 | `b85ac64` | claude/project-thread-pz0x5f | Oracle 서버 배포 상태를 문서에 반영 | [261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md](commits/261107_0902_b85ac64_deploy-status-docs_claude-project-thread-pz0x5f.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
