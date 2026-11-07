@@ -409,5 +409,6 @@ flowchart LR
 | 2026-11-07 | `9248c5d` | feature/docs-final-update | 웹 프록시 토큰과 운영에서 실제로 쓰는 환경변수 위치를 적는다 | [261107_0953_9248c5d_env-production-map_feature-docs-final-update.md](commits/261107_0953_9248c5d_env-production-map_feature-docs-final-update.md) |
 | 2026-11-07 | `129856e` | feature/docs-final-update | 지금 운영 중인 Oracle·Vercel 구성을 Docker 토폴로지에 더한다 | [261107_0954_129856e_topology-oracle-vercel_feature-docs-final-update.md](commits/261107_0954_129856e_topology-oracle-vercel_feature-docs-final-update.md) |
 | 2026-11-07 | `964097a` | feature/docs-final-update | 운영 대화 모델과 지금 배포 결정을 스택 정본에 반영 | [261107_0954_964097a_stack-deploy-decision_feature-docs-final-update.md](commits/261107_0954_964097a_stack-deploy-decision_feature-docs-final-update.md) |
+| 2026-11-07 | `ca0d882` | feature/docs-final-update | Oracle 운영 서버 문서를 지금 구성의 정본으로 다시 쓴다 | [261107_0955_ca0d882_oracle-backend-rewrite_feature-docs-final-update.md](commits/261107_0955_ca0d882_oracle-backend-rewrite_feature-docs-final-update.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
