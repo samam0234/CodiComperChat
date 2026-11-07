@@ -130,6 +130,8 @@ GEM
     net-smtp (0.5.2)
       net-protocol
     nio4r (2.7.5)
+    nokogiri (1.19.7-aarch64-linux-gnu)
+      racc (~> 1.4)
     nokogiri (1.19.7-x64-mingw-ucrt)
       racc (~> 1.4)
     nokogiri (1.19.7-x86_64-linux-gnu)
@@ -137,6 +139,7 @@ GEM
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.1)
+    prism (2.1.0-aarch64-linux-gnu)
     prism (2.1.0-x64-mingw-ucrt)
     prism (2.1.0-x86_64-linux-gnu)
     puma (8.0.2)
@@ -212,6 +215,7 @@ GEM
     zeitwerk (2.8.3)
 
 PLATFORMS
+  aarch64-linux
   x64-mingw-ucrt
   x86_64-linux
 
