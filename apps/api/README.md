@@ -1,6 +1,6 @@
 # apps/api
 
-코디컴퍼챗 도메인/상태 API. Nest.js 12 (TypeScript, ESM) + Prisma 7. 외부(웹·콘솔)에 공개되는 **유일한 백엔드**이고 **신뢰 경계**다 — 인증·권한·소유 확인·요청 한도·입력 검사를 모두 여기서 한다. DB 접근도 이 앱에만 있다.
+코디컴퍼챗 도메인/상태 API. Nest.js 12 (TypeScript, ESM) + Prisma 7. 외부(웹·콘솔)에 공개되는 **유일한 백엔드**이고 **신뢰 경계**다 — 인증·권한·소유 확인·요청 한도·입력 검사를 모두 여기서 한다. DB 접근도 이 앱에만 있다. 운영(2026-11-07)에서는 Oracle에서 돌고, 대화 모델은 NVIDIA `gemma-4-31b-it`(막히면 `gemma4:e4b`)이다. 코드에 있는 기능과 지금 열리는 범위는 [../../docs/STATUS.md](../../docs/STATUS.md).
 
 ```bash
 # 저장소 루트에서
@@ -141,7 +141,7 @@ flowchart TD
 | `ai` `security` `mail` `agent-chat` `health` `prisma` | FastAPI 호출·대기열, 요청 한도, 메일, 안내 챗봇, 상태 확인, DB |
 | `campaigns` | 계획서 §13.1 경로 자리(501). 실제 대화는 `character-chat` |
 
-모듈은 `*.module.ts` + `*.controller.ts` + `*.service.ts`가 기본이고 계층은 Controller → Service → Prisma다(별도 Repository 없음). 입력 검증은 모듈마다 작은 파서 함수로 한다. 테이블 28개 — [../../docs/plan/DATABASE.md](../../docs/plan/DATABASE.md).
+모듈은 `*.module.ts` + `*.controller.ts` + `*.service.ts`가 기본이고 계층은 Controller → Service → Prisma다(별도 Repository 없음). 입력 검증은 모듈마다 작은 파서 함수로 한다. 테이블 37개 — [../../docs/plan/DATABASE.md](../../docs/plan/DATABASE.md). 안내의 28개는 월드 표가 들어가기 전 수다.
 
 - 엔드포인트 목록: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 계층 규칙: [../../docs/Architecture/layers.md](../../docs/Architecture/layers.md) · 폴더 구조: [../../docs/plan/PROJECT_STRUCTURE.md](../../docs/plan/PROJECT_STRUCTURE.md)

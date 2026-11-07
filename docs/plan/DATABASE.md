@@ -1,6 +1,6 @@
 # 데이터베이스
 
-정본: `CodiComperChat_project_plan.md` §7.4, §7.5. 스키마 정본은 코드 `apps/api/prisma/schema.prisma`(각 칸의 의미는 거기 주석에 있다), 바뀐 이력은 `apps/api/prisma/migrations/`. 최종 갱신 2026-10-24.
+정본: `CodiComperChat_project_plan.md` §7.4, §7.5. 스키마 정본은 코드 `apps/api/prisma/schema.prisma`(각 칸의 의미는 거기 주석에 있다), 바뀐 이력은 `apps/api/prisma/migrations/`. 본문 개정 2026-10-24. 테이블 개수 37개와 월드 표는 2026-11-06에 반영했다.
 
 <!-- logic-structure -->
 ## 로직 구조

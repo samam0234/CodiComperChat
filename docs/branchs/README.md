@@ -454,5 +454,16 @@ flowchart LR
 | 2026-11-07 | `8c654d8` | feature/deploy-status-1107b | 웹·포트폴리오 사이트·공식 세계관의 실제 배포 상태를 적는다 | [261107_2212_8c654d8_deploy-status-1107b_feature-deploy-status-1107b.md](commits/261107_2212_8c654d8_deploy-status-1107b_feature-deploy-status-1107b.md) |
 | 2026-11-07 | `9ab35bc` | develop (merge) | feature/deploy-status-1107b into develop | [261107_2213_9ab35bc_merge-deploy-status-1107b_develop.md](commits/261107_2213_9ab35bc_merge-deploy-status-1107b_develop.md) |
 | 2026-11-07 | `db81c7c` | main (merge) | develop into main | [261107_2213_db81c7c_merge-develop-main-deploy-status_main.md](commits/261107_2213_db81c7c_merge-develop-main-deploy-status_main.md) |
+| 2026-11-07 | `dee911f` | feature/portfolio-site-model | 포트폴리오 챗봇을 e4b 하나로 맞추다 | [261107_2253_dee911f_portfolio-e4b-only_feature-portfolio-site-model.md](commits/261107_2253_dee911f_portfolio-e4b-only_feature-portfolio-site-model.md) |
+| 2026-11-07 | `36ff895` | develop (merge) | feature/portfolio-site-model into develop (no-ff) | [261107_2254_36ff895_merge-portfolio-e4b_develop.md](commits/261107_2254_36ff895_merge-portfolio-e4b_develop.md) |
+| 2026-11-07 | `e50bd23` | feature/docs-live-status | 기능과 운영 현황을 나누는 문서를 추가 | [261107_2310_e50bd23_live-status-doc_feature-docs-live-status.md](commits/261107_2310_e50bd23_live-status-doc_feature-docs-live-status.md) |
+| 2026-11-07 | `e76020f` | feature/docs-live-status | 프로젝트 소개 화면을 기능 목록에 넣다 | [261107_2310_e76020f_features-project-page_feature-docs-live-status.md](commits/261107_2310_e76020f_features-project-page_feature-docs-live-status.md) |
+| 2026-11-07 | `02c1450` | feature/docs-live-status | 허브가 기능과 현황을 나눠 가리키게 하다 | [261107_2311_02c1450_hub-points-at-status_feature-docs-live-status.md](commits/261107_2311_02c1450_hub-points-at-status_feature-docs-live-status.md) |
+| 2026-11-07 | `d3e2ff4` | feature/docs-live-status | 안내의 테이블 수를 37개로 맞추다 | [261107_2311_d3e2ff4_db-table-count_feature-docs-live-status.md](commits/261107_2311_d3e2ff4_db-table-count_feature-docs-live-status.md) |
+| 2026-11-07 | `b93f704` | develop (merge) | feature/docs-live-status into develop (no-ff) | [261107_2312_b93f704_merge-docs-live-status_develop.md](commits/261107_2312_b93f704_merge-docs-live-status_develop.md) |
+| 2026-11-07 | `a9c9e79` | feature/readme-status-sync | 앱 안내가 기능과 현황을 나누게 하다 | [261107_2316_a9c9e79_readme-status-split_feature-readme-status-sync.md](commits/261107_2316_a9c9e79_readme-status-split_feature-readme-status-sync.md) |
+| 2026-11-07 | `d2e2346` | feature/readme-status-sync | 미리보기 배포와 공개 전을 나누다 | [261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md](commits/261107_2316_d2e2346_security-preview-status_feature-readme-status-sync.md) |
+| 2026-11-07 | `8acc868` | feature/readme-status-sync | 읽는 순서에 현황 문서를 넣다 | [261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md](commits/261107_2316_8acc868_agents-read-status_feature-readme-status-sync.md) |
+| 2026-11-07 | `c677d61` | develop (merge) | feature/readme-status-sync into develop (no-ff) | [261107_2317_c677d61_merge-readme-status_develop.md](commits/261107_2317_c677d61_merge-readme-status_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

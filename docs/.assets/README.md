@@ -58,7 +58,7 @@ docs/.assets/
 | `deploy-topology.png` | 운영 배포(Caddy·web·console·api·postgres·migrate·ai·ollama, 망·볼륨) | Architecture/docker-topology, DEPLOYMENT, web_management/docker-deploy, README |
 | `dev-environments.png` | 개발·e2e·README 데모 포트와 DB | Architecture/docker-topology, guidance/getting-started, web_management/ports-inventory |
 | `data-map.png` | 테이블 37개 영역별 지도 | plan/DATABASE, Architecture/data-flow, AGENT_HANDOVER, README |
-| `screen-map.png` | 이용자 화면 35개·콘솔 12개 | Architecture/apps, plan/NAVIGATION_IA |
+| `screen-map.png` | 이용자 화면 35개·콘솔 12개 (2026-11-06 집계. 그 뒤 웹 `/project`) | Architecture/apps, plan/NAVIGATION_IA |
 | `ci-pipeline.png` | CI 두 잡의 단계 | plan/TESTING |
 
 ### 실제 앱을 찍은 것

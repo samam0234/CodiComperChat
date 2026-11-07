@@ -50,6 +50,7 @@ cp .env.example .env
 - 대화형 API 문서: `http://localhost:8000/docs`
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
+- 지금 서버에서 열리는 범위: [../../docs/STATUS.md](../../docs/STATUS.md). 운영은 `LLM_BACKEND=openai`(31B)이고, 그림 엔진은 이 VM에 없다.
 
 <!-- logic-structure -->
 ## 로직 구조

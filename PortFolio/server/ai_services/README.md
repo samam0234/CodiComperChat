@@ -1,6 +1,6 @@
 # PortFolio · AI 서비스 (Flask)
 
-포트폴리오의 **AI 가이드 챗봇**. 저장소 문서·기획 스프레드시트·포트폴리오 콘텐츠를 근거로(RAG) 이 프로젝트가 어떻게 만들어졌는지 설명한다. LangChain으로 문서를 나누고 프롬프트·모델을 잇고, LangGraph로 질문 처리 흐름을 그래프로 짠다. 모델은 Ollama `gemma4:12b`(예비 `gemma4:e4b`).
+포트폴리오의 **AI 가이드 챗봇**. 저장소 문서·기획 스프레드시트·포트폴리오 콘텐츠를 근거로(RAG) 이 프로젝트가 어떻게 만들어졌는지 설명한다. LangChain으로 문서를 나누고 프롬프트·모델을 잇고, LangGraph로 질문 처리 흐름을 그래프로 짠다. 공개된 사이트는 이 서비스를 올리지 않아 모델을 부르지 않는다. 로컬에서 켤 때의 모델은 Ollama `gemma4:e4b` 하나다.
 
 ```bash
 cd PortFolio/server/ai_services
@@ -19,9 +19,8 @@ flowchart LR
   R -- 프로젝트 질문 --> C[condense<br/>앞말에 기대면 LLM이 독립 질문으로]
   C --> RT[retrieve<br/>BM25 · 한국어 2-gram]
   RT --> GR{grade<br/>점수 + 핵심어 포함률 ≥ 0.5}
-  GR -- 근거 있음 --> GEN[generate<br/>LCEL: 프롬프트 · gemma4:12b · 근거 번호]
+  GR -- 근거 있음 --> GEN[generate<br/>LCEL: 프롬프트 · gemma4:e4b · 근거 번호]
   GR -- 근거 없음 --> N[no_context<br/>지어내지 않음]
-  GEN -. "실패하면" .-> FB[gemma4:e4b 예비]
   G --> E([answer · sources · steps])
   GEN --> E
   N --> E
@@ -50,14 +49,14 @@ flowchart LR
 | 키 | 기본 | 무엇 |
 |----|------|------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama 주소 |
-| `CHAT_MODEL` · `FALLBACK_MODEL` | `gemma4:12b` · `gemma4:e4b` | 주 모델, 실패 때 예비 |
+| `CHAT_MODEL` · `FALLBACK_MODEL` | `gemma4:e4b` · `gemma4:e4b` | 모델은 e4b 하나. 예비도 같은 이름이라 다른 모델로 넘어가지 않는다 |
 | `RAG_TOP_K` · `RAG_MIN_SCORE` | 10 · 1.5 | 검색 후보 수, 최소 BM25 점수 |
 | `AI_INTERNAL_TOKEN` | 비움 | Rails와 나눠 갖는 내부 토큰 |
 | `ALLOWED_ORIGINS` | `http://localhost:4321` | 브라우저가 직접 부를 때의 CORS(보통은 Rails를 거친다) |
 
 ## 실측 (2026-11-07, 이 PC · RTX 4070 SUPER 12GB)
 
-- 첫 호출 102초(모델 적재 포함), 이후 12~56초. `gemma4`의 생각(thinking) 출력을 켜 두면 답 길이 상한을 생각에 다 써 **빈 답**이 나와서 `reasoning=False`로 끈다.
+- 2026-11-07에 `gemma4:12b`로 재봤을 때 첫 호출 102초(모델 적재 포함), 이후 12~56초였다. 지금 모델은 `gemma4:e4b` 하나다. `gemma4`의 생각(thinking) 출력을 켜 두면 답 길이 상한을 생각에 다 써 **빈 답**이 나와서 `reasoning=False`로 끈다.
 - `langchain-community`는 유지 종료 예고가 나왔다(BM25Retriever가 여기에 있다). 바꿀 때는 `rank_bm25`를 직접 쓰는 작은 Retriever로 옮긴다.
 
 자료는 `PortFolio/scripts/build_data.py`가 `knowledge/`에 만든다. 문서를 고치면 다시 돌린다.
