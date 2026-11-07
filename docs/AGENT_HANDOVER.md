@@ -1,6 +1,6 @@
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-06.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-07.
 
 <!-- logic-structure -->
 ## 로직 구조
@@ -77,18 +77,27 @@ erDiagram
 
 ## 1. 한 줄 요약
 
-캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **2026-11-07에 Oracle Cloud(ARM, GPU 없음)에 API·DB·AI(대화만)를 올렸다**(`https://api.168-110-61-178.sslip.io`). 웹·콘솔·그림 엔진은 아직이고, 전체 운영 서버(Hetzner GEX45)는 계약을 기다린다.
+캐릭터 캠페인 동행 플랫폼. 웹(Next)·콘솔(Next)·API(Nest)·AI(FastAPI) 네 앱이 연결되어 **로컬에서 실제로 동작**하고, 운영 구성(`deploy/`)도 개발 PC에서 끝까지 띄워 확인했다. **2026-11-07에 실제로 올렸다.** 웹은 Vercel(`https://codicomperchat-web.vercel.app`), API·DB·AI(대화)는 Oracle Cloud ARM VM(`https://api.168-110-61-178.sslip.io`). 운영 콘솔 연결·그림 엔진·메일은 아직이고, 전체 운영 서버(Hetzner GEX45, GPU)는 계약을 기다린다. 과정 전부: [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md).
 
 | 항목 | 지금 |
 |------|------|
-| 배포 | **Oracle Cloud A1.Flex에 백엔드·AI(대화) 운영 중**(2026-11-07, [web_management/oracle-backend.md](web_management/oracle-backend.md)). 접속 키는 사용자 PC에만 있고 저장소·문서에 적지 않는다. 비어 있는 값: SMTP, 웹 주소, 프리미엄 키. 전체 운영(Hetzner GEX45, GPU)은 계약 전 |
-| 병합 | 2026-11-07까지의 작업(Oracle 배포 구성, AI 서버 배포 `claude/project-thread-pz0x5f`)을 `develop`과 `main`에 병합했다. 푸시는 하지 않았다 |
-| 원격(GitHub) | `develop`과 `main`을 2026-11-06에 푸시했다. 저장소는 그날 확인에서 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
+| 배포 | **운영 중**(2026-11-07): Vercel 웹 + Oracle A1.Flex(caddy·api·postgres·ai·ollama). 상태 [web_management/oracle-backend.md](web_management/oracle-backend.md), 과정 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). 접속 키는 사용자 PC에만 있고 저장소·문서에 적지 않는다. 비어 있는 값: SMTP, 프리미엄 키. 콘솔은 API에 연결 안 함. 전체 운영(Hetzner GEX45, GPU)은 계약 전 |
+| 병합 | 2026-11-07까지의 작업을 `develop`과 `main`에 병합했다: `feature/oracle-backend-deploy`, `claude/project-thread-pz0x5f`, `origin/claude/project-thread-po3i10`(충돌은 서버 구성 유지), `feature/web-vercel-deploy`, `feature/docs-final-update` |
+| 원격(GitHub) | `develop`과 `main`을 2026-11-07에 푸시했다. Vercel 웹은 `main`에서 배포한다. 저장소는 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
 | DB | 마이그레이션 34개, 테이블 37개(월드코퍼챗 9개 포함, 2026-11-06). 개발 DB에는 월드 마이그레이션을 아직 적용하지 않았다(`npx prisma migrate deploy` 필요). e2e·데모 DB에서는 적용 확인 |
-| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 코드 시험은 모두 통과한다. 실제 모델 평가에 기준 미달 항목이 있다([TASKS.md](TASKS.md) 3장) |
+| 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 2026-11-07 병합 뒤: API vitest 232개(파일 31), AI unittest 71개, API·웹 타입 검사 통과. e2e는 그날 돌리지 않았다 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
+
+### 2026-11-07 — 실제 배포
+
+- **웹**: Vercel `codicomperchat-web`(팀 saman, icn1). 환경변수 `API_BASE_URL`(반드시 `api.` 접두사), `WEB_PROXY_TOKEN`(sensitive), `CONSOLE_BASE_URL`, `REQUIRE_HTTPS=1`. `main`에서 배포.
+- **API·DB·AI**: Oracle `codicomperchat-api`(A1.Flex 2 OCPU·12GB, Ubuntu 24.04, 도쿄, `168.110.61.178`). 구성 `deploy/oracle/docker-compose.yml` + `docker-compose.ai.yml`. 대화는 NVIDIA 호스팅 API `gemma-4-31b-it`, 막히면 CPU Ollama `gemma4:e4b`(실측 19초/32초).
+- **Caddy**: `sslip.io` 이름으로 인증서. `WEB_PROXY_TOKEN`이 맞는 요청만 웹이 넘긴 이용자 IP를 믿는다.
+- **비밀값 위치**: 서버 `deploy/oracle/.env`(권한 600), Vercel 환경변수, 사용자 로컬 `.env`. 저장소·문서에는 없다.
+- **사용자 결정**: 처음엔 API+DB만 → AI도 같은 VM → 웹도 Vercel. 두 배포 브랜치 충돌은 서버 구성 유지. 배포 뒤 임시 키·IAM·CLI는 지웠다.
+- **남은 것**: SMTP, 콘솔 연결(허용 IP), 프리미엄 키·한도, 그림 엔진(GPU), 페르소나 파일을 서버 볼륨으로, DB 백업 cron, 도메인.
 
 ### 2026-11-06 늦게 더해진 것
 
@@ -145,6 +154,11 @@ erDiagram
 | **RAM 16GB**: 도커 빌드와 그림 엔진이 겹치면 SDXL 뒤 gemma가 502, 또는 프로세스가 조용히 죽는다 | 실측은 다른 무거운 작업 없이 한다. 파이프로 묶으면 종료 코드가 가려지니 로그 파일에 받고 `$?`를 본다 |
 | e2e가 `next dev`일 때 메모리 압박으로 실행마다 다른 시험이 시간 초과했다(2026-11-03) | 2026-11-04에 운영 빌드로 바꿔 없앴다. 다시 실패하면 부하 탓으로 넘기지 말고 결함으로 본다. 시간 제한을 늘려 덮지 않는다. 진행 중 로그의 실패 표시는 `x`이니 `FAIL`로 찾으면 못 잡는다 |
 | 사용자의 도커에 다른 프로젝트 컨테이너가 있다(`storyforge-postgres`) | 이 저장소 일이 아니다. `docker system prune`이나 `wsl --shutdown`을 하지 않는다. 내가 만든 이미지·볼륨만 지운다 |
+| **Windows에서 `git archive`로 서버에 올리면 파일이 CRLF로 나간다**(2026-11-07 실측) | `git -c core.autocrlf=false -c core.eol=lf archive ...`. `autocrlf=false`만으로는 부족하다. `.env` 값 끝에 ``이 붙으면 비밀값이 깨진다 |
+| Oracle 인스턴스의 개인키가 없을 때 | 콘솔에서 SSH 키를 더할 수 없다. Run Command는 동적 그룹·정책이 있어야 돌고, Ubuntu에서는 `ocarun`(sudo 없음)으로 돌아 `authorized_keys`를 못 고친다. 원래 키 파일을 받거나 인스턴스를 다시 만든다 |
+| Vercel 웹이 API를 못 부른다 | `API_BASE_URL`이 `https://api.168-110-61-178.sslip.io`인지(`api.` 접두사) 본다. Caddy의 사이트 이름과 같아야 인증서가 맞다 |
+| `deploy/oracle/bootstrap.sh`·`setup.sh`(po3i10에서 들어옴) | 다른 compose를 전제로 쓰였다. 지금 서버에 돌리지 않는다. 지금 절차는 [web_management/oracle-backend.md](web_management/oracle-backend.md) |
+| 서버 compose를 다시 띄울 때 | 항상 두 파일을 함께: `-f deploy/oracle/docker-compose.yml -f deploy/oracle/docker-compose.ai.yml`. 하나만 주면 ai·ollama가 고아 컨테이너가 된다 |
 
 ## 5. 검증 명령 (병합·푸시 전)
 
@@ -188,11 +202,20 @@ node --test scripts/record-commit.test.mjs
 | 이세연 퀘스트 | 혼인, 또는 기혼인 채 이어져 충돌 | 완료 |
 | 호스팅 | 상시 서버, Hetzner GEX45, 성인 모드 끔 | 구성·설치 스크립트 있음([web_management/hosting-options.md](web_management/hosting-options.md)), 계약 안 함 |
 
+**2026-11-07에 정한 것**
+
+| 항목 | 결정 | 상태 |
+|------|------|------|
+| 첫 배포 | Oracle Cloud A1.Flex(무료 ARM)에 먼저 올린다. 도메인 없이 sslip.io | 완료 |
+| 범위 | 처음엔 API+DB, 이어서 AI(대화)도 같은 VM, 웹은 Vercel | 완료 |
+| 충돌 | 두 배포 브랜치가 `deploy/oracle`을 다르게 만들면 서버에서 검증한 구성을 유지 | 완료 |
+| 개인정보 | 개인키·키 값은 출력·커밋하지 않고, 배포 뒤 임시 흔적은 지운다 | 완료 |
+
 **아직 사용자에게 물어야 할 것**
 
 | 결정 | 왜 |
 |------|-----|
-| **서버 계약·도메인·운영 메일** | 서버를 만들어야 배포할 수 있다. 비용이 드는 일이라 임의로 하지 않는다 |
+| **GPU 서버 계약·도메인·운영 메일·콘솔 허용 IP** | 그림 엔진은 GPU 서버가 있어야 한다. 메일이 없으면 인증 메일이 안 간다. 콘솔은 허용할 IP가 정해져야 연결한다. 비용이 드는 일이라 임의로 하지 않는다 |
 | **프리미엄 키와 월 상한 값** | 열면 무료 출석 코레딧이 실제 지출이 된다. 상한은 `PREMIUM_MONTHLY_CREDITS`로 구현했고 값은 사용자가 정한다. 만 18세 미만 차단은 자기 신고 생년월일로 구현했다([plan/AI_MODEL_STRATEGY.md](plan/AI_MODEL_STRATEGY.md)) |
 | **성인 모드 공개** | Gemma 4는 Apache 2.0이라 모델 라이선스 문제가 아니었다(2026-11-03 정정). 남은 것은 나이·본인 확인과 음란물 규정, 호스팅 약관이다. 공개 전에 변호사 확인이 필요하다([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)) |
 | 결제 재개·가격 | 토스 연동은 있으나 보류 |
