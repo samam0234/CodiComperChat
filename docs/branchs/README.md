@@ -451,5 +451,6 @@ flowchart LR
 | 2026-11-07 | `d30dc1b` | develop (merge) | feature/project-intro into develop | [261107_2055_d30dc1b_merge-project-intro_develop.md](commits/261107_2055_d30dc1b_merge-project-intro_develop.md) |
 | 2026-11-07 | `916bb09` | develop (merge) | claude/project-thread-gkkp1j into develop | [261107_2055_916bb09_merge-erd-gkkp1j_develop.md](commits/261107_2055_916bb09_merge-erd-gkkp1j_develop.md) |
 | 2026-11-07 | `9239ac0` | main (merge) | develop into main | [261107_2056_9239ac0_merge-develop-main-portfolio_main.md](commits/261107_2056_9239ac0_merge-develop-main-portfolio_main.md) |
+| 2026-11-07 | `8c654d8` | feature/deploy-status-1107b | 웹·포트폴리오 사이트·공식 세계관의 실제 배포 상태를 적는다 | [261107_2212_8c654d8_deploy-status-1107b_feature-deploy-status-1107b.md](commits/261107_2212_8c654d8_deploy-status-1107b_feature-deploy-status-1107b.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
