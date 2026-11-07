@@ -406,7 +406,9 @@ stateDiagram-v2
 | 운영 | 운영 콘솔(세계관 검수·내리기·이벤트 기록·운영 설정 포함), 요청 한도, CSP, 신고, 백업 | 동작 |
 | 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다. 서버 `.env`에 자리는 있다 |
 | 대화 모델 백엔드 | NVIDIA 호스팅 API(OpenAI 호환, `gemma-4-31b-it`)를 기본으로, 막히면 CPU Ollama가 대신 답한다 | 동작 (2026-11-07, 서버에서 실측) |
-| 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 동작 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직 |
+| 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 미리보기 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직. 공개 서비스 전 |
+| 프로젝트 소개 | 웹 `/project` | 웹에 있음 (2026-11-07) |
+| 포트폴리오 사이트 | 별도 Astro `https://codicomperchat-portfolio.vercel.app` | 정적 페이지만. 챗봇 서버는 없음. 로컬 챗봇 모델은 `gemma4:e4b` 하나 |
 | 성인 모드 | 수위 분리(그림·대화), 성인 확인, 미성년자·강제 단서 차단, 그림 가드, 신고. 성인 대화는 로컬 모델에서만 | 코드 있음, 공개 서버에서는 끈다 |
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
 | 스트리밍 응답, 본인인증 | | 없음 |
@@ -556,6 +558,7 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 | 다음에 할 일 | [TASKS](docs/TASKS.md) |
 | 소유자가 직접 할 일 | [owner-checklist](docs/guidance/owner-checklist.md) |
 | 구현된 기능 전체 | [FEATURES](docs/FEATURES.md) |
+| 그 기능 중 지금 열리는 범위 | [STATUS](docs/STATUS.md) |
 | 월드코퍼챗 설계·쓰는 법·실측 | [WORLD_COPPERCHAT](docs/plan/WORLD_COPPERCHAT.md) · [world-copperchat](docs/guidance/world-copperchat.md) · [trainings](docs/trainings/world-copperchat.md) |
 | README 그림과 영상, 다시 만드는 법 | [docs/.assets](docs/.assets/README.md) |
 | 스택과 결정 | [CURRENT_STACK](docs/plan/CURRENT_STACK.md) |

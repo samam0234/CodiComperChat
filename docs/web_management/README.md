@@ -4,7 +4,9 @@
 
 | 파일 | 내용 |
 |------|------|
+| [../STATUS.md](../STATUS.md) | 코드에 있는 기능과, 지금 공개 주소에서 열리는 범위 |
 | [oracle-backend.md](oracle-backend.md) | **지금 운영 중인 서버(Oracle)의 정본**: 상태, 올리기·다시 올리기, 점검, 웹 연결 |
+| [../../PortFolio/README.md](../../PortFolio/README.md) | 포트폴리오 사이트(제품 웹이 아님). 공개 주소는 Astro 정적만, 챗봇 서버는 없음 |
 | [deploy-log-2026-11-07.md](deploy-log-2026-11-07.md) | 처음 실제로 올린 날의 기록: 결정, 막힌 시도와 원인, 병합, 정리, 남은 일 |
 | [ai-deploy-handover.md](ai-deploy-handover.md) · [ai-server-guide.html](ai-server-guide.html) | 같은 VM에 AI(NVIDIA API + CPU Ollama)를 올리는 스크립트 설명 |
 | [deploy-guide.html](deploy-guide.html) · [oracle-console-guide.html](oracle-console-guide.html) | 다른 브랜치에서 들어온 대안 안내(한 compose 구성). **지금 서버와 맞지 않으니 그대로 따르지 않는다** |

@@ -2,7 +2,7 @@
 
 정본은 `.agents/skills/codicomperchat/SKILL.md`다. 이 파일은 그 정본을 가리키는 짧은 복제이며, 내용이 어긋나면 정본이 이긴다.
 
-**작업 시작 전 반드시:** (먼저 `docs/AGENT_HANDOVER.md`로 지금 상태·해야 할 일·함정을 확인한다)
+**작업 시작 전 반드시:** (먼저 `docs/AGENT_HANDOVER.md`로 지금 상태·해야 할 일·함정을 확인하고, `docs/STATUS.md`로 코드에 있는 기능과 지금 열리는 범위를 나눈다)
 1. `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙 — 루트 `CodiComperChat_project_plan.md`를 사용자 승인 없이 수정하지 않는다.
 2. 커밋: type/scope 영어, 요약·본문·바닥글 한국어 (`docs/guidance/commit-message.md`)
 3. 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식 기록 (생략 금지)

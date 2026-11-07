@@ -1,7 +1,7 @@
 # 웹 자동 테스트 (e2e)
 
 실제 브라우저(Chrome)로 화면 흐름을 돌려, 고친 뒤에 화면이 깨졌는지 바로 알게 한다. LLM은 **가짜**(`LLM_FAKE=1`), 그림 엔진도 **가짜**(작은 그림)라
-모델·GPU 없이 돈다. 화면은 운영 빌드(`next build` → `next start`)로 띄운다. 전체는 빌드를 합쳐 약 5분이고 시험은 약 3분이다(2026-11-04). AI 말투·환각 품질은 여기가 아니라 `services/ai/evals`가 본다.
+모델·GPU 없이 돈다. 화면은 이 PC의 운영 빌드(`next build` → `next start`)로 띄운다. 공개 Vercel·Oracle을 치지 않는다. 그 주소에서 열리는 범위는 [../docs/STATUS.md](../docs/STATUS.md). 전체는 빌드를 합쳐 약 5분이고 시험은 약 3분이다(2026-11-04). AI 말투·환각 품질은 여기가 아니라 `services/ai/evals`가 본다.
 
 ```bash
 npm run test:e2e                              # 전체 (준비 → 서버 3개 기동 → 테스트)

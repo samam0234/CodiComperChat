@@ -153,7 +153,7 @@ docs/
 | 앱 | 스택 | 위치 | 포트 (개발 / e2e) | 상태 |
 |----|------|------|------|------|
 | console | Next.js 16 (TSX) | `console/` | 3001 / 3102 | 동작 (운영자 전용 콘솔, 2026-10-21) |
-| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 동작 (화면 35개, 엄격 CSP, 라이트·다크, 월드코퍼챗 4화면) |
+| web | Next.js 16 (TSX) | `apps/web/` | 3000 / 3101 | 로컬 동작 (화면 목록 35개에 월드 4화면, 그 뒤 `/project`). 공개 주소에서 열리는 범위는 [STATUS.md](STATUS.md) |
 | api | Nest.js 12 (TypeScript, ESM) + Prisma 7 | `apps/api/` | 4000 / 4101 | 동작 (계획서의 `/campaigns/*`만 501 — 대화는 `/characters/:id/chat*`) |
 | ai | FastAPI (Python 3.12) | `services/ai/` | 8000 / 8101 | 동작 (`/train`만 403), 로컬 Ollama `gemma4:e4b` + 같은 프로세스의 그림 엔진(diffusers) |
 | DB | PostgreSQL 16 | 설치형 | 5432 | 동작 (테이블 37개, 마이그레이션 34개) |
