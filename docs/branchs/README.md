@@ -490,5 +490,7 @@ flowchart LR
 | 2026-11-08 | `31b4003` | main (merge) | develop into main (no-ff) | [261108_1605_31b4003_merge-support-into-main_main.md](commits/261108_1605_31b4003_merge-support-into-main_main.md) |
 | 2026-11-08 | `01110c5` | feature/dev-origin-lan | 개발 서버가 다른 사설 주소도 받게 하다 | [261108_1610_01110c5_dev-origin-lan_feature-dev-origin-lan.md](commits/261108_1610_01110c5_dev-origin-lan_feature-dev-origin-lan.md) |
 | 2026-11-08 | `9bd5d64` | develop (merge) | feature/dev-origin-lan into develop (no-ff) | [261108_1611_9bd5d64_merge-dev-origin-into-develop_develop.md](commits/261108_1611_9bd5d64_merge-dev-origin-into-develop_develop.md) |
+| 2026-11-08 | `4e81abc` | main (merge) | develop into main (no-ff) | [261108_1611_4e81abc_merge-dev-origin-into-main_main.md](commits/261108_1611_4e81abc_merge-dev-origin-into-main_main.md) |
+| 2026-11-08 | `decfa6f` | feature/portfolio-oracle | 포트폴리오 챗봇 서버를 Oracle 서버에 얹는 구성 추가 | [261108_1634_decfa6f_portfolio-chatbot-oracle_feature-portfolio-oracle.md](commits/261108_1634_decfa6f_portfolio-chatbot-oracle_feature-portfolio-oracle.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

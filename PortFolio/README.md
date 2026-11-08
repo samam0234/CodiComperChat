@@ -74,8 +74,8 @@ PortFolio/scripts/.venv/Scripts/python.exe PortFolio/scripts/build_portfile.py
 - 챗봇 모델은 `gemma4:e4b` 하나다. 12b와 나눠 고르지 않는다.
 - **2026-11-07 실제 배포 상태**
   - 사이트(Astro): Vercel `codicomperchat-portfolio` → https://codicomperchat-portfolio.vercel.app (정적 10페이지, 문서 내려받기 포함, 전 페이지 200 확인). Git 연동 없이 GitHub 소스 배포로 올렸다(Vercel GitHub 앱이 연결돼 있지 않아 프로젝트 생성 때 저장소 연결이 거부됨) → **푸시해도 자동 배포되지 않는다.** 고친 뒤에는 다시 배포해야 한다.
-  - **백엔드(Rails) + AI(Flask)는 배포하지 않았다.** 그래서 이 사이트의 챗봇·빠른 찾기는 "서버 꺼짐(데모 모드)"로 보인다. 사이트는 `PUBLIC_API_BASE`가 비어 있어 `localhost:3000`을 가리킨다.
-  - 서버 배포 구성은 `docker compose config` 검사까지만 했다(이 PC의 Docker가 꺼져 있어 이미지 빌드도 안 함). 기존 Oracle 서버(2 OCPU·12GB)는 이미 API·DB·AI·Ollama가 돌고 있어 챗봇용 모델을 더 올리기 어렵다. 챗봇을 열려면 다른 서버가 필요하다.
+  - **2026-11-08 갱신: 백엔드(Rails) + AI(Flask)를 기존 Oracle 서버에 올렸다** (`server/docker-compose.oracle.yml`). 주소 `https://portfolio-api.168-110-61-178.sslip.io`, 사이트의 `PUBLIC_API_BASE`가 이를 가리키도록 다시 배포했다. 챗 질문은 실측 약 50초, 제품 대화와 Ollama를 나눠 써서 겹치면 503이 날 수 있다. 절차: `docs/web_management/oracle-backend.md`.
+  - (2026-11-07 메모, 위에서 대체됨) 당시에는 `docker compose config` 검사까지만 했고 서버가 없었다.
 
 ## 시험
 

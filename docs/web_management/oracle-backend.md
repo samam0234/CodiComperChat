@@ -12,7 +12,7 @@
 | 바깥 주소 | `https://api.168-110-61-178.sslip.io` (Caddy가 Let's Encrypt 인증서 자동 발급·갱신) |
 | 대화 모델 | NVIDIA 호스팅 API `google/gemma-4-31b-it`, 막히면 CPU Ollama `gemma4:e4b` |
 | 웹 | Vercel `codicomperchat-web` → `https://codicomperchat-web.vercel.app` (푸터 `/project` 소개 페이지 포함, `PORTFOLIO_URL`로 포트폴리오 사이트 버튼) |
-| 포트폴리오 사이트 | Vercel `codicomperchat-portfolio` → `https://codicomperchat-portfolio.vercel.app` (Astro 정적 10페이지. 챗봇·빠른 찾기용 Rails·Flask 서버는 **아직 없다**. 그 챗봇 코드의 모델은 `gemma4:e4b` 하나) |
+| 포트폴리오 사이트 | Vercel `codicomperchat-portfolio` → `https://codicomperchat-portfolio.vercel.app` (Astro 정적 10페이지. 챗봇·빠른 찾기용 Rails·Flask는 같은 Oracle 서버에 얹었다: `https://portfolio-api.168-110-61-178.sslip.io`. 모델은 제품과 같은 Ollama의 `gemma4:e4b` 하나를 나눠 쓴다 — 아래 "포트폴리오 챗봇 서버" 참고) |
 | 비밀값 | 서버 `~/codicomperchat/deploy/oracle/.env`(root, 권한 600). 키 목록은 [../guidance/environment.md](../guidance/environment.md) "운영에서 실제로 쓰는 값" |
 
 ## 배포 상태 (2026-11-07)
@@ -75,6 +75,7 @@ $SSH "cd ~/codicomperchat && $C ps"
 curl https://api.168-110-61-178.sslip.io/health
 ```
 
+- **포트폴리오 챗봇 서버 (2026-11-08)**: `PortFolio/server/docker-compose.oracle.yml`(프로젝트명 `portfolio`)이 제품 망(`codicomperchat_edge`·`codicomperchat_internal`, external)에 `pf-backend`(Rails, 400MB 상한)·`pf-ai`(Flask, 800MB 상한)를 붙인다. 제품 Caddy가 `PORTFOLIO_API_DOMAIN`(`portfolio-api.168-110-61-178.sslip.io`, `deploy/oracle/.env`에 추가) 사이트 블록으로 `pf-backend:3000`에 넘긴다. 비밀값(`PortFolio/server/.env`의 `SECRET_KEY_BASE`·`AI_INTERNAL_TOKEN`)은 서버에서 만들었고 권한 600이다. 올리기: `cd ~/codicomperchat/PortFolio/server && sudo docker compose --env-file .env -f docker-compose.oracle.yml up -d --build`. 실측: `/api/v1/health` 200(chunks 629), 챗 질문 약 50초에 200·CORS 통과. **위험**: Ollama가 한 번에 한 요청만 처리해서 제품 대화와 겹치면 챗봇이 180초 제한에 걸려 503이 난다(첫 질문에서 실제로 겪음). 사이트의 `PUBLIC_API_BASE`는 Vercel 환경변수로 넣었다(바꾸면 다시 배포해야 반영).
 - **compose 파일은 항상 두 개를 함께 준다.** 하나만 주면 `ai`·`ollama`가 고아 컨테이너가 되고 api가 AI를 못 부른다.
 - Windows(`core.autocrlf=true`)에서 그냥 `git archive`를 하면 파일이 CRLF로 나가 `.env` 값 끝에 `\r`이 붙는다. `core.autocrlf=false`만으로는 `text`로 정한 파일이 Windows 기본 `core.eol`(CRLF)로 나가서, `core.eol=lf`까지 준다(2026-11-07 실측: `.env.example`의 CR 21개 → 0개).
 - `deploy/oracle/.env`는 서버에서 처음 한 번 만들어지고 다시 덮어쓰지 않는다. 비밀값은 서버에만 있다. 값을 바꿀 때는 `sudo nano`로 고치고 위 3)을 다시 돌린다.

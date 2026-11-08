@@ -22,3 +22,10 @@
 		}
 	}
 }
+
+# 포트폴리오 챗봇 API (PortFolio/server/docker-compose.oracle.yml의 pf-backend). 같은 Caddy가 인증서를 받는다.
+# PORTFOLIO_API_DOMAIN이 비어 있으면 localhost 사이트가 되어 바깥에서는 아무것도 열리지 않는다.
+{$PORTFOLIO_API_DOMAIN:localhost} {
+	encode gzip
+	reverse_proxy pf-backend:3000
+}
