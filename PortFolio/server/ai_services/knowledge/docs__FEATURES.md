@@ -3,7 +3,7 @@
 
 코디컴퍼챗에 **지금 구현된 모든 기능**을 한곳에 모았다. 각 줄은 *무엇인지 · 어디서 쓰는지(화면) · API · 코드 · 자세한 문서 · 시험* 순서다. 기능을 추가하거나 바꾸면 이 표를 같이 고친다(체크리스트: [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) "문서 갱신 체크리스트").
 
-- 기준 시점: 2026-11-06. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시).
+- 기준 시점: 2026-11-06. 상태: **구현**(동작·시험 있음) / **일부**(한계 있음, 비고 참고) / **보류**(코드는 있으나 열지 않음) / **준비 중**(화면에 "준비 중"으로 표시). 이 상태는 코드 기준이다. 공개 주소에서 지금 열리는 범위는 [STATUS.md](STATUS.md)에 따로 둔다.
 - 경로의 `:id`는 캐릭터 id. API 전체 계약은 [API_DOCUMENTATION.md](API_DOCUMENTATION.md), 화면 구조는 [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md).
 - 코드 위치의 `api/`는 `apps/api/src/`, `web/`은 `apps/web/`, `ai/`는 `services/ai/app/`, `console/`은 `console/`.
 - 시험 열의 이름은 `e2e/tests/<이름>.spec.ts`, "단위"는 `apps/api` vitest.
@@ -88,16 +88,18 @@ flowchart LR
 | 새로하기(저장/저장 안 함)·이어하기 | 대화 위 버튼 | `POST …/chat/new`, `GET …/chat/saved`, `POST …/saved/:campaignId/resume`, `DELETE …/saved/:campaignId` | api/character-chat | chat |
 | 대답 추천(3개) | 입력창 옆 ✦ | `POST …/chat/suggestions` | api/character-chat, ai/services/suggestion.py | chat |
 | 명령어 | 입력창 | `POST …/chat/regenerate` `continue` `undo` | api/character-chat | commands · `/다시` `/계속` `/되돌리기` `/상황 내용` `/도움말` |
+| 최근 대사 수정·삭제·방향 추천 | 마지막 말풍선 옆 점 세 개 | `PATCH·DELETE …/chat/messages/:messageId`, `POST …/rewrite` | api/character-chat, ai/services/rewrite.py | 그 위 대사는 메뉴가 없다. 방향은 유저가 적은 문장으로 그 줄만 다시 씀 |
+| 때와 곳 | 대화 위 한 줄, 세계관 제목 옆 | 보내기 응답의 `scene` | api/character-chat/scene.ts | 시간·장소 단서가 있을 때만 갱신 |
 | 글 꾸미기 | 말풍선 | — | web/lib/chat-format.ts, web/components/chat-text.tsx | format · `*행동*`(40% 회색 기울임) `**굵게**` `~취소선~` 코드·제목·인용·상자·정보창·`@이름`, HTML은 실행되지 않음 |
 | **나레이션 `@:`** | 말풍선(가운데 상자) | — | 위와 같음 + ai/services/inference.py(규칙 8) | format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 |
-| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
+| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 기본은 `gemma4:e4b` 그대로, 강화는 `gemma-4-31b-it`(태그 `gemma4:12b`, 키가 없으면 로컬 12b). 하루 30번 뒤 1번 10 코레딧. 막히면 예비는 e4b → [STATUS.md](STATUS.md) · T06. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
 | 프로필 고정 | 대화 | — | api/conversations | chat · 첫 메시지 뒤 새로하기 전까지 못 바꿈 |
 
 ## 4. 기억·이야기 상태
 
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
 |------|------|-----|------|-------------|
-| 장기 기억(보기·지우기·정리) | `/chat/memories` | `GET …/memories`, `DELETE …/memories/:id`, `POST …/memories/refresh` | api/memories, ai/services/remember.py | chat |
+| 장기 기억(보기·직접 적기·지우기·정리) | `/chat/memories` | `GET·POST …/memories`, `DELETE …/memories/:id`, `POST …/memories/refresh` | api/memories, ai/services/remember.py | 직접 적은 것은 매 턴 넣고, 말은 상황과 맞을 때만. 프로필·상대 설명을 하면 `/notice-facts`로 자동 저장 |
 | 지난 이야기(요약·친밀도 자동 변화·복선) | 대화 아래 접이식 패널 | `GET …/chat/story`, `DELETE …/story/hooks/:hookId` | api/campaign-state, ai/services/summarization.py | chat · 대화 3번(메시지 6개)마다 뒤에서 정리 |
 | 상태설정(친밀도·메모·호칭·자동 변화 끄기) | `/chat/settings` | `GET·PATCH …/chat/state` | api/chat-state | chat |
 | 엑스트라(조연, 1인 20개·대화당 3명) | 대화 아래 패널 | `GET·POST·PATCH·DELETE /me/extras`, `GET·PUT·DELETE …/chat/extras` | api/extras | chat |
@@ -176,7 +178,8 @@ flowchart LR
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
 |------|------|-----|------|-------------|
 | 에이전트(사용 안내 챗봇, 비로그인 가능) | `/agents` | `POST /agent-chat/messages` | api/agent-chat, ai/services/assist.py | 범위를 묶어 범용 비서가 되지 않게 |
-| 약관·개인정보·사업자·고객센터 | `/terms` `/privacy` `/business` `/support` | — | web/app/terms·privacy·business·support | security · 법률 검토 전 초안 |
+| 약관·개인정보·사업자·고객센터 | `/terms` `/privacy` `/business` `/support` | `GET·POST /support/inquiries` | web/app/support, api/support | 로그인하면 운영자에게 문의를 보내고 답변을 그 화면에서 본다. 법률 검토 전 초안 |
+| 프로젝트 소개 | `/project` | — | web/app/project/page.tsx | 2026-11-07 추가. `PORTFOLIO_URL`이 있으면 포트폴리오 사이트 버튼. 운영에서 열리는지는 [STATUS.md](STATUS.md) |
 
 ## 12. 화면 공통
 
@@ -192,6 +195,7 @@ flowchart LR
 |------|------|-----|------|
 | 대시보드(처리할 일·숫자·AI 대기열) | `/` | `GET /admin/stats` | console |
 | 신고함(내리기·기각·복구) | `/reports` | `GET …/reports`, `POST …/take-down` `dismiss-reports` `restore` | reports, console |
+| 고객 문의(읽고 답하기) | `/inquiries` | `GET /admin/support-inquiries`, `POST …/:id/reply` | support-inquiries |
 | 초상 검수(승인·반려) | `/portraits` | `GET·POST /admin/portraits` | moderation |
 | **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | content-reports, 단위 · 코디포토넷으로 시험. 웹툰 신고는 같은 부품이고 브라우저로 눌러 보지 않았다. 운영자 계정은 정지하지 않음 |
 | 캐릭터 관리 | `/characters` | `GET /admin/characters` | console |

@@ -1,7 +1,7 @@
 <!-- source: PortFolio/shared/content/portfolio.json -->
 # 코디컴퍼챗 포트폴리오
 이 사이트는 1인 풀스택 프로젝트 「코디컴퍼챗」을 프론트엔드 · 운영 콘솔 · 백엔드 · AI 서비스 네 층으로 나눠 소개하는 포트폴리오입니다. 각 층이 무엇을 맡고, 어떤 판단으로 만들었고, 어디서 막혔으며, 앞으로 무엇을 할지를 숫자와 화면으로 보여 드립니다.
-기간: 2026-09-15 ~ 2026-11-07 (약 8주) · 1인 개발 (기획 · 프론트 · 백엔드 · AI · 배포)
+기간: 2026-09-15 ~ 2026-11-08 (약 8주) · 1인 개발 (기획 · 프론트 · 백엔드 · AI · 배포)
 
 ## 프로젝트 한 줄
 유저가 주인공인 이야기를, 성격이 흔들리지 않는 AI 캐릭터가 함께 이어 가는 웹 서비스. 대화를 닫았다 다시 열어도 캐릭터가 지난 일을 기억하고, 관계가 쌓이고, 숨겨 둔 비밀과 부탁이 때가 되면 드러난다.
@@ -19,7 +19,7 @@
 - 운영 콘솔: Next.js 16 (웹과 쿠키 · 배포 분리)
 - 백엔드: Nest.js 12 (ESM) · Prisma 7 · PostgreSQL 16
 - AI 서버: FastAPI · Python 3.12 · Ollama · diffusers
-- 대화 모델: NVIDIA 호스팅 gemma-4-31b-it → 예비 Ollama gemma4:e4b
+- 대화 모델: 기본 gemma4:e4b(로컬) · 강화 gemma-4-31b-it(키 있으면 클라우드) · 예비 gemma4:e4b
 - 시험: Vitest · Playwright · unittest · 자체 평가 스크립트
 - 인프라: Docker Compose · Caddy · GitHub Actions · Vercel · Oracle Cloud
 
@@ -71,7 +71,7 @@
 - PWA로 모바일 홈 화면 설치
 
 ## 어드민 콘솔 — 운영자 웹
-운영자 전용 Next.js 16 앱(화면 12개). 이용자 웹과 쿠키 · 배포를 나눠, 이용자 사이트에 문제가 생겨도 운영 도구가 같이 흔들리지 않게 했다.
+운영자 전용 Next.js 16 앱(화면 13개). 이용자 웹과 쿠키 · 배포를 나눠, 이용자 사이트에 문제가 생겨도 운영 도구가 같이 흔들리지 않게 했다.
 
 ### 어드민 콘솔 — 운영자 웹 — 개요
 신고 처리, 초상 · 그림 검수, 계정 정지와 등급 변경, 세계관 내리기와 이벤트 기록, 운영 설정을 한 곳에서 한다. 권한은 세 겹으로 확인한다.
@@ -89,6 +89,7 @@
 ### 어드민 콘솔 — 운영자 웹 — 상세 기능
 - /: 대시보드: 처리할 일 · 이용자 · 캐릭터 · AI 대기열
 - /reports: 신고함: 내리기(사유 필수) · 기각 · 복구
+- /inquiries: 고객 문의: 읽고 답하면 고객센터에 다시 보인다
 - /portraits: 초상 검수: 자동 검수가 넘긴 것 승인 · 반려
 - /content: 그림 신고: 접근 차단 · 계정 정지 · 해제
 - /characters: 비공개 · 내려간 것까지 찾기 · 내리기 · 복구
@@ -122,14 +123,14 @@
 Nest.js 12(ESM) + Prisma 7 + PostgreSQL 16. 외부에 열린 유일한 백엔드로 인증 · 권한 · 소유 확인 · 요청 한도 · 코레딧 · 맥락 조립을 모두 맡는다. 판단 로직은 순수 함수로 모아 DB 없이 시험한다.
 
 ### 백엔드 서버 — 유일한 신뢰 경계 — 개요
-웹 · 콘솔은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다. 이 원칙 하나로 보안 검토와 시험 범위를 Nest 한 곳에 모았다. 모듈 30여 개, API 경로 155개, 테이블 37개.
+웹 · 콘솔은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다. 이 원칙 하나로 보안 검토와 시험 범위를 Nest 한 곳에 모았다. 모듈 30여 개, 2026-11-07에 대조한 API 경로 155개에 고객센터 문의 5경로를 더했다. 테이블 38개.
 - Controller → Guard(Auth · Admin · RateLimit) → Service → 순수 함수 / Prisma / ai-client / Credits
 - 운영 기동 검사: NODE_ENV=production에서 REQUIRE_HTTPS · 토큰 길이 · 개발 스위치를 보고 어긋나면 시작하지 않는다
 - 운영: Oracle Cloud A1.Flex(ARM) Docker Compose — Caddy · api · postgres · ai · ollama
 
 ### 백엔드 서버 — 유일한 신뢰 경계 — 사용 엔진
 - 런타임: Node.js 24 · Nest.js 12 (ESM)
-- ORM · DB: Prisma 7 · PostgreSQL 16 · 마이그레이션 34개
+- ORM · DB: Prisma 7 · PostgreSQL 16 · 마이그레이션 36개
 - 메일: Nodemailer (SMTP · 폴더 · 로그)
 - 결제: 토스페이먼츠 연동(보류) · 눌러서 프로(PRO_CLICK)
 - 시험: Vitest 232개 — 순수 함수 *.spec.ts + 실제 PostgreSQL *.db.spec.ts
@@ -144,7 +145,7 @@ Nest.js 12(ESM) + Prisma 7 + PostgreSQL 16. 외부에 열린 유일한 백엔드
 - persona-rag: 2-gram BM25 + 키워드 보너스 지식 조각 검색(벡터 DB 없음)
 
 ### 백엔드 서버 — 유일한 신뢰 경계 — API 연결
-Nest 컨트롤러 경로 155개를 문서와 하나씩 대조해 빠진 것이 없음을 확인했다(2026-11-07). AI 호출은 대기열을 지나며, 화면에서 기다리는 답(foreground)이 뒤에서 하는 정리(background)보다 먼저 간다.
+Nest 컨트롤러 경로 155개를 문서와 하나씩 대조해 빠진 것이 없음을 확인했다(2026-11-07). 2026-11-08에 고객센터 문의 5경로를 더했고, 전체를 다시 세지는 않았다. AI 호출은 대기열을 지나며, 화면에서 기다리는 답(foreground)이 뒤에서 하는 정리(background)보다 먼저 간다.
 - POST /auth/signup · /auth/login: 가입 · 로그인 → 토큰(쿠키)
 - POST /characters/:id/chat: 대화 한 턴 (답 · 사용량)
 - POST /worlds/:id/play/turn: 월드 한 턴 (진행자 답 · 위치 · 이벤트)
@@ -181,13 +182,14 @@ FastAPI(Python 3.12) 내부망 전용 서버. DB를 보지 않고 Nest가 조립
 
 ### AI 서비스 — 연기 · 판정 · 그림 — 개요
 연기(/infer), 요약 · 기억(/summarize · /remember), 환각 판정(/ground-check), 월드 진행자(/world/turn · /world/part-check), 그림(/photonet · /webtoon), 검수(/moderate-image) 등 경로 24개. 바깥에 열리지 않고 X-AI-Token이 맞는 요청만 받는다.
-- LLM_BACKEND=openai: NVIDIA 호스팅 gemma-4-31b-it → 막히면 CPU Ollama gemma4:e4b
-- LLM_BACKEND=ollama: 로컬 Ollama gemma4:e4b
+- 기본 무료는 gemma4:e4b를 로컬에서 그대로 쓴다
+- 강화 무료는 키가 있으면 NVIDIA gemma-4-31b-it, 없으면 이 기기의 gemma4:12b
+- 막히면 예비는 gemma4:e4b다. 없는 12b를 찾지 않는다
 - /train은 403 — v1은 학습하지 않는다는 정책
 
 ### AI 서비스 — 연기 · 판정 · 그림 — 사용 엔진
 - 서버: FastAPI · Pydantic(camelCase 통신)
-- 대화 모델: 운영 NVIDIA 호스팅 gemma-4-31b-it, 로컬·예비 Ollama gemma4:e4b
+- 대화 모델: 기본 gemma4:e4b · 강화 gemma-4-31b-it · 예비 gemma4:e4b
 - 그림: diffusers · Animagine XL 4.0 · SD 1.5 (NVIDIA GPU)
 - 프리미엄: Anthropic Claude · xAI Grok (키가 있을 때만)
 - 시험: unittest 71개 + 평가 스크립트 11묶음 + 퀘스트 판정 평가

@@ -3,7 +3,7 @@
 
 이 문서는 루트 `CodiComperChat_project_plan.md`(원본, §7·§9·§13)에서 파생된 개발용 요약이다. **원본과 모순되면 원본이 이긴다** — 이 문서를 먼저 고치고 원본을 나중에 맞추지 않는다.
 
-> 최종 갱신 2026-11-07. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
+> 최종 갱신 2026-11-08. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리·최근 대사 수정·때와 곳, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). **2026-11-07에 웹(Vercel)과 API·DB·AI(Oracle)를 올렸고, 2026-11-08에 대화 도구를 다시 배포했다.** 전체 GPU 서버(Hetzner GEX45) 계약과 법률·보안 점검은 남아 있다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
 
 ## 로직 구조
 
@@ -33,7 +33,7 @@ flowchart LR
   OP["운영자"] --> C["console Next.js :3001"]
   W -- "Bearer" --> N["apps/api Nest.js :4000 신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16 테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16 테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai FastAPI :8000"]
   A --> O["Ollama gemma4"]
   A --> G["diffusers Animagine · SD 1.5"]
@@ -47,7 +47,7 @@ flowchart LR
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
-| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 37개·마이그레이션 34개 · [DATABASE.md](DATABASE.md) |
+| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 38개·마이그레이션 36개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
@@ -62,7 +62,7 @@ flowchart LR
 | 회원 탈퇴 | 계정·데이터 삭제, 발행 캐릭터는 먼저 내림, 결제 기록은 법정 보관(계정 연결만 끊음) | `account/` |
 | LLM | **개발 중에는 로컬 Ollama `gemma4:e4b`** (2026-09-26, Gemini에서 교체). **운영(2026-11-07)은 NVIDIA 호스팅 API `google/gemma-4-31b-it`(OpenAI 호환, `LLM_BACKEND=openai`)이 기본이고, 막히면 CPU Ollama `gemma4:e4b`가 대신 답한다(`LLM_FALLBACK_OLLAMA=1`).** 그림 인식(검수)도 같은 모델. Gemma 4는 Apache 2.0 — [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) | `services/ai/app/services/llm.py`, [AI_MODEL_STRATEGY.md](AI_MODEL_STRATEGY.md) |
 | 배포 (2026-11-03) | **NVIDIA GPU 서버 한 대에서 24시간.** `deploy/docker-compose.prod.yml`: Caddy(TLS)·web·console·api·postgres·ai·ollama, 바깥 포트 80·443뿐, `restart: always`, 백업 `scripts/db-backup.sh`. **Hetzner GEX45로 결정, 계약 전**, 성인 모드는 끈 채로 연다 | [../web_management/docker-deploy.md](../web_management/docker-deploy.md) |
-| 지금 배포 (2026-11-07) | **웹은 Vercel(`codicomperchat-web`, icn1), API·DB·AI는 Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄).** `deploy/oracle/docker-compose.yml` + `docker-compose.ai.yml`. 도메인 대신 `api.168-110-61-178.sslip.io`. 웹→Caddy는 `WEB_PROXY_TOKEN`으로 이용자 IP를 넘긴다. GPU 서버(위 줄)는 그림 엔진용 목표로 남는다 | [../web_management/oracle-backend.md](../web_management/oracle-backend.md), [../web_management/deploy-log-2026-11-07.md](../web_management/deploy-log-2026-11-07.md) |
+| 지금 배포 (2026-11-07) | **웹은 Vercel(`codicomperchat-web`, icn1), API·DB·AI는 Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄).** `deploy/oracle/docker-compose.yml` + `docker-compose.ai.yml`. 도메인 대신 `api.168-110-61-178.sslip.io`. 웹→Caddy는 `WEB_PROXY_TOKEN`으로 이용자 IP를 넘긴다. 포트폴리오 사이트는 별도 Vercel(Astro 정적, 챗봇 서버 없음). GPU 서버(위 줄)는 그림 엔진용 목표로 남는다. 기능이 코드에 있는지와 지금 열리는지는 [../STATUS.md](../STATUS.md) | [../web_management/oracle-backend.md](../web_management/oracle-backend.md), [../web_management/deploy-log-2026-11-07.md](../web_management/deploy-log-2026-11-07.md) |
 | 저장소 비공개 (2026-11-03) | 비공개로 전환한다. 서버는 읽기 전용 배포 키로 받는다. 라이선스의 clone·복제·실행·호스팅 금지는 그대로다. 공개였던 동안 받아 간 사본은 되돌릴 수 없다 | [../../LICENSE](../../LICENSE) |
 | 그림 엔진 (2026-10-24) | **services/ai 안에서 diffusers로 직접 그린다**(`IMAGE_ENGINE=local`, 기본, 선택 설치 `requirements-image.txt`: PyTorch 2.10 CUDA 12.8 · diffusers 0.42). 애니메이션·웹툰 = Animagine XL 4.0, 수채화·실사풍 = SD 1.5, 체크포인트는 `services/ai/models/`(git 제외). 개발 PC 대안으로 기존 Stable Diffusion WebUI(`IMAGE_ENGINE=webui`). GPU 없으면 그림 기능만 "준비 중" | `services/ai/app/services/image_local.py`, `image_engine.py`, [../guidance/photonet-engine.md](../guidance/photonet-engine.md) |
 | 프리미엄 월 상한 (2026-11-04) | 서비스 전체가 한 달에 프리미엄으로 쓸 코레딧 `PREMIUM_MONTHLY_CREDITS`. 운영에서 값이 없으면 0이라 열리지 않는다 | `models/models.ts` |
@@ -73,6 +73,7 @@ flowchart LR
 | 추천 프로필 (2026-10-25) | 캐릭터마다 "추천하는 내 프로필"(선택). 대화 화면 카드에서 그대로 쓰거나 이름·소개를 고쳐 내 프로필로 만들고 바로 고른다. `characters.recommendedPersona`(공개) | `web/…/chat/recommended-persona.tsx`, [../FEATURES.md](../FEATURES.md) |
 | 공방 AI 초상 (2026-10-25) | 외형 단계 "AI로 직접 만들기": 화풍 4가지 × 생김새 8항목, **한 장 25 코레딧**, 전체 이용가만, 올린 그림과 같은 자동 검수, 실패 시 환불. 후보를 보고 고른 그림만 저장(2026-11-04). "그림 고르기"는 "내 파일 선택"으로 | `api/studio/studio-portrait-ai.service.ts`, `ai/services/portrait.py` |
 | 대화 서식 (2026-10-25) | `*행동*` = 40% 회색 기울임, `@:` = 나레이션(모델이 장면 전환 때 첫 줄에 씀) | `web/lib/chat-format.ts`, `ai/services/inference.py` |
+| 대화 도구 (2026-11-08) | 마지막 대사만 수정·삭제·방향 다시 쓰기(말풍선 옆 점 세 개). 직접 적은 기억은 `pinned`라 매 턴 넣는다. 때·곳(`sceneTime`·`scenePlace`)은 시간·장소 단서가 있을 때만 바뀐다. 마이그레이션 `20261108123000_chat_memory_scene`은 칸만 더한다 | `character-chat/`, `scene.ts`, `memories/` |
 | 비밀 퀘스트 (2026-10-24) | 캐릭터가 건네는 숨은 미션. 직접·AI 제작, 엄격 판정(인용 근거 대조). 공식 캐릭터만 100 코레딧(계정×캐릭터당 한 번) | `quests/`, [SECRET_QUEST.md](SECRET_QUEST.md) |
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
 | 요청 한도 | 고정 창. 기본은 서버 메모리, 서버가 여러 대면 `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`) | `security/rate-limit.ts`, `security/rate-store.ts` |

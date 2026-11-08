@@ -1,7 +1,7 @@
 <!-- source: docs/Architecture/overview.md -->
 # 시스템 개요
 
-정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-07 — **구현된 구조**. 2026-11-07부터 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM에서 운영한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md), 구성도 [docker-topology.md](docker-topology.md)).
+정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-08 — **구현된 구조**. 2026-11-07부터 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM에서 운영한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md), 구성도 [docker-topology.md](docker-topology.md)). 아래 그림의 Ollama는 로컬 기본이다. 운영은 `LLM_BACKEND=openai`라 대화·요약·판정이 NVIDIA `google/gemma-4-31b-it`으로 가고, 막히면 `gemma4:e4b`가 대신 답한다.
 
 ```text
 브라우저
@@ -12,7 +12,7 @@ Next.js  apps/web :3000          Next.js  console :3001 (운영자 전용, 따�
   │  proxy.ts: 요청마다 CSP(nonce) · 회원 전용 화면 1차 거름망
   │  서버 컴포넌트·서버 액션만 Nest를 부른다 (API_BASE_URL, Authorization: Bearer)
   ▼
-Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 37개)
+Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 38개)
   │  인증·계정·캐릭터·대화·기억·        ├──▶ 페르소나 지식 JSON (apps/api/data/personas, 파일)
   │  공방·신고·검수·결제·코레딧·        ├──▶ SMTP (메일 발송, MAIL_SMTP_URL)
   │  모델·오퍼레이션·퀘스트·요청 한도   └──▶ 토스페이먼츠 API (결제 승인·취소, 보류)
@@ -50,7 +50,7 @@ flowchart LR
   OP["운영자"] --> C["console Next.js :3001"]
   W -- "Bearer" --> N["apps/api Nest.js :4000 신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16 테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16 테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai FastAPI :8000"]
   A --> O["Ollama gemma4"]
   A --> G["diffusers Animagine · SD 1.5"]

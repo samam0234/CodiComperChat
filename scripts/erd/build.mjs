@@ -101,7 +101,7 @@ function rel(f) {
 }
 
 const groups = [
-  { id: 'account', tables: ['users', 'user_personas', 'email_tokens', 'payment_orders', 'credit_ledger', 'attendances', 'model_usage', 'quest_rewards'], stubs: {} },
+  { id: 'account', tables: ['users', 'user_personas', 'email_tokens', 'payment_orders', 'credit_ledger', 'attendances', 'model_usage', 'quest_rewards', 'support_inquiries'], stubs: {} },
   { id: 'chat', tables: ['characters', 'character_drafts', 'character_reports', 'content_reports', 'campaigns', 'campaign_states', 'sessions', 'messages', 'memory_chunks', 'user_extras', 'campaign_extras'], stubs: { users: '계정 그림에 전체' } },
   { id: 'ops', tables: ['mind_readings', 'diary_entries', 'direct_messages', 'board_posts', 'board_comments', 'photonet_images', 'webtoons', 'webtoon_panels'], stubs: { campaigns: '대화 그림에 전체' } },
   { id: 'world', tables: ['worlds', 'world_cast', 'world_places', 'world_parts', 'world_images', 'world_plays', 'world_messages', 'world_events'], stubs: { users: '계정 그림에 전체', characters: '대화 그림에 전체' } },

@@ -1,18 +1,18 @@
 {
  "counts": {
-  "tables": 37,
-  "relations": 40
+  "tables": 38,
+  "relations": 41
  },
  "groups": [
   {
    "key": "overview",
    "title": "전체 관계도",
-   "mermaid": "erDiagram\n  direction LR\n  board_posts ||--o{ board_comments : \"postId · CASCADE\"\n  campaigns ||--o{ board_posts : \"campaignId · CASCADE\"\n  campaigns ||--o{ campaign_extras : \"campaignId · CASCADE\"\n  campaigns ||--o| campaign_states : \"campaignId · CASCADE\"\n  campaigns ||--o{ diary_entries : \"campaignId · CASCADE\"\n  campaigns ||--o{ direct_messages : \"campaignId · CASCADE\"\n  campaigns ||--o{ memory_chunks : \"campaignId · CASCADE\"\n  campaigns ||--o{ mind_readings : \"campaignId · CASCADE\"\n  campaigns ||--o{ photonet_images : \"campaignId · CASCADE\"\n  campaigns ||--o{ sessions : \"campaignId · CASCADE\"\n  campaigns ||--o{ webtoons : \"campaignId · CASCADE\"\n  characters ||--o{ campaigns : \"characterId · RESTRICT\"\n  characters |o--o| character_drafts : \"characterId · SET NULL\"\n  characters ||--o{ character_reports : \"characterId · CASCADE\"\n  characters |o--o{ world_cast : \"characterId · SET NULL\"\n  sessions ||--o{ messages : \"sessionId · CASCADE\"\n  user_extras ||--o{ campaign_extras : \"extraId · CASCADE\"\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ campaigns : \"userId · CASCADE\"\n  users ||--o{ character_drafts : \"ownerId · CASCADE\"\n  users ||--o{ character_reports : \"reporterId · CASCADE\"\n  users |o--o{ characters : \"ownerId · SET NULL\"\n  users ||--o{ content_reports : \"reporterId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_extras : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users ||--o{ world_plays : \"userId · CASCADE\"\n  users |o--o{ worlds : \"ownerId · SET NULL\"\n  webtoons ||--o{ webtoon_panels : \"webtoonId · CASCADE\"\n  world_plays ||--o{ world_events : \"playId · CASCADE\"\n  world_plays ||--o{ world_messages : \"playId · CASCADE\"\n  worlds ||--o{ world_cast : \"worldId · CASCADE\"\n  worlds ||--o{ world_images : \"worldId · CASCADE\"\n  worlds ||--o{ world_parts : \"worldId · CASCADE\"\n  worlds ||--o{ world_places : \"worldId · CASCADE\"\n  worlds ||--o{ world_plays : \"worldId · CASCADE\"\n  app_settings\n  rate_limit_buckets"
+   "mermaid": "erDiagram\n  direction LR\n  board_posts ||--o{ board_comments : \"postId · CASCADE\"\n  campaigns ||--o{ board_posts : \"campaignId · CASCADE\"\n  campaigns ||--o{ campaign_extras : \"campaignId · CASCADE\"\n  campaigns ||--o| campaign_states : \"campaignId · CASCADE\"\n  campaigns ||--o{ diary_entries : \"campaignId · CASCADE\"\n  campaigns ||--o{ direct_messages : \"campaignId · CASCADE\"\n  campaigns ||--o{ memory_chunks : \"campaignId · CASCADE\"\n  campaigns ||--o{ mind_readings : \"campaignId · CASCADE\"\n  campaigns ||--o{ photonet_images : \"campaignId · CASCADE\"\n  campaigns ||--o{ sessions : \"campaignId · CASCADE\"\n  campaigns ||--o{ webtoons : \"campaignId · CASCADE\"\n  characters ||--o{ campaigns : \"characterId · RESTRICT\"\n  characters |o--o| character_drafts : \"characterId · SET NULL\"\n  characters ||--o{ character_reports : \"characterId · CASCADE\"\n  characters |o--o{ world_cast : \"characterId · SET NULL\"\n  sessions ||--o{ messages : \"sessionId · CASCADE\"\n  user_extras ||--o{ campaign_extras : \"extraId · CASCADE\"\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ campaigns : \"userId · CASCADE\"\n  users ||--o{ character_drafts : \"ownerId · CASCADE\"\n  users ||--o{ character_reports : \"reporterId · CASCADE\"\n  users |o--o{ characters : \"ownerId · SET NULL\"\n  users ||--o{ content_reports : \"reporterId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_extras : \"userId · CASCADE\"\n  users ||--o{ support_inquiries : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users ||--o{ world_plays : \"userId · CASCADE\"\n  users |o--o{ worlds : \"ownerId · SET NULL\"\n  webtoons ||--o{ webtoon_panels : \"webtoonId · CASCADE\"\n  world_plays ||--o{ world_events : \"playId · CASCADE\"\n  world_plays ||--o{ world_messages : \"playId · CASCADE\"\n  worlds ||--o{ world_cast : \"worldId · CASCADE\"\n  worlds ||--o{ world_images : \"worldId · CASCADE\"\n  worlds ||--o{ world_parts : \"worldId · CASCADE\"\n  worlds ||--o{ world_places : \"worldId · CASCADE\"\n  worlds ||--o{ world_plays : \"worldId · CASCADE\"\n  app_settings\n  rate_limit_buckets"
   },
   {
    "key": "account",
    "title": "계정 · 결제 · 코레딧",
-   "mermaid": "erDiagram\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users {\n    text id PK\n    text email UK\n    text displayName\n    text passwordHash \"NULL\"\n    UserRole role \"기본 USER\"\n    UserPlan plan \"기본 FREE\"\n    timestamp(3) planUntil \"NULL\"\n    timestamp(3) emailVerifiedAt \"NULL\"\n    date birthDate \"NULL\"\n    timestamp(3) adultConsentAt \"NULL\"\n    timestamp(3) suspendedAt \"NULL\"\n    text suspendReason \"NULL\"\n    integer sessionVersion \"기본 0\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n    integer credits \"기본 0\"\n  }\n  user_personas {\n    text id PK\n    text userId FK\n    text name\n    text description \"기본 ''\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  email_tokens {\n    text id PK\n    text userId FK\n    EmailTokenPurpose purpose\n    text tokenHash UK\n    timestamp(3) expiresAt\n    timestamp(3) usedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  payment_orders {\n    text id PK\n    text userId FK \"NULL\"\n    text buyerEmail \"NULL\"\n    text productId\n    integer amount\n    integer days\n    text provider\n    PaymentStatus status \"기본 PENDING\"\n    text paymentKey UK \"NULL\"\n    text failReason \"NULL\"\n    text receiptUrl \"NULL\"\n    timestamp(3) refundedAt \"NULL\"\n    text refundReason \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) paidAt \"NULL\"\n  }\n  credit_ledger {\n    text id PK\n    text userId FK\n    integer delta\n    integer balance\n    CreditReason reason\n    text modelId \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  attendances {\n    text userId PK,FK\n    text day PK\n    integer credits\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  model_usage {\n    text userId PK,FK\n    text modelId PK\n    text day PK\n    integer count \"기본 0\"\n  }\n  quest_rewards {\n    text id PK\n    text userId FK \"UK(userId+characterId)\"\n    text characterId \"UK(userId+characterId)\"\n    integer amount\n    timestamp(3) createdAt \"기본 now()\"\n  }"
+   "mermaid": "erDiagram\n  users ||--o{ attendances : \"userId · CASCADE\"\n  users ||--o{ credit_ledger : \"userId · CASCADE\"\n  users ||--o{ email_tokens : \"userId · CASCADE\"\n  users ||--o{ model_usage : \"userId · CASCADE\"\n  users |o--o{ payment_orders : \"userId · SET NULL\"\n  users ||--o{ quest_rewards : \"userId · CASCADE\"\n  users ||--o{ user_personas : \"userId · CASCADE\"\n  users ||--o{ support_inquiries : \"userId · CASCADE\"\n  users {\n    text id PK\n    text email UK\n    text displayName\n    text passwordHash \"NULL\"\n    UserRole role \"기본 USER\"\n    UserPlan plan \"기본 FREE\"\n    timestamp(3) planUntil \"NULL\"\n    timestamp(3) emailVerifiedAt \"NULL\"\n    date birthDate \"NULL\"\n    timestamp(3) adultConsentAt \"NULL\"\n    timestamp(3) suspendedAt \"NULL\"\n    text suspendReason \"NULL\"\n    integer sessionVersion \"기본 0\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n    integer credits \"기본 0\"\n  }\n  user_personas {\n    text id PK\n    text userId FK\n    text name\n    text description \"기본 ''\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) updatedAt\n  }\n  email_tokens {\n    text id PK\n    text userId FK\n    EmailTokenPurpose purpose\n    text tokenHash UK\n    timestamp(3) expiresAt\n    timestamp(3) usedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  payment_orders {\n    text id PK\n    text userId FK \"NULL\"\n    text buyerEmail \"NULL\"\n    text productId\n    integer amount\n    integer days\n    text provider\n    PaymentStatus status \"기본 PENDING\"\n    text paymentKey UK \"NULL\"\n    text failReason \"NULL\"\n    text receiptUrl \"NULL\"\n    timestamp(3) refundedAt \"NULL\"\n    text refundReason \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n    timestamp(3) paidAt \"NULL\"\n  }\n  credit_ledger {\n    text id PK\n    text userId FK\n    integer delta\n    integer balance\n    CreditReason reason\n    text modelId \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  attendances {\n    text userId PK,FK\n    text day PK\n    integer credits\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  model_usage {\n    text userId PK,FK\n    text modelId PK\n    text day PK\n    integer count \"기본 0\"\n  }\n  quest_rewards {\n    text id PK\n    text userId FK \"UK(userId+characterId)\"\n    text characterId \"UK(userId+characterId)\"\n    integer amount\n    timestamp(3) createdAt \"기본 now()\"\n  }\n  support_inquiries {\n    text id PK\n    text userId FK\n    text category\n    text subject\n    text body\n    SupportInquiryStatus status \"기본 OPEN\"\n    text reply \"NULL\"\n    timestamp(3) repliedAt \"NULL\"\n    timestamp(3) createdAt \"기본 now()\"\n  }"
   },
   {
    "key": "chat",
@@ -1481,6 +1481,70 @@
    ]
   },
   {
+   "name": "support_inquiries",
+   "group": "account",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "keys": [
+      "PK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "userId",
+     "type": "text",
+     "keys": [
+      "FK"
+     ],
+     "note": ""
+    },
+    {
+     "name": "category",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "subject",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "body",
+     "type": "text",
+     "keys": [],
+     "note": ""
+    },
+    {
+     "name": "status",
+     "type": "SupportInquiryStatus",
+     "keys": [],
+     "note": "기본 OPEN"
+    },
+    {
+     "name": "reply",
+     "type": "text",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "repliedAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "NULL"
+    },
+    {
+     "name": "createdAt",
+     "type": "timestamp(3)",
+     "keys": [],
+     "note": "기본 now()"
+    }
+   ]
+  },
+  {
    "name": "user_extras",
    "group": "chat",
    "columns": [
@@ -2606,6 +2670,13 @@
   {
    "parent": "users",
    "child": "quest_rewards",
+   "card": "||--o{",
+   "fk": "userId",
+   "onDelete": "CASCADE"
+  },
+  {
+   "parent": "users",
+   "child": "support_inquiries",
    "card": "||--o{",
    "fk": "userId",
    "onDelete": "CASCADE"

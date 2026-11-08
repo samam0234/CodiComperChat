@@ -59,6 +59,10 @@ export async function dismissContent(id: string, note: string) {
   return call(`/admin/content-reports/${encodeURIComponent(id)}/dismiss`, { method: "POST", body: { note } });
 }
 
+export async function replyInquiry(id: string, reply: string) {
+  return call(`/admin/support-inquiries/${encodeURIComponent(id)}/reply`, { method: "POST", body: { reply } });
+}
+
 export async function unsuspendUser(id: string) {
   return call(`/admin/users/${encodeURIComponent(id)}/unsuspend`, { method: "POST", body: {} });
 }

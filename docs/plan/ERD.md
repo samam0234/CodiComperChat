@@ -769,6 +769,8 @@ DB 제약은 없고 앱 코드가 뜻을 정한다. 그래서 관계선으로 �
 
 2026-11-08 마이그레이션 `20261108123000_chat_memory_scene`은 테이블을 늘리지 않고 칸만 더한다. `memory_chunks.pinned`(기본 거짓), `campaign_states.sceneTime`·`scenePlace`, `world_plays.sceneTime`·`scenePlace`. 위 34개 대조를 이 칸이 생긴 뒤 빈 데이터베이스에 다시 돌리지는 않았다.
 
+같은 날 `20261108150000_support_inquiries`가 `support_inquiries`를 더한다. 이용자(`users.userId`, 지우면 같이 삭제), 종류·제목·본문, 상태 `OPEN`·`ANSWERED`, 답과 답한 시각. 열거형 `SupportInquiryStatus`가 하나 늘었다. 위 그림과 34개 대조에는 이 표가 없다. 계정 영역 그림(`docs/.assets/erd/account.mmd`)과 전체 관계도에는 넣어 두었다.
+
 ## 다시 만들기
 
 스키마를 바꾼 뒤 [scripts/erd/README.md](../../scripts/erd/README.md)대로 돌린다. 테이블이 늘면 `build.mjs`의 `groups`에 넣어야 한다(빠지면 멈춘다).

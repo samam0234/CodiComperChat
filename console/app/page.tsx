@@ -47,7 +47,7 @@ export default async function Dashboard() {
   }
 
   const { users, characters, moderation, activity, ai } = stats;
-  const todo = moderation.openReports + moderation.openContentReports + moderation.pendingPortraits;
+  const todo = moderation.openReports + moderation.openContentReports + moderation.pendingPortraits + (moderation.openInquiries ?? 0);
 
   return (
     <>
@@ -61,6 +61,7 @@ export default async function Dashboard() {
           <Tile label="열린 신고" value={moderation.openReports} hint={`캐릭터 ${moderation.reportedCharacters}개`} href="/reports" alert={moderation.openReports > 0} />
           <Tile label="그림 신고" value={moderation.openContentReports} href="/content" alert={moderation.openContentReports > 0} />
           <Tile label="초상 검수 대기" value={moderation.pendingPortraits} href="/portraits" alert={moderation.pendingPortraits > 0} />
+          <Tile label="고객 문의" value={moderation.openInquiries ?? 0} href="/inquiries" alert={(moderation.openInquiries ?? 0) > 0} />
           <Tile label="내려간 캐릭터" value={characters.takenDown} href="/characters?filter=taken-down" />
         </div>
       </section>

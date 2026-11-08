@@ -43,7 +43,7 @@ flowchart LR
   OP["운영자"] --> C["console<br/>Next.js :3001"]
   W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
   A --> O["Ollama<br/>gemma4"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]
@@ -87,7 +87,7 @@ erDiagram
 | 병합 | 2026-11-07까지의 작업을 `develop`과 `main`에 병합했다: `feature/oracle-backend-deploy`, `claude/project-thread-pz0x5f`, `origin/claude/project-thread-po3i10`(충돌은 서버 구성 유지), `feature/web-vercel-deploy`, `feature/docs-final-update` |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-07에 푸시했다. Vercel 웹은 `main`에서 배포한다. 저장소는 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
-| DB | 마이그레이션 35개, 테이블 37개(월드코퍼챗 9개 포함). `20261108123000_chat_memory_scene`은 기억 `pinned`와 대화·세계관의 때·곳. 이미 떠 있는 DB에는 `npx prisma migrate deploy`가 필요하다 |
+| DB | 마이그레이션 36개, 테이블 38개(월드코퍼챗 9개 포함). 36번째 `20261108150000_support_inquiries`는 고객센터 문의. 이미 떠 있는 DB에는 `npx prisma migrate deploy`가 필요하다 |
 | 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 2026-11-07 병합 뒤: API vitest 232개(파일 31), AI unittest 71개, API·웹 타입 검사 통과. e2e는 그날 돌리지 않았다 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
@@ -103,6 +103,7 @@ erDiagram
 
 - 루트 README, 문서 허브, 스택, DB, 배포 진입, 아키텍처 개요를 마이그레이션 35개와 대화 도구에 맞췄다. 기획 원본, 커밋 기록, 실측 노트, 디버그 일지, 포트폴리오 지식 스냅샷은 그때의 문장으로 두었다.
 - 기본 무료 대화는 `gemma4:e4b`를 그대로 쓰고, 강화 무료는 키가 있으면 NVIDIA `gemma-4-31b-it`으로 보낸다. 막히면 예비는 `gemma4:e4b`다. 클라우드 채팅이 제한 시간 안에 응답하는지는 아직 확인하지 않았다. 입력 없이 보내면 1:1과 월드가 다음 장면을 예상해 잇는다.
+- 고객센터에서 로그인한 이용자가 운영자에게 문의를 보내고, 콘솔에서 답하면 그 화면에 다시 보인다. 운영 이미지는 이 표를 아직 모른다.
 
 ### 2026-11-07 — 실제 배포
 

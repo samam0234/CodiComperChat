@@ -91,12 +91,12 @@ flowchart TB
     S --> P["순수 함수<br/>quest · world · card · adult …"]
   end
   subgraph DATA["③ 저장"]
-    DB[("PostgreSQL 16<br/>테이블 37개 · 그림도 bytea")]
+    DB[("PostgreSQL 16<br/>테이블 38개 · 그림도 bytea")]
   end
   subgraph AI["④ services/ai — FastAPI · :8000 · 내부망 전용"]
     direction LR
     EP["/infer · /summarize · /remember · /ground-check<br/>/world/turn · /world/part-check · /photonet …"]
-    LLM["대화 모델<br/>NVIDIA API gemma-4-31b<br/>↳ 막히면 Ollama gemma4:e4b"]
+    LLM["대화 모델<br/>기본 gemma4:e4b<br/>강화 gemma-4-31b-it<br/>예비 gemma4:e4b"]
     IMG["그림<br/>diffusers · Animagine · SD 1.5<br/>(NVIDIA GPU 필요)"]
     EP --> LLM
     EP --> IMG
@@ -140,7 +140,7 @@ flowchart LR
   OP["운영자"] --> C["console<br/>Next.js :3001"]
   W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
   A --> L["대화 모델<br/>NVIDIA API → Ollama 예비"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]
@@ -161,7 +161,7 @@ flowchart LR
   AI -->|"OpenAI 호환"| NIM["NVIDIA 호스팅 API<br/>gemma-4-31b-it"]
 ```
 
-그림 엔진은 GPU가 없어 잠겨 있고, 운영 콘솔은 API에 연결하지 않았습니다. 자세한 상태: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+그림 엔진은 GPU가 없어 잠겨 있고, 운영 콘솔은 API에 연결하지 않았습니다. 위 그림은 2026-11-07에 올린 서버입니다. 2026-11-08 코드는 기본 대화를 로컬 `gemma4:e4b`로 두고 강화만 `gemma-4-31b-it`으로 보내며, 그 구분은 공개 API에 아직 없습니다. 자세한 상태: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ### 1:1 대화 한 턴
 
@@ -421,7 +421,7 @@ stateDiagram-v2
 | 프로 등급 | 눌러서 30일 프로로 바꾸기 | 정식 서비스 전 임시 |
 | 운영 | 운영 콘솔(세계관 검수·내리기·이벤트 기록·운영 설정 포함), 요청 한도, CSP, 신고, 백업 | 동작 |
 | 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다. 서버 `.env`에 자리는 있다 |
-| 대화 모델 백엔드 | NVIDIA 호스팅 API(OpenAI 호환, `gemma-4-31b-it`)를 기본으로, 막히면 CPU Ollama가 대신 답한다 | 동작 (2026-11-07, 서버에서 실측) |
+| 대화 모델 백엔드 | 기본은 로컬 `gemma4:e4b`, 강화는 키가 있으면 NVIDIA `gemma-4-31b-it`, 막히면 예비 `gemma4:e4b` | 코드는 2026-11-08. 공개 API는 그 전 이미지라 구분이 없다 (2026-11-07 실측) |
 | 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 미리보기 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직. 공개 서비스 전 |
 | 프로젝트 소개 | 웹 `/project` | 웹에 있음 (2026-11-07) |
 | 포트폴리오 사이트 | 별도 Astro `https://codicomperchat-portfolio.vercel.app` | 정적 페이지만. 챗봇 서버는 없음. 로컬 챗봇 모델은 `gemma4:e4b` 하나 |
@@ -463,8 +463,8 @@ stateDiagram-v2
     <td><a href="docs/.assets/readme/screen-map.png"><img src="docs/.assets/readme/screen-map.png" alt="화면 지도: 이용자 35개, 콘솔 12개"></a></td>
   </tr>
   <tr>
-    <td><b>데이터.</b> 테이블 37개를 영역별로. 돈과 횟수는 DB 한 문장으로 셉니다.</td>
-    <td><b>화면.</b> 이용자 사이트 35개, 운영 콘솔 12개.</td>
+    <td><b>데이터.</b> 지금은 테이블 38개. 그림은 37개일 때다. 돈과 횟수는 DB 한 문장으로 셉니다.</td>
+    <td><b>화면.</b> 이용자 사이트 35개, 운영 콘솔 13개. 그림은 콘솔 12개일 때다.</td>
   </tr>
 </table>
 

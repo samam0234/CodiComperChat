@@ -42,6 +42,8 @@ cp .env.example .env
 | `ollama` (기본) | 로컬·서버의 Ollama(`OLLAMA_MODEL`, 기본 `gemma4:e4b`) | 개발 PC, GPU 서버 |
 | `openai` | **OpenAI 호환 호스팅 API**(`LLM_API_BASE`·`LLM_API_MODEL`·`LLM_API_KEY`). 운영 Oracle 서버는 NVIDIA `google/gemma-4-31b-it` | GPU 없는 서버, PC를 켜 두지 않을 때 |
 
+강화 무료의 Nest 태그는 `gemma4:12b`다. `openai`에서는 그 태그를 호스팅 호출에 쓰지 않고 `LLM_API_MODEL`로 답한다. 예비로 넘어가면 Ollama가 그 태그를 찾는다. 그 구분을 어떻게 둘지는 [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)와 [../../docs/TASKS.md](../../docs/TASKS.md) T06.
+
 `openai`에서 `LLM_FALLBACK_OLLAMA=1`이면 호스팅 API가 한도 초과(429)·서버 오류·시간 초과(`LLM_API_TIMEOUT_SECONDS`)·연결 불가일 때 Ollama가 대신 답한다. 기동 때 예비 모델을 미리 올리려면 `OLLAMA_WARMUP=1`. 운영 실측: NVIDIA 응답 19.0초, 예비 CPU 응답 32.1초([../../docs/trainings/oracle-deploy-latency.md](../../docs/trainings/oracle-deploy-latency.md)).
 
 > **`openai`일 때 무엇이 서비스 밖으로 나가나.** 연기 대화뿐 아니라 요약·기억·"지어냈나" 판정·퀘스트 판정·초안 같은 **모든 대화 모델 호출의 시스템 지시와 대화 내용이 호스팅 API 공급자에게 간다.** 로컬 모델만 쓴다는 전제의 문구(성인 대화는 로컬 모델에서만 등)는 `ollama`일 때만 맞다. 그래서 **`LLM_BACKEND=openai`인 서버는 `ADULT_MODE=off`로 둔다**(운영 compose 기본값). 이를 막는 코드 장치는 아직 없다([../../docs/TASKS.md](../../docs/TASKS.md) T05). 이용자에게 알리는 문구와 법률 검토는 [../../SECURITY.md](../../SECURITY.md) "제3자에게 나가는 데이터".
@@ -51,6 +53,7 @@ cp .env.example .env
 - 대화형 API 문서: `http://localhost:8000/docs`
 - 엔드포인트 현황: [../../docs/API_DOCUMENTATION.md](../../docs/API_DOCUMENTATION.md)
 - 모델 전략: [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)
+- 지금 서버에서 열리는 범위: [../../docs/STATUS.md](../../docs/STATUS.md). 운영은 `LLM_BACKEND=openai`(31B)이고, 그림 엔진은 이 VM에 없다.
 
 ## 로직 구조
 
@@ -208,7 +211,8 @@ flowchart LR
 | 묶음 | 경로 | 하는 일 |
 |------|------|---------|
 | 대화 | `POST /infer` · `/suggest-replies` · `/ground-check` | 캐릭터 연기(`*행동*`·`@:` 나레이션), 대답 추천, 개인사 환각 검사 |
-| 이야기 상태 | `POST /summarize` · `/remember` | 요약·친밀도·복선, 장기 기억. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
+| 이야기 상태 | `POST /summarize` · `/remember` · `/notice-facts` | 요약·친밀도·복선, 장기 기억. `/notice-facts`는 유저가 밝힌 프로필·상대 설정만. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
+| 한 줄 다시 쓰기 | `POST /rewrite-line` | 메시지 한 줄을 유저가 적은 방향으로 고친다 |
 | 공방 | `POST /draft-field` · `/draft-quest` · `/critique-test` · `/moderate-image` | AI 초안·퀘스트 제작, 3턴 판정, 초상 검수 |
 | 오퍼레이션 | `POST /mind` · `/diary` · `/board-posts` · `/board-comments` | 속마음·일기·커뮤니티 |
 | 그림 | `GET /photonet/status` · `POST /photonet` · `/webtoon/plan` · `/webtoon/panel` | 장면 설계 → 프롬프트 조립 → 그림 엔진 → 그림 검수 |
