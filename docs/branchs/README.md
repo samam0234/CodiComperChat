@@ -477,5 +477,6 @@ flowchart LR
 | 2026-11-08 | `8d78297` | main (merge) | develop into main (no-ff) | [261108_0107_8d78297_merge-develop-main-deploy-1108_main.md](commits/261108_0107_8d78297_merge-develop-main-deploy-1108_main.md) |
 | 2026-11-08 | `bb30784` | feature/docs-refine-1108 | 살아있는 문서를 지금 상태에 맞추다 | [261108_1001_bb30784_docs-refine-1108_feature-docs-refine-1108.md](commits/261108_1001_bb30784_docs-refine-1108_feature-docs-refine-1108.md) |
 | 2026-11-08 | `e7fb83e` | develop (merge) | feature/docs-refine-1108 into develop (no-ff) | [261108_1001_e7fb83e_merge-docs-refine-into-develop_develop.md](commits/261108_1001_e7fb83e_merge-docs-refine-into-develop_develop.md) |
+| 2026-11-08 | `3dae4e2` | main (merge) | develop into main (no-ff) | [261108_1001_3dae4e2_merge-develop-into-main-docs_main.md](commits/261108_1001_3dae4e2_merge-develop-into-main-docs_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
