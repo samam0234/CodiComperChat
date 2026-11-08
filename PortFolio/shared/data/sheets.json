@@ -2,10 +2,10 @@
  {
   "id": "s1",
   "name": "프로젝트_총기획",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "프로젝트_총기획  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
-   "제목은 요청대로 CutNKeep으로 두었고, 내용은 저장소의 실제 프로젝트(코디컴퍼챗 / CodiComperChat) 기준이다."
+   "프로젝트_총기획  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "제목과 내용은 코디컴퍼챗(CodiComperChat) 기준이다."
   ],
   "kind": "table",
   "header": [
@@ -112,12 +112,12 @@
    [
     "기술",
     "DB / ORM",
-    "PostgreSQL 16 · Prisma 7 — 테이블 37개 · 외래 키 40개 · 열거형 17개 · 마이그레이션 34개"
+    "PostgreSQL 16 · Prisma 7 — 테이블 38개 · 외래 키 41개 · 열거형 18개 · 마이그레이션 36개"
    ],
    [
     "기술",
     "LLM",
-    "개발: 로컬 Ollama gemma4:e4b · 운영: NVIDIA 호스팅 gemma-4-31b-it(OpenAI 호환), 막히면 CPU Ollama gemma4:e4b"
+    "기본 gemma4:e4b는 로컬. 강화는 키가 있으면 NVIDIA gemma-4-31b-it, 없으면 이 기기 gemma4:12b. 막히면 예비 gemma4:e4b"
    ],
    [
     "기술",
@@ -227,71 +227,71 @@
    [
     "수치",
     "기능 수",
-    "107"
+    ""
    ],
    [
     "수치",
     "용어 수",
-    "61"
+    ""
    ],
    [
     "수치",
     "테이블 수",
-    "37"
+    ""
    ],
    [
     "수치",
     "컬럼 수",
-    "331"
+    ""
    ],
    [
     "수치",
     "URL 수 · 화면",
-    "47"
+    ""
    ],
    [
     "수치",
     "URL 수 · 웹 중계",
-    "10"
+    ""
    ],
    [
     "수치",
     "URL 수 · Nest API",
-    "155"
+    ""
    ],
    [
     "수치",
     "URL 수 · FastAPI",
-    "24"
+    ""
    ],
    [
     "수치",
     "화면 수",
-    "47"
+    ""
    ],
    [
     "수치",
     "간트 작업 · 완료",
-    "26"
+    ""
    ],
    [
     "수치",
     "간트 작업 · 예정",
-    "13"
+    ""
    ],
    [
     "수치",
     "향후 계획 항목",
-    "41"
+    ""
    ]
   ]
  },
  {
   "id": "s2",
   "name": "기능_설계",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "기능_설계  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "기능_설계  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "정본: docs/FEATURES.md (기능 카탈로그). 상태는 비고의 \"보류·준비 중·일부\" 표기로 나눴다. 우선순위: 기획서 v1 핵심 / 사용자 요청 확장 / 플랫폼"
   ],
   "kind": "table",
@@ -1489,9 +1489,9 @@
  {
   "id": "s3",
   "name": "용어_정리",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "용어_정리  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "용어_정리  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "말 구분 규칙(기획서 머리말): 코디컴퍼챗 = 플랫폼, 캠페니언 = AI 기능, 캠페인 = 이야기 단위. 섞어 쓰지 않는다"
   ],
   "kind": "table",
@@ -1519,14 +1519,6 @@
     "AI Companion",
     "코디컴퍼챗 안의 캐릭터 동행 AI 기능 이름. 플랫폼 이름으로 쓰지 않는다",
     "기획서 §1"
-   ],
-   [
-    "3",
-    "브랜드",
-    "CutNKeep",
-    "-",
-    "이 스프레드시트 제목에 쓴 이름(요청 그대로). 저장소에는 이 이름이 없고 내용은 CodiComperChat 기준",
-    "이 문서"
    ],
    [
     "4",
@@ -1965,7 +1957,7 @@
     "기술",
     "LLM_BACKEND",
     "ollama / openai",
-    "대화 모델 백엔드. 운영은 NVIDIA 호스팅 gemma-4-31b-it, 막히면 CPU Ollama gemma4:e4b",
+    "기본 gemma4:e4b는 로컬. 강화는 키가 있으면 NVIDIA gemma-4-31b-it, 없으면 이 기기 gemma4:12b. 막히면 예비 gemma4:e4b",
     "ai/services/llm.py"
    ],
    [
@@ -1997,9 +1989,9 @@
  {
   "id": "s4",
   "name": "테이블_명세서",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "테이블_명세서  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "테이블_명세서  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "정본: apps/api/prisma/schema.prisma + migrations, ERD.md(PR #5, 마이그레이션을 적용한 PostgreSQL 16을 직접 읽어 생성). 컬럼 수는 스키마_설계 시트를 세는 수식"
   ],
   "kind": "table",
@@ -2023,7 +2015,7 @@
     "users",
     "User",
     "계정. 로그인·등급(FREE/PRO)·이메일 인증·성인 확인·정지·코레딧 잔액을 담는다",
-    "16",
+    "",
     "id",
     "-",
     "(email)",
@@ -2036,7 +2028,7 @@
     "user_personas",
     "UserPersona",
     "유저가 연기하는 주인공(프로필 캐릭터). 본인만 보고 쓴다 — 공유·마켓은 v1 범위 밖 (기획서 §9.2)",
-    "6",
+    "",
     "id",
     "userId → users.id (CASCADE)",
     "-",
@@ -2049,7 +2041,7 @@
     "email_tokens",
     "EmailToken",
     "메일로 보낸 일회용 링크 토큰. 원문은 메일에만 있고 DB에는 SHA-256 해시만 둔다",
-    "7",
+    "",
     "id",
     "userId → users.id (CASCADE)",
     "(tokenHash)",
@@ -2062,7 +2054,7 @@
     "payment_orders",
     "PaymentOrder",
     "요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다",
-    "15",
+    "",
     "id",
     "userId → users.id (SET NULL)",
     "(paymentKey)",
@@ -2075,7 +2067,7 @@
     "credit_ledger",
     "CreditLedger",
     "코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액",
-    "7",
+    "",
     "id",
     "userId → users.id (CASCADE)",
     "-",
@@ -2088,7 +2080,7 @@
     "attendances",
     "Attendance",
     "출석 (하루 한 번). day는 한국 시각 기준 YYYY-MM-DD",
-    "4",
+    "",
     "userId, day",
     "userId → users.id (CASCADE)",
     "-",
@@ -2101,7 +2093,7 @@
     "model_usage",
     "ModelUsage",
     "하루 횟수가 있는 모델(강화 무료)의 사용 횟수. day는 한국 시각 기준 YYYY-MM-DD",
-    "4",
+    "",
     "userId, modelId, day",
     "userId → users.id (CASCADE)",
     "-",
@@ -2114,7 +2106,7 @@
     "quest_rewards",
     "QuestReward",
     "비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다",
-    "5",
+    "",
     "id",
     "userId → users.id (CASCADE)",
     "(userId, characterId)",
@@ -2127,7 +2119,7 @@
     "characters",
     "Character",
     "캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다.",
-    "26",
+    "",
     "id",
     "ownerId → users.id (SET NULL)",
     "(name)",
@@ -2140,7 +2132,7 @@
     "character_drafts",
     "CharacterDraft",
     "캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고, 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다",
-    "12",
+    "",
     "id",
     "characterId → characters.id (SET NULL)\nownerId → users.id (CASCADE)",
     "(characterId)",
@@ -2153,7 +2145,7 @@
     "character_reports",
     "CharacterReport",
     "공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED)",
-    "9",
+    "",
     "id",
     "characterId → characters.id (CASCADE)\nreporterId → users.id (CASCADE)",
     "-",
@@ -2166,7 +2158,7 @@
     "content_reports",
     "ContentReport",
     "코디포토넷 그림·웹툰 신고. 만든 사람이 올리고, 운영자가 본 뒤 접근을 막거나 기각한다. 그림 행을 가리키지만 그림이 지워져도 신고는 남게 외래 키는 두지 않는다",
-    "10",
+    "",
     "id",
     "reporterId → users.id (CASCADE)",
     "-",
@@ -2179,7 +2171,7 @@
     "campaigns",
     "Campaign",
     "대화(캠페인) 한 판. 계정 × 캐릭터. 고정한 내 프로필의 복사본을 가진다",
-    "13",
+    "",
     "id",
     "characterId → characters.id (RESTRICT)\nuserId → users.id (CASCADE)",
     "-",
@@ -2192,7 +2184,7 @@
     "campaign_states",
     "CampaignState",
     "§13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑",
-    "15",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "(campaignId)",
@@ -2205,7 +2197,7 @@
     "sessions",
     "Session",
     "대화 안의 회차(세션)",
-    "7",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "(campaignId, index)",
@@ -2218,7 +2210,7 @@
     "messages",
     "Message",
     "세션 안의 메시지 원문",
-    "6",
+    "",
     "id",
     "sessionId → sessions.id (CASCADE)",
     "-",
@@ -2231,7 +2223,7 @@
     "memory_chunks",
     "MemoryChunk",
     "§7.5 MemoryChunk — 지난 대화에서 캐릭터가 기억할 내용을 요약한 짧은 문장. 원문(Message)과 분리해 두고, 매 턴 관련 있는 것만 골라 컨텍스트에 넣는다. 임베딩은 나중에 붙인다",
-    "4",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2244,7 +2236,7 @@
     "user_extras",
     "UserExtra",
     "엑스트라: 유저가 만든 조연. 캐릭터 공방보다 간단한 카드이고, 대화마다 골라서 적용한다",
-    "10",
+    "",
     "id",
     "userId → users.id (CASCADE)",
     "-",
@@ -2257,7 +2249,7 @@
     "campaign_extras",
     "CampaignExtra",
     "이 대화에 적용한 엑스트라와 등장 조건(relation/situation/place 중 하나 이상). 조건에 맞는 말이 대화에 나올 때만 그 엑스트라 정보를 모델에 넘긴다 (환각 방지)",
-    "4",
+    "",
     "campaignId, extraId",
     "campaignId → campaigns.id (CASCADE)\nextraId → user_extras.id (CASCADE)",
     "-",
@@ -2270,7 +2262,7 @@
     "mind_readings",
     "MindReading",
     "오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로)",
-    "6",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2283,7 +2275,7 @@
     "diary_entries",
     "DiaryEntry",
     "오퍼레이션 · 일기: 캐릭터가 자기 입장에서 쓰는 일기 (최근 대화에서 겪은 일과 기분)",
-    "6",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2296,7 +2288,7 @@
     "direct_messages",
     "DirectMessage",
     "오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다",
-    "5",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2309,7 +2301,7 @@
     "board_posts",
     "BoardPost",
     "오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다)",
-    "7",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2322,7 +2314,7 @@
     "board_comments",
     "BoardComment",
     "커뮤니티 글의 댓글",
-    "6",
+    "",
     "id",
     "postId → board_posts.id (CASCADE)",
     "-",
@@ -2335,7 +2327,7 @@
     "photonet_images",
     "PhotonetImage",
     "코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다",
-    "14",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2348,7 +2340,7 @@
     "webtoons",
     "Webtoon",
     "웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧)",
-    "8",
+    "",
     "id",
     "campaignId → campaigns.id (CASCADE)",
     "-",
@@ -2361,7 +2353,7 @@
     "webtoon_panels",
     "WebtoonPanel",
     "웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다)",
-    "12",
+    "",
     "id",
     "webtoonId → webtoons.id (CASCADE)",
     "(webtoonId, index)",
@@ -2374,7 +2366,7 @@
     "worlds",
     "World",
     "월드코퍼챗 세계관. 설정·규칙·시작 장면·대화 방식·공개 범위·코퍼맵 지도",
-    "17",
+    "",
     "id",
     "ownerId → users.id (SET NULL)",
     "-",
@@ -2387,7 +2379,7 @@
     "world_cast",
     "WorldCast",
     "등장인물. 이미 있는 캐릭터를 가져오거나(characterId) 여기서 바로 쓴다",
-    "9",
+    "",
     "id",
     "characterId → characters.id (SET NULL)\nworldId → worlds.id (CASCADE)",
     "(worldId, name)",
@@ -2400,7 +2392,7 @@
     "world_places",
     "WorldPlace",
     "코퍼맵의 장소 핀. 좌표는 지도 그림 기준 백분율(0~100)",
-    "7",
+    "",
     "id",
     "worldId → worlds.id (CASCADE)",
     "(worldId, name)",
@@ -2413,7 +2405,7 @@
     "world_parts",
     "WorldPart",
     "파트(이야기의 부). 목표가 이루어지면 다음 파트로 넘어간다. 없으면 파트 없이 자유롭게",
-    "6",
+    "",
     "id",
     "worldId → worlds.id (CASCADE)",
     "(worldId, order)",
@@ -2426,7 +2418,7 @@
     "world_images",
     "WorldImage",
     "제작자가 올린 장면 그림. 진행자는 이름표만 보고 고르고, 화면은 그 그림을 보여 준다",
-    "10",
+    "",
     "id",
     "worldId → worlds.id (CASCADE)",
     "(worldId, label)",
@@ -2439,7 +2431,7 @@
     "world_plays",
     "WorldPlay",
     "한 사람의 플레이 (계정×세계관에 하나. 처음부터 하려면 새로 시작)",
-    "14",
+    "",
     "id",
     "userId → users.id (CASCADE)\nworldId → worlds.id (CASCADE)",
     "(userId, worldId)",
@@ -2452,7 +2444,7 @@
     "world_messages",
     "WorldMessage",
     "월드 플레이의 메시지",
-    "6",
+    "",
     "id",
     "playId → world_plays.id (CASCADE)",
     "-",
@@ -2465,7 +2457,7 @@
     "world_events",
     "WorldEvent",
     "대화 중 뜨는 이벤트 미니게임. 결과는 서버가 정한다(setup은 화면에 다 보내지 않는다)",
-    "12",
+    "",
     "id",
     "playId → world_plays.id (CASCADE)",
     "-",
@@ -2478,7 +2470,7 @@
     "rate_limit_buckets",
     "RateLimitBucket",
     "요청 한도 카운터 (RATE_LIMIT_STORE=db일 때). API 서버가 여러 대여도 같은 한도를 나눠 쓰게 DB에 둔다. 고정 창: resetAt이 지나면 처음부터 센다. 지난 창은 주기적으로 지운다",
-    "3",
+    "",
     "key",
     "-",
     "-",
@@ -2491,7 +2483,7 @@
     "app_settings",
     "AppSetting",
     "운영 설정 (키 → JSON 값). 운영 콘솔에서 바꾼다",
-    "3",
+    "",
     "key",
     "-",
     "-",
@@ -2504,7 +2496,7 @@
     "",
     "",
     "합계",
-    "331",
+    "",
     "",
     "",
     "",
@@ -2516,9 +2508,9 @@
  {
   "id": "s5",
   "name": "스키마_설계",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "스키마_설계  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "스키마_설계  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "컬럼 단위 정의. 표기: PK·FK·UK = 기본·외래·고유 키, NULL 허용 Y = 비어 있을 수 있음, 기본값은 DB에 걸린 값(id는 앱이 cuid()로, updatedAt은 @updatedAt으로 채움). 아래쪽에 열거형 표가 있다"
   ],
   "kind": "table",
@@ -7442,10 +7434,10 @@
  {
   "id": "s6",
   "name": "URL_설계",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "URL_설계  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
-   "화면 URL(Next 페이지) + 웹 중계(Next route handler) + Nest API(컨트롤러 155개를 코드에서 추출) + FastAPI(라우트 24개, 내부망 전용). 구분 열로 거른다"
+   "URL_설계  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "화면 URL(Next 페이지) + 웹 중계(Next route handler) + Nest API(컨트롤러 155개를 코드에서 추출) + FastAPI(라우트 24개, 내부망 전용). 구분 열로 거른다 2026-11-08에 고객센터 문의 5경로를 더했다. 155는 2026-11-07 추출이다."
   ],
   "kind": "table",
   "header": [
@@ -7805,7 +7797,7 @@
     "web",
     "GET",
     "/support",
-    "고객센터 — 문의·신고 안내",
+    "고객센터 — 로그인하면 운영자에게 문의하고 답변을 이 화면에서 본다",
     "누구나",
     "apps/web/app/support/page.tsx"
    ],
@@ -9818,15 +9810,65 @@
     "월드 파트 목표 판정 — 근거 인용이 대화에 그대로 있어야 done",
     "내부 (AI_SERVICE_TOKEN)",
     "services/ai/app/routes/world.py · world_part_check()"
+   ],
+   [
+    "237",
+    "Nest API",
+    "api",
+    "GET",
+    "/support/inquiries/categories",
+    "문의 종류",
+    "로그인",
+    "apps/api/src/support/support.controller.ts"
+   ],
+   [
+    "238",
+    "Nest API",
+    "api",
+    "GET",
+    "/support/inquiries",
+    "내가 보낸 문의 최근 20건",
+    "로그인",
+    "apps/api/src/support/support.controller.ts"
+   ],
+   [
+    "239",
+    "Nest API",
+    "api",
+    "POST",
+    "/support/inquiries",
+    "운영자에게 문의. 답이 오기 전 10건, 한 시간에 5번",
+    "로그인",
+    "apps/api/src/support/support.controller.ts"
+   ],
+   [
+    "240",
+    "Nest API",
+    "api",
+    "GET",
+    "/admin/support-inquiries",
+    "운영자: 고객 문의",
+    "운영자",
+    "apps/api/src/support/support.controller.ts"
+   ],
+   [
+    "241",
+    "Nest API",
+    "api",
+    "POST",
+    "/admin/support-inquiries/:id/reply",
+    "운영자 답변. 고객센터에 다시 보인다",
+    "운영자",
+    "apps/api/src/support/support.controller.ts"
    ]
   ]
  },
  {
   "id": "s7",
   "name": "화면_설계",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "화면_설계  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "화면_설계  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "정본: docs/plan/NAVIGATION_IA.md, apps/web/app·console/app의 page.tsx. 전역 셸: 헤더(홈·인기·에이전트) / 오른쪽 드로어(홈·대화 목록·제작·마이페이지·요금 안내·설정) / 푸터"
   ],
   "kind": "table",
@@ -10258,9 +10300,9 @@
     "고객센터",
     "/support",
     "누구나",
-    "문의·신고 안내",
-    "",
-    "-",
+    "문의 보내기, 내 문의와 답변, 안내",
+    "로그인해야 보낸다. 비밀번호는 적지 않는다",
+    "GET·POST /support/inquiries",
     ""
    ],
    [
@@ -10270,7 +10312,7 @@
     "대시보드",
     "/",
     "운영자",
-    "처리할 일, 이용자 숫자, 캐릭터·대화, AI 대기열",
+    "처리할 일, 이용자 숫자, 캐릭터·대화, AI 대기열, 고객 문의 수",
     "",
     "GET /admin/stats",
     ""
@@ -10406,13 +10448,25 @@
     "DB app_settings에 저장",
     "GET·PUT /admin/world-settings",
     ""
+   ],
+   [
+    "SCR-C13",
+    "console",
+    "운영",
+    "고객 문의",
+    "/inquiries",
+    "운영자",
+    "열린 문의와 답한 문의",
+    "답하면 고객센터에 다시 보인다",
+    "GET /admin/support-inquiries, POST …/:id/reply",
+    ""
    ]
   ]
  },
  {
   "id": "s8",
   "name": "간트_차트",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [],
   "kind": "gantt",
   "header": [
@@ -10431,7 +10485,7 @@
     "기획 원본 합의·저장소 초기화·문서 허브",
     "2026-09-15",
     "2026-09-15",
-    "1",
+    "",
     "완료",
     "사용자+에이전트",
     "CodiComperChat_project_plan.md, SKILL.md"
@@ -10441,7 +10495,7 @@
     "모노레포 뼈대 (web 셸·Nest·FastAPI 라우트)",
     "2026-09-15",
     "2026-09-15",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/monorepo-scaffold, api-scaffold, ai-scaffold"
@@ -10451,7 +10505,7 @@
     "Prisma 코어 스키마·공식 캐릭터 유지성 카드·시드",
     "2026-09-16",
     "2026-09-16",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/prisma-schema, character-card, character-seed"
@@ -10461,7 +10515,7 @@
     "캐릭터 목록·상세·채팅 화면, /infer LLM 연결",
     "2026-09-16",
     "2026-09-16",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/character-*-web, infer-llm, character-chat-relay"
@@ -10471,7 +10525,7 @@
     "이메일 로그인·내 프로필·대답 추천",
     "2026-09-25",
     "2026-09-25",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/auth, user-personas, reply-suggestions"
@@ -10481,7 +10535,7 @@
     "LLM 교체(Gemini→Ollama gemma4)·페르소나 지식 RAG",
     "2026-09-25",
     "2026-09-26",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/ollama-llm, persona-*"
@@ -10491,7 +10545,7 @@
     "대화 기록·장기 기억·상태설정·⋮ 메뉴",
     "2026-09-27",
     "2026-09-27",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/chat-history, chat-memory, chat-state"
@@ -10501,7 +10555,7 @@
     "캐릭터 공방(초안·3턴 테스트·발행·공개 범위·AI 초안·초상)",
     "2026-10-15",
     "2026-10-15",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/studio-*"
@@ -10511,7 +10565,7 @@
     "캠페인 상태(요약·친밀도·복선)·새로하기·엑스트라·개인사 가드",
     "2026-10-15",
     "2026-10-15",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/campaign-state, chat-sessions, chat-extras, chat-grounding"
@@ -10521,7 +10575,7 @@
     "신고·초상 자동 검수",
     "2026-10-15",
     "2026-10-16",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/studio-reports, image-moderation, moderation-evals"
@@ -10531,7 +10585,7 @@
     "보안 강화(요청 한도·CSP·약한 비밀번호)·AI 대기열",
     "2026-10-15",
     "2026-10-16",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/security-hardening, strict-csp, perf-limits, shared-limits"
@@ -10541,7 +10595,7 @@
     "이메일 인증·비밀번호 찾기·탈퇴·요금 등급·결제(토스, 보류)",
     "2026-10-15",
     "2026-10-16",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/auth-email, pro-plan, billing, toss-verify, account-delete"
@@ -10551,7 +10605,7 @@
     "시험·CI (Playwright e2e·evals·GitHub Actions)",
     "2026-10-15",
     "2026-10-16",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/web-e2e, quality-eval, ci, ci-verify"
@@ -10561,7 +10615,7 @@
     "디자인 개편·문서 갱신",
     "2026-10-15",
     "2026-10-17",
-    "3",
+    "",
     "완료",
     "에이전트",
     "feature/web-redesign, design-polish, docs-refresh"
@@ -10571,7 +10625,7 @@
     "운영 콘솔 분리·모델 고르기·코레딧·명령어·글 꾸미기",
     "2026-10-21",
     "2026-10-21",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/admin-console, model-select, credits-commands, chat-format"
@@ -10581,7 +10635,7 @@
     "테마 자동 전환·인기 페이지",
     "2026-10-22",
     "2026-10-22",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/theme-schedule, popular-polish"
@@ -10591,7 +10645,7 @@
     "오퍼레이션(심리 탐구·일기·메시지·커뮤니티)",
     "2026-10-23",
     "2026-10-23",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/ops-*"
@@ -10601,7 +10655,7 @@
     "코디포토넷·성인 가드·웹툰·비밀 퀘스트",
     "2026-10-23",
     "2026-10-24",
-    "2",
+    "",
     "완료",
     "에이전트",
     "feature/photonet*, adult-guard, webtoon, secret-quest"
@@ -10611,7 +10665,7 @@
     "공식 캐릭터 이세연·추천 프로필·출시 안전·LICENSE",
     "2026-10-25",
     "2026-10-25",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/official-iseyeon, launch-safety, docs-overall-update"
@@ -10621,7 +10675,7 @@
     "GPU 배포 구성·프리미엄 연동·눌러서 프로·나이 제한·이세연 퀘스트",
     "2026-11-03",
     "2026-11-03",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/deploy-gpu, premium-adapters, pro-click, premium-age-gate"
@@ -10631,7 +10685,7 @@
     "시험 안정화(운영 빌드 e2e)·품질 평가 확대·지출 상한",
     "2026-11-04",
     "2026-11-04",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/e2e-production-build, ai-quality, premium-spend-cap"
@@ -10641,7 +10695,7 @@
     "README·문서 고도화·trainings·mermaid 그림",
     "2026-11-06",
     "2026-11-06",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/readme-*, docs-*"
@@ -10651,7 +10705,7 @@
     "나레이션·보상 장면 개선·대화 수위(성인 대화)",
     "2026-11-06",
     "2026-11-06",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/narration-reward-scene, adult-chat"
@@ -10661,7 +10715,7 @@
     "월드코퍼챗(세계관·진행자·파트·코퍼맵·이벤트)",
     "2026-11-06",
     "2026-11-06",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/world-core, readme-world, docs-overhaul-world"
@@ -10671,7 +10725,7 @@
     "Oracle Cloud(API·DB·AI) + Vercel(웹) 실제 배포",
     "2026-11-06",
     "2026-11-07",
-    "2",
+    "",
     "완료",
     "사용자+에이전트",
     "feature/oracle-backend-deploy, web-vercel-deploy, deploy-log-2026-11-07.md"
@@ -10681,7 +10735,7 @@
     "배포 기록·문서 보강·ERD 문서",
     "2026-11-07",
     "2026-11-07",
-    "1",
+    "",
     "완료",
     "에이전트",
     "feature/docs-final-update, docs-gap-fill, ERD PR #5"
@@ -10691,7 +10745,7 @@
     "키·WEB_PROXY_TOKEN 교체 (U10)",
     "2026-11-09",
     "2026-11-10",
-    "2",
+    "",
     "예정",
     "사용자",
     "TASKS.md U10"
@@ -10701,7 +10755,7 @@
     "저장소 비공개·gh 로그인·GitHub 설정 확인 (U01·U02·T02)",
     "2026-11-09",
     "2026-11-11",
-    "3",
+    "",
     "예정",
     "사용자→에이전트",
     "TASKS.md U01, U02, T02"
@@ -10711,7 +10765,7 @@
     "처리방침 국외 이전 표·호스팅 API 약관 확인 (U11·U12)",
     "2026-11-09",
     "2026-11-20",
-    "12",
+    "",
     "예정",
     "사용자(법률)",
     "TASKS.md U11, U12"
@@ -10721,7 +10775,7 @@
     "Oracle 서버 마무리(지식 파일·백업 cron·SMTP·콘솔) (T04)",
     "2026-11-10",
     "2026-11-14",
-    "5",
+    "",
     "예정",
     "에이전트 (U05·U08 뒤)",
     "TASKS.md T04"
@@ -10731,7 +10785,7 @@
     "호스팅 API에서 성인 모드 막는 코드 (T05, 방향 확인)",
     "2026-11-11",
     "2026-11-13",
-    "3",
+    "",
     "예정",
     "에이전트",
     "TASKS.md T05"
@@ -10741,7 +10795,7 @@
     "강화 무료 모델 고르기 정리 (T06, 방향 확인)",
     "2026-11-13",
     "2026-11-14",
-    "2",
+    "",
     "예정",
     "에이전트",
     "TASKS.md T06"
@@ -10751,7 +10805,7 @@
     "호스팅 31B 모델로 평가 다시 돌리기 (Q08)",
     "2026-11-16",
     "2026-11-20",
-    "5",
+    "",
     "예정",
     "에이전트",
     "TASKS.md Q08"
@@ -10761,7 +10815,7 @@
     "좁은 화면(390px) 고치기 (Q07)",
     "2026-11-17",
     "2026-11-18",
-    "2",
+    "",
     "예정",
     "에이전트",
     "TASKS.md Q07"
@@ -10771,7 +10825,7 @@
     "퀘스트 판정·웹툰 옷 색·그림 가드·SDXL 속도 (Q03~Q06)",
     "2026-11-18",
     "2026-11-27",
-    "10",
+    "",
     "예정",
     "에이전트",
     "TASKS.md Q03~Q06"
@@ -10781,7 +10835,7 @@
     "월드코퍼챗 개선 (W01~W05)",
     "2026-11-23",
     "2026-12-04",
-    "12",
+    "",
     "예정",
     "에이전트",
     "TASKS.md W01~W05"
@@ -10791,7 +10845,7 @@
     "GPU 서버 계약·설치·그림 엔진 공개 (U04·T03)",
     "2026-12-01",
     "2026-12-11",
-    "11",
+    "",
     "예정",
     "사용자→에이전트",
     "TASKS.md U04, T03"
@@ -10801,7 +10855,7 @@
     "LICENSE 마무리 (U03·T01)",
     "2026-12-07",
     "2026-12-09",
-    "3",
+    "",
     "예정",
     "사용자→에이전트",
     "TASKS.md U03, T01"
@@ -10811,7 +10865,7 @@
     "정식 공개 판단 (공개 전 필수 체크리스트)",
     "2026-12-14",
     "2026-12-18",
-    "5",
+    "",
     "예정",
     "사용자",
     "SECURITY.md 공개 전 필수"
@@ -11063,9 +11117,9 @@
  {
   "id": "s9",
   "name": "향후_계획",
-  "title": "CutNKeep 프로젝트 관련 스프레드 시트 문서",
+  "title": "코디컴퍼챗 프로젝트 관련 스프레드 시트 문서",
   "meta": [
-   "향후_계획  ·  기준일 2026-11-07 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
+   "향후_계획  ·  기준일 2026-11-08 · 근거: CodiComperChat 저장소(main) 코드·docs, ERD.md(PR #5), deploy/ 문서",
    "정본: docs/TASKS.md(2026-11-07) + 기획서 §9.3 로드맵. \"사용자만\" 항목은 돈·계약·법률·계정이라 에이전트가 대신 하지 않는다. \"방향 확인\"은 만들기 전에 묻는다"
   ],
   "kind": "table",
@@ -11546,7 +11600,7 @@
    [
     "",
     "높음",
-    "9",
+    "",
     "",
     "",
     "",
@@ -11557,7 +11611,7 @@
    [
     "",
     "중간",
-    "15",
+    "",
     "",
     "",
     "",
@@ -11568,7 +11622,7 @@
    [
     "",
     "낮음",
-    "11",
+    "",
     "",
     "",
     "",

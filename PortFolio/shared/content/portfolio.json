@@ -1,20 +1,20 @@
 {
-  "$comment": "포트폴리오 콘텐츠 정본. Astro 사이트, Rails API, Flask 챗봇(RAG 자료), docx·pptx·pdf 생성기가 모두 이 파일을 읽는다. 수치는 2026-11-07 기준이며 근거는 저장소 docs/ 와 docs/trainings/ 이다.",
+  "$comment": "포트폴리오 콘텐츠 정본. Astro 사이트, Rails API, Flask 챗봇(RAG 자료), docx·pptx·pdf 생성기가 모두 이 파일을 읽는다. 수치는 2026-11-08 기준이며 근거는 저장소 docs/ 와 docs/trainings/ 이다. Nest 경로 155와 시험 수는 2026-11-07 대조이고 전체를 다시 세지 않았다.",
   "site": {
     "title": "CodiComperChat Portfolio",
     "brand": "코디컴퍼챗",
     "tagline": "어제의 이야기를 기억하는 캐릭터와 이어 가는 캠페인",
     "intro": "이 사이트는 1인 풀스택 프로젝트 「코디컴퍼챗」을 프론트엔드 · 운영 콘솔 · 백엔드 · AI 서비스 네 층으로 나눠 소개하는 포트폴리오입니다. 각 층이 무엇을 맡고, 어떤 판단으로 만들었고, 어디서 막혔으며, 앞으로 무엇을 할지를 숫자와 화면으로 보여 드립니다.",
     "author": "1인 개발 (기획 · 프론트 · 백엔드 · AI · 배포)",
-    "period": "2026-09-15 ~ 2026-11-07 (약 8주)",
+    "period": "2026-09-15 ~ 2026-11-08 (약 8주)",
     "repo": "https://github.com/samam0234/CodiComperChat",
     "service": "https://codicomperchat-web.vercel.app",
     "notion": "https://app.notion.com/p/CodiComperChat-AI-411d7dec5e2e816cbc77e67c3a7d940e",
     "stats": [
       { "value": "381", "label": "커밋" },
-      { "value": "47", "label": "화면 (이용자 35 · 콘솔 12)" },
-      { "value": "37", "label": "DB 테이블" },
-      { "value": "155", "label": "Nest API 경로" },
+      { "value": "48", "label": "화면 (이용자 35 · 콘솔 13)" },
+      { "value": "38", "label": "DB 테이블" },
+      { "value": "160", "label": "Nest API 경로(155+문의 5)" },
       { "value": "232", "label": "API 시험" },
       { "value": "123", "label": "화면 E2E" }
     ]
@@ -49,7 +49,7 @@
       ["운영 콘솔", "Next.js 16 (웹과 쿠키 · 배포 분리)"],
       ["백엔드", "Nest.js 12 (ESM) · Prisma 7 · PostgreSQL 16"],
       ["AI 서버", "FastAPI · Python 3.12 · Ollama · diffusers"],
-      ["대화 모델", "NVIDIA 호스팅 gemma-4-31b-it → 예비 Ollama gemma4:e4b"],
+      ["대화 모델", "기본 gemma4:e4b(로컬) · 강화 gemma-4-31b-it(키 있으면 클라우드) · 예비 gemma4:e4b"],
       ["시험", "Vitest · Playwright · unittest · 자체 평가 스크립트"],
       ["인프라", "Docker Compose · Caddy · GitHub Actions · Vercel · Oracle Cloud"]
     ]
@@ -61,7 +61,7 @@
     { "slug": "ai", "no": "04", "title": "AI 서비스", "sub": "연기 · 판정 · 그림 · FastAPI" },
     { "slug": "future", "no": "05", "title": "미래 지향", "sub": "남은 일과 다음 단계" },
     { "slug": "data", "no": "06", "title": "기획 스프레드시트", "sub": "기획 · 요구사항 · 화면 · 일정" },
-    { "slug": "erd", "no": "07", "title": "ERD", "sub": "테이블 37 · 외래 키 40" },
+    { "slug": "erd", "no": "07", "title": "ERD", "sub": "테이블 38 · 외래 키 41" },
     { "slug": "chat", "no": "08", "title": "AI 가이드 챗봇", "sub": "LangGraph · RAG" }
   ],
   "pages": {
@@ -119,7 +119,7 @@
     "console": {
       "title": "어드민 콘솔 — 운영자 웹",
       "kicker": "02 · ADMIN CONSOLE",
-      "summary": "운영자 전용 Next.js 16 앱(화면 12개). 이용자 웹과 쿠키 · 배포를 나눠, 이용자 사이트에 문제가 생겨도 운영 도구가 같이 흔들리지 않게 했다.",
+      "summary": "운영자 전용 Next.js 16 앱(화면 13개). 이용자 웹과 쿠키 · 배포를 나눠, 이용자 사이트에 문제가 생겨도 운영 도구가 같이 흔들리지 않게 했다.",
       "sections": [
         {
           "id": "overview", "title": "개요",
@@ -132,7 +132,7 @@
         },
         {
           "id": "features", "title": "상세 기능",
-          "table": [["/", "대시보드: 처리할 일 · 이용자 · 캐릭터 · AI 대기열"], ["/reports", "신고함: 내리기(사유 필수) · 기각 · 복구"], ["/portraits", "초상 검수: 자동 검수가 넘긴 것 승인 · 반려"], ["/content", "그림 신고: 접근 차단 · 계정 정지 · 해제"], ["/characters", "비공개 · 내려간 것까지 찾기 · 내리기 · 복구"], ["/users", "등급 변경, 결제 내역 · 환불, 생년월일 정정"], ["/worlds/*", "세계관 목록 · 상세(숨긴 파트 목표) · 검수 · 이벤트 기록 · 운영 설정"]]
+          "table": [["/", "대시보드: 처리할 일 · 이용자 · 캐릭터 · AI 대기열"], ["/reports", "신고함: 내리기(사유 필수) · 기각 · 복구"], ["/inquiries", "고객 문의: 읽고 답하면 고객센터에 다시 보인다"], ["/portraits", "초상 검수: 자동 검수가 넘긴 것 승인 · 반려"], ["/content", "그림 신고: 접근 차단 · 계정 정지 · 해제"], ["/characters", "비공개 · 내려간 것까지 찾기 · 내리기 · 복구"], ["/users", "등급 변경, 결제 내역 · 환불, 생년월일 정정"], ["/worlds/*", "세계관 목록 · 상세(숨긴 파트 목표) · 검수 · 이벤트 기록 · 운영 설정"]]
         },
         {
           "id": "api", "title": "API 연결",
@@ -171,12 +171,12 @@
       "sections": [
         {
           "id": "overview", "title": "개요",
-          "body": "웹 · 콘솔은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다. 이 원칙 하나로 보안 검토와 시험 범위를 Nest 한 곳에 모았다. 모듈 30여 개, API 경로 155개, 테이블 37개.",
+          "body": "웹 · 콘솔은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다. 이 원칙 하나로 보안 검토와 시험 범위를 Nest 한 곳에 모았다. 모듈 30여 개, 2026-11-07에 대조한 API 경로 155개에 고객센터 문의 5경로를 더했다. 테이블 38개.",
           "bullets": ["Controller → Guard(Auth · Admin · RateLimit) → Service → 순수 함수 / Prisma / ai-client / Credits", "운영 기동 검사: NODE_ENV=production에서 REQUIRE_HTTPS · 토큰 길이 · 개발 스위치를 보고 어긋나면 시작하지 않는다", "운영: Oracle Cloud A1.Flex(ARM) Docker Compose — Caddy · api · postgres · ai · ollama"]
         },
         {
           "id": "engine", "title": "사용 엔진",
-          "table": [["런타임", "Node.js 24 · Nest.js 12 (ESM)"], ["ORM · DB", "Prisma 7 · PostgreSQL 16 · 마이그레이션 34개"], ["메일", "Nodemailer (SMTP · 폴더 · 로그)"], ["결제", "토스페이먼츠 연동(보류) · 눌러서 프로(PRO_CLICK)"], ["시험", "Vitest 232개 — 순수 함수 *.spec.ts + 실제 PostgreSQL *.db.spec.ts"]]
+          "table": [["런타임", "Node.js 24 · Nest.js 12 (ESM)"], ["ORM · DB", "Prisma 7 · PostgreSQL 16 · 마이그레이션 36개"], ["메일", "Nodemailer (SMTP · 폴더 · 로그)"], ["결제", "토스페이먼츠 연동(보류) · 눌러서 프로(PRO_CLICK)"], ["시험", "Vitest 232개 — 순수 함수 *.spec.ts + 실제 PostgreSQL *.db.spec.ts"]]
         },
         {
           "id": "features", "title": "상세 기능",
@@ -184,12 +184,12 @@
         },
         {
           "id": "api", "title": "API 연결",
-          "body": "Nest 컨트롤러 경로 155개를 문서와 하나씩 대조해 빠진 것이 없음을 확인했다(2026-11-07). AI 호출은 대기열을 지나며, 화면에서 기다리는 답(foreground)이 뒤에서 하는 정리(background)보다 먼저 간다.",
+          "body": "Nest 컨트롤러 경로 155개를 문서와 하나씩 대조해 빠진 것이 없음을 확인했다(2026-11-07). 2026-11-08에 고객센터 문의 5경로를 더했고, 전체를 다시 세지는 않았다. AI 호출은 대기열을 지나며, 화면에서 기다리는 답(foreground)이 뒤에서 하는 정리(background)보다 먼저 간다.",
           "table": [["POST /auth/signup · /auth/login", "가입 · 로그인 → 토큰(쿠키)"], ["POST /characters/:id/chat", "대화 한 턴 (답 · 사용량)"], ["POST /worlds/:id/play/turn", "월드 한 턴 (진행자 답 · 위치 · 이벤트)"], ["POST /studio/characters/:id/test", "발행 전 3턴 테스트"], ["GET /health", "상태 + AI 대기열(실행 · 대기 · 동시 수)"]]
         },
         {
           "id": "pages", "title": "내부 구조",
-          "images": [{ "src": "/shots/architecture.png", "caption": "시스템 구조" }, { "src": "/shots/chat-turn.png", "caption": "대화 한 턴의 처리 순서" }, { "src": "/shots/data-map.png", "caption": "데이터 지도: 테이블 37개" }, { "src": "/shots/deploy-topology.png", "caption": "운영 배포 구성(GPU 목표)" }]
+          "images": [{ "src": "/shots/architecture.png", "caption": "시스템 구조" }, { "src": "/shots/chat-turn.png", "caption": "대화 한 턴의 처리 순서" }, { "src": "/shots/data-map.png", "caption": "데이터 지도(그림은 37개일 때, 지금은 38개)" }, { "src": "/shots/deploy-topology.png", "caption": "운영 배포 구성(GPU 목표)" }]
         },
         {
           "id": "advanced", "title": "고급 기술",
@@ -217,11 +217,11 @@
         {
           "id": "overview", "title": "개요",
           "body": "연기(/infer), 요약 · 기억(/summarize · /remember), 환각 판정(/ground-check), 월드 진행자(/world/turn · /world/part-check), 그림(/photonet · /webtoon), 검수(/moderate-image) 등 경로 24개. 바깥에 열리지 않고 X-AI-Token이 맞는 요청만 받는다.",
-          "bullets": ["LLM_BACKEND=openai: NVIDIA 호스팅 gemma-4-31b-it → 막히면 CPU Ollama gemma4:e4b", "LLM_BACKEND=ollama: 로컬 Ollama gemma4:e4b", "/train은 403 — v1은 학습하지 않는다는 정책"]
+          "bullets": ["기본 무료는 gemma4:e4b를 로컬에서 그대로 쓴다", "강화 무료는 키가 있으면 NVIDIA gemma-4-31b-it, 없으면 이 기기의 gemma4:12b", "막히면 예비는 gemma4:e4b다. 없는 12b를 찾지 않는다", "/train은 403 — v1은 학습하지 않는다는 정책"]
         },
         {
           "id": "engine", "title": "사용 엔진",
-          "table": [["서버", "FastAPI · Pydantic(camelCase 통신)"], ["대화 모델", "운영 NVIDIA 호스팅 gemma-4-31b-it, 로컬·예비 Ollama gemma4:e4b"], ["그림", "diffusers · Animagine XL 4.0 · SD 1.5 (NVIDIA GPU)"], ["프리미엄", "Anthropic Claude · xAI Grok (키가 있을 때만)"], ["시험", "unittest 71개 + 평가 스크립트 11묶음 + 퀘스트 판정 평가"]]
+          "table": [["서버", "FastAPI · Pydantic(camelCase 통신)"], ["대화 모델", "기본 gemma4:e4b · 강화 gemma-4-31b-it · 예비 gemma4:e4b"], ["그림", "diffusers · Animagine XL 4.0 · SD 1.5 (NVIDIA GPU)"], ["프리미엄", "Anthropic Claude · xAI Grok (키가 있을 때만)"], ["시험", "unittest 71개 + 평가 스크립트 11묶음 + 퀘스트 판정 평가"]]
         },
         {
           "id": "features", "title": "상세 기능",

@@ -1,12 +1,14 @@
 <!-- source: docs/DEPLOYMENT.md -->
 # 배포 (짧은 진입)
 
-> 상태(2026-11-07): **Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄)에 API·DB·AI(대화만)를 올렸다.** 주소 `https://api.168-110-61-178.sslip.io`. 웹은 Vercel(`https://codicomperchat-web.vercel.app`)에서 이 API에 연결돼 있다. 운영 콘솔 연결과 그림 엔진은 아직이다. 상세: [web_management/oracle-backend.md](web_management/oracle-backend.md).
+> 상태(2026-11-08): **Oracle Cloud A1.Flex(ARM, GPU 없음, 도쿄)에 API·DB·AI(대화만)를 올렸다.** 주소 `https://api.168-110-61-178.sslip.io`. 웹은 Vercel(`https://codicomperchat-web.vercel.app`)에서 이 API에 연결돼 있다. 2026-11-08에 대화 수정·직접 적는 기억·때와 곳을 같은 서버에 다시 올렸다(`main` `0fc2302`). 운영 콘솔 연결과 그림 엔진은 아직이다. 상세: [web_management/oracle-backend.md](web_management/oracle-backend.md).
 > 전체 운영 구성(GPU 서버 한 대, Hetzner GEX45)의 결정은 그대로이고 계약은 아직이다.
 
 | 무엇을 하려는가 | 문서 |
 |-----------------|------|
 | **지금 올라가 있는 서버(Oracle) — 상태·올리기·점검** | [web_management/oracle-backend.md](web_management/oracle-backend.md), AI 스크립트 [web_management/ai-deploy-handover.md](web_management/ai-deploy-handover.md) |
+| 기능이 코드에 있는지, 그 주소에서 열리는지 | [STATUS.md](STATUS.md) |
+| 포트폴리오 사이트 (제품 웹이 아님) | Vercel `https://codicomperchat-portfolio.vercel.app`. Astro 정적만. 챗봇 서버는 없고, 로컬 챗봇 코드의 모델은 `gemma4:e4b` 하나. [../PortFolio/README.md](../PortFolio/README.md) |
 | 처음 올린 과정과 막힌 곳 전부 (2026-11-07) | [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md) |
 | (대안, 서버에 안 올림) Vercel 웹 + Oracle 한 compose 구성 | [web_management/deploy-guide.html](web_management/deploy-guide.html), [web_management/oracle-console-guide.html](web_management/oracle-console-guide.html). 이 안내와 `deploy/oracle/bootstrap.sh`는 다른 compose(프록시 토큰 `WEB_PROXY_TOKEN` 포함)를 전제로 쓰였다. 지금 서버의 `deploy/oracle/docker-compose.yml`과 맞지 않으니 그대로 돌리지 않는다. Vercel에 웹을 올릴 때 참고 |
 | 상시 서버 고르기 | [web_management/hosting-options.md](web_management/hosting-options.md) |

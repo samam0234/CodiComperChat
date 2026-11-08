@@ -29,6 +29,7 @@ erDiagram
   users |o--o{ payment_orders : "userId · SET NULL"
   users ||--o{ quest_rewards : "userId · CASCADE"
   users ||--o{ user_extras : "userId · CASCADE"
+  users ||--o{ support_inquiries : "userId · CASCADE"
   users ||--o{ user_personas : "userId · CASCADE"
   users ||--o{ world_plays : "userId · CASCADE"
   users |o--o{ worlds : "ownerId · SET NULL"

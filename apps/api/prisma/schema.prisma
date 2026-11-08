@@ -64,6 +64,7 @@ model User {
 
   reports        CharacterReport[]
   contentReports ContentReport[]
+  supportInquiries SupportInquiry[]
 
   emailTokens EmailToken[]
 
@@ -404,6 +405,30 @@ model CharacterReport {
   @@index([status, createdAt])
   @@index([characterId, status])
   @@map("character_reports")
+}
+
+/// 고객센터 문의. 로그인한 이용자가 운영자에게 직접 보내고, 운영자가 콘솔에서 답한다
+enum SupportInquiryStatus {
+  OPEN
+  ANSWERED
+}
+
+model SupportInquiry {
+  id        String                @id @default(cuid())
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// ACCOUNT · BILLING · CHARACTER · BUG · OTHER
+  category  String
+  subject   String
+  body      String
+  status    SupportInquiryStatus  @default(OPEN)
+  reply     String?
+  repliedAt DateTime?
+  createdAt DateTime              @default(now())
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("support_inquiries")
 }
 
 enum EmailTokenPurpose {

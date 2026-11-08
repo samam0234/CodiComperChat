@@ -1,0 +1,78 @@
+.lead {
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+}
+
+.submit {
+  justify-self: start;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ok {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  line-height: 1.55;
+}
+
+.list span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.reply {
+  margin-top: 6px;
+  color: var(--muted);
+}

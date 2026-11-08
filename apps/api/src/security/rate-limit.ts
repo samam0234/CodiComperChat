@@ -56,6 +56,7 @@ export const RULES = {
   portraitAi: { limit: 6, windowMs: 10 * MIN, by: 'user', label: '초상을 너무 자주 만들고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
   webtoonPanel: { limit: 14, windowMs: 10 * MIN, by: 'user', label: '컷을 너무 자주 그리고 있어요. 잠시 뒤에 다시 시도해 주세요.' },
   report: { limit: 10, windowMs: 60 * MIN, by: 'user', label: '신고를 너무 많이 보냈어요.' },
+  support: { limit: 5, windowMs: 60 * MIN, by: 'user', label: '문의를 너무 많이 보냈어요.' },
   billing: { limit: 20, windowMs: 10 * MIN, by: 'user', label: '결제 요청이 너무 많습니다. 잠시 뒤에 다시 시도해 주세요.' },
 } as const satisfies Record<string, Rule>;
 

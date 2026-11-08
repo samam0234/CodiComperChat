@@ -1,25 +1,25 @@
 ---
-// ERD: 실제 DB(마이그레이션 34개 적용)에서 뽑은 ERD(docs/plan/ERD.md, docs/.assets/erd/*.svg)를 응용한 인터랙티브 화면
+// ERD: 스키마에서 뽑은 ERD(docs/plan/ERD.md, docs/.assets/erd/*.svg)를 응용한 인터랙티브 화면. 표 수는 erd.json, 열거형·마이그레이션 수는 이 파일.
 import Base from "../layouts/Base.astro";
 import { erdData } from "../lib/content";
 
 const groupTitle = Object.fromEntries(erdData.groups.map((g) => [g.key, g.title]));
 const order = ["account", "chat", "ops", "world", "standalone"];
 const byGroup = order.map((k) => ({ key: k, title: groupTitle[k], tables: erdData.tables.filter((t) => t.group === k) }));
-const enums = 17;
+const enums = 18;
 ---
 
-<Base title="ERD" description="코디컴퍼챗 데이터베이스 ERD: 테이블 37 · 외래 키 40 · 열거형 17" active="erd">
+<Base title="ERD" description="코디컴퍼챗 데이터베이스 ERD: 테이블 38 · 외래 키 41 · 열거형 18" active="erd">
   <section class="head">
     <div class="container">
       <p class="eyebrow">07 · ENTITY RELATIONSHIP</p>
       <h1>ERD — 데이터는 어떻게 이어지나</h1>
-      <p class="lead">마이그레이션을 모두 적용한 PostgreSQL 16을 직접 읽어 만든 ERD입니다(손으로 옮겨 적은 칸이 없습니다). 그림을 확대해 보거나, 아래에서 테이블을 골라 열과 관계를 따라가 보세요.</p>
+      <p class="lead">마이그레이션을 적용한 PostgreSQL 16 스키마 기준입니다. 2026-11-08에 고객센터 문의 표가 더해져 테이블 38개, 마이그레이션 36개입니다. 그림을 확대해 보거나, 아래에서 테이블을 골라 열과 관계를 따라가 보세요.</p>
       <div class="kpis">
         <div><b>{erdData.counts.tables}</b><span>테이블</span></div>
         <div><b>{erdData.counts.relations}</b><span>외래 키</span></div>
         <div><b>{enums}</b><span>열거형</span></div>
-        <div><b>34</b><span>마이그레이션</span></div>
+        <div><b>36</b><span>마이그레이션</span></div>
       </div>
     </div>
   </section>
