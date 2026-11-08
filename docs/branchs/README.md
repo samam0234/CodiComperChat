@@ -483,5 +483,6 @@ flowchart LR
 | 2026-11-08 | `1202a7d` | main (merge) | develop into main (no-ff) | [261108_1047_1202a7d_merge-develop-into-main-last-menu_main.md](commits/261108_1047_1202a7d_merge-develop-into-main-last-menu_main.md) |
 | 2026-11-08 | `1751f2e` | feature/empty-send-and-model-note | 빈칸 보내기로 다음 장면을 잇다 | [261108_1450_1751f2e_empty-send-predict_feature-empty-send-and-model-note.md](commits/261108_1450_1751f2e_empty-send-predict_feature-empty-send-and-model-note.md) |
 | 2026-11-08 | `ebcb752` | develop (merge) | feature/empty-send-and-model-note into develop (no-ff) | [261108_1451_ebcb752_merge-empty-send-into-develop_develop.md](commits/261108_1451_ebcb752_merge-empty-send-into-develop_develop.md) |
+| 2026-11-08 | `443435e` | main (merge) | develop into main (no-ff) | [261108_1456_443435e_merge-develop-into-main-empty-send_main.md](commits/261108_1456_443435e_merge-develop-into-main-empty-send_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
