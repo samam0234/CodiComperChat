@@ -1,6 +1,6 @@
 # 시스템 개요
 
-정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-07 — **구현된 구조**. 2026-11-07부터 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM에서 운영한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md), 구성도 [docker-topology.md](docker-topology.md)).
+정본: `CodiComperChat_project_plan.md` §7.1. 최종 갱신 2026-11-08 — **구현된 구조**. 2026-11-07부터 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM에서 운영한다([../web_management/oracle-backend.md](../web_management/oracle-backend.md), 구성도 [docker-topology.md](docker-topology.md)). 아래 그림의 Ollama는 로컬 기본이다. 운영은 `LLM_BACKEND=openai`라 대화·요약·판정이 NVIDIA `google/gemma-4-31b-it`으로 가고, 막히면 `gemma4:e4b`가 대신 답한다.
 
 ```text
 브라우저

@@ -2,7 +2,7 @@
 
 이 문서는 루트 `CodiComperChat_project_plan.md`(원본, §7·§9·§13)에서 파생된 개발용 요약이다. **원본과 모순되면 원본이 이긴다** — 이 문서를 먼저 고치고 원본을 나중에 맞추지 않는다.
 
-> 최종 갱신 2026-11-07. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). 남은 큰 일은 **배포**(사용자 지시로 마지막에 한다)와 법률·보안 점검이다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
+> 최종 갱신 2026-11-08. 앱이 서로 연결되어 실제로 동작한다(가입 → 캐릭터 대화 → 기억·이야기 정리·최근 대사 수정·때와 곳, 공방 제작·발행, 신고·검수, 코레딧·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트, 실제 결제 대신 눌러서 프로로 바꾸기). **2026-11-07에 웹(Vercel)과 API·DB·AI(Oracle)를 올렸고, 2026-11-08에 대화 도구를 다시 배포했다.** 전체 GPU 서버(Hetzner GEX45) 계약과 법률·보안 점검은 남아 있다 — 공개 전 필수: [../../SECURITY.md](../../SECURITY.md), 모델·소프트웨어 라이선스: [../../THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md), 저장소 라이선스: [../../LICENSE](../../LICENSE)(독점).
 
 ![기술 스택](../.assets/readme/stack.png)
 
@@ -51,7 +51,7 @@ flowchart LR
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
-| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 37개·마이그레이션 34개 · [DATABASE.md](DATABASE.md) |
+| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 37개·마이그레이션 35개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
@@ -77,6 +77,7 @@ flowchart LR
 | 추천 프로필 (2026-10-25) | 캐릭터마다 "추천하는 내 프로필"(선택). 대화 화면 카드에서 그대로 쓰거나 이름·소개를 고쳐 내 프로필로 만들고 바로 고른다. `characters.recommendedPersona`(공개) | `web/…/chat/recommended-persona.tsx`, [../FEATURES.md](../FEATURES.md) |
 | 공방 AI 초상 (2026-10-25) | 외형 단계 "AI로 직접 만들기": 화풍 4가지 × 생김새 8항목, **한 장 25 코레딧**, 전체 이용가만, 올린 그림과 같은 자동 검수, 실패 시 환불. 후보를 보고 고른 그림만 저장(2026-11-04). "그림 고르기"는 "내 파일 선택"으로 | `api/studio/studio-portrait-ai.service.ts`, `ai/services/portrait.py` |
 | 대화 서식 (2026-10-25) | `*행동*` = 40% 회색 기울임, `@:` = 나레이션(모델이 장면 전환 때 첫 줄에 씀) | `web/lib/chat-format.ts`, `ai/services/inference.py` |
+| 대화 도구 (2026-11-08) | 최근 12줄 수정·삭제·방향 다시 쓰기. 직접 적은 기억은 `pinned`라 매 턴 넣는다. 때·곳(`sceneTime`·`scenePlace`)은 시간·장소 단서가 있을 때만 바뀐다. 마이그레이션 `20261108123000_chat_memory_scene`은 칸만 더한다 | `character-chat/`, `scene.ts`, `memories/` |
 | 비밀 퀘스트 (2026-10-24) | 캐릭터가 건네는 숨은 미션. 직접·AI 제작, 엄격 판정(인용 근거 대조). 공식 캐릭터만 100 코레딧(계정×캐릭터당 한 번) | `quests/`, [SECRET_QUEST.md](SECRET_QUEST.md) |
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
 | 요청 한도 | 고정 창. 기본은 서버 메모리, 서버가 여러 대면 `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`) | `security/rate-limit.ts`, `security/rate-store.ts` |

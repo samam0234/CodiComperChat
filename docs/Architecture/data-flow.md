@@ -1,6 +1,6 @@
 # 데이터 흐름
 
-정본: `CodiComperChat_project_plan.md` §7.6, §13.4. 최종 갱신 2026-10-24. 요청/응답 흐름 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md)에 있다 — 이 문서는 상태(State) 관점에서 같은 흐름을 본다.
+정본: `CodiComperChat_project_plan.md` §7.6, §13.4. 최종 갱신 2026-11-08. 요청/응답 흐름 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md)에 있다 — 이 문서는 상태(State) 관점에서 같은 흐름을 본다. 2026-10-24의 흐름은 그대로이고, 그 뒤에 직접 적은 기억과 때·곳이 상태에 더해졌다.
 
 ![1:1 대화 한 턴](../.assets/readme/chat-turn.png)
 
@@ -23,7 +23,7 @@ POST /characters/:id/chat {message, personaId, model?}
   ├─ 6. 저장 (유저 말 + 답). 실패하면 저장 안 하고 reserve를 돌려준다
   └─ 7. 메시지 6개마다 뒤에서: /remember(기억) · /summarize(요약·친밀도·복선·퀘스트 판정)
 
-상태가 남는 곳: Message(대화) · CampaignState(친밀도·복선·요약·퀘스트) · MemoryChunk(기억)
+상태가 남는 곳: Message(대화) · CampaignState(친밀도·복선·요약·퀘스트·때와 곳) · MemoryChunk(기억, 직접 적은 것은 pinned)
               · CreditLedger(코레딧) · WorldPlay/WorldMessage/WorldEvent(월드)
 ```
 
