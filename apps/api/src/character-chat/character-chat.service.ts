@@ -31,7 +31,8 @@ type SendOptions = PersonaOptions & { model?: string };
 type Prepared = Awaited<ReturnType<CharacterChatService['prepare']>>;
 
 // /계속: 유저가 말하지 않았다는 장면 지시. 괄호 속 말은 유저의 장면 지시로 읽게 해 두었다 (services/ai inference.py)
-const CONTINUE_TURN = '(아무 말 없이 기다린다. 방금 장면에서 자연스럽게 이어서 계속해 줘)';
+const CONTINUE_TURN =
+  '(아무 말도 보내지 않았다. 지금까지의 대화와 장면을 보고 다음에 이어질 일을 예상하고, 그 흐름을 분석한 뒤 캐릭터로서 이어서 대답해 줘. 유저의 대사와 속마음은 대신 쓰지 마.)';
 const MESSAGE_LIMIT = 2000;
 const DIRECTION_LIMIT = 400;
 
@@ -284,7 +285,6 @@ export class CharacterChatService {
   // /계속: 내가 말하지 않고 캐릭터가 장면을 이어 간다
   async continueScene(characterId: string, options: SendOptions) {
     const prep = await this.prepare(characterId, options);
-    if (!prep.conversation) throw new ConflictException('먼저 말을 걸어 주세요. 이어 갈 장면이 없어요.');
     const { reply, ticket } = await this.compose(prep, CONTINUE_TURN, options.model);
     const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
     await this.conversations.appendReply(conversation, reply);

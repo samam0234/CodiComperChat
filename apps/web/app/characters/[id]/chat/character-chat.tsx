@@ -84,7 +84,7 @@ function modelSuffix(m: ModelOption): string {
 }
 
 const COMMAND_HELP =
-  "명령어 — /다시: 마지막 답 다시 쓰기 · /계속: 내 말 없이 장면 이어 가기 · /되돌리기: 마지막 내 말과 답 지우기 · /상황 내용: 장면 지시 보내기. 말할 때 *행동*은 별표로, (장면 지시)는 괄호로 적을 수 있어요.";
+  "명령어 — /다시: 마지막 답 다시 쓰기 · /계속: 내 말 없이 장면 이어 가기 · /되돌리기: 마지막 내 말과 답 지우기 · /상황 내용: 장면 지시 보내기. 입력칸을 비우고 보내기를 눌러도 다음 장면을 예상해 대답합니다. 말할 때 *행동*은 별표로, (장면 지시)는 괄호로 적을 수 있어요.";
 
 export default function CharacterChat({
   characterId,
@@ -474,7 +474,11 @@ export default function CharacterChat({
       runCommand(trimmed);
       return;
     }
-    if (trimmed === "" || sending || !persona) {
+    if (sending || !persona) {
+      return;
+    }
+    if (trimmed === "") {
+      void command("continue");
       return;
     }
 
@@ -809,14 +813,15 @@ export default function CharacterChat({
             value={input}
             onChange={setInput}
             onSubmit={() => void send(input)}
-            placeholder={persona ? `${characterName}에게 말 걸기 · /도움말` : "먼저 프로필을 골라요"}
+            placeholder={persona ? `${characterName}에게 말 걸기 · 비워 두고 보내면 다음 장면 · /도움말` : "먼저 프로필을 골라요"}
             maxLength={2000}
             disabled={!canType}
           />
           <button
             type="submit"
             className={styles.submit}
-            disabled={!canType || input.trim() === ""}
+            disabled={!canType}
+            title={persona ? "비워 두고 보내면 다음 장면을 예상해 대답합니다" : undefined}
           >
             <SendIcon />
             <span className={styles.submitLabel}>보내기</span>
