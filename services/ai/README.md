@@ -41,6 +41,8 @@ cp .env.example .env
 | `ollama` (기본) | 로컬·서버의 Ollama(`OLLAMA_MODEL`, 기본 `gemma4:e4b`) | 개발 PC, GPU 서버 |
 | `openai` | **OpenAI 호환 호스팅 API**(`LLM_API_BASE`·`LLM_API_MODEL`·`LLM_API_KEY`). 운영 Oracle 서버는 NVIDIA `google/gemma-4-31b-it` | GPU 없는 서버, PC를 켜 두지 않을 때 |
 
+강화 무료의 Nest 태그는 `gemma4:12b`다. `openai`에서는 그 태그를 호스팅 호출에 쓰지 않고 `LLM_API_MODEL`로 답한다. 예비로 넘어가면 Ollama가 그 태그를 찾는다. 그 구분을 어떻게 둘지는 [../../docs/plan/AI_MODEL_STRATEGY.md](../../docs/plan/AI_MODEL_STRATEGY.md)와 [../../docs/TASKS.md](../../docs/TASKS.md) T06.
+
 `openai`에서 `LLM_FALLBACK_OLLAMA=1`이면 호스팅 API가 한도 초과(429)·서버 오류·시간 초과(`LLM_API_TIMEOUT_SECONDS`)·연결 불가일 때 Ollama가 대신 답한다. 기동 때 예비 모델을 미리 올리려면 `OLLAMA_WARMUP=1`. 운영 실측: NVIDIA 응답 19.0초, 예비 CPU 응답 32.1초([../../docs/trainings/oracle-deploy-latency.md](../../docs/trainings/oracle-deploy-latency.md)).
 
 > **`openai`일 때 무엇이 서비스 밖으로 나가나.** 연기 대화뿐 아니라 요약·기억·"지어냈나" 판정·퀘스트 판정·초안 같은 **모든 대화 모델 호출의 시스템 지시와 대화 내용이 호스팅 API 공급자에게 간다.** 로컬 모델만 쓴다는 전제의 문구(성인 대화는 로컬 모델에서만 등)는 `ollama`일 때만 맞다. 그래서 **`LLM_BACKEND=openai`인 서버는 `ADULT_MODE=off`로 둔다**(운영 compose 기본값). 이를 막는 코드 장치는 아직 없다([../../docs/TASKS.md](../../docs/TASKS.md) T05). 이용자에게 알리는 문구와 법률 검토는 [../../SECURITY.md](../../SECURITY.md) "제3자에게 나가는 데이터".

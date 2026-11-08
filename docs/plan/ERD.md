@@ -767,6 +767,8 @@ DB 제약은 없고 앱 코드가 뜻을 정한다. 그래서 관계선으로 �
 - DB의 칸 목록·NULL 허용을 `schema.prisma`의 스칼라 필드와 한 칸씩 대조 → 어긋남 없음. 단 `campaign_extras.triggers`(`String[]`)는 DB에서 NULL 허용인데, Prisma가 목록 칸에 `NOT NULL`을 걸지 않기 때문이다(스키마와 마이그레이션은 일치).
 - 외래 키 45줄(나중 마이그레이션이 `ON DELETE`를 바꾸며 다시 만든 5개 포함) → 최종 40개. 모두 `schema.prisma`의 `@relation`과 같다.
 
+2026-11-08 마이그레이션 `20261108123000_chat_memory_scene`은 테이블을 늘리지 않고 칸만 더한다. `memory_chunks.pinned`(기본 거짓), `campaign_states.sceneTime`·`scenePlace`, `world_plays.sceneTime`·`scenePlace`. 위 34개 대조를 이 칸이 생긴 뒤 빈 데이터베이스에 다시 돌리지는 않았다.
+
 ## 다시 만들기
 
 스키마를 바꾼 뒤 [scripts/erd/README.md](../../scripts/erd/README.md)대로 돌린다. 테이블이 늘면 `build.mjs`의 `groups`에 넣어야 한다(빠지면 멈춘다).

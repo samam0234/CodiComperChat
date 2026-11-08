@@ -30,7 +30,7 @@ app.module.ts ─ 모듈 30여 개를 묶는다
      (*.spec.ts로 시험)   (PostgreSQL)           (AI 대기열 → FastAPI)  (차감·환불·보상)
 
 대표 모듈
-  character-chat ─ 대화 한 턴 (맥락 조립 → /infer → 개인사 검사 → 저장)
+  character-chat ─ 대화 한 턴 (맥락 조립 → /infer → 개인사 검사 → 저장). 최근 12줄 수정·다시 쓰기, 때·곳
   campaign-state ─ 뒤에서 정리 (/summarize → 친밀도·복선·요약·퀘스트 판정 반영)
   quests         ─ 비밀 퀘스트 상태 (건넴 → 달성 → 보상 장면 한 번)
   worlds         ─ 월드코퍼챗 (세계관·플레이·파트·이벤트·보상)

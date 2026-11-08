@@ -1,6 +1,6 @@
 # 시작하기
 
-새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-11-04.
+새 PC에서 앱(web·api·ai, 필요하면 console)을 띄워 가입 → 캐릭터 대화까지 해 보는 순서. 최종 갱신 2026-11-08. 띄우는 순서는 2026-11-04와 같다. 공개 주소에서 열리는 범위는 [../STATUS.md](../STATUS.md).
 
 ![로컬 실행 환경 세 벌](../.assets/readme/dev-environments.png)
 

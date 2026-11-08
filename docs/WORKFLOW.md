@@ -1,6 +1,6 @@
 # AI 호출 파이프라인 (요약)
 
-정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-04 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md).
+정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-08 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md). 최근 12줄 수정·방향 다시 쓰기는 이 한 턴과 별도 경로이고, 직접 적은 기억은 3번의 맥락에 항상 들어간다.
 
 ![1:1 대화 한 턴의 처리 순서](.assets/readme/chat-turn.png)
 
@@ -12,8 +12,8 @@ POST /characters/:id/chat {message, personaId, model?}
   │
   ├─ 1. 확인: 로그인 · 볼 수 있는 캐릭터 · 고정된 내 프로필 · 요청 한도
   ├─ 2. 모델: 고른 것 > 대화에 저장된 것 > 기본 → reserve (하루 한도 또는 코레딧)
-  ├─ 3. 맥락: 카드 핵심(비밀 제외) + 지식 조각(BM25) + 기억 + 친밀도·복선·요약
-  │          + 엑스트라 + 퀘스트 지시(sceneNote) + 성인 여부(매 턴 DB)
+  ├─ 3. 맥락: 카드 핵심(비밀 제외) + 지식 조각(BM25) + 기억(직접 적은 것은 매 턴) + 친밀도·복선·요약
+  │          + 엑스트라 + 퀘스트 지시(sceneNote) + 때·곳 + 성인 여부(매 턴 DB)
   ├─ 4. FastAPI /infer ──▶ 규칙 → 수위 → 나레이션 지시 → 보상 장면 (뒤로 갈수록 강하다)
   ├─ 5. 개인사를 물은 턴만 /ground-check → 지어냈으면 다시 (최대 2번)
   ├─ 6. 저장 (유저 말 + 답). 실패하면 저장 안 하고 reserve를 돌려준다

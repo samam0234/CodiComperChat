@@ -96,7 +96,7 @@ flowchart LR
 | 때와 곳 | 대화 위 한 줄, 세계관 제목 옆 | 보내기 응답의 `scene` | api/character-chat/scene.ts | 시간·장소 단서가 있을 때만 갱신 |
 | 글 꾸미기 | 말풍선 | — | web/lib/chat-format.ts, web/components/chat-text.tsx | format · `*행동*`(40% 회색 기울임) `**굵게**` `~취소선~` 코드·제목·인용·상자·정보창·`@이름`, HTML은 실행되지 않음 |
 | **나레이션 `@:`** | 말풍선(가운데 상자) | — | 위와 같음 + ai/services/inference.py(규칙 8) | format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 |
-| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 강화 무료는 하루 30번 무료 뒤 1번 10 코레딧. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
+| 모델 고르기(기본 무료·강화 무료·프리미엄) | 입력창 아래 | `GET /models` | api/models | models · 로컬 강화 태그는 `gemma4:12b`, 하루 30번 뒤 1번 10 코레딧. 운영 `LLM_BACKEND=openai`에서는 고른 무료 이름과 관계없이 호스팅 31B가 답하고 강화 한도만 남을 수 있다 → [STATUS.md](STATUS.md) · T06. 프리미엄은 키가 없어 "준비 중", 열어도 만 18세 미만·생년월일 없음은 잠금 |
 | 프로필 고정 | 대화 | — | api/conversations | chat · 첫 메시지 뒤 새로하기 전까지 못 바꿈 |
 
 ## 4. 기억·이야기 상태
