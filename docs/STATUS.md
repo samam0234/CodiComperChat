@@ -43,7 +43,7 @@ flowchart TD
 | 이용자 웹 | Vercel `https://codicomperchat-web.vercel.app` | 홈·인기·캐릭터·대화·공방·월드·마이페이지·설정·요금·약관·`/project` 소개. `main` 배포 |
 | API · DB · 대화 AI | Oracle `https://api.168-110-61-178.sslip.io` | caddy · api · postgres · ai · ollama. 대화는 NVIDIA 호스팅 `gemma-4-31b-it`, 막히면 CPU `gemma4:e4b` |
 | 공식 세계관 | 웹 `/worlds` | 「코퍼 시티: 멈춘 시계탑」시드가 공개·발행됨 (2026-11-07) |
-| 대화 수정 · 직접 적는 기억 · 때와 곳 | 대화 화면 | 2026-11-08 배포에 포함. 마이그레이션 `20261108123000_chat_memory_scene`(칸 추가만)이 서버에서 적용됐고 AI의 `/rewrite-line`·`/remember`가 올라와 있다. 로그인한 상태로 써 보는 확인은 하지 않았다 |
+| 대화 수정 · 직접 적는 기억 · 때와 곳 | 대화 화면 | 코드는 마지막 대사만 점 세 개 메뉴로 고친다. 공개 웹은 `main`을 받으면 화면이 바뀌고, Oracle API는 아직 최근 12줄을 허용한다. 마이그레이션은 서버에 적용돼 있다. 로그인한 상태로 공개 주소에서 써 보는 확인은 하지 않았다 |
 | 프로젝트 소개 | 웹 `/project` | 2026-11-07에 추가. `PORTFOLIO_URL`이 있으면 포트폴리오 사이트 버튼 |
 | 포트폴리오 사이트 | Vercel `https://codicomperchat-portfolio.vercel.app` | Astro 정적 10페이지. 제품 웹이 아니다. Rails·Flask는 올리지 않아 챗봇은 서버 꺼짐. 그 챗봇 코드의 모델은 `gemma4:e4b` 하나 |
 

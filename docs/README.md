@@ -4,7 +4,7 @@
 
 제품 기획의 원본은 여기 없다 — 루트 [CodiComperChat_project_plan.md](../CodiComperChat_project_plan.md)를 먼저 본다. 이 문서를 포함해 `docs/` 전체는 그 원본에서 파생된 것이며, 원본을 수정할 때는 `.agents/skills/codicomperchat/SKILL.md` §0 원본 보존 원칙을 따른다.
 
-> 현재(2026-11-08) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션·최근 12줄 수정·직접 적는 기억·때와 곳) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 37개·마이그레이션 35개, [plan/DATABASE.md](plan/DATABASE.md)), Redis는 쓰지 않는다. 월드코퍼챗과 푸터 프로젝트 소개(`/project`)가 웹에 있다. 포트폴리오 사이트는 별도 Astro이고 제품 웹이 아니다. 코드에 있는 기능과 지금 열리는 범위는 [STATUS.md](STATUS.md)에서 나눈다. **2026-11-07에 실제로 배포했고, 2026-11-08에 대화 도구를 다시 올렸다**: 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM. 지금 서버의 정본은 [web_management/oracle-backend.md](web_management/oracle-backend.md), 처음 올린 과정은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). GPU 서버 절차(`docker-deploy.md`)는 그림 엔진용 목표 문서로 남는다.
+> 현재(2026-11-08) 네 앱이 연결되어 동작한다 — 가입·이메일 인증 → 캐릭터 대화(기억·지난 이야기·엑스트라·모델 고르기·명령어·글 꾸미기·나레이션·마지막 대사 수정·직접 적는 기억·때와 곳) → 공방 제작(8단계·비밀 퀘스트·AI 초상)·3턴 테스트·발행, 신고·초상 검수, 코레딧, 오퍼레이션(심리 탐구·일기·메시지·커뮤니티·웹툰), 코디포토넷(전체 이용가/성인), 비밀 퀘스트, 운영 콘솔. 실제 결제는 보류하고 눌러서 프로로 바꾼다. 프리미엄 모델은 코드만 있고 닫혀 있다. DB는 PostgreSQL(테이블 37개·마이그레이션 35개, [plan/DATABASE.md](plan/DATABASE.md)), Redis는 쓰지 않는다. 월드코퍼챗과 푸터 프로젝트 소개(`/project`)가 웹에 있다. 포트폴리오 사이트는 별도 Astro이고 제품 웹이 아니다. 코드에 있는 기능과 지금 열리는 범위는 [STATUS.md](STATUS.md)에서 나눈다. **2026-11-07에 실제로 배포했고, 2026-11-08에 대화 도구를 다시 올렸다**: 웹은 Vercel, API·DB·AI(대화)는 Oracle Cloud ARM VM. 지금 서버의 정본은 [web_management/oracle-backend.md](web_management/oracle-backend.md), 처음 올린 과정은 [web_management/deploy-log-2026-11-07.md](web_management/deploy-log-2026-11-07.md). GPU 서버 절차(`docker-deploy.md`)는 그림 엔진용 목표 문서로 남는다.
 >
 > **처음 보는 사람·에이전트는 [AGENT_HANDOVER.md](AGENT_HANDOVER.md)(지금 상태), [TASKS.md](TASKS.md)(할 일), [FEATURES.md](FEATURES.md)(전체 기능 목록)부터.**
 
@@ -120,7 +120,7 @@ docs/
 
 | 맞춘 것 | 정본 |
 |---------|------|
-| 최근 12줄 수정·삭제·방향 다시 쓰기, 직접 적는 기억, 때와 곳 | [FEATURES.md](FEATURES.md) · [STATUS.md](STATUS.md) |
+| 마지막 대사 수정·삭제·방향 다시 쓰기, 직접 적는 기억, 때와 곳 | [FEATURES.md](FEATURES.md) · [STATUS.md](STATUS.md) |
 | 마이그레이션 35개(테이블은 37개, 35번째는 칸만 추가) | [plan/DATABASE.md](plan/DATABASE.md) · [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) |
 | 미리보기 주소와 아직 닫힌 것 | [STATUS.md](STATUS.md) · [web_management/oracle-backend.md](web_management/oracle-backend.md) |
 

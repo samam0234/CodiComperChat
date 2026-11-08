@@ -365,7 +365,7 @@ export class CharacterChatService {
     const conversation = await this.conversations.find(userId, characterId);
     if (!conversation) throw new NotFoundException('대화를 찾을 수 없습니다.');
     const recent = await this.conversations.recentMessageIds(conversation.sessionId, RECENT_EDIT_COUNT);
-    if (!recent.has(messageId)) throw new ConflictException('최근 대화만 고치거나 지울 수 있어요.');
+    if (!recent.has(messageId)) throw new ConflictException('마지막 대사만 고치거나 지울 수 있어요.');
     const message = await this.conversations.findSessionMessage(conversation.sessionId, messageId);
     if (!message) throw new NotFoundException('메시지를 찾을 수 없습니다.');
     return { conversation, message };
