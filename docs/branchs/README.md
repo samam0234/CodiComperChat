@@ -488,5 +488,6 @@ flowchart LR
 | 2026-11-08 | `9473ba6` | feature/support-inquiry | 문의 기능과 현재 수치를 문서에 맞추다 | [261108_1604_9473ba6_support-docs_feature-support-inquiry.md](commits/261108_1604_9473ba6_support-docs_feature-support-inquiry.md) |
 | 2026-11-08 | `f42f7d2` | develop (merge) | feature/support-inquiry into develop (no-ff) | [261108_1605_f42f7d2_merge-support-into-develop_develop.md](commits/261108_1605_f42f7d2_merge-support-into-develop_develop.md) |
 | 2026-11-08 | `31b4003` | main (merge) | develop into main (no-ff) | [261108_1605_31b4003_merge-support-into-main_main.md](commits/261108_1605_31b4003_merge-support-into-main_main.md) |
+| 2026-11-08 | `01110c5` | feature/dev-origin-lan | 개발 서버가 다른 사설 주소도 받게 하다 | [261108_1610_01110c5_dev-origin-lan_feature-dev-origin-lan.md](commits/261108_1610_01110c5_dev-origin-lan_feature-dev-origin-lan.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
