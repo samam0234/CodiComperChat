@@ -1,6 +1,6 @@
 # AI 호출 파이프라인 (요약)
 
-정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-08 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md). 최근 12줄 수정·방향 다시 쓰기는 이 한 턴과 별도 경로이고, 직접 적은 기억은 3번의 맥락에 항상 들어간다.
+정본: `CodiComperChat_project_plan.md` §7.6. 최종 갱신 2026-11-08 — 실제 동작. 상태(State) 관점의 자세한 순서는 [Architecture/data-flow.md](Architecture/data-flow.md). 마지막 대사 수정·방향 다시 쓰기는 이 한 턴과 별도 경로이고, 직접 적은 기억은 3번의 맥락에 항상 들어간다.
 
 ![1:1 대화 한 턴의 처리 순서](.assets/readme/chat-turn.png)
 

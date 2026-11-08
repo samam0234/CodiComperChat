@@ -36,8 +36,6 @@ export type InitialMessage = { id: string; role: "user" | "character"; text: str
 
 type Scene = { time: string | null; place: string | null };
 
-const RECENT_LINES = 12;
-
 type PersonaOption = { id: string; name: string };
 
 type SuggestionState =
@@ -127,6 +125,7 @@ export default function CharacterChat({
   const nextId = useRef(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>(initialMessages);
   const [scene, setScene] = useState<Scene>(initialScene ?? { time: null, place: null });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -134,6 +133,7 @@ export default function CharacterChat({
   const [rewriteId, setRewriteId] = useState<string | null>(null);
   const [direction, setDirection] = useState("");
   const [lineBusy, setLineBusy] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   // 대화 전에 반드시 직접 골라야 한다 — 기본값을 미리 채우지 않는다
@@ -166,12 +166,9 @@ export default function CharacterChat({
       label: `${m.role === "user" ? (m.speaker ?? "나") : characterName}: ${m.text.replace(/s+/g, " ").trim().slice(0, 40)}`,
     }));
   const lastCharacterLine = [...messages].reverse().find((m) => m.role === "character" && !m.error)?.text.replace(/s+/g, " ").trim() ?? "";
-  const recentIds = new Set(
-    messages
-      .filter((m) => typeof m.id === "string" && m.id !== "opening" && !m.error && !m.unsaved)
-      .slice(-RECENT_LINES)
-      .map((m) => String(m.id)),
-  );
+  const lastEditableId = [...messages]
+    .reverse()
+    .find((m) => typeof m.id === "string" && m.id !== "opening" && !m.error && !m.unsaved)?.id;
   const sceneLabel = [scene.place, scene.time].filter(Boolean).join(" · ");
 
   const applyThread = (data: { messages?: InitialMessage[]; scene?: Scene }) => {
@@ -291,6 +288,26 @@ export default function CharacterChat({
     const log = logRef.current;
     if (log) log.scrollTop = log.scrollHeight;
   }, [messages.length, sending]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointer = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (sending) setMenuOpen(false);
+  }, [sending]);
 
   const loadSuggestions = async (previous: string[]) => {
     if (!persona) return;
@@ -581,84 +598,110 @@ export default function CharacterChat({
           {sceneLabel && <p className={styles.sceneNow}>{sceneLabel}</p>}
           {messages.map((message) => {
             const messageId = typeof message.id === "string" ? message.id : "";
-            const canEdit = recentIds.has(messageId) && !sending;
+            const canEdit = messageId !== "" && messageId === lastEditableId && !sending;
             const busy = lineBusy === messageId;
+            const showMenu = canEdit && editingId !== messageId && rewriteId !== messageId;
+            const menu = showMenu ? (
+              <div className={styles.lineMenu} ref={menuRef}>
+                <button
+                  type="button"
+                  className={styles.kebab}
+                  aria-label="이 대사 메뉴"
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
+                  disabled={busy}
+                  onClick={() => setMenuOpen((open) => !open)}
+                >
+                  <span />
+                  <span />
+                  <span />
+                </button>
+                {menuOpen && (
+                  <div className={styles.menuPop} role="menu">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={styles.menuItem}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setRewriteId(null);
+                        setEditingId(messageId);
+                        setDraft(message.text);
+                      }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={styles.menuItem}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setEditingId(null);
+                        setRewriteId(messageId);
+                        setDirection("");
+                      }}
+                    >
+                      변경사항 추천
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        void removeLine(messageId);
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null;
             return (
             <div key={message.id} className={`${styles.row} ${message.role === "character" ? styles.rowCharacter : styles.rowUser}`}>
               {message.role === "character" && (
                 <CharacterAvatar characterId={characterId} name={characterName} hasPortrait={!!portrait?.hasPortrait} version={portrait?.version} size="sm" />
               )}
+              {message.role === "user" && menu}
               <div className={`${styles.message} ${styles[message.role]} ${message.error ? styles.error : ""}`}>
                 {message.role === "character" && <span className={styles.speaker}>{characterName}</span>}
                 {message.role === "user" && message.speaker && <span className={styles.userSpeaker}>{message.speaker}</span>}
                 {editingId === messageId ? (
-                  <textarea className={styles.lineEdit} value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} maxLength={2000} />
+                  <>
+                    <textarea className={styles.lineEdit} value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} maxLength={2000} />
+                    <div className={styles.lineFormActions}>
+                      <button type="button" className={styles.lineText} disabled={busy} onClick={() => void editLine(messageId)}>저장</button>
+                      <button type="button" className={styles.lineText} disabled={busy} onClick={() => setEditingId(null)}>취소</button>
+                    </div>
+                  </>
                 ) : message.error ? (
                   message.text
                 ) : (
                   <ChatText text={message.text} userName={persona?.name ?? "나"} />
                 )}
                 {message.unsaved && <span className={styles.unsaved}>답을 받지 못해 기록에 남지 않았어요</span>}
-                {canEdit && (
-                  <div className={styles.lineActions}>
-                    {editingId === messageId ? (
-                      <>
-                        <button type="button" className={styles.lineAction} disabled={busy} onClick={() => void editLine(messageId)}>저장</button>
-                        <button type="button" className={styles.lineAction} disabled={busy} onClick={() => setEditingId(null)}>취소</button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.lineAction}
-                        disabled={busy}
-                        onClick={() => {
-                          setRewriteId(null);
-                          setEditingId(messageId);
-                          setDraft(message.text);
-                        }}
-                      >
-                        수정
-                      </button>
-                    )}
-                    {rewriteId === messageId ? (
-                      <div className={styles.rewriteBox}>
-                        <label className={styles.rewriteLabel} htmlFor={`rewrite-${messageId}`}>변경사항 추천</label>
-                        <textarea
-                          id={`rewrite-${messageId}`}
-                          className={styles.lineEdit}
-                          value={direction}
-                          onChange={(event) => setDirection(event.target.value)}
-                          rows={2}
-                          maxLength={400}
-                          placeholder="어떤 방향으로 바꿀지 적어 주세요"
-                        />
-                        <div className={styles.lineActions}>
-                          <button type="button" className={styles.lineAction} disabled={busy || !persona} onClick={() => void rewriteLine(messageId)}>이 방향으로</button>
-                          <button type="button" className={styles.lineAction} disabled={busy} onClick={() => setRewriteId(null)}>닫기</button>
-                        </div>
-                      </div>
-                    ) : (
-                      editingId !== messageId && (
-                        <button
-                          type="button"
-                          className={styles.lineAction}
-                          disabled={busy}
-                          onClick={() => {
-                            setEditingId(null);
-                            setRewriteId(messageId);
-                            setDirection("");
-                          }}
-                        >
-                          변경사항 추천
-                        </button>
-                      )
-                    )}
-                    {editingId !== messageId && rewriteId !== messageId && (
-                      <button type="button" className={styles.lineAction} disabled={busy} onClick={() => void removeLine(messageId)}>삭제</button>
-                    )}
+                {rewriteId === messageId && (
+                  <div className={styles.rewriteBox}>
+                    <label className={styles.rewriteLabel} htmlFor={`rewrite-${messageId}`}>변경사항 추천</label>
+                    <textarea
+                      id={`rewrite-${messageId}`}
+                      className={styles.lineEdit}
+                      value={direction}
+                      onChange={(event) => setDirection(event.target.value)}
+                      rows={2}
+                      maxLength={400}
+                      placeholder="어떤 방향으로 바꿀지 적어 주세요"
+                    />
+                    <div className={styles.lineFormActions}>
+                      <button type="button" className={styles.lineText} disabled={busy || !persona} onClick={() => void rewriteLine(messageId)}>이 방향으로</button>
+                      <button type="button" className={styles.lineText} disabled={busy} onClick={() => setRewriteId(null)}>닫기</button>
+                    </div>
                   </div>
                 )}
               </div>
+              {message.role === "character" && menu}
             </div>
             );
           })}

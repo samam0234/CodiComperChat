@@ -8,8 +8,8 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export const CONTEXT_TURNS = 30;
 // 화면에 처음 보여 줄 메시지 수
 export const DISPLAY_MESSAGES = 200;
-// 고치거나 지울 수 있는 최근 메시지 수 (지금 열린 대화 안에서)
-export const RECENT_EDIT_COUNT = 12;
+// 고치거나 지울 수 있는 메시지. 지금 열린 대화의 마지막 한 줄만.
+export const RECENT_EDIT_COUNT = 1;
 
 export type StoredMessage = {
   id: string;
@@ -343,7 +343,7 @@ export class ConversationsService {
     ]);
   }
 
-  // 최근 N개 메시지 id. 이 안에 있는 것만 고치거나 지운다
+  // 마지막 N개 메시지 id. 이 안에 있는 것만 고치거나 지운다. N은 1이다.
   async recentMessageIds(sessionId: string, take = RECENT_EDIT_COUNT): Promise<Set<string>> {
     const rows = await this.prisma.message.findMany({
       where: { sessionId, role: { in: [MessageRole.USER, MessageRole.CHARACTER] } },

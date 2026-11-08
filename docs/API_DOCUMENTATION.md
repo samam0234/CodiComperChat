@@ -137,9 +137,9 @@ sequenceDiagram
 | `POST /characters/:id/chat/regenerate` | 대화 명령어 `/다시`: 마지막 내 말에 대한 답을 새로 쓴다 `{ personaId, model? }` | **200** 보내기와 같은 모양 · 마지막 내 말 뒤의 답(여럿이면 모두)을 새 답 하나로 바꾼다 · 대화가 없으면 409 · 모델·횟수·코레딧 규칙은 보내기와 같다 · 🔒 |
 | `POST /characters/:id/chat/continue` | 대화 명령어 `/계속`: 내 말 없이 캐릭터가 장면을 이어 간다 `{ personaId, model? }` | **200** 보내기와 같은 모양 · 캐릭터 답만 하나 더 남긴다 · 대화가 없으면 409 · 🔒 |
 | `POST /characters/:id/chat/undo` | 대화 명령어 `/되돌리기`: 마지막 내 말과 그 뒤의 답을 지운다 | **200** `{ removed, ...GET /characters/:id/chat }` · 지울 것이 없으면 409 · 이미 정리된 기억은 남는다 · 🔒 |
-| `PATCH /characters/:id/chat/messages/:messageId` | 최근 12개 안의 메시지 한 줄 수정 `{ content(~2000자) }` | **200** GET /chat 응답 · 최근이 아니면 409 · 🔒 |
-| `DELETE /characters/:id/chat/messages/:messageId` | 최근 12개 안의 메시지 한 줄 삭제 | **200** GET /chat 응답 · 최근이 아니면 409 · 🔒 |
-| `POST /characters/:id/chat/messages/:messageId/rewrite` | 최근 메시지 한 줄을 적은 방향으로 다시 씀 `{ direction(~400자), personaId, model? }` | **200** `{ text, ...GET /chat, model, usage, credits }` · 보내기와 같은 모델·횟수 · 🔒 |
+| `PATCH /characters/:id/chat/messages/:messageId` | 마지막 대사 한 줄 수정 `{ content(~2000자) }` | **200** GET /chat 응답 · 마지막이 아니면 409 · 🔒 |
+| `DELETE /characters/:id/chat/messages/:messageId` | 마지막 대사 한 줄 삭제 | **200** GET /chat 응답 · 마지막이 아니면 409 · 🔒 |
+| `POST /characters/:id/chat/messages/:messageId/rewrite` | 마지막 대사를 적은 방향으로 다시 씀 `{ direction(~400자), personaId, model? }` | **200** `{ text, ...GET /chat, model, usage, credits }` · 보내기와 같은 모델·횟수 · 마지막이 아니면 409 · 🔒 |
 | `GET /me/credits` | 내 코레딧 | **200** `{ balance, attendedToday, attendanceReward(무료 1000·프로 5000), krwPer100(350), history: [{ delta, balance, reason(ATTENDANCE·MODEL_USE·REFUND·ADMIN), modelId, createdAt }] }` (최근 30개) · 🔒 |
 | `POST /me/attendance` | 출석 (하루 한 번, 한국 시각) | **200** `{ credited, balance }` · 같은 날 두 번이면 **409** · 🔒 |
 | `GET /models` | 대화에서 고를 수 있는 모델 목록 | **200** `{ default: "basic", balance, models: [{ id, label, group(무료·Claude·Grok), tier(BASIC·ENHANCED·PREMIUM), note, credits, locked, limit, used, overage }] }` · `balance`는 내 코레딧, `credits`는 프리미엄 답 1번 값 · `locked`는 지금 못 쓰는 이유 `NOT_READY`(공급자를 열지 않음)·`NEEDS_BIRTHDATE`(프리미엄인데 생년월일 없음)·`UNDER_AGE`(프리미엄인데 만 18세 미만)·`DAILY_LIMIT`(오늘 횟수 소진)·`NO_CREDITS`(코레딧 부족), 쓸 수 있으면 null · `limit`·`used`·`overage`는 하루 한도가 있을 때만(강화 무료를 무료 등급이 쓸 때, 프로는 무제한이라 null). 한도를 다 쓴 뒤에는 잠기지 않고 자정까지 1번에 `overage`(10) 코레딧 — 코레딧이 모자라면 `NO_CREDITS`. 모델은 13개: 기본 무료(`basic`)·강화 무료(`enhanced`)·Claude 8개·Grok 3개 · 🔒 |

@@ -77,7 +77,7 @@ flowchart LR
 | 추천 프로필 (2026-10-25) | 캐릭터마다 "추천하는 내 프로필"(선택). 대화 화면 카드에서 그대로 쓰거나 이름·소개를 고쳐 내 프로필로 만들고 바로 고른다. `characters.recommendedPersona`(공개) | `web/…/chat/recommended-persona.tsx`, [../FEATURES.md](../FEATURES.md) |
 | 공방 AI 초상 (2026-10-25) | 외형 단계 "AI로 직접 만들기": 화풍 4가지 × 생김새 8항목, **한 장 25 코레딧**, 전체 이용가만, 올린 그림과 같은 자동 검수, 실패 시 환불. 후보를 보고 고른 그림만 저장(2026-11-04). "그림 고르기"는 "내 파일 선택"으로 | `api/studio/studio-portrait-ai.service.ts`, `ai/services/portrait.py` |
 | 대화 서식 (2026-10-25) | `*행동*` = 40% 회색 기울임, `@:` = 나레이션(모델이 장면 전환 때 첫 줄에 씀) | `web/lib/chat-format.ts`, `ai/services/inference.py` |
-| 대화 도구 (2026-11-08) | 최근 12줄 수정·삭제·방향 다시 쓰기. 직접 적은 기억은 `pinned`라 매 턴 넣는다. 때·곳(`sceneTime`·`scenePlace`)은 시간·장소 단서가 있을 때만 바뀐다. 마이그레이션 `20261108123000_chat_memory_scene`은 칸만 더한다 | `character-chat/`, `scene.ts`, `memories/` |
+| 대화 도구 (2026-11-08) | 마지막 대사만 수정·삭제·방향 다시 쓰기(말풍선 옆 점 세 개). 직접 적은 기억은 `pinned`라 매 턴 넣는다. 때·곳(`sceneTime`·`scenePlace`)은 시간·장소 단서가 있을 때만 바뀐다. 마이그레이션 `20261108123000_chat_memory_scene`은 칸만 더한다 | `character-chat/`, `scene.ts`, `memories/` |
 | 비밀 퀘스트 (2026-10-24) | 캐릭터가 건네는 숨은 미션. 직접·AI 제작, 엄격 판정(인용 근거 대조). 공식 캐릭터만 100 코레딧(계정×캐릭터당 한 번) | `quests/`, [SECRET_QUEST.md](SECRET_QUEST.md) |
 | AI 호출 대기열 | 동시 호출 `AI_CONCURRENCY`(기본 2, **서버 한 대 기준**), 기다리는 답 우선·배경 작업(기억·요약)은 양보, 대기 60초 넘으면 503, 응답 130초(배경 150초) 넘으면 504 | `apps/api/src/ai/ai-queue.ts` |
 | 요청 한도 | 고정 창. 기본은 서버 메모리, 서버가 여러 대면 `RATE_LIMIT_STORE=db`(PostgreSQL `rate_limit_buckets`) | `security/rate-limit.ts`, `security/rate-store.ts` |
