@@ -19,6 +19,7 @@ import { PersonasModule } from './personas/personas.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ContentReportsModule } from './content-reports/content-reports.module.js';
 import { ReportsModule } from './reports/reports.module.js';
+import { SupportModule } from './support/support.module.js';
 import { RateLimitGuard } from './security/rate-limit.js';
 import { StudioModule } from './studio/studio.module.js';
 import { WorldsModule } from './worlds/worlds.module.js';
@@ -37,6 +38,7 @@ import { WorldsModule } from './worlds/worlds.module.js';
     StudioModule,
     WorldsModule,
     ReportsModule,
+    SupportModule,
     ContentReportsModule,
     AgentChatModule,
     BillingModule,

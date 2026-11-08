@@ -1,0 +1,60 @@
+.list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.card {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.body {
+  margin-top: 8px;
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+.reply {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reply textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.reply button {
+  justify-self: start;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.sectionTitle {
+  margin-top: 28px;
+  font-size: 16px;
+  font-weight: 700;
+}

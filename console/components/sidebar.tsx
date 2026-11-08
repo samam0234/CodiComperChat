@@ -9,6 +9,7 @@ import styles from "./sidebar.module.css";
 const NAV = [
   { href: "/", label: "대시보드", icon: "◎" },
   { href: "/reports", label: "신고함", icon: "⚑" },
+  { href: "/inquiries", label: "고객 문의", icon: "✉" },
   { href: "/content", label: "그림 신고", icon: "▨" },
   { href: "/portraits", label: "초상 검수", icon: "▣" },
   { href: "/characters", label: "캐릭터", icon: "☆" },

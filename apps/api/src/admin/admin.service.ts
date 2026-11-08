@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CampaignStatus, CharacterVisibility, ContentReportStatus, PortraitReview, Prisma, ReportStatus } from '@prisma/client';
+import { CampaignStatus, CharacterVisibility, ContentReportStatus, PortraitReview, Prisma, ReportStatus, SupportInquiryStatus } from '@prisma/client';
 import { aiQueue } from '../ai/ai-queue.js';
 import { effectivePlan } from '../plan/plan.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -28,6 +28,7 @@ export class AdminService {
       takenDown,
       openReports,
       openContentReports,
+      openInquiries,
       reportedCharacters,
       pendingPortraits,
       activeConversations,
@@ -44,6 +45,7 @@ export class AdminService {
       this.prisma.character.count({ where: { takenDownAt: { not: null } } }),
       this.prisma.characterReport.count({ where: { status: ReportStatus.OPEN } }),
       this.prisma.contentReport.count({ where: { status: ContentReportStatus.OPEN } }),
+      this.prisma.supportInquiry.count({ where: { status: SupportInquiryStatus.OPEN } }),
       this.prisma.characterReport.groupBy({ by: ['characterId'], where: { status: ReportStatus.OPEN } }),
       this.prisma.characterDraft.count({ where: { portraitReview: PortraitReview.PENDING } }),
       this.prisma.campaign.count({ where: { status: CampaignStatus.ACTIVE } }),
@@ -53,7 +55,7 @@ export class AdminService {
     return {
       users: { total: users, verified: verifiedUsers, new7d: newUsers7d, admins, pro: proRows.filter((u) => effectivePlan(u, now) === 'PRO').length },
       characters: { published: characters, public: publicCharacters, takenDown, drafts },
-      moderation: { openReports, openContentReports, reportedCharacters: reportedCharacters.length, pendingPortraits },
+      moderation: { openReports, openContentReports, openInquiries, reportedCharacters: reportedCharacters.length, pendingPortraits },
       activity: { activeConversations, messages24h },
       // 지금 이 API 서버의 AI 호출 대기열 (서버가 여러 대면 대마다 다르다)
       ai: aiQueue.stats(),
