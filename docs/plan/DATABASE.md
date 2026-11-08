@@ -77,7 +77,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 
 공식 캐릭터(유지성·이세연)의 초상 원본은 `apps/api/prisma/assets/portraits/`(512px WebP)에 있고, 시드가 초상이 비어 있을 때만 넣는다.
 
-계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 21개, 월드코퍼챗으로 9개가 더 생겼다. 열거형 17개, 마이그레이션 34개(`apps/api/prisma/migrations/`). 칸·키·인덱스까지 모두 그린 개체 관계도는 [ERD.md](ERD.md).
+계획서 핵심 도메인(§7.5) 8개 중 7개가 있고(`LoreEntry`는 카드 JSON·지식 파일로 대신), 구현하며 21개, 월드코퍼챗으로 9개가 더 생겼다. 열거형 17개, 마이그레이션 35개(`apps/api/prisma/migrations/`). 35번째 `20261108123000_chat_memory_scene`은 테이블을 늘리지 않고 칸만 더한다. 칸·키·인덱스까지 모두 그린 개체 관계도는 [ERD.md](ERD.md). 2026-11-07의 빈 DB 대조는 34개까지였고, 35개 적용을 그 대조 자리에서 다시 돌리지는 않았다.
 
 | 테이블 (모델) | 계획서 | 무엇 | 지워질 때 |
 |---|---|---|---|
@@ -96,10 +96,10 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 | `webtoons` (Webtoon) · `webtoon_panels` (WebtoonPanel) | | 웹툰: 제목·장면 설명·수위·접근 차단(`blockedAt`), 컷마다 장면 설계표(JSON)·해설·대사(JSON)·그린 그림(WebP, 그린 뒤에만)·엔진에 보낸 프롬프트. 컷 키 = 웹툰 × 번호. 막히면 컷 본문을 주지 않고 더 그리지 못한다 | 대화와 함께 |
 | `photonet_images` (PhotonetImage) | | 코디포토넷 그림(WebP 바이트, 유저 장면 설명, 엔진에 보낸 영어 프롬프트, 화풍·비율·크기, 수위 `rating`: sfw/nsfw, 접근 차단 `blockedAt`). 그림 검수를 통과한 것만. nsfw는 지금 성인 확인이 살아 있을 때만 보인다. 막히면 만든 사람에게도 본문을 주지 않는다 | 대화와 함께 |
 | `model_usage` (ModelUsage) | | 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. 키 = 계정 × 모델 × 날짜(한국 시각 YYYY-MM-DD). 답을 만들기 전에 한 문장 upsert로 1회를 잡고 실패하면 돌려준다(동시 요청도 한도를 못 넘는다) | 계정과 함께 |
-| `campaign_states` (CampaignState) | ● | 친밀도(값·근거·자동 여부·변화 기록), 호칭, 열린 복선·끝난 일, 해금된 비밀, 다음 회차 요약, 정리한 지점, 비밀 퀘스트 진행(`questState`: offered/done) | 대화와 함께 |
+| `campaign_states` (CampaignState) | ● | 친밀도(값·근거·자동 여부·변화 기록), 호칭, 열린 복선·끝난 일, 해금된 비밀, 다음 회차 요약, 정리한 지점, 비밀 퀘스트 진행(`questState`: offered/done), 때·곳(`sceneTime`·`scenePlace`, 비어 있을 수 있음) | 대화와 함께 |
 | `sessions` (Session) | ● | 회차(지금은 대화당 하나) | 대화와 함께 |
 | `messages` (Message) | ● | 유저·캐릭터 말(역할·내용·말한 이름) | 회차와 함께 |
-| `memory_chunks` (MemoryChunk) | ● | 대화에서 정리한 장기 기억 한 줄씩 | 대화와 함께 |
+| `memory_chunks` (MemoryChunk) | ● | 대화에서 정리한 장기 기억 한 줄씩. `pinned`가 참이면 유저가 직접 적은 것이라 매 턴 넣는다 | 대화와 함께 |
 | `character_drafts` (CharacterDraft) | | 공방 초안: 카드 7층 JSON, 마지막 3턴 테스트(카드 지문 포함), 초상·검수 상태(APPROVED/PENDING/REJECTED·사유), 공개 범위, 발행된 캐릭터 연결 | 계정과 함께 |
 | `user_extras` (UserExtra) | | 내가 만든 엑스트라(조연): 이름·요약·성격·관계·상황·장소 | 계정과 함께 |
 | `campaign_extras` (CampaignExtra) | | 이 대화에 적용한 엑스트라와 등장 조건 | 대화·엑스트라와 함께 |
@@ -134,7 +134,7 @@ ORM은 Nest 쪽 **Prisma 7**. FastAPI는 DB를 직접 보지 않는다 — 추�
 | `world_places` | 코퍼맵 장소 핀(x·y 0~100) | 〃 |
 | `world_parts` | 파트(제목·목표·시작 글) | 〃 |
 | `world_images` | 장면 그림(bytea), 이름표 고유, 검수 상태, 막힘 | 〃 |
-| `world_plays` | 계정×세계관 하나. 파트 위치, 인물 위치(JSON), 턴 수, 이벤트 결과 한 줄 | 계정·세계관과 함께 |
+| `world_plays` | 계정×세계관 하나. 파트 위치, 인물 위치(JSON), 턴 수, 이벤트 결과 한 줄, 때·곳(`sceneTime`·`scenePlace`) | 계정·세계관과 함께 |
 | `world_messages` | 플레이 메시지(USER·CHARACTER·SYSTEM), 장면 그림 id | 플레이와 함께 |
 | `world_events` | 미니게임. `setup`(숨긴 값), `outcome`, 보상, `rewardDay`(한국 시각) | 〃 |
 | `app_settings` | 운영 설정 키·값(JSON). 지금은 `world` 하나 | — |
