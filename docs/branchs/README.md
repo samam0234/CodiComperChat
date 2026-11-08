@@ -481,5 +481,6 @@ flowchart LR
 | 2026-11-08 | `20730f6` | feature/last-message-menu | 마지막 대사만 점 세 개 메뉴로 고치게 하다 | [261108_1043_20730f6_last-message-menu_feature-last-message-menu.md](commits/261108_1043_20730f6_last-message-menu_feature-last-message-menu.md) |
 | 2026-11-08 | `2179081` | develop (merge) | feature/last-message-menu into develop (no-ff) | [261108_1046_2179081_merge-last-message-menu-into-develop_develop.md](commits/261108_1046_2179081_merge-last-message-menu-into-develop_develop.md) |
 | 2026-11-08 | `1202a7d` | main (merge) | develop into main (no-ff) | [261108_1047_1202a7d_merge-develop-into-main-last-menu_main.md](commits/261108_1047_1202a7d_merge-develop-into-main-last-menu_main.md) |
+| 2026-11-08 | `1751f2e` | feature/empty-send-and-model-note | 빈칸 보내기로 다음 장면을 잇다 | [261108_1450_1751f2e_empty-send-predict_feature-empty-send-and-model-note.md](commits/261108_1450_1751f2e_empty-send-predict_feature-empty-send-and-model-note.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
