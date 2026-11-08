@@ -17,6 +17,11 @@ from app.services import fake_llm
 
 # 로컬에 pull된 모델 태그. 확인: `ollama list`
 DEFAULT_MODEL = "gemma4:e4b"
+BASIC_LOCAL_TAG = DEFAULT_MODEL
+# Nest가 강화 무료에 붙이는 로컬 태그. 키가 있으면 아래 클라우드 모델로 바꾼다.
+ENHANCED_LOCAL_TAG = "gemma4:12b"
+NVIDIA_API_BASE = "https://integrate.api.nvidia.com/v1"
+NVIDIA_API_MODEL = "google/gemma-4-31b-it"
 DEFAULT_BASE_URL = "http://localhost:11434"
 
 Contents = list[dict[str, object]]
@@ -66,7 +71,22 @@ def generate(
             )
         raise HTTPException(status_code=400, detail="알 수 없는 공급자다.")
 
-    if os.environ.get("LLM_BACKEND", "ollama").strip().lower() == "openai":
+    # 기본 무료는 호스팅 백엔드여도 이 기기의 gemma4:e4b를 그대로 쓴다. 요약·검수처럼 모델을 비운 호출은 아래 백엔드를 따른다.
+    if model == BASIC_LOCAL_TAG:
+        return _generate_ollama(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            response_json_schema=response_json_schema,
+            seed=seed,
+            model=BASIC_LOCAL_TAG,
+            keep_alive=keep_alive,
+        )
+
+    # 강화 무료: 키가 있으면 NVIDIA gemma-4-31b-it. 주소·모델 환경변수가 있으면 그것을 쓰고, 없으면 NVIDIA 기본값.
+    # 막히면 없는 gemma4:12b 대신 기본 로컬 모델로 내려간다.
+    if model == ENHANCED_LOCAL_TAG and _hosted_key():
         return _generate_openai_with_fallback(
             system=system,
             contents=contents,
@@ -74,7 +94,21 @@ def generate(
             temperature=temperature,
             response_json_schema=response_json_schema,
             seed=seed,
-            ollama_model=model,
+            ollama_model=_fallback_local_model(model),
+            keep_alive=keep_alive,
+            api_base=os.environ.get("LLM_API_BASE", "").strip() or NVIDIA_API_BASE,
+            api_model=os.environ.get("LLM_API_MODEL", "").strip() or NVIDIA_API_MODEL,
+        )
+
+    if _backend_is_openai():
+        return _generate_openai_with_fallback(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            response_json_schema=response_json_schema,
+            seed=seed,
+            ollama_model=_fallback_local_model(model),
             keep_alive=keep_alive,
         )
 
@@ -239,6 +273,26 @@ class _ApiUnavailable(Exception):
         self.status_code = status_code
 
 
+def _hosted_key() -> str:
+    return os.environ.get("LLM_API_KEY", "").strip() or os.environ.get("NVIDIA_API_KEY", "").strip()
+
+
+def _backend_is_openai() -> bool:
+    return os.environ.get("LLM_BACKEND", "ollama").strip().lower() == "openai"
+
+
+def enhanced_uses_cloud(model: str | None) -> bool:
+    """강화 태그이고 호스팅 키가 있으면 답이 기기 밖으로 나간다."""
+    return model == ENHANCED_LOCAL_TAG and bool(_hosted_key())
+
+
+def _fallback_local_model(requested: str | None) -> str | None:
+    """예비 Ollama는 서버에 없는 강화 태그를 찾지 않고 기본 모델을 쓴다."""
+    if requested == ENHANCED_LOCAL_TAG:
+        return os.environ.get("OLLAMA_MODEL", BASIC_LOCAL_TAG)
+    return requested
+
+
 def _generate_openai_with_fallback(
     *,
     system: str,
@@ -249,6 +303,8 @@ def _generate_openai_with_fallback(
     seed: int | None,
     ollama_model: str | None,
     keep_alive: int | None,
+    api_base: str | None = None,
+    api_model: str | None = None,
 ) -> str:
     try:
         return _generate_openai(
@@ -258,6 +314,8 @@ def _generate_openai_with_fallback(
             temperature=temperature,
             response_json_schema=response_json_schema,
             seed=seed,
+            api_base=api_base,
+            api_model=api_model,
         )
     except _ApiUnavailable as exc:
         if os.environ.get("LLM_FALLBACK_OLLAMA") != "1":
@@ -293,10 +351,12 @@ def _generate_openai(
     temperature: float | None,
     response_json_schema: dict | None,
     seed: int | None,
+    api_base: str | None = None,
+    api_model: str | None = None,
 ) -> str:
-    base = os.environ.get("LLM_API_BASE", "").rstrip("/")
-    key = os.environ.get("LLM_API_KEY", "")
-    api_model = os.environ.get("LLM_API_MODEL", "")
+    base = (api_base if api_base is not None else os.environ.get("LLM_API_BASE", "")).rstrip("/")
+    key = _hosted_key()
+    api_model = api_model if api_model is not None else os.environ.get("LLM_API_MODEL", "")
     if not base or not api_model:
         raise HTTPException(status_code=500, detail="LLM_BACKEND=openai에는 LLM_API_BASE와 LLM_API_MODEL이 필요하다.")
 

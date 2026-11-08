@@ -1,8 +1,9 @@
 import type { Plan } from '../plan/plan.js';
 
 // 대화에서 고를 수 있는 모델 목록과 쓸 수 있는 조건 (2026-10-21 사용자 결정).
-//  - 기본 무료: gemma4:e4b — 누구나, 횟수 제한 없음 (services/ai의 기본 모델)
-//  - 강화 무료: gemma4:12b — 무료 등급은 하루 30번(한국 시각 자정 초기화), 프로 등급은 무제한.
+//  - 기본 무료: gemma4:e4b — 누구나, 횟수 제한 없음. 호스팅 백엔드여도 이 대화는 로컬 기본 모델을 그대로 쓴다.
+//  - 강화 무료: 화면 태그는 gemma4:12b. 키가 있으면 services/ai가 NVIDIA gemma-4-31b-it으로 보낸다.
+//    무료 등급은 하루 30번(한국 시각 자정 초기화), 프로 등급은 무제한.
 //    무료 등급이 30번을 다 쓰면 자정까지는 1번에 10 코레딧으로 계속 쓴다 (2026-10-24 사용자 결정 — 예전에는 잠겼다)
 //  - 프리미엄(Claude·Grok): 캐릭터 답 1번마다 코레딧을 쓴다 (값은 아래 표, 근거는 docs/plan/AI_MODEL_STRATEGY.md).
 //    PREMIUM_PROVIDERS로 연 공급자만 쓸 수 있고, 나머지는 "준비 중"으로 잠긴다.
@@ -65,7 +66,7 @@ export const MODELS: readonly ChatModel[] = [
     tier: 'BASIC',
     provider: 'ollama',
     runtime: null,
-    note: 'gemma4:e4b · 횟수 제한 없음',
+    note: 'gemma4:e4b · 기본 무료는 이 모델을 그대로 씁니다 · 횟수 제한 없음',
     credits: null,
   },
   {
@@ -75,7 +76,7 @@ export const MODELS: readonly ChatModel[] = [
     tier: 'ENHANCED',
     provider: 'ollama',
     runtime: 'gemma4:12b',
-    note: 'gemma4:12b · 무료 등급은 하루 횟수 제한, 프로는 무제한',
+    note: 'gemma-4-31b-it로 전환됨 · 클라우드 NVIDIA · 키가 없으면 이 기기의 gemma4:12b · 무료 등급은 하루 횟수 제한, 프로는 무제한',
     credits: null,
   },
   // 값: 답 1번(입력 약 6천·출력 약 500토큰)의 API 원가를 3배 넘게 덮고(처음 값의 1.5배, 소수는 올림), 같은 줄에서는 성능 순으로 오르게

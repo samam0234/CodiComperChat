@@ -52,7 +52,7 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
 
   async function send() {
     const message = text.trim();
-    if (!message || pending) return;
+    if (pending) return;
     setPending(true);
     setError(null);
     try {
@@ -175,11 +175,15 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
             }}
             maxLength={1000}
             rows={2}
-            placeholder={world.mode === "MESSENGER" ? "메시지 보내기" : "행동은 *별표*, 장면 지시는 (괄호)로 쓸 수 있어요"}
+            placeholder={
+              world.mode === "MESSENGER"
+                ? "메시지 보내기 · 비워 두고 보내면 다음 대화를 이어 갑니다"
+                : "행동은 *별표*, 장면 지시는 (괄호). 비워 두고 보내면 다음 장면을 이어 갑니다"
+            }
             aria-label="할 말"
             data-testid="world-input"
           />
-          <button type="button" onClick={send} disabled={pending || !text.trim()} className={styles.send} data-testid="world-send">
+          <button type="button" onClick={send} disabled={pending} className={styles.send} data-testid="world-send" title="비워 두고 보내면 다음 장면을 예상해 진행합니다">
             {pending ? "…" : "보내기"}
           </button>
         </div>
