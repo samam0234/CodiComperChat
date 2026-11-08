@@ -92,7 +92,7 @@ flowchart LR
 | 새로하기(저장/저장 안 함)·이어하기 | 대화 위 버튼 | `POST …/chat/new`, `GET …/chat/saved`, `POST …/saved/:campaignId/resume`, `DELETE …/saved/:campaignId` | api/character-chat | chat |
 | 대답 추천(3개) | 입력창 옆 ✦ | `POST …/chat/suggestions` | api/character-chat, ai/services/suggestion.py | chat |
 | 명령어 | 입력창 | `POST …/chat/regenerate` `continue` `undo` | api/character-chat | commands · `/다시` `/계속` `/되돌리기` `/상황 내용` `/도움말` |
-| 최근 대사 수정·삭제·방향 추천 | 최근 12개 말풍선 | `PATCH·DELETE …/chat/messages/:messageId`, `POST …/rewrite` | api/character-chat, ai/services/rewrite.py | 방향은 유저가 적은 문장으로 그 줄만 다시 씀 |
+| 최근 대사 수정·삭제·방향 추천 | 마지막 말풍선 옆 점 세 개 | `PATCH·DELETE …/chat/messages/:messageId`, `POST …/rewrite` | api/character-chat, ai/services/rewrite.py | 그 위 대사는 메뉴가 없다. 방향은 유저가 적은 문장으로 그 줄만 다시 씀 |
 | 때와 곳 | 대화 위 한 줄, 세계관 제목 옆 | 보내기 응답의 `scene` | api/character-chat/scene.ts | 시간·장소 단서가 있을 때만 갱신 |
 | 글 꾸미기 | 말풍선 | — | web/lib/chat-format.ts, web/components/chat-text.tsx | format · `*행동*`(40% 회색 기울임) `**굵게**` `~취소선~` 코드·제목·인용·상자·정보창·`@이름`, HTML은 실행되지 않음 |
 | **나레이션 `@:`** | 말풍선(가운데 상자) | — | 위와 같음 + ai/services/inference.py(규칙 8) | format · 장면이 바뀌면 모델이 첫 줄에 씀. 시작 장면에도 쓸 수 있음 |

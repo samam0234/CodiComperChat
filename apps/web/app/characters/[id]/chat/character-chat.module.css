@@ -36,26 +36,100 @@
   line-height: 1.5;
 }
 
-.lineActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 8px;
+.lineMenu {
+  position: relative;
+  flex: none;
+  align-self: center;
 }
 
-.lineAction {
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
+.kebab {
+  display: grid;
+  gap: 3px;
+  place-content: center;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: var(--background);
+  background: transparent;
+  color: var(--muted);
+}
+
+.kebab span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kebab:hover,
+.kebab[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
   color: var(--foreground);
-  font-size: 11px;
+}
+
+.kebab:disabled {
+  opacity: 0.45;
+}
+
+.menuPop {
+  position: absolute;
+  bottom: 0;
+  z-index: 5;
+  min-width: 148px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.rowUser .menuPop {
+  right: calc(100% + 4px);
+}
+
+.rowCharacter .menuPop {
+  right: calc(100% + 4px);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.4;
+  text-align: left;
 }
 
-.lineAction:disabled {
+.menuItem:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.menuItemDanger {
+  color: var(--danger);
+}
+
+.lineFormActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.lineText {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lineText:disabled {
   opacity: 0.45;
 }
 
