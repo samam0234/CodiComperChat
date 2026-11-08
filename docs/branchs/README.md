@@ -492,5 +492,6 @@ flowchart LR
 | 2026-11-08 | `9bd5d64` | develop (merge) | feature/dev-origin-lan into develop (no-ff) | [261108_1611_9bd5d64_merge-dev-origin-into-develop_develop.md](commits/261108_1611_9bd5d64_merge-dev-origin-into-develop_develop.md) |
 | 2026-11-08 | `4e81abc` | main (merge) | develop into main (no-ff) | [261108_1611_4e81abc_merge-dev-origin-into-main_main.md](commits/261108_1611_4e81abc_merge-dev-origin-into-main_main.md) |
 | 2026-11-08 | `decfa6f` | feature/portfolio-oracle | 포트폴리오 챗봇 서버를 Oracle 서버에 얹는 구성 추가 | [261108_1634_decfa6f_portfolio-chatbot-oracle_feature-portfolio-oracle.md](commits/261108_1634_decfa6f_portfolio-chatbot-oracle_feature-portfolio-oracle.md) |
+| 2026-11-08 | `ec9f59f` | develop (merge) | feature/portfolio-oracle into develop (no-ff) | [261108_1635_ec9f59f_merge-portfolio-oracle-into-develop_develop.md](commits/261108_1635_ec9f59f_merge-portfolio-oracle-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
