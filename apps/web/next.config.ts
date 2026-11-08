@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       { source: "/admin/:page(reports|portraits|users)", destination: `${consoleUrl}/:page`, permanent: false },
     ];
   },
-  allowedDevOrigins: ["192.168.45.24"],
+  allowedDevOrigins: ["192.168.45.24", "192.168.45.220"],
 };
 
 export default nextConfig;
