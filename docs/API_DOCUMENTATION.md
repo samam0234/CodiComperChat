@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 2026-11-08에 고객센터 문의 5경로를 더했다. 155라는 수는 그날의 대조이고, 전체를 다시 세지는 않았다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -146,7 +146,12 @@ sequenceDiagram
 | `POST /characters/:id/chat` | 캐릭터와 대화 `{ message(~2000자), personaId, model? }` | **200** `{ reply, scene, messages, model, usage, credits }` (`usage`는 하루 한도가 있으면 `{ used, limit }`, `credits`는 프리미엄이면 `{ spent, balance }`, 아니면 null) · 🔒 · **모델:** `model`을 주면 이번 답부터 그 모델로 쓰고 대화에 저장한다. 안 주면 대화에 저장된 모델(처음은 기본 무료), 저장된 모델이 이제 못 쓰는 것(한도 소진·코레딧 부족)이면 기본 무료로 내려간다. 알 수 없는 모델 400, 준비 중·오늘 한도 소진·코레딧 부족은 **403**(이유가 메시지에 있다, 횟수·코레딧도 줄지 않는다). 프리미엄은 답을 만들기 전에 코레딧을 빼고 실패하면 돌려준다. 강화 무료는 **캐릭터 답 1번 = 1회**(기억 정리·요약·판정 같은 뒤 작업은 세지 않는다), 한국 시각 자정에 초기화 · `personaId` 필수(없으면 400), 남의 프로필 404, **이 대화에 고정된 프로필과 다르면 409**(첫 메시지 때 고정, 새로하기 전까지 유지. 프로필을 나중에 고치거나 지워도 이 대화는 처음 고른 이름·소개로 진행) · LLM 요청 한도 초과 429. **대화 기록은 서버에 저장된 것(최근 30턴)을 쓰고 요청의 `history`는 무시한다.** 답을 받은 뒤에만 유저 말·답을 함께 저장한다(실패한 턴은 남지 않음). 첫 메시지 때 대화(Campaign)를 만들고 시작 장면을 첫 메시지로 남긴다 **엑스트라:** 적용한 엑스트라 중 이번 유저 말·최근 3턴에 조건 단어(또는 이름)가 나온 것만(턴당 최대 2명) `context.extras`로 넘긴다. 조건에 안 맞으면 아예 안 보낸다 **이야기 상태:** 대화가 3번 오갈 때(메시지 6개)마다 답을 돌려준 뒤 뒤에서 FastAPI `/summarize`로 지난 이야기 요약·친밀도 변화·복선을 정리한다(저장하고 새로하기를 할 때도 한 번 더). 열린 복선·끝난 일은 항상, 지난 이야기 요약은 대화가 길어져 앞부분이 최근 30턴에서 밀려났을 때만 프롬프트에 넣는다 |
 | `GET /characters/:id/report/reasons` | 신고 사유 목록 | **200** `[{ value, label }]` (SEXUAL · VIOLENCE · HATE · PRIVACY · COPYRIGHT · SPAM · OTHER) · 🔒 |
 | `POST /characters/:id/report` | 캐릭터 신고 `{ reason, detail?(~500자) }` | **204** · 로그인한 누구나. 보이는(공개·링크 공개, 안 내려간) 캐릭터만, 없으면 404 · 내 캐릭터 400 · 사유 없음·기타인데 내용 없음 400 · 같은 캐릭터에 열린 신고가 있으면 409 · 한 사람이 열어 둔 신고 20건 상한 · 🔒 |
-| `GET /admin/stats` | 운영자: 콘솔 대시보드 숫자 | **200** `{ users: { total, verified, new7d, admins, pro }, characters: { published, public, takenDown, drafts }, moderation: { openReports, openContentReports, reportedCharacters, pendingPortraits }, activity: { activeConversations, messages24h }, ai: { inFlight, waitingForeground, waitingBackground, concurrency }, at }` · 운영자 아니면 403 · 🔒 |
+| `GET /admin/stats` | 운영자: 콘솔 대시보드 숫자 | **200** `{ users: { total, verified, new7d, admins, pro }, characters: { published, public, takenDown, drafts }, moderation: { openReports, openContentReports, openInquiries, reportedCharacters, pendingPortraits }, activity: { activeConversations, messages24h }, ai: { inFlight, waitingForeground, waitingBackground, concurrency }, at }` · 운영자 아니면 403 · 🔒 |
+| `GET /support/inquiries/categories` | 문의 종류 | **200** `[{ value, label }]` (ACCOUNT · BILLING · CHARACTER · BUG · OTHER) · 🔒 |
+| `GET /support/inquiries` | 내가 보낸 문의 최근 20건 | **200** `[{ id, category, subject, body, status, reply, repliedAt, createdAt }]` · 🔒 |
+| `POST /support/inquiries` | 운영자에게 문의 `{ category, subject(~80자), body(~2000자) }` | **201** `{ id }` · 종류·제목·내용 없음 400 · 답이 오기 전 10건이면 409 · 한 시간에 5번 · 🔒 |
+| `GET /admin/support-inquiries` | 운영자: 고객 문의 | **200** `{ categories, open, answered }` · 최근 100건 · 운영자만 · 🔒 |
+| `POST /admin/support-inquiries/:id/reply` | 운영자 답변 `{ reply(~2000자) }` | **204** · 없으면 404 · 답은 고객센터에 다시 보인다 · 운영자만 · 🔒 |
 | `GET /admin/characters?q=&filter=&take=` | 운영자: 모든 캐릭터(비공개·내려간 것까지) | **200** `[{ id, name, oneLiner, published, visibility, hasPortrait, takenDownAt, takedownReason, official, owner, conversations, openReports, … }]` · filter `all\|public\|unlisted\|private\|official\|taken-down\|unpublished`, take 1~200(기본 100) · 🔒 |
 | `GET /admin/characters/:id/portrait` | 운영자: 캐릭터 초상(비공개·내려간 것 포함) | **200** 이미지(`private, no-store`) · 🔒 |
 | `GET /admin/reports` | 운영자 신고함 | **200** `{ reasons, open: [{ character: { id, name, oneLiner, visibility, owner }, reports: [{ id, reason, detail, createdAt, reporter }] }], takenDown: [{ id, name, takenDownAt, takedownReason, owner }] }` · **운영자(ADMIN)만**, 아니면 403(DB의 role을 매번 읽는다). 신고가 많은 캐릭터가 위로 · 🔒 |
@@ -218,6 +223,7 @@ sequenceDiagram
 | `POST /characters/:id/chat/memories/refresh` | 1분에 5번 | 사용자 |
 | `PUT /studio/characters/:id/portrait` (업로드) | 1분에 10번 | 사용자 |
 | `POST /characters/:id/report` (신고) | 1시간에 10번 | 사용자 |
+| `POST /support/inquiries` (고객센터 문의) | 1시간에 5번 | 사용자 |
 | `POST /agent-chat/messages` | 1분에 15번 | IP |
 | 오퍼레이션 심리 탐구·일기 (`chat` 규칙) | 1분에 20번 | 사용자 |
 | 코디포토넷 그림 만들기 (`photonet`) | 10분에 6번 | 사용자 |

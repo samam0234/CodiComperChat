@@ -1,7 +1,7 @@
 <!-- source: docs/AGENT_HANDOVER.md -->
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-07.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-08.
 
 ## 로직 구조
 
@@ -41,11 +41,13 @@ flowchart LR
   OP["운영자"] --> C["console Next.js :3001"]
   W -- "Bearer" --> N["apps/api Nest.js :4000 신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16 테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16 테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai FastAPI :8000"]
   A --> O["Ollama gemma4"]
   A --> G["diffusers Animagine · SD 1.5"]
 ```
+
+이 그림은 로컬 개발 모양이다. 지금 공개 주소에서 열리는 범위는 [STATUS.md](STATUS.md), 서버 값은 [web_management/oracle-backend.md](web_management/oracle-backend.md).
 
 ### 데이터 관계
 
@@ -83,10 +85,23 @@ erDiagram
 | 병합 | 2026-11-07까지의 작업을 `develop`과 `main`에 병합했다: `feature/oracle-backend-deploy`, `claude/project-thread-pz0x5f`, `origin/claude/project-thread-po3i10`(충돌은 서버 구성 유지), `feature/web-vercel-deploy`, `feature/docs-final-update` |
 | 원격(GitHub) | `develop`과 `main`을 2026-11-07에 푸시했다. Vercel 웹은 `main`에서 배포한다. 저장소는 **공개** 상태였고, 비공개 전환은 사용자가 한다. GitHub Actions 결과는 `gh`가 로그인돼 있지 않아 확인하지 못했다 |
 | 로컬 브랜치 | 병합 끝난 브랜치를 2026-11-04에 `git branch -d`로 지웠다. 이름은 병합 커밋과 `docs/branchs/README.md`에 남아 있다 |
-| DB | 마이그레이션 34개, 테이블 37개(월드코퍼챗 9개 포함, 2026-11-06). 개발 DB에는 월드 마이그레이션을 아직 적용하지 않았다(`npx prisma migrate deploy` 필요). e2e·데모 DB에서는 적용 확인 |
+| DB | 마이그레이션 36개, 테이블 38개(월드코퍼챗 9개 포함). 36번째 `20261108150000_support_inquiries`는 고객센터 문의. 이미 떠 있는 DB에는 `npx prisma migrate deploy`가 필요하다 |
 | 시험 | 수와 방법은 [plan/TESTING.md](plan/TESTING.md), 실측은 [trainings/](trainings/README.md). 2026-11-07 병합 뒤: API vitest 232개(파일 31), AI unittest 71개, API·웹 타입 검사 통과. e2e는 그날 돌리지 않았다 |
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
+
+### 2026-11-08 — 대화 고치기·장기 기억·때와 곳
+
+- 1:1 대화는 **마지막 대사 한 줄**만 수정·삭제할 수 있고, 점 세 개 메뉴의 "변경사항 추천"으로 방향을 적으면 그 줄만 다시 쓴다. 그 위 줄에는 메뉴가 없다. Oracle API 이미지는 이 제한으로 다시 올리지 않았다.
+- 기억 화면에서 직접 적을 수 있다. 직접 적은 기억은 매 턴 넣고, 모델은 지금 말과 맞을 때만 꺼낸다. 유저가 자기 프로필이나 상대 설정을 말한 턴은 뒤에서 `/notice-facts`로 자동 저장한다.
+- 때·곳은 대화(와 세계관) 위에 보이고, 시간·장소 단서가 있을 때만 바뀐다. 내 말풍선은 상대와 같은 면 색이다.
+- 조사는 코드와 답에서 `이(가)` 괄호를 쓰지 않고 받침에 맞게 고친다. 주고받기 문장을 시스템 프롬프트 끝 규칙 앞에 넣었다. **모델 평가 11묶음은 다시 돌리지 않았다.**
+
+### 2026-11-08 — 살아있는 문서만 지금 수에 맞춤
+
+- 루트 README, 문서 허브, 스택, DB, 배포 진입, 아키텍처 개요를 마이그레이션 35개와 대화 도구에 맞췄다. 기획 원본, 커밋 기록, 실측 노트, 디버그 일지, 포트폴리오 지식 스냅샷은 그때의 문장으로 두었다.
+- 기본 무료 대화는 `gemma4:e4b`를 그대로 쓰고, 강화 무료는 키가 있으면 NVIDIA `gemma-4-31b-it`으로 보낸다. 막히면 예비는 `gemma4:e4b`다. 클라우드 채팅이 제한 시간 안에 응답하는지는 아직 확인하지 않았다. 입력 없이 보내면 1:1과 월드가 다음 장면을 예상해 잇는다.
+- 고객센터에서 로그인한 이용자가 운영자에게 문의를 보내고, 콘솔에서 답하면 그 화면에 다시 보인다. 운영 이미지는 이 표를 아직 모른다.
 
 ### 2026-11-07 — 실제 배포
 
@@ -99,7 +114,7 @@ erDiagram
 - **문서를 보강하며 드러난 것(2026-11-07, 코드로 확인)** — 공개 전에 본다:
   - **개인정보**: `LLM_BACKEND=openai`면 프리미엄이 아닌 **모든 대화 모델 호출과 그림 검수 입력이 NVIDIA 호스팅 API로 간다.** 서비스 처리방침의 국외 이전 표에는 Anthropic·xAI만 있다. → TASKS U11·U12, [../SECURITY.md](../SECURITY.md) "제3자에게 나가는 데이터"
   - **성인 모드**: "성인 대화는 로컬 모델에서만"이 호스팅 백엔드에서는 코드로 지켜지지 않는다. 운영 `ADULT_MODE=off`에만 기댄다. → T05
-  - **모델 고르기**: 호스팅 API는 고른 모델 이름을 쓰지 않아 기본·강화 구분이 사라지는데 강화 한도·코레딧은 매겨지고, 강화로 예비에 넘어가면 서버에 없는 `gemma4:12b`를 찾는다(서버 미시험). → T06
+  - **모델 고르기**: 대화의 기본은 로컬 `gemma4:e4b`, 강화는 키가 있으면 `gemma-4-31b-it`이다. 강화 한도·코레딧은 그대로다. 예비는 `gemma4:e4b`로 내린다. 서버에서 잘못된 키로 한 턴을 보지는 않았다. → T06
   - **품질**: 평가 11묶음은 `gemma4:e4b`로 맞춰져 있어 운영의 호스팅 31B는 재지 않았다. → Q08, [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md)
   - API 문서는 Nest 라우트 155개·FastAPI 24개 모두 있음을 대조했다(경로만).
 
@@ -115,11 +130,12 @@ erDiagram
 1. `.agents/skills/codicomperchat/SKILL.md` — 정본 규칙. **§0 원본 보존: 루트 `CodiComperChat_project_plan.md`는 사용자 승인 없이 수정하지 않는다.**
 2. 이 문서
 3. [TASKS.md](TASKS.md) — **다음에 할 일**(선행 조건·끝난 기준)
-4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험)
-5. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
-6. 프롬프트·판정·그림을 고치려면: [trainings/](trainings/README.md)
-7. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
-8. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
+4. [FEATURES.md](FEATURES.md) — **모든 기능의 목록**(화면·API·코드·문서·시험). 코드 기준이다
+5. [STATUS.md](STATUS.md) — **그 기능 중 지금 공개 주소에서 열리는 것**
+6. [plan/CURRENT_STACK.md](plan/CURRENT_STACK.md) — 스택·결정 사항 정본
+7. 프롬프트·판정·그림을 고치려면: [trainings/](trainings/README.md)
+8. 필요한 것만: [Architecture/overview.md](Architecture/overview.md) · [WORKFLOW.md](WORKFLOW.md)(AI 호출 흐름) · [plan/OPERATIONS.md](plan/OPERATIONS.md) · [plan/SECRET_QUEST.md](plan/SECRET_QUEST.md) · [guidance/photonet-engine.md](guidance/photonet-engine.md) · [../SECURITY.md](../SECURITY.md) · [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)
+9. 커밋·병합 전: [guidance/commit-message.md](guidance/commit-message.md) · [guidance/branch-merge.md](guidance/branch-merge.md) · [branchs/TEMPLATE.md](branchs/TEMPLATE.md)
 
 ## 3. 작업 약속 (사용자와 합의된 것)
 
@@ -264,7 +280,7 @@ curl http://localhost:8000/photonet/status    # 그림 엔진 준비 여부
 | 코레딧·모델 조건 | `apps/api/src/credits/`, `apps/api/src/models/` |
 | 성인 확인·가드 | `apps/api/src/account/adult.ts`, `services/ai/app/services/{photonet,photonet_moderation}.py` |
 | 보안(요청 한도·인증·CSP) | `apps/api/src/{security,auth}/`, `apps/web/proxy.ts` |
-| DB | `apps/api/prisma/schema.prisma`, [plan/DATABASE.md](plan/DATABASE.md) |
+| DB | `apps/api/prisma/schema.prisma`, [plan/DATABASE.md](plan/DATABASE.md), ERD [plan/ERD.md](plan/ERD.md) (스키마를 바꾸면 `scripts/erd/`로 다시 만든다) |
 | 화면 | `apps/web/app/`, [plan/NAVIGATION_IA.md](plan/NAVIGATION_IA.md) |
 | 환경변수 | [guidance/environment.md](guidance/environment.md) |
 | 운영 구성·배포 | `deploy/`, [DEPLOYMENT.md](DEPLOYMENT.md) |

@@ -12,15 +12,18 @@
 | 구성 | [`deploy/oracle/docker-compose.yml`](../../deploy/oracle/docker-compose.yml)(caddy · api · migrate · postgres) + [`docker-compose.ai.yml`](../../deploy/oracle/docker-compose.ai.yml)(ai · ollama) |
 | 바깥 주소 | `https://api.168-110-61-178.sslip.io` (Caddy가 Let's Encrypt 인증서 자동 발급·갱신) |
 | 대화 모델 | NVIDIA 호스팅 API `google/gemma-4-31b-it`, 막히면 CPU Ollama `gemma4:e4b` |
-| 웹 | Vercel `codicomperchat-web` → `https://codicomperchat-web.vercel.app` |
+| 웹 | Vercel `codicomperchat-web` → `https://codicomperchat-web.vercel.app` (푸터 `/project` 소개 페이지 포함, `PORTFOLIO_URL`로 포트폴리오 사이트 버튼) |
+| 포트폴리오 사이트 | Vercel `codicomperchat-portfolio` → `https://codicomperchat-portfolio.vercel.app` (Astro 정적 10페이지. 챗봇·빠른 찾기용 Rails·Flask 서버는 **아직 없다**. 그 챗봇 코드의 모델은 `gemma4:e4b` 하나) |
 | 비밀값 | 서버 `~/codicomperchat/deploy/oracle/.env`(root, 권한 600). 키 목록은 [../guidance/environment.md](../guidance/environment.md) "운영에서 실제로 쓰는 값" |
 
 ## 배포 상태 (2026-11-07)
 
 | 무엇 | 상태 |
 |------|------|
-| 컨테이너 | caddy · api · postgres · ai · ollama 실행 중 (api·postgres·ai healthy), migrate는 기동 때 한 번(마이그레이션 34개 + 시드) |
+| 마지막 배포 | 2026-11-08, `main` `0fc2302`. 서버 api·ai·migrate를 다시 빌드(마이그레이션 35개, 새 칸 `memory_chunks.pinned`·`sceneTime`·`scenePlace` 확인)하고 Vercel 웹·포트폴리오 사이트를 같은 커밋으로 다시 배포 |
+| 컨테이너 | caddy · api · postgres · ai · ollama 실행 중 (api·postgres·ai healthy), migrate는 기동 때 한 번. 2026-11-08 재배포 기준 마이그레이션 35개 + 시드(처음 올린 2026-11-07 기록은 34개) |
 | 확인 | `/health` HTTPS 200, `/characters` 200, http는 https로 308. api→postgres(캐릭터 2개), api→ai(토큰) 200, ai→ollama 200. `ai-deploy.sh` 6단계: NVIDIA 응답 19.0초, 예비 CPU 응답 32.1초 |
+| 공식 세계관 | 「코퍼 시티: 멈춘 시계탑」을 시드로 만듦(2026-11-07 재배포의 migrate 단계): 공개·발행, 장소 10 · 그림 4 · 지도 170,802B. `/worlds`·지도 API 200, 웹 월드 목록에 보임 |
 | 웹 | Vercel 환경변수 `API_BASE_URL=https://api.168-110-61-178.sslip.io`(**`api.` 접두사가 빠지면 연결되지 않는다**), `WEB_PROXY_TOKEN`(sensitive, 서버 `.env`와 같은 값), `CONSOLE_BASE_URL`, `REQUIRE_HTTPS=1`. 홈·인기 화면에 API의 캐릭터(유지성·이세연)가 렌더링됨, 런타임 오류 0 |
 | 비어 있는 값 | `MAIL_SMTP_URL`·`MAIL_FROM`(인증 메일 안 감), `WEB_BASE_URL`, `ANTHROPIC_API_KEY`·`XAI_API_KEY`·`PREMIUM_PROVIDERS`(프리미엄 "준비 중", `PREMIUM_MONTHLY_CREDITS=0`) |
 | 안 올린 것 | 그림 엔진(GPU 없음), 공식 캐릭터 지식 파일(`apps/api/data/personas/*.json`, 볼륨 `personas`가 비어 있다). 운영 콘솔(`codicomperchat-console`)은 Vercel에 있지만 `API_BASE_URL`·`CONSOLE_IP_ALLOWLIST`가 없어 API에 연결되지 않았다 |

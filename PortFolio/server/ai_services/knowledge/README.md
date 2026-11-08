@@ -1,6 +1,7 @@
 <!-- source: README.md -->
 <b>개발 단계 · 공개 서비스 전</b> ·
    소개 영상  ·
+   읽는 법  ·
    로직 구조  ·
    월드코퍼챗  ·
    둘러보기  ·
@@ -40,6 +41,8 @@
 
 **유저가 주인공인 이야기를, 성격이 흔들리지 않는 AI 캐릭터가 함께 이어 가는 서비스입니다.** 대화를 닫았다 다시 열어도 캐릭터가 지난 일을 자기 입으로 꺼내고, 관계가 쌓이고, 숨겨 둔 비밀과 부탁이 때가 되면 드러납니다.
 
+미리보기는 2026-11-08 기준으로 올라가 있습니다. [웹](https://codicomperchat-web.vercel.app) · [API](https://api.168-110-61-178.sslip.io). 공개 전에 끝낼 확인은 [SECURITY.md](SECURITY.md)에 있고, 그림 엔진·운영 콘솔 연결·메일은 아직입니다.
+
 보통의 캐릭터 채팅과 다른 점은 모델이 아니라 **상태**입니다.
 
 | 보통의 캐릭터 채팅 | 코디컴퍼챗 |
@@ -52,6 +55,19 @@
 | 한 번에 한 캐릭터와만 이야기한다 | **월드코퍼챗**: 한 세계관 안의 여러 인물과 파트·코퍼맵·미니게임으로 이어 간다 |
 
 > **이 저장소는 오픈소스가 아닙니다.** 허락 없는 clone, 다운로드, 복제, 실행, 호스팅, 모델 학습을 허용하지 않습니다. 저장소는 비공개로 전환할 예정입니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
+
+## 이 저장소를 읽는 법
+
+이 파일은 제품의 얼굴입니다. 화면, 경계, 지금 되는 일의 윤곽을 여기서 보고, 자주 바뀌는 수와 함정은 한 문서에만 적습니다. 기획 원본의 문장, 실측 숫자, 날짜가 붙은 커밋 기록은 여기서 다시 쓰지 않습니다.
+
+| 알고 싶은 것 | 문서 |
+|--------------|------|
+| 제품이 무엇을 지키는지, 화면이 어떻게 생겼는지 | 이 파일 |
+| 공개 주소에서 지금 무엇이 켜져 있는지 | [STATUS](docs/STATUS.md) |
+| 코드에 어떤 기능이 있는지 | [FEATURES](docs/FEATURES.md) |
+| 지금 상태와 걸려 넘어지는 곳 | [AGENT_HANDOVER](docs/AGENT_HANDOVER.md) |
+| 값의 정본이 어느 문서인지 | [docs/README.md](docs/README.md)의 문서 정본 표 |
+| 기획이 처음에 정한 문장 | [CodiComperChat_project_plan.md](CodiComperChat_project_plan.md) |
 
 ## 로직 구조
 
@@ -70,12 +86,12 @@ flowchart TB
     S --> P["순수 함수 quest · world · card · adult …"]
   end
   subgraph DATA["③ 저장"]
-    DB[("PostgreSQL 16 테이블 37개 · 그림도 bytea")]
+    DB[("PostgreSQL 16 테이블 38개 · 그림도 bytea")]
   end
   subgraph AI["④ services/ai — FastAPI · :8000 · 내부망 전용"]
     direction LR
     EP["/infer · /summarize · /remember · /ground-check /world/turn · /world/part-check · /photonet …"]
-    LLM["대화 모델 NVIDIA API gemma-4-31b ↳ 막히면 Ollama gemma4:e4b"]
+    LLM["대화 모델 기본 gemma4:e4b 강화 gemma-4-31b-it 예비 gemma4:e4b"]
     IMG["그림 diffusers · Animagine · SD 1.5 (NVIDIA GPU 필요)"]
     EP --> LLM
     EP --> IMG
@@ -91,7 +107,7 @@ flowchart TB
 ```yaml
 chat_turn:                    # 1:1 대화 한 턴 — apps/api/src/chat
   - check:   [로그인, 캐릭터 공개 범위, 성인 조건, 코레딧·모델 reserve]
-  - context: [카드 핵심, 지식 조각, 기억, 지난 이야기 요약, 친밀도·복선, 퀘스트 장면]
+  - context: [카드 핵심, 지식 조각, 기억(직접 적은 것은 매 턴), 지난 이야기 요약, 친밀도·복선, 퀘스트 장면, 때와 곳]
   - call:    POST /infer
   - guard:   # 설정에 없는 개인사를 물은 턴만
       call:  POST /ground-check
@@ -117,7 +133,7 @@ flowchart LR
   OP["운영자"] --> C["console Next.js :3001"]
   W -- "Bearer" --> N["apps/api Nest.js :4000 신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16 테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16 테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai FastAPI :8000"]
   A --> L["대화 모델 NVIDIA API → Ollama 예비"]
   A --> G["diffusers Animagine · SD 1.5"]
@@ -138,7 +154,7 @@ flowchart LR
   AI -->|"OpenAI 호환"| NIM["NVIDIA 호스팅 API gemma-4-31b-it"]
 ```
 
-그림 엔진은 GPU가 없어 잠겨 있고, 운영 콘솔은 API에 연결하지 않았습니다. 자세한 상태: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+그림 엔진은 GPU가 없어 잠겨 있고, 운영 콘솔은 API에 연결하지 않았습니다. 위 그림은 2026-11-07에 올린 서버입니다. 2026-11-08 코드는 기본 대화를 로컬 `gemma4:e4b`로 두고 강화만 `gemma-4-31b-it`으로 보내며, 그 구분은 공개 API에 아직 없습니다. 자세한 상태: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ### 1:1 대화 한 턴
 
@@ -293,7 +309,7 @@ stateDiagram-v2
          
    
    
-     <b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다. 
+     <b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다. 마지막 말풍선 옆에만 점 세 개 메뉴가 있고, 그 줄만 고치거나 지우거나 방향을 적어 다시 씁니다. 때와 곳은 대화 위에 있고, 시간·장소 단서가 있을 때만 바뀝니다. 
      <b>지난 이야기.</b> 대화 3번마다 뒤에서 요약하고 친밀도와 복선을 갱신합니다. 잘못 잡힌 복선은 유저가 지울 수 있습니다. 
    
    
@@ -302,7 +318,7 @@ stateDiagram-v2
    
    
      <b>추천 프로필.</b> 캐릭터에 어울리는 주인공을 눌러서 바로 시작합니다. 
-     <b>장기 기억.</b> 대화에서 뽑은 사실을 유저가 직접 보고 지웁니다. 
+     <b>장기 기억.</b> 대화에서 뽑은 사실을 유저가 직접 보고 지웁니다. 유저가 직접 적은 기억은 매 턴 넣고, 모델이 뽑은 기억은 지금 말과 맞을 때만 꺼냅니다. 
    
  
 
@@ -388,7 +404,7 @@ stateDiagram-v2
 | 영역 | 내용 | 상태 |
 |------|------|------|
 | 계정 | 이메일 가입·인증, 비밀번호 찾기, 탈퇴, 나이 확인 | 동작 |
-| 대화 | 기억, 지난 이야기, 친밀도, 복선, 엑스트라, 새로하기·이어하기, 대답 추천, 명령어, 글 꾸미기 | 동작 |
+| 대화 | 기억, 지난 이야기, 친밀도, 복선, 엑스트라, 새로하기·이어하기, 대답 추천, 명령어, 글 꾸미기, 마지막 대사 수정·삭제·방향 다시 쓰기, 직접 적는 기억, 때와 곳 | 동작 |
 | 캐릭터 공방 | 8단계 카드, AI 초안, 3턴 테스트, 초상(파일·AI), 공개 범위, 추천 프로필 | 동작 |
 | 공식 캐릭터 | 유지성(과외 선생님), 이세연(회장 비서), 각자 비밀 퀘스트 | 동작 |
 | 오퍼레이션 | 심리 탐구, 일기, 메시지, 커뮤니티, 웹툰 | 동작 |
@@ -398,11 +414,15 @@ stateDiagram-v2
 | 프로 등급 | 눌러서 30일 프로로 바꾸기 | 정식 서비스 전 임시 |
 | 운영 | 운영 콘솔(세계관 검수·내리기·이벤트 기록·운영 설정 포함), 요청 한도, CSP, 신고, 백업 | 동작 |
 | 프리미엄 모델 | Claude, Grok 연동 코드, 월 지출 상한, 만 18세 미만 차단 | 코드 있음, 키가 없어 닫힘. 실제 호출은 하지 않았다. 서버 `.env`에 자리는 있다 |
-| 대화 모델 백엔드 | NVIDIA 호스팅 API(OpenAI 호환, `gemma-4-31b-it`)를 기본으로, 막히면 CPU Ollama가 대신 답한다 | 동작 (2026-11-07, 서버에서 실측) |
-| 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 동작 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직 |
+| 대화 모델 백엔드 | 기본은 로컬 `gemma4:e4b`, 강화는 키가 있으면 NVIDIA `gemma-4-31b-it`, 막히면 예비 `gemma4:e4b` | 코드는 2026-11-08. 공개 API는 그 전 이미지라 구분이 없다 (2026-11-07 실측) |
+| 배포 | Oracle Cloud(API·DB·AI) + Vercel(웹) | 미리보기 (2026-11-07). 그림 엔진·운영 콘솔 연결·메일은 아직. 공개 서비스 전 |
+| 프로젝트 소개 | 웹 `/project` | 웹에 있음 (2026-11-07) |
+| 포트폴리오 사이트 | 별도 Astro `https://codicomperchat-portfolio.vercel.app` | 정적 페이지만. 챗봇 서버는 없음. 로컬 챗봇 모델은 `gemma4:e4b` 하나 |
 | 성인 모드 | 수위 분리(그림·대화), 성인 확인, 미성년자·강제 단서 차단, 그림 가드, 신고. 성인 대화는 로컬 모델에서만 | 코드 있음, 공개 서버에서는 끈다 |
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
 | 스트리밍 응답, 본인인증 | | 없음 |
+
+이 표의 **동작**은 코드가 로컬에서 된다는 뜻입니다. 공개 주소에서 지금 열리는 범위는 [docs/STATUS.md](docs/STATUS.md)에 따로 있습니다.
 
 **2026-11-07에 실제로 올렸습니다.** 웹은 Vercel(https://codicomperchat-web.vercel.app), API·DB·AI는 Oracle Cloud(https://api.168-110-61-178.sslip.io)에서 돕니다. 올린 과정과 막힌 곳 전부: [deploy-log-2026-11-07](docs/web_management/deploy-log-2026-11-07.md). 공개 전에 끝낼 일은 [SECURITY.md](SECURITY.md)의 "공개 전 필수"와 [소유자 체크리스트](docs/guidance/owner-checklist.md)에 있습니다.
 
@@ -436,8 +456,8 @@ stateDiagram-v2
          
    
    
-     <b>데이터.</b> 테이블 37개를 영역별로. 돈과 횟수는 DB 한 문장으로 셉니다. 
-     <b>화면.</b> 이용자 사이트 35개, 운영 콘솔 12개. 
+     <b>데이터.</b> 지금은 테이블 38개. 그림은 37개일 때다. 돈과 횟수는 DB 한 문장으로 셉니다. 
+     <b>화면.</b> 이용자 사이트 35개, 운영 콘솔 13개. 그림은 콘솔 12개일 때다. 
    
  
 
@@ -539,6 +559,8 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 
 ## 문서 지도
 
+기획 원본의 문장과, 날짜가 붙은 실측·커밋 기록은 이 표에서 다시 쓰지 않습니다. 같은 값은 [docs/README.md](docs/README.md)의 문서 정본 표가 가리키는 곳에만 있습니다.
+
 | 찾는 것 | 문서 |
 |---------|------|
 | 전체 문서 안내, 어떤 값을 어느 문서가 맡는지 | [docs/README.md](docs/README.md) |
@@ -547,6 +569,7 @@ npm run ci:local             # GitHub Actions와 같은 단계를 깨끗한 클�
 | 다음에 할 일 | [TASKS](docs/TASKS.md) |
 | 소유자가 직접 할 일 | [owner-checklist](docs/guidance/owner-checklist.md) |
 | 구현된 기능 전체 | [FEATURES](docs/FEATURES.md) |
+| 그 기능 중 지금 열리는 범위 | [STATUS](docs/STATUS.md) |
 | 월드코퍼챗 설계·쓰는 법·실측 | [WORLD_COPPERCHAT](docs/plan/WORLD_COPPERCHAT.md) · [world-copperchat](docs/guidance/world-copperchat.md) · [trainings](docs/trainings/world-copperchat.md) |
 | README 그림과 영상, 다시 만드는 법 | [docs/.assets](docs/.assets/README.md) |
 | 스택과 결정 | [CURRENT_STACK](docs/plan/CURRENT_STACK.md) |

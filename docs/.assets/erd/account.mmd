@@ -6,6 +6,7 @@ erDiagram
   users |o--o{ payment_orders : "userId · SET NULL"
   users ||--o{ quest_rewards : "userId · CASCADE"
   users ||--o{ user_personas : "userId · CASCADE"
+  users ||--o{ support_inquiries : "userId · CASCADE"
   users {
     text id PK
     text email UK
@@ -84,5 +85,16 @@ erDiagram
     text userId FK "UK(userId+characterId)"
     text characterId "UK(userId+characterId)"
     integer amount
+    timestamp(3) createdAt "기본 now()"
+  }
+  support_inquiries {
+    text id PK
+    text userId FK
+    text category
+    text subject
+    text body
+    SupportInquiryStatus status "기본 OPEN"
+    text reply "NULL"
+    timestamp(3) repliedAt "NULL"
     timestamp(3) createdAt "기본 now()"
   }

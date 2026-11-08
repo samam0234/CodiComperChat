@@ -182,7 +182,7 @@ flowchart LR
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
 |------|------|-----|------|-------------|
 | 에이전트(사용 안내 챗봇, 비로그인 가능) | `/agents` | `POST /agent-chat/messages` | api/agent-chat, ai/services/assist.py | 범위를 묶어 범용 비서가 되지 않게 |
-| 약관·개인정보·사업자·고객센터 | `/terms` `/privacy` `/business` `/support` | — | web/app/terms·privacy·business·support | security · 법률 검토 전 초안 |
+| 약관·개인정보·사업자·고객센터 | `/terms` `/privacy` `/business` `/support` | `GET·POST /support/inquiries` | web/app/support, api/support | 로그인하면 운영자에게 문의를 보내고 답변을 그 화면에서 본다. 법률 검토 전 초안 |
 | 프로젝트 소개 | `/project` | — | web/app/project/page.tsx | 2026-11-07 추가. `PORTFOLIO_URL`이 있으면 포트폴리오 사이트 버튼. 운영에서 열리는지는 [STATUS.md](STATUS.md) |
 
 ## 12. 화면 공통
@@ -199,6 +199,7 @@ flowchart LR
 |------|------|-----|------|
 | 대시보드(처리할 일·숫자·AI 대기열) | `/` | `GET /admin/stats` | console |
 | 신고함(내리기·기각·복구) | `/reports` | `GET …/reports`, `POST …/take-down` `dismiss-reports` `restore` | reports, console |
+| 고객 문의(읽고 답하기) | `/inquiries` | `GET /admin/support-inquiries`, `POST …/:id/reply` | support-inquiries |
 | 초상 검수(승인·반려) | `/portraits` | `GET·POST /admin/portraits` | moderation |
 | **그림 신고**(코디포토넷·웹툰, 접근 차단·계정 정지·정지 풀기) | `/content`, 이용자는 그림 옆 신고 버튼 | `GET·POST /characters/:id/content-reports`, `GET /admin/content-reports`, `POST …/:id/block` `dismiss`, `POST /admin/users/:id/unsuspend` | content-reports, 단위 · 코디포토넷으로 시험. 웹툰 신고는 같은 부품이고 브라우저로 눌러 보지 않았다. 운영자 계정은 정지하지 않음 |
 | 캐릭터 관리 | `/characters` | `GET /admin/characters` | console |

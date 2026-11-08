@@ -32,7 +32,7 @@ flowchart LR
   OP["운영자"] --> C["console<br/>Next.js :3001"]
   W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
   A --> O["Ollama<br/>gemma4"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]

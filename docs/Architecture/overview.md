@@ -11,7 +11,7 @@ Next.js  apps/web :3000          Next.js  console :3001 (운영자 전용, 따�
   │  proxy.ts: 요청마다 CSP(nonce) · 회원 전용 화면 1차 거름망
   │  서버 컴포넌트·서버 액션만 Nest를 부른다 (API_BASE_URL, Authorization: Bearer)
   ▼
-Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 37개)
+Nest.js  apps/api :4000 ─────────────┬──▶ PostgreSQL :5432  (Prisma 7, 테이블 38개)
   │  인증·계정·캐릭터·대화·기억·        ├──▶ 페르소나 지식 JSON (apps/api/data/personas, 파일)
   │  공방·신고·검수·결제·코레딧·        ├──▶ SMTP (메일 발송, MAIL_SMTP_URL)
   │  모델·오퍼레이션·퀘스트·요청 한도   └──▶ 토스페이먼츠 API (결제 승인·취소, 보류)
@@ -56,7 +56,7 @@ flowchart LR
   OP["운영자"] --> C["console<br/>Next.js :3001"]
   W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
   A --> O["Ollama<br/>gemma4"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]

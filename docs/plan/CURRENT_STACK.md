@@ -37,7 +37,7 @@ flowchart LR
   OP["운영자"] --> C["console<br/>Next.js :3001"]
   W -- "Bearer" --> N["apps/api<br/>Nest.js :4000<br/>신뢰 경계"]
   C -- "Bearer" --> N
-  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 37개")]
+  N -- "Prisma" --> D[("PostgreSQL 16<br/>테이블 38개")]
   N -- "AI 대기열 + AI_SERVICE_TOKEN" --> A["services/ai<br/>FastAPI :8000"]
   A --> O["Ollama<br/>gemma4"]
   A --> G["diffusers<br/>Animagine · SD 1.5"]
@@ -51,7 +51,7 @@ flowchart LR
 | 도메인/상태 API | Nest.js 12 (TypeScript, ESM) — `apps/api/` |
 | AI 추론 | FastAPI (Python 3.12) — `services/ai/`. 로컬 Ollama(`gemma4:e4b`)를 부른다 |
 | DB | PostgreSQL 16 — 로컬 개발은 Docker가 아니라 **설치형** (`D:\PostgreSQL\16`, 2026-09-25 전환 · [docker-run.md](../guidance/docker-run.md)) |
-| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 37개·마이그레이션 35개 · [DATABASE.md](DATABASE.md) |
+| ORM | Prisma 7 (Nest 쪽) — `apps/api/prisma/schema.prisma`, 테이블 38개·마이그레이션 36개 · [DATABASE.md](DATABASE.md) |
 | 세션 캐시·잡 | Redis — **아직 쓰지 않는다.** 요청 한도는 메모리/PostgreSQL, AI 호출 대기열은 프로세스 메모리로 해결했다(아래) |
 | 저장소 형태 | 모노레포 (`apps/web`, `apps/api`, `console/`, `services/ai`, `e2e/`, `docker-compose.yml` — compose는 `postgres`·`mailpit`) |
 
