@@ -1,0 +1,68 @@
+# 포트폴리오 챗봇 서버를 **이미 돌고 있는 Oracle 서버**(deploy/oracle)에 얹는 구성 (2026-11-08).
+# 새 모델을 올리지 않는다: 제품이 쓰는 같은 Ollama(gemma4:e4b)를 공유하고, TLS는 제품의 Caddy가 끝낸다.
+#   - pf-backend (Rails)  → 제품 Caddy의 포트폴리오 주소(PORTFOLIO_API_DOMAIN)로만 바깥에 열린다
+#   - pf-ai (Flask)       → 내부망에서 `ollama`만 부른다
+# 서비스 이름을 pf-로 시작하게 한 이유: 제품의 api·ai와 같은 네트워크에 붙으므로 DNS 이름이 겹치면 안 된다.
+#
+#   cd ~/codicomperchat/PortFolio/server
+#   docker compose --env-file .env -f docker-compose.oracle.yml up -d --build
+#
+# 메모리: 서버는 2 OCPU·12GB이고 Ollama가 약 8GB를 쓴다. 아래 상한을 넘지 않게 두 서비스에 mem_limit을 둔다.
+name: portfolio
+
+x-always: &always
+  restart: always
+  logging:
+    driver: json-file
+    options: { max-size: 10m, max-file: '3' }
+
+services:
+  pf-backend:
+    <<: *always
+    build: ./backend
+    mem_limit: 400m
+    depends_on:
+      pf-ai: { condition: service_healthy }
+    environment:
+      RAILS_ENV: production
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?}
+      AI_SERVICE_URL: http://pf-ai:5001
+      AI_INTERNAL_TOKEN: ${AI_INTERNAL_TOKEN:?}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:?}
+      FORCE_SSL: 'true'
+      RAILS_LOG_TO_STDOUT: '1'
+      # 챗봇 답이 느릴 수 있어(CPU) 넉넉히, 그러나 Caddy·Vercel보다는 짧게
+      AI_READ_TIMEOUT_SECONDS: '200'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:3000/up']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [codicomperchat_edge, codicomperchat_internal]
+
+  pf-ai:
+    <<: *always
+    build: ./ai_services
+    mem_limit: 800m
+    environment:
+      # 제품의 ollama 서비스(같은 internal 망)
+      OLLAMA_BASE_URL: http://ollama:11434
+      CHAT_MODEL: ${CHAT_MODEL:-gemma4:e4b}
+      FALLBACK_MODEL: ${FALLBACK_MODEL:-gemma4:e4b}
+      AI_INTERNAL_TOKEN: ${AI_INTERNAL_TOKEN:?}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-180}
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://127.0.0.1:5001/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks: [codicomperchat_internal]
+
+# 제품 compose(deploy/oracle)가 만든 망에 붙는다
+networks:
+  codicomperchat_edge:
+    external: true
+  codicomperchat_internal:
+    external: true
