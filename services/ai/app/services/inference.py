@@ -320,7 +320,9 @@ def run(request: InferRequest) -> InferResponse:
     user_name = request.context.user_persona.name if request.context.user_persona else "유저"
     system = _fill_user(_build_system_prompt(request.context), user_name)
     # 수위는 대화 규칙 뒤, 이번 턴 지시(나레이션·보상 장면) 앞에 둔다
-    system += "\n\n" + rating_rule(request.context, request.user_turn, request.provider)
+    chat_model = request.model or llm.BASIC_LOCAL_TAG
+    rating_provider = "hosted" if llm.enhanced_uses_cloud(chat_model) else request.provider
+    system += "\n\n" + rating_rule(request.context, request.user_turn, rating_provider)
     if request.channel == "message":
         system += "\n\n" + MESSAGE_STYLE
     elif directions := scene_directions(request.user_turn):
@@ -329,14 +331,14 @@ def run(request: InferRequest) -> InferResponse:
         system += "\n\n이번 답에서 꼭 할 일: " + _fill_user(request.context.scene_note, user_name)
     if request.retry_note:
         system += "\n\n다시 쓰기: " + request.retry_note
-    if request.provider != "ollama":
+    if request.provider != "ollama" or llm.enhanced_uses_cloud(chat_model):
         system += "\n\n" + EXTERNAL_PROVIDER_RULE
     reply = llm.generate(
         system=system,
         contents=[{**c, "content": _fill_user(str(c["content"]), user_name)} for c in _build_messages(request.context, request.user_turn)],
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=TEMPERATURE,
-        model=request.model,
+        model=chat_model,
         provider=request.provider,
     )
     return InferResponse(reply=fix_parenthetical_josa(reply))

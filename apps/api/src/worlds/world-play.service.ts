@@ -27,6 +27,9 @@ import {
 } from './world.js';
 
 export const WORLD_TURN_MAX = 1000;
+// 입력 없이 보내기: 진행자에게만 보이고, 화면의 주인공 말로는 저장하지 않는다
+export const WORLD_PREDICT_TURN =
+  '(주인공은 이번 턴에 아무 말도 하지 않았다. 지금까지의 장면과 대화를 보고 다음에 이어질 일을 예상하고 분석한 뒤, 등장인물이 그 흐름에 맞춰 한 걸음 진행하게 해 줘. 주인공의 대사와 속마음은 쓰지 마.)';
 // 진행자에게 넘기는 최근 대화 수, 파트 판정에 보는 대화 수, 몇 턴마다 파트를 판정하나
 const RECENT = 16;
 const PART_WINDOW = 12;
@@ -200,7 +203,7 @@ export class WorldPlayService {
   // 한 턴: 진행자 답 → 장소 이동 반영 → (3턴마다) 파트 판정 → (확률로) 이벤트
   async turn(userId: string, id: string, textRaw: unknown) {
     const text = typeof textRaw === 'string' ? textRaw.trim() : '';
-    if (!text) throw new BadRequestException('할 말을 써 주세요.');
+    const predicted = text === '';
     if (text.length > WORLD_TURN_MAX) throw new BadRequestException(`한 번에 ${WORLD_TURN_MAX}자까지 보낼 수 있어요.`);
     const world = await this.world(userId, id);
     const play = await this.play(userId, id);
@@ -229,7 +232,7 @@ export class WorldPlayService {
         recentTurns: recent.reverse().map((m) => ({ role: m.role === MessageRole.USER ? 'user' : 'character', text: m.content })),
         storySoFar: play.storySoFar || null,
         userPersona: { name: play.personaName, description: play.personaDescription.slice(0, 300) },
-        userTurn: text,
+        userTurn: predicted ? WORLD_PREDICT_TURN : text,
         adult: await this.adult(userId),
         eventNote: play.eventNote,
       });
@@ -245,13 +248,15 @@ export class WorldPlayService {
 
     const now = Date.now();
     await this.prisma.worldMessage.createMany({
-      data: [
-        { playId: play.id, role: MessageRole.USER, content: text, createdAt: new Date(now) },
-        { playId: play.id, role: MessageRole.CHARACTER, content: result.reply, imageId, createdAt: new Date(now + 1) },
-      ],
+      data: predicted
+        ? [{ playId: play.id, role: MessageRole.CHARACTER, content: result.reply, imageId, createdAt: new Date(now) }]
+        : [
+            { playId: play.id, role: MessageRole.USER, content: text, createdAt: new Date(now) },
+            { playId: play.id, role: MessageRole.CHARACTER, content: result.reply, imageId, createdAt: new Date(now + 1) },
+          ],
     });
     const turns = play.turns + 1;
-    const scene = noticeScene(`${text}\n${result.reply}`, { time: play.sceneTime ?? null, place: play.scenePlace ?? null });
+    const scene = noticeScene(predicted ? result.reply : `${text}\n${result.reply}`, { time: play.sceneTime ?? null, place: play.scenePlace ?? null });
     const update: Prisma.WorldPlayUpdateInput = {
       turns,
       turnsSinceEvent: play.turnsSinceEvent + 1,

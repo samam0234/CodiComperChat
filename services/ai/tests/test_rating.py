@@ -10,10 +10,10 @@ from app.services.minors import minor_in
 from evals import fixture
 
 
-def system_for(turn: str = "안녕하세요", adult: bool = True, provider: str = "ollama", **update: object) -> str:
+def system_for(turn: str = "안녕하세요", adult: bool = True, provider: str = "ollama", model: str | None = None, **update: object) -> str:
     context = fixture.context().model_copy(update={"adult": adult, **update})
     with mock.patch.object(inference.llm, "generate", return_value="답") as generate:
-        inference.run(InferRequest(context=context, user_turn=turn, provider=provider))  # type: ignore[arg-type]
+        inference.run(InferRequest(context=context, user_turn=turn, provider=provider, model=model))  # type: ignore[arg-type]
     return generate.call_args.kwargs["system"]
 
 
@@ -22,6 +22,18 @@ class RatingTest(unittest.TestCase):
         system = system_for(adult=False)
         self.assertIn(inference.ALL_AGES_RULE, system)
         self.assertNotIn("수위: 성인", system)
+
+    def test_basic_chat_asks_for_local_e4b(self) -> None:
+        context = fixture.context()
+        with mock.patch.object(inference.llm, "generate", return_value="답") as generate:
+            inference.run(InferRequest(context=context, user_turn="안녕"))
+        self.assertEqual(generate.call_args.kwargs["model"], "gemma4:e4b")
+
+    def test_enhanced_cloud_does_not_open_adult_scene(self) -> None:
+        with mock.patch.dict("os.environ", {"LLM_API_KEY": "k"}):
+            system = system_for(model="gemma4:12b")
+        self.assertNotIn("수위: 성인", system)
+        self.assertIn(inference.EXTERNAL_PROVIDER_RULE, system)
 
     def test_adult_opens_only_on_local_model(self) -> None:
         self.assertIn(inference.ADULT_RULE, system_for())

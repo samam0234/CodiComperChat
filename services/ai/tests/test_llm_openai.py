@@ -142,6 +142,26 @@ class OpenAiBackendTest(unittest.TestCase):
                 self.call()
         self.assertEqual(ctx.exception.status_code, 500)
 
+    def test_basic_tag_stays_on_local_ollama(self):
+        self.assertEqual(self.call(model="gemma4:e4b"), "예비 답")
+        path, body, _headers = STATE["calls"][0]
+        self.assertEqual(path, "/api/chat")
+        self.assertEqual(body["model"], "gemma4:e4b")
+
+    def test_enhanced_on_ollama_backend_uses_nvidia_model(self):
+        with mock.patch.dict(os.environ, {"LLM_BACKEND": "ollama", "LLM_API_BASE": f"{self.base}/v1", "LLM_API_MODEL": ""}):
+            self.assertEqual(self.call(model="gemma4:12b"), "안녕하세요")
+        path, body, headers = STATE["calls"][0]
+        self.assertEqual(path, "/v1/chat/completions")
+        self.assertEqual(body["model"], "google/gemma-4-31b-it")
+        self.assertEqual(headers["Authorization"], "Bearer key-not-real")
+
+    def test_enhanced_fallback_uses_basic_local_model(self):
+        STATE["api_replies"] = [(429, "")]
+        with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
+            self.assertEqual(self.call(model="gemma4:12b"), "예비 답")
+        self.assertEqual(STATE["calls"][1][1]["model"], "gemma4:e4b")
+
     def test_empty_answer_is_502(self):
         STATE["api_replies"] = [(200, "")]
         with self.assertRaises(HTTPException) as ctx:
