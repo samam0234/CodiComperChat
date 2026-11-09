@@ -161,6 +161,7 @@ erDiagram
 |------|------|
 | Windows. Bash 도구(Git Bash)와 PowerShell을 오간다 | 경로는 `/d/vscode/...`(Bash) vs `D:\vscode\...`(PowerShell·Read/Edit). 이 문서의 `bash` 예시는 Git Bash에서 돌린다. PowerShell 5.1에서는 `&&`가 안 된다 |
 | `apps/web/AGENTS.md`·`console/AGENTS.md`가 `next typegen`이나 e2e로 다시 쓰인다 | 작업과 섞어 커밋하지 말고 `git checkout -- <파일>`로 되돌린다. 안내 내용(새 Next 문서를 먼저 읽기)은 따른다 |
+| 개발 중 브라우저 콘솔에 `ws://…/_next/hmr` 실패가 보인다 | 제품 대화 소켓이 아니다. Next 개발 서버 새로고침만 웹소켓을 쓴다. `localhost`가 아닌 주소면 `allowedDevOrigins`에 그 주소를 넣어야 연결된다. 운영 CSP는 `ws:`·`wss:`를 열지 않고, 대화는 HTTP `POST` 한 번이다 |
 | Git Bash에서 `cmd`로 `.cmd`를 부르면 깨진다 | WebUI는 PowerShell에서 `cmd /c "D:\vscode\CodiComperChat\scripts\start-sd-webui.cmd"`. `.cmd`는 ASCII + CRLF로 둔다 |
 | **한글·역슬래시·정규식이 든 `node -e`/python heredoc**이 이스케이프로 깨진다(두 번 실제로 문서·코드를 망가뜨릴 뻔함) | 긴 편집은 Edit/Write 도구를 쓰거나, 스크립트를 파일로 써서 `node 파일`로 돌린다. 편집 뒤 `grep`으로 확인 |
 | 파일이 CRLF(`.gitattributes`) | 스크립트로 고칠 땐 `\r\n`→`\n`으로 바꿔 편집하고 되돌려 쓴다 |
