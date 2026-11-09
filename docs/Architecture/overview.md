@@ -72,6 +72,7 @@ flowchart LR
 
 ## 원칙
 
+- 대화·월드·에이전트·포트폴리오 챗봇은 웹소켓이 없다. 브라우저는 HTTP `POST` 한 번으로 답이 끝날 때까지 기다린다. 웹소켓은 개발 서버의 Next 새로고침(`/_next/hmr`)뿐이고, `NODE_ENV=production`이면 CSP가 `ws:`·`wss:`를 열지 않는다
 - 프론트는 FastAPI를 직접 호출하지 않는다 (Nest만 부른다)
 - FastAPI는 내부망에서만 Nest가 호출한다
 - 학습 API는 외부에 열지 않는다 (`/train` 403)
