@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { RateLimit } from '../security/rate-limit.js';
 import { CharacterChatService } from './character-chat.service.js';
+import { issueLiveTicket } from './live-ticket.js';
 
 const MESSAGE_LIMIT = 2000;
 const AVOID_LIMIT = 12;
@@ -66,6 +67,31 @@ export class CharacterChatController {
       model: modelOf(body),
       authorization,
     });
+  }
+
+  // 웹소켓으로 답을 이어서 보여 주기 위한 일회용 표. 모델은 소켓이 열린 뒤에 부른다
+  @Post('live')
+  @HttpCode(200)
+  @RateLimit('chat')
+  live(
+    @Param('id') id: string,
+    @Body() body: ChatBody,
+    @Headers('authorization') authorization?: string,
+  ) {
+    const message = typeof body?.message === 'string' ? body.message.trim() : '';
+    if (message === '') throw new BadRequestException('message가 비어 있다');
+    if (message.length > MESSAGE_LIMIT) {
+      throw new BadRequestException(`메시지는 ${MESSAGE_LIMIT}자 이하로 보내 주세요.`);
+    }
+    return {
+      ticket: issueLiveTicket({
+        characterId: id,
+        message,
+        personaId: requirePersonaId(body.personaId),
+        model: modelOf(body),
+        authorization,
+      }),
+    };
   }
 
   @Post('suggestions')

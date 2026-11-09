@@ -2,6 +2,7 @@ import { GatewayTimeoutException, HttpException, ServiceUnavailableException } f
 import http from 'node:http';
 import https from 'node:https';
 import { type Priority, aiQueue } from './ai-queue.js';
+import { pushNdjson, readStreamLine } from './ndjson.js';
 
 // FastAPI(services/ai)는 Nest만 호출한다 (기획서 §7.1). 호출과 오류 변환을 한곳에 둔다
 
@@ -22,6 +23,15 @@ export type AiCallOptions = {
   // 이 호출만 더 기다릴 때 (코디포토넷: 그림 모델을 바꾸면 처음 한 번 읽는 데 몇 분 걸린다)
   timeoutMs?: number;
 };
+
+export async function streamFromAi(
+  path: string,
+  payload: unknown,
+  onDelta: (text: string) => void,
+  signal?: AbortSignal,
+): Promise<string> {
+  return aiQueue.run('foreground', () => readAiStream(path, payload, onDelta, signal));
+}
 
 export async function postToAi<T>(path: string, payload: unknown, options: AiCallOptions = {}): Promise<T> {
   const priority = options.priority ?? 'foreground';
@@ -77,6 +87,98 @@ export function rawPost(url: string, headers: Record<string, string>, body: stri
       finish(() => reject(err));
     }, timeoutMs);
     req.on('error', (e) => finish(() => reject(e)));
+    req.end(body);
+  });
+}
+
+function readAiStream(path: string, payload: unknown, onDelta: (text: string) => void, signal?: AbortSignal): Promise<string> {
+  const aiBaseUrl = process.env.AI_BASE_URL ?? 'http://localhost:8000';
+  const timeoutMs = timeoutFromEnv('foreground');
+  const body = JSON.stringify(payload);
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(Object.assign(new Error('연결이 끊겼어요.'), { name: 'AbortError' }));
+      return;
+    }
+    const target = new URL(`${aiBaseUrl}${path}`);
+    const client = target.protocol === 'https:' ? https : http;
+    let settled = false;
+    let buffer = '';
+    let reply = '';
+    const finish = (fn: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn();
+    };
+    const fail = (error: unknown) => finish(() => reject(error));
+    const req = client.request(
+      target,
+      { method: 'POST', headers: { ...aiHeaders(true), 'Content-Length': Buffer.byteLength(body) } },
+      (res) => {
+        if ((res.statusCode ?? 0) >= 400) {
+          const chunks: Buffer[] = [];
+          res.on('data', (c: Buffer) => chunks.push(c));
+          res.on('end', () => {
+            let detail = 'AI 요청이 실패했다';
+            try {
+              const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { detail?: unknown };
+              if (typeof parsed.detail === 'string') detail = parsed.detail;
+            } catch {
+              detail = 'AI 요청이 실패했다';
+            }
+            fail(new HttpException(detail, res.statusCode ?? 502));
+          });
+          return;
+        }
+        res.on('data', (c: Buffer) => {
+          buffer = pushNdjson(buffer, c.toString('utf8'), (line) => {
+            let parsed: ReturnType<typeof readStreamLine>;
+            try {
+              parsed = readStreamLine(line);
+            } catch {
+              fail(new HttpException('AI 스트림이 깨졌다', 502));
+              req.destroy();
+              return;
+            }
+            if ('error' in parsed) {
+              fail(new HttpException(parsed.error, parsed.status ?? 502));
+              req.destroy();
+              return;
+            }
+            if ('delta' in parsed && parsed.delta) {
+              reply += parsed.delta;
+              onDelta(parsed.delta);
+            }
+            if ('done' in parsed && parsed.done) {
+              reply = parsed.reply || reply;
+            }
+          });
+        });
+        res.on('end', () => finish(() => resolve(reply)));
+        res.on('error', (e) => fail(e));
+      },
+    );
+    const timer = setTimeout(() => {
+      const err = new Error('AI 응답 시간 초과');
+      err.name = 'TimeoutError';
+      req.destroy(err);
+      fail(new GatewayTimeoutException('AI 응답이 너무 늦어 멈췄어요. 잠시 뒤에 다시 시도해 주세요.'));
+    }, timeoutMs);
+    const onAbort = () => {
+      const err = new Error('연결이 끊겼어요.');
+      err.name = 'AbortError';
+      req.destroy(err);
+      fail(err);
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
+    req.on('error', (e) => {
+      if (e.name === 'AbortError' || signal?.aborted) {
+        fail(Object.assign(e, { name: 'AbortError' }));
+        return;
+      }
+      fail(new ServiceUnavailableException(`${aiBaseUrl}에 연결할 수 없습니다. services/ai가 켜져 있는지 확인하세요.`));
+    });
     req.end(body);
   });
 }

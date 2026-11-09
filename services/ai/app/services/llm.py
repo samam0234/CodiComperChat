@@ -161,7 +161,7 @@ def _generate_ollama(
     if keep_alive is not None:
         payload["keep_alive"] = keep_alive
 
-    text = _stream_chat(base_url, model, payload)
+    text = "".join(_iter_ollama_pieces(base_url, model, payload))
     if not text:
         raise HTTPException(
             status_code=502,
@@ -195,9 +195,8 @@ def ollama_timeout() -> httpx.Timeout:
     )
 
 
-def _stream_chat(base_url: str, model: str, payload: dict[str, object]) -> str:
-    parts: list[str] = []
-    # 답 전체에 거는 상한(선택). 기본은 없음: 토큰이 계속 나오면 끝까지 기다린다
+def _iter_ollama_pieces(base_url: str, model: str, payload: dict[str, object]):
+    """Ollama NDJSON을 조각마다 넘긴다. 모아서 한 번에 받지 않는다."""
     total_limit = _seconds("OLLAMA_TOTAL_TIMEOUT_SECONDS", 0)
     started = time.monotonic()
     try:
@@ -221,7 +220,7 @@ def _stream_chat(base_url: str, model: str, payload: dict[str, object]) -> str:
                     raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {chunk['error']}")
                 piece = (chunk.get("message") or {}).get("content")
                 if piece:
-                    parts.append(piece)
+                    yield piece
                 if chunk.get("done"):
                     break
                 if total_limit is not None and time.monotonic() - started > total_limit:
@@ -238,7 +237,69 @@ def _stream_chat(base_url: str, model: str, payload: dict[str, object]) -> str:
             detail="Ollama가 오래 아무 토큰도 보내지 않아 멈췄다. 모델이 메모리에 올라와 있는지(`ollama ps`), "
             "OLLAMA_READ_TIMEOUT_SECONDS가 너무 짧지 않은지 확인한다.",
         ) from exc
-    return "".join(parts)
+
+
+def streams_locally(model: str | None, provider: str) -> bool:
+    """이 호출이 로컬 Ollama 조각을 바로 넘길 수 있나. 호스팅·프리미엄은 한 덩어리다."""
+    if provider != "ollama":
+        return False
+    if model == BASIC_LOCAL_TAG:
+        return True
+    if model == ENHANCED_LOCAL_TAG and _hosted_key():
+        return False
+    if _backend_is_openai() and model != BASIC_LOCAL_TAG:
+        return False
+    return True
+
+
+def iter_generate(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None = None,
+    response_json_schema: dict | None = None,
+    seed: int | None = None,
+    model: str | None = None,
+    keep_alive: int | None = None,
+    provider: str = "ollama",
+):
+    """로컬 모델은 토큰 조각을 그대로 넘긴다. 그 외는 generate() 결과 한 조각이다."""
+    if streams_locally(model, provider) and os.environ.get("LLM_FAKE") != "1":
+        base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
+        tag = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
+        messages: list[dict[str, object]] = [{"role": "system", "content": system}, *contents]
+        options: dict[str, object] = {"num_predict": max_output_tokens}
+        if temperature is not None:
+            options["temperature"] = temperature
+        if seed is not None:
+            options["seed"] = seed
+        payload: dict[str, object] = {
+            "model": tag,
+            "messages": messages,
+            "stream": True,
+            "think": False,
+            "options": options,
+        }
+        if response_json_schema is not None:
+            payload["format"] = response_json_schema
+        if keep_alive is not None:
+            payload["keep_alive"] = keep_alive
+        yield from _iter_ollama_pieces(base_url, tag, payload)
+        return
+    text = generate(
+        system=system,
+        contents=contents,
+        max_output_tokens=max_output_tokens,
+        temperature=temperature,
+        response_json_schema=response_json_schema,
+        seed=seed,
+        model=model,
+        keep_alive=keep_alive,
+        provider=provider,
+    )
+    if text:
+        yield text
 
 
 def warm_up() -> None:

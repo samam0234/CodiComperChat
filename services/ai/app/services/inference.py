@@ -1,3 +1,4 @@
+import json
 import re
 
 from app.schemas.context import ContextSlice
@@ -316,7 +317,7 @@ def _narration_directive(directions: list[str]) -> str:
     )
 
 
-def run(request: InferRequest) -> InferResponse:
+def _prompt(request: InferRequest) -> tuple[str, llm.Contents, str]:
     user_name = request.context.user_persona.name if request.context.user_persona else "유저"
     system = _fill_user(_build_system_prompt(request.context), user_name)
     # 수위는 대화 규칙 뒤, 이번 턴 지시(나레이션·보상 장면) 앞에 둔다
@@ -333,12 +334,39 @@ def run(request: InferRequest) -> InferResponse:
         system += "\n\n다시 쓰기: " + request.retry_note
     if request.provider != "ollama" or llm.enhanced_uses_cloud(chat_model):
         system += "\n\n" + EXTERNAL_PROVIDER_RULE
+    contents = [
+        {**c, "content": _fill_user(str(c["content"]), user_name)}
+        for c in _build_messages(request.context, request.user_turn)
+    ]
+    return system, contents, chat_model
+
+
+def run(request: InferRequest) -> InferResponse:
+    system, contents, chat_model = _prompt(request)
     reply = llm.generate(
         system=system,
-        contents=[{**c, "content": _fill_user(str(c["content"]), user_name)} for c in _build_messages(request.context, request.user_turn)],
+        contents=contents,
         max_output_tokens=MAX_OUTPUT_TOKENS,
         temperature=TEMPERATURE,
         model=chat_model,
         provider=request.provider,
     )
     return InferResponse(reply=fix_parenthetical_josa(reply))
+
+
+def iter_ndjson(request: InferRequest):
+    """토큰 조각을 NDJSON으로 넘긴다. 마지막 줄에 조사까지 고친 답을 담는다."""
+    system, contents, chat_model = _prompt(request)
+    parts: list[str] = []
+    for piece in llm.iter_generate(
+        system=system,
+        contents=contents,
+        max_output_tokens=MAX_OUTPUT_TOKENS,
+        temperature=TEMPERATURE,
+        model=chat_model,
+        provider=request.provider,
+    ):
+        parts.append(piece)
+        yield json.dumps({"delta": piece}, ensure_ascii=False) + "\n"
+    reply = fix_parenthetical_josa("".join(parts))
+    yield json.dumps({"done": True, "reply": reply}, ensure_ascii=False) + "\n"

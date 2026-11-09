@@ -106,7 +106,7 @@ flowchart LR
 |----|--------|------|
 | `API_BASE_URL` | `http://localhost:4000` | Nest 주소 (서버에서만 쓰인다) |
 | `NEXT_DIST_DIR` | `.next` | 빌드 폴더. e2e는 `.next-e2e`로 개발 서버와 나눈다 |
-| `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·웹소켓)을 빼고 쿠키를 https 전용으로. 공개 호스트는 `REQUIRE_HTTPS=1`이 없으면 503 |
+| `NODE_ENV` | — | `production`이면 CSP에서 개발용 허용(eval·아무 웹소켓)을 빼고 쿠키를 https 전용으로. 1:1 대화 소켓만 `API_BASE_URL` 출처를 연다. 공개 호스트는 `REQUIRE_HTTPS=1`이 없으면 503 |
 | `REQUIRE_HTTPS` | 꺼짐 | `1`이면 공개 호스트의 http를 https로 보내고 HSTS를 붙인다. 루프백은 그대로 |
 | `CONSOLE_BASE_URL` | `http://localhost:3001` | 운영 콘솔 주소(마이페이지의 "운영 콘솔 열기", 예전 `/admin/*` 이동) |
 | `WEB_PROXY_TOKEN` | 비움 | **비밀값.** 웹과 API가 다른 기계일 때(웹 Vercel, API Oracle) API 앞 Caddy와 나눠 갖는 값. 있으면 웹이 실제 이용자 IP를 `X-Forwarded-For`로 넘길 때 함께 보내고, Caddy는 이 값이 맞을 때만 그 IP를 믿는다(`apps/web/lib/client-ip.ts`, `deploy/oracle/Caddyfile`). 같은 기계·사설망 구성에서는 비워 둔다 |
