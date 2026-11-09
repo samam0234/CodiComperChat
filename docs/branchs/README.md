@@ -500,5 +500,6 @@ flowchart LR
 | 2026-11-09 | `ab32e46` | main (merge) | develop into main (no-ff) | [261109_1856_ab32e46_merge-websocket-docs-into-main_main.md](commits/261109_1856_ab32e46_merge-websocket-docs-into-main_main.md) |
 | 2026-11-09 | `3527c5f` | feature/chat-live-socket | 대화 답을 웹소켓으로 이어서 보여 주다 | [261109_1905_3527c5f_chat-live-socket_feature-chat-live-socket.md](commits/261109_1905_3527c5f_chat-live-socket_feature-chat-live-socket.md) |
 | 2026-11-09 | `f90177f` | feature/chat-live-socket | 웹소켓은 답을 옮길 뿐이라고 문서에 적다 | [261109_1906_f90177f_chat-live-docs_feature-chat-live-socket.md](commits/261109_1906_f90177f_chat-live-docs_feature-chat-live-socket.md) |
+| 2026-11-09 | `8065f0e` | develop (merge) | feature/chat-live-socket into develop (no-ff) | [261109_1908_8065f0e_merge-chat-live-into-develop_develop.md](commits/261109_1908_8065f0e_merge-chat-live-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
