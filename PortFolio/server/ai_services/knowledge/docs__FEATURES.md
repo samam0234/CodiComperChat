@@ -84,7 +84,7 @@ flowchart LR
 
 | 기능 | 화면 | API | 코드 | 시험 / 비고 |
 |------|------|-----|------|-------------|
-| 대화 보내기·기록 | `/characters/:id/chat` | `GET·POST /characters/:id/chat` | api/character-chat, web/…/chat/character-chat.tsx | chat · 답은 한 번에 옴(스트리밍 없음) |
+| 대화 보내기·기록 | `/characters/:id/chat` | `GET·POST /characters/:id/chat`, `POST …/chat/live`, 웹소켓 `/ws/chat` | api/character-chat, web/…/chat/character-chat.tsx | chat · 1:1 답은 토큰이 나오는 대로 보인다. 소켓은 전달만 하고 추론을 나누지 않는다. 월드·명령어는 답이 끝난 뒤 |
 | 새로하기(저장/저장 안 함)·이어하기 | 대화 위 버튼 | `POST …/chat/new`, `GET …/chat/saved`, `POST …/saved/:campaignId/resume`, `DELETE …/saved/:campaignId` | api/character-chat | chat |
 | 대답 추천(3개) | 입력창 옆 ✦ | `POST …/chat/suggestions` | api/character-chat, ai/services/suggestion.py | chat |
 | 명령어 | 입력창 | `POST …/chat/regenerate` `continue` `undo` | api/character-chat | commands · `/다시` `/계속` `/되돌리기` `/상황 내용` `/도움말` |
@@ -235,7 +235,7 @@ flowchart LR
 
 ## 한눈에 안 보이는 한계
 
-스트리밍 없음 · 퀘스트는 캐릭터당 1개 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).
+1:1 답은 웹소켓으로 토큰을 바로 보여 주고, 월드 플레이는 아직 한 번에 온다 · 퀘스트는 캐릭터당 1개 · 본인인증 없음(자기 신고) · SD 1.5 AI 초상은 옷·머리 같은 세부 선택이 가끔 빠짐 · 웹툰 컷 사이 얼굴이 조금씩 달라짐 · 프리미엄 모델(Claude·Grok)은 연동 코드가 있으나 실제 키로 호출해 보지 않았고 `PREMIUM_PROVIDERS`를 켜기 전까지 "준비 중" · 실제 결제 보류(눌러서 프로로 대신함). 해야 할 일 전체는 [TASKS.md](TASKS.md).
 
 ## 15. 월드코퍼챗 (2026-11-06)
 
