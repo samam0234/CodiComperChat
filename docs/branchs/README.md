@@ -498,5 +498,6 @@ flowchart LR
 | 2026-11-09 | `90907f3` | feature/websocket-docs | 대화에 웹소켓이 없음을 적다 | [261109_1852_90907f3_websocket-docs_feature-websocket-docs.md](commits/261109_1852_90907f3_websocket-docs_feature-websocket-docs.md) |
 | 2026-11-09 | `1187b89` | develop (merge) | feature/websocket-docs into develop (no-ff) | [261109_1852_1187b89_merge-websocket-docs-into-develop_develop.md](commits/261109_1852_1187b89_merge-websocket-docs-into-develop_develop.md) |
 | 2026-11-09 | `ab32e46` | main (merge) | develop into main (no-ff) | [261109_1856_ab32e46_merge-websocket-docs-into-main_main.md](commits/261109_1856_ab32e46_merge-websocket-docs-into-main_main.md) |
+| 2026-11-09 | `3527c5f` | feature/chat-live-socket | 대화 답을 웹소켓으로 이어서 보여 주다 | [261109_1905_3527c5f_chat-live-socket_feature-chat-live-socket.md](commits/261109_1905_3527c5f_chat-live-socket_feature-chat-live-socket.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
