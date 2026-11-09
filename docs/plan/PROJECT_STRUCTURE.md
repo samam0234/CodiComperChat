@@ -75,12 +75,12 @@ apps/web/
 │   ├── pricing/ billing/{mock,success,fail}/   # 요금 안내 · 결제 흐름
 │   ├── terms/ privacy/ business/ support/      # 약관 등 (법률 검토 전 초안)
 │   ├── actions/            # 서버 액션 — Nest를 부르는 곳 (auth, studio, billing, admin-* …)
-│   └── api/                # 라우트 핸들러: 그림 중계(초상·코디포토넷·웹툰 컷), CSP 보고 받기
+│   └── api/                # 라우트 핸들러: 그림 중계(초상·코디포토넷·웹툰 컷), 1:1 대화 표 발급, CSP 보고 받기
 ├── components/             # 셸, 캐릭터 카드·아바타, 입력창, 대화 상자, 약관 틀, 로고
 └── lib/                    # 서버 전용 데이터 읽기(auth, conversations, billing …), 카드 타입, 시간 표시
 ```
 
-웹은 **Nest만** 부른다(`API_BASE_URL`). 로그인 토큰은 httpOnly 쿠키에 있고 서버 액션·서버 컴포넌트가 붙여 보낸다.
+웹은 **Nest만** 부른다(`API_BASE_URL`). FastAPI는 브라우저가 부르지 않는다. 로그인 토큰은 httpOnly 쿠키에 있고 서버 액션·서버 컴포넌트가 붙여 보낸다. 1:1 답만 브라우저가 Nest 웹소켓 `/ws/chat`에 일회용 표로 붙는다.
 
 ### `apps/web/app/worlds` (2026-11-06)
 

@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 2026-11-08에 고객센터 문의 5경로를 더했다. 2026-11-09에 1:1 대화 표 `POST /characters/:id/chat/live`와 웹소켓 `/ws/chat`을 더했다. 155라는 수는 2026-11-07의 대조이고, 전체를 다시 세지는 않았다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 2026-11-08에 고객센터 문의 5경로를 더했다. 2026-11-09에 1:1 대화 표 `POST /characters/:id/chat/live`와 웹소켓 `/ws/chat`, FastAPI `POST /infer/stream`을 더했다. 155와 24라는 수는 2026-11-07의 대조이고, 전체를 다시 세지는 않았다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -300,7 +300,8 @@ sequenceDiagram
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp, ai }` — `ai`는 AI 호출 대기열 상태(`inFlight`, `waitingForeground`, `waitingBackground`, `concurrency`) |
-| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (로컬 Ollama, 스트림은 아직) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 · **개인사 가드:** `context.ungroundedTopics`(Nest가 "유저가 개인사 주제를 물었는데 설정에 근거가 없다"고 판정한 주제)가 있으면 프롬프트 맨 끝에 단정 금지 지시를 붙인다. `retryNote`가 있으면 그 이유로 다시 쓴다 |
+| `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (한 덩어리. 명령어·월드처럼 답이 끝난 뒤 받는 경로) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 · **개인사 가드:** `context.ungroundedTopics`(Nest가 "유저가 개인사 주제를 물었는데 설정에 근거가 없다"고 판정한 주제)가 있으면 프롬프트 맨 끝에 단정 금지 지시를 붙인다. `retryNote`가 있으면 그 이유로 다시 쓴다 |
+| `POST /infer/stream` | `/infer`와 같은 입력. NDJSON | 줄마다 `{"delta":"…"}`. 로컬 모델만 조각이 나오고 호스팅 모델은 한 줄이다. 마지막 줄 `{"done":true,"reply":"…"}`는 조사를 고친 답. 실패는 `{"error","status"}`. 1:1 웹소켓이 이 조각을 화면에 옮긴다. 추론은 나누지 않는다 |
 | `POST /ground-check` | 답의 개인사 단정 검사 `{ reply, topics, facts }` | **200** `{ invented, note }` · 설정 자료(`facts`)에 없는 나이·취미·가족·반려동물 등을 구체적으로 말했거나 있다/없다 단정했으면 `invented: true`. 말을 돌리거나 되묻기·설정에 적힌 말은 false. Nest가 근거 없는 개인사를 물은 턴에서만 부르고, 단정이면 최대 2번 다시 쓰게 한다(그래도 단정하면 안전한 말로 대체). 검사가 실패하면 원래 답을 쓴다 |
 | `POST /moderate-image` | 초상 그림 검수 `{ image(base64), mime }` | **200** `{ verdict: "ok" \| "review" \| "block", flags, reason }` · 로컬 모델(gemma4, 그림 인식)이 항목별(성적 노출·미성년자·잔혹·혐오·자해·실존 인물 사진)로 판정하고 규칙이 결과를 정한다. 성적 노출·미성년자·잔혹 → block, 나머지 항목·확신 60 미만·판정 형식 깨짐 → review |
 | `POST /portrait` | 공방 초상 AI 만들기 `{ style, options, appearance, extra, maxBytes }` | **200** `{ image(정사각 WebP base64, 384px), mime, promptUsed }` · 고른 항목은 코드가 영어 태그로, 카드 외형·추가 설명만 LLM이 번역. 성인 태그·전체 이용가 부정 프롬프트, 그림 검수(전체 이용가) |
