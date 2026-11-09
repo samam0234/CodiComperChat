@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { postToAi } from '../ai/ai-client.js';
+import { postToAi, streamFromAi } from '../ai/ai-client.js';
 import { readSession } from '../auth/session.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { adultBlock } from '../account/adult.js';
@@ -24,10 +24,16 @@ import { PersonasService } from '../personas/personas.service.js';
 import { buildContextSlice } from './character-chat.context.js';
 import { noticeScene, type Scene } from './scene.js';
 import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from './grounding.js';
+import { takeLiveTicket, type LiveClaim } from './live-ticket.js';
 import type { ChatTurn } from './character-chat.types.js';
 
 type PersonaOptions = { personaId: string; authorization?: string };
 type SendOptions = PersonaOptions & { model?: string };
+export type LiveListener = {
+  delta: (text: string) => void;
+  replace: (text: string) => void;
+  signal?: AbortSignal;
+};
 type Prepared = Awaited<ReturnType<CharacterChatService['prepare']>>;
 
 // /계속: 유저가 말하지 않았다는 장면 지시. 괄호 속 말은 유저의 장면 지시로 읽게 해 두었다 (services/ai inference.py)
@@ -205,7 +211,7 @@ export class CharacterChatService {
 
   // 캐릭터 답 한 번: 모델 고르기 → 횟수·코레딧 잡기 → 답 만들기 (못 만들면 잡은 것을 돌려준다).
   // 보내기·다시 쓰기(/다시)·이어 가기(/계속)가 같이 쓴다. 저장은 부르는 쪽이 한다
-  private async compose(prep: Prepared, userTurn: string, requested: string | undefined) {
+  private async compose(prep: Prepared, userTurn: string, requested: string | undefined, live?: LiveListener) {
     const { character, userId, persona, conversation: existing, history, chatState, story, adult } = prep;
     const rag = this.personaRag.assemble(character.name, history, userTurn);
     const memories = await this.memoriesFor(existing, history, userTurn);
@@ -233,10 +239,16 @@ export class CharacterChatService {
       : await this.models.usableOrDefault(userId, existing?.chatModel ?? DEFAULT_MODEL_ID);
     const ticket = await this.models.reserve(userId, model);
     try {
-      const first = await postToAi<{ reply: string }>('/infer', { context, userTurn, model: model.runtime, provider: model.provider });
+      const body = { context, userTurn, model: model.runtime, provider: model.provider };
+      const raw = live
+        ? await streamFromAi('/infer/stream', body, live.delta, live.signal)
+        : (await postToAi<{ reply: string }>('/infer', body)).reply;
+      if (!raw.trim()) throw new ConflictException('답을 받지 못했어요. 다시 시도해 주세요.');
       // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
-      const grounded = await keepGrounded(context, userTurn, first.reply, groundingFacts(grounding), model.runtime, model.provider);
-      return { reply: fixParentheticalJosa(grounded), ticket };
+      const grounded = await keepGrounded(context, userTurn, raw, groundingFacts(grounding), model.runtime, model.provider);
+      const reply = fixParentheticalJosa(grounded);
+      if (live && reply !== raw) live.replace(reply);
+      return { reply, ticket };
     } catch (error) {
       await this.models.release(userId, ticket);
       throw error;
@@ -260,13 +272,29 @@ export class CharacterChatService {
     };
   }
 
-  async send(characterId: string, userTurn: string, options: SendOptions) {
+  async send(characterId: string, userTurn: string, options: SendOptions & { live?: LiveListener }) {
     const prep = await this.prepare(characterId, options);
-    const { reply, ticket } = await this.compose(prep, userTurn, options.model);
+    const { reply, ticket } = await this.compose(prep, userTurn, options.model, options.live);
+    if (options.live?.signal?.aborted) {
+      await this.models.release(prep.userId, ticket);
+      throw new ConflictException('연결이 끊겼어요.');
+    }
     // 답을 받은 뒤에만 저장한다 — 실패한 턴은 기록에 남지 않고, 유저는 같은 말을 다시 보낼 수 있다
     const conversation = await this.conversations.findOrCreate(prep.userId, prep.character, prep.persona, ticket.model.id);
     await this.conversations.appendExchange(conversation, userTurn, prep.persona.name, reply);
     return this.finish(prep, conversation, reply, ticket, userTurn);
+  }
+
+  // 웹소켓 표로 받은 한 턴. 토큰은 나오는 대로 넘기고, 저장은 답이 끝난 뒤에만 한다
+  async playLive(ticketId: string, live: LiveListener) {
+    const claim: LiveClaim | null = takeLiveTicket(ticketId);
+    if (!claim) throw new UnauthorizedException('대화 연결이 만료됐어요. 다시 보내 주세요.');
+    return this.send(claim.characterId, claim.message, {
+      personaId: claim.personaId,
+      model: claim.model,
+      authorization: claim.authorization,
+      live,
+    });
   }
 
   // /다시: 마지막 내 말에 대한 답을 새로 쓴다 (이전 답은 지운다)

@@ -496,47 +496,89 @@ export default function CharacterChat({
     setSuggestions({ status: "closed" });
     setSending(true);
 
+    const applyDone = (data: {
+      messages?: DisplayMessage[];
+      reply?: string;
+      scene?: Scene | null;
+      model?: string;
+      usage?: { used: number; limit: number } | null;
+      credits?: { balance: number } | null;
+    }) => {
+      if (Array.isArray(data.messages)) setMessages(data.messages);
+      if (data.scene) setScene(data.scene);
+      applyUsage(data);
+      setLocked((current) => current ?? persona);
+      setNotice(null);
+    };
+
+    let replyId: number | null = null;
     try {
-      const res = await fetch(`/api/characters/${characterId}/chat`, {
+      const opened = await fetch(`/api/characters/${characterId}/chat/live`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: trimmed, personaId: persona.id, model }),
       });
-      const data = await res.json();
+      const openedBody = await opened.json();
+      if (!opened.ok || typeof openedBody.ticket !== "string" || typeof openedBody.wsUrl !== "string") {
+        throw new Error(openedBody.message ?? "대화 연결을 열지 못했어요.");
+      }
 
       nextId.current += 1;
-      if (res.ok) {
-        if (Array.isArray(data.messages)) setMessages(data.messages);
-        else setMessages((prev) => [...prev, { id: nextId.current, role: "character", text: data.reply }]);
-        if (data.scene) setScene(data.scene);
-        applyUsage(data);
-        // 첫 메시지가 저장되면 이 대화의 프로필로 고정된다 (서버도 같은 규칙으로 막는다)
-        setLocked((current) => current ?? persona);
-        setNotice(null);
-      } else {
-        markUnsaved();
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId.current,
-            role: "character",
-            text: data.message ?? `요청이 실패했습니다 (HTTP ${res.status})`,
-            error: true,
-          },
-        ]);
-      }
-    } catch {
+      replyId = nextId.current;
+      setMessages((prev) => [...prev, { id: replyId, role: "character", text: "" }]);
+
+      await new Promise<void>((resolve, reject) => {
+        const ws = new WebSocket(openedBody.wsUrl);
+        let settled = false;
+        let gotDone = false;
+        const finish = (fn: () => void) => {
+          if (settled) return;
+          settled = true;
+          fn();
+        };
+        ws.onopen = () => ws.send(JSON.stringify({ ticket: openedBody.ticket }));
+        ws.onmessage = (event) => {
+          const data = JSON.parse(String(event.data)) as {
+            type?: string;
+            text?: string;
+            message?: string;
+            messages?: DisplayMessage[];
+            reply?: string;
+            scene?: Scene | null;
+            model?: string;
+            usage?: { used: number; limit: number } | null;
+            credits?: { balance: number } | null;
+          };
+          if (data.type === "delta" && data.text) {
+            setMessages((prev) => prev.map((m) => (m.id === replyId ? { ...m, text: m.text + data.text } : m)));
+          } else if (data.type === "replace" && typeof data.text === "string") {
+            setMessages((prev) => prev.map((m) => (m.id === replyId ? { ...m, text: data.text ?? "" } : m)));
+          } else if (data.type === "done") {
+            gotDone = true;
+            applyDone(data);
+            finish(resolve);
+          } else if (data.type === "error") {
+            finish(() => reject(new Error(data.message ?? "답을 만들지 못했어요.")));
+          }
+        };
+        ws.onerror = () => {
+          if (!gotDone) finish(() => reject(new Error("대화 연결이 끊겼어요.")));
+        };
+        ws.onclose = () => {
+          if (!gotDone) finish(() => reject(new Error("대화 연결이 끊겼어요.")));
+        };
+      });
+    } catch (error) {
       markUnsaved();
-      nextId.current += 1;
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: nextId.current,
-          role: "character",
-          text: "API에 연결할 수 없습니다. apps/api가 켜져 있는지 확인하세요.",
-          error: true,
-        },
-      ]);
+      const text = error instanceof Error ? error.message : "API에 연결할 수 없습니다. apps/api가 켜져 있는지 확인하세요.";
+      if (replyId === null) {
+        nextId.current += 1;
+        replyId = nextId.current;
+        setMessages((prev) => [...prev, { id: replyId!, role: "character", text, error: true }]);
+      } else {
+        const failedId = replyId;
+        setMessages((prev) => prev.map((m) => (m.id === failedId ? { ...m, text, error: true } : m)));
+      }
     } finally {
       setSending(false);
     }

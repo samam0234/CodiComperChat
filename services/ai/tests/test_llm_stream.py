@@ -72,6 +72,13 @@ class OllamaStreamTest(unittest.TestCase):
     def call(self) -> str:
         return llm.generate(system="s", contents=[llm.turn("user", "안녕")], max_output_tokens=50)
 
+    def test_iter_yields_each_piece(self):
+        BEHAVIOR["pieces"] = [chunk("안"), chunk("녕"), chunk("", done=True)]
+        pieces = list(
+            llm.iter_generate(system="s", contents=[llm.turn("user", "안녕")], max_output_tokens=50, model="gemma4:e4b")
+        )
+        self.assertEqual(pieces, ["안", "녕"])
+
     def test_joins_streamed_pieces_and_asks_for_stream(self):
         BEHAVIOR["pieces"] = [chunk("안녕"), chunk("하세요"), chunk("", done=True)]
         self.assertEqual(self.call(), "안녕하세요")

@@ -8,6 +8,19 @@ const MEMBER_ONLY_PATTERN = /^\/characters\/[^/]+\/chat(\/|$)/;
 // 토스페이먼츠 결제창(요금 안내에서 결제할 때만 스크립트를 받는다)
 const TOSS = "https://*.tosspayments.com";
 
+// 대화 웹소켓은 브라우저가 API로 직접 붙는다. 쿠키는 웹에만 있고, 일회용 표로 확인한다
+function apiSocketOrigins(): string {
+  const base = process.env.API_BASE_URL;
+  if (!base) return "";
+  try {
+    const url = new URL(base);
+    const ws = url.protocol === "https:" ? "wss:" : "ws:";
+    return ` ${url.origin} ${ws}//${url.host}`;
+  } catch {
+    return "";
+  }
+}
+
 // 엄격한 CSP: 요청마다 새 nonce를 만들고, 그 nonce가 붙은 스크립트(Next가 자동으로 붙인다)와
 // 그 스크립트가 불러온 스크립트('strict-dynamic')만 실행한다. 사용자가 쓴 글에 <script>가 섞여 들어가도 실행되지 않는다.
 // 개발 서버는 HMR·React 새로 고침이 eval과 웹소켓을 써서 그것만 더 연다
@@ -20,7 +33,7 @@ export function contentSecurityPolicy(nonce: string, dev: boolean): string {
     // 초상 미리보기(blob:), 작은 아이콘(data:)
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `connect-src 'self' ${TOSS}${dev ? " ws: wss:" : ""}`,
+    `connect-src 'self' ${TOSS}${apiSocketOrigins()}${dev ? " ws: wss:" : ""}`,
     `frame-src ${TOSS}`,
     "object-src 'none'",
     "base-uri 'self'",
