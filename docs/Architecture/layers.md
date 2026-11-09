@@ -100,7 +100,7 @@ proxy.ts (CSP·1차 거름망) → 서버 컴포넌트(page.tsx) ── lib/*.ts
                            → 클라이언트 컴포넌트 ── app/actions/*.ts(쓰기, 서버 액션) ─┴→ Nest
 ```
 
-- `lib/*`는 `server-only`. 브라우저 코드는 Nest 주소도 토큰도 모른다
+- `lib/*`는 `server-only`. 세션 토큰은 브라우저 스크립트가 모른다. 1:1 답만 Nest 웹소켓 `/ws/chat`에 일회용 표로 붙고, FastAPI는 브라우저가 부르지 않는다
 - 권한 확인은 세 겹: `proxy.ts`(쿠키 유무) → `requireUser()`(Nest에 토큰 검증) → Nest `AuthGuard`
 
 ### 월드코퍼챗 (Next, 2026-11-06)

@@ -45,6 +45,7 @@ sequenceDiagram
   N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
   N->>A: POST /infer
   A-->>N: reply
+  Note over B,A: 화면의 1:1 보내기는 이 HTTP가 아니다. live 표와 /ws/chat, FastAPI /infer/stream
   opt 설정에 없는 개인사를 물은 턴
     N->>A: POST /ground-check
     A-->>N: invented? (지어냈으면 다시, 최대 2번)
@@ -144,6 +145,10 @@ erDiagram
   WorldPlay ||--o{ WorldMessage : "메시지"
   WorldPlay ||--o{ WorldEvent : "이벤트"
 ```
+
+## 브라우저 1:1 보내기 (2026-11-09)
+
+화면의 일반 보내기는 `POST /characters/:id/chat`이 아니다. 웹이 `POST /characters/:id/chat/live`로 일회용 표를 받고, 브라우저가 Nest 웹소켓 `/ws/chat`에 붙는다. 생성은 FastAPI `POST /infer/stream`이다. 로컬 모델 조각만 말풍선에 이어 붙고, 호스팅 모델은 한 덩어리다. 개인사 검사가 답을 고치면 먼저 보인 글을 바꾼 뒤 저장한다. 소켓은 글을 옮길 뿐 추론을 나누거나 빠르게 하지 않는다. 명령어·빈 이어가기·월드 플레이는 아래 HTTP처럼 답이 끝난 뒤에 온다. 공개 API는 이 소켓을 아직 모른다.
 
 ## 메시지 한 번 보낼 때 상태가 움직이는 순서 (`POST /characters/:id/chat`)
 

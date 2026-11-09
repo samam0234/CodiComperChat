@@ -68,7 +68,9 @@ curl -s $API/characters
 PERSONA=$(curl -s -X POST $API/me/personas -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   -d '{"name":"민준","description":"고3 수험생"}' | node -pe 'JSON.parse(require("fs").readFileSync(0)).id')
 
-# 캐릭터와 대화 (답이 다 오면 한 번에 온다. 첫 답은 모델을 올리느라 오래 걸릴 수 있다)
+# 캐릭터와 대화. 이 HTTP는 답이 다 오면 한 번에 온다.
+# 화면의 1:1 보내기는 POST …/chat/live 표와 웹소켓 /ws/chat이다. 소켓은 글을 옮길 뿐 추론을 빠르게 하지 않는다.
+# 첫 답은 모델을 올리느라 오래 걸릴 수 있다.
 curl -s -X POST $API/characters/<캐릭터id>/chat -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   -d "{\"message\":\"지금 뭐 해?\",\"personaId\":\"$PERSONA\"}"
 

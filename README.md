@@ -174,19 +174,23 @@ sequenceDiagram
   participant D as PostgreSQL
   participant A as ai (FastAPI)
   B->>W: 메시지 보내기
-  W->>N: POST /characters/{id}/chat (Bearer)
+  W->>N: POST /characters/{id}/chat/live
+  N-->>B: 일회용 표 · /ws/chat
+  B->>N: WebSocket /ws/chat
   N->>D: 캐릭터·프로필·대화·상태 읽기
   N->>N: 모델 reserve, 맥락 조립 (카드 핵심 · 지식 조각 · 기억 · 이야기 상태)
-  N->>A: POST /infer
-  A-->>N: reply
-  opt 설정에 없는 개인사를 물은 턴
+  N->>A: POST /infer/stream
+  loop 로컬 모델이 쓰는 조각
+    A-->>N: delta
+    N-->>B: 말풍선에 이어 붙이기
+  end
+  opt 개인사 검사가 답을 고침
     N->>A: POST /ground-check
-    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+    N-->>B: 보인 글을 고친 글로 바꾸기
   end
   N->>D: 유저 말 + 답 저장
-  N-->>W: 답 · 사용량
-  W-->>B: 화면에 그리기
-  Note over N,A: 메시지 6개마다 뒤에서 /remember · /summarize
+  N-->>B: done
+  Note over N,A: 소켓은 글을 옮길 뿐 추론을 나누지 않는다. 호스팅 모델은 한 덩어리다. 명령어·월드는 답이 끝난 뒤 HTTP
 ```
 
 ### 월드코퍼챗 한 턴
@@ -316,7 +320,7 @@ stateDiagram-v2
     <td width="50%"><a href="docs/.assets/readme/story.jpg"><img src="docs/.assets/readme/story.jpg" alt="지난 이야기: 친밀도, 요약, 복선"></a></td>
   </tr>
   <tr>
-    <td><b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다. 마지막 말풍선 옆에만 점 세 개 메뉴가 있고, 그 줄만 고치거나 지우거나 방향을 적어 다시 씁니다. 때와 곳은 대화 위에 있고, 시간·장소 단서가 있을 때만 바뀝니다.</td>
+    <td><b>대화.</b> <code>*행동*</code>은 회색 기울임으로, 장면 전환은 <code>@:</code> 나레이션으로 그립니다. 1:1 답은 로컬 모델이 쓰는 대로 말풍선에 채워집니다. 소켓은 글을 옮길 뿐이고 모델이 빨라지지는 않습니다. 대답 추천, <code>/다시</code> <code>/계속</code> <code>/되돌리기</code> 명령어, 모델 고르기가 있습니다. 마지막 말풍선 옆에만 점 세 개 메뉴가 있고, 그 줄만 고치거나 지우거나 방향을 적어 다시 씁니다. 때와 곳은 대화 위에 있고, 시간·장소 단서가 있을 때만 바뀝니다.</td>
     <td><b>지난 이야기.</b> 대화 3번마다 뒤에서 요약하고 친밀도와 복선을 갱신합니다. 잘못 잡힌 복선은 유저가 지울 수 있습니다.</td>
   </tr>
   <tr>
@@ -427,7 +431,8 @@ stateDiagram-v2
 | 포트폴리오 사이트 | 별도 Astro `https://codicomperchat-portfolio.vercel.app` | 정적 페이지만. 챗봇 서버는 없음. 로컬 챗봇 모델은 `gemma4:e4b` 하나 |
 | 성인 모드 | 수위 분리(그림·대화), 성인 확인, 미성년자·강제 단서 차단, 그림 가드, 신고. 성인 대화는 로컬 모델에서만 | 코드 있음, 공개 서버에서는 끈다 |
 | 실제 결제 | 토스페이먼츠 연동 | 코드 있음, 보류 |
-| 스트리밍 응답, 본인인증 | | 없음 |
+| 1:1 답 표시 | 로컬 모델 토큰을 웹소켓으로 바로 보여 줌. 호스팅 모델은 한 덩어리. 월드·명령어는 답이 끝난 뒤 | 코드 있음 (2026-11-09). 공개 API는 이 소켓을 아직 모름. 추론은 나누지 않음 |
+| 본인인증 | | 없음 |
 
 이 표의 **동작**은 코드가 로컬에서 된다는 뜻입니다. 공개 주소에서 지금 열리는 범위는 [docs/STATUS.md](docs/STATUS.md)에 따로 있습니다.
 

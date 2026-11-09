@@ -30,7 +30,7 @@ app.module.ts ─ 모듈 30여 개를 묶는다
      (*.spec.ts로 시험)   (PostgreSQL)           (AI 대기열 → FastAPI)  (차감·환불·보상)
 
 대표 모듈
-  character-chat ─ 대화 한 턴 (맥락 조립 → /infer → 개인사 검사 → 저장). 마지막 대사 수정·다시 쓰기, 때·곳
+  character-chat ─ 대화 한 턴 (맥락 조립 → 1:1은 /infer/stream, 그 밖은 /infer → 개인사 검사 → 저장). 마지막 대사 수정·다시 쓰기, 때·곳
   campaign-state ─ 뒤에서 정리 (/summarize → 친밀도·복선·요약·퀘스트 판정 반영)
   quests         ─ 비밀 퀘스트 상태 (건넴 → 달성 → 보상 장면 한 번)
   worlds         ─ 월드코퍼챗 (세계관·플레이·파트·이벤트·보상)
@@ -100,6 +100,8 @@ flowchart TD
 | 운영 설정이 안전한가 | 개발용 스위치가 켜져 있으면 시작하지 않는다 | `security/production.ts` |
 
 ### 대화 한 턴 (`POST /characters/:id/chat`)
+
+화면의 일반 1:1 보내기는 이 경로가 아니다. `POST /characters/:id/chat/live`로 일회용 표를 주고, 브라우저가 `/ws/chat`으로 붙으면 아래 4번이 `/infer/stream`이다. 로컬 조각만 소켓으로 나가고, 개인사 검사가 답을 고치면 화면 글을 바꾼 뒤 저장한다. 소켓은 추론을 나누지 않는다. 이 표의 HTTP는 명령어·빈 이어가기처럼 답이 끝난 뒤 한 덩어리로 온다.
 
 | 순서 | 일 | 코드 |
 |------|-----|------|

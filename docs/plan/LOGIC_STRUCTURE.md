@@ -49,6 +49,8 @@ flowchart LR
 ### Phase 0 — v1 (계획서 §10 작업 순서, 이 순서를 건너뛰지 않는다)
 
 > 진행(2026-10-24): 1~9는 구현됐다(스트리밍·compose 컨테이너화·Redis는 하지 않음). 10(공식 캐릭터 플레이테스트)은 사용자 확정 대기. v1 이후 범위로 사용자 지시가 추가한 것: 코레딧·모델 고르기·오퍼레이션·코디포토넷·웹툰·비밀 퀘스트·성인 모드 ([CURRENT_STACK.md](CURRENT_STACK.md) "구현하면서 정한 것").
+>
+> 진행(2026-11-09): 1:1 대화는 웹소켓으로 토큰을 바로 보여 준다. 소켓은 글을 옮길 뿐이고 추론을 나누거나 빠르게 하지 않는다. 호스팅 모델은 한 덩어리, 월드·명령어는 답이 끝난 뒤다. compose 컨테이너화와 Redis는 그대로 하지 않는다.
 
 1. 모노레포 + docker-compose (web, api, ai, db — 지금은 postgres·mailpit만, Redis는 쓰지 않음)
 2. Prisma 스키마: User, Character, Campaign, Session, Message, State

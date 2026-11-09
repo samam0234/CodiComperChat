@@ -74,7 +74,7 @@
 - 기능 ID: F02-06 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 공식 캐릭터 2명(유지성·이세연) · 화면: 홈·인기 · API: 시드 · 코드 위치: api/prisma/seed.mjs, docs/plan/CHARACTERS.md · 시험 / 비고: 초상·퀘스트·추천 프로필 포함 · 상태: 구현 · 구분: 사용자 요청 확장
 - 기능 ID: F02-07 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 신고 · 화면: 캐릭터 상세 맨 아래 · API: GET /characters/:id/report/reasons, POST /characters/:id/report · 코드 위치: api/reports · 시험 / 비고: reports · 상태: 구현 · 구분: 사용자 요청 확장
 - 기능 ID: F02-08 · 대분류: 프로필과 캐릭터 탐색 · 기능명: 대화 목록 · 저장한 대화 · 화면: /library · API: GET /me/conversations, GET /characters/:id/chat/saved · 코드 위치: api/conversations · 시험 / 비고: chat · 상태: 구현 · 구분: 사용자 요청 확장
-- 기능 ID: F03-01 · 대분류: 대화 · 기능명: 대화 보내기·기록 · 화면: /characters/:id/chat · API: GET·POST /characters/:id/chat · 코드 위치: api/character-chat, web/…/chat/character-chat.tsx · 시험 / 비고: chat · 답은 한 번에 옴(스트리밍 없음) · 상태: 구현 · 구분: 기획서 v1 핵심
+- 기능 ID: F03-01 · 대분류: 대화 · 기능명: 대화 보내기·기록 · 화면: /characters/:id/chat · API: GET·POST /characters/:id/chat, POST …/chat/live, 웹소켓 /ws/chat · 코드 위치: api/character-chat, web/…/chat/character-chat.tsx · 시험 / 비고: chat · 1:1 답은 웹소켓으로 토큰이 나오는 대로 보인다. 소켓은 추론을 나누지 않는다. 호스팅은 한 덩어리. 월드·명령어는 답이 끝난 뒤 · 상태: 구현 · 구분: 기획서 v1 핵심
 - 기능 ID: F03-02 · 대분류: 대화 · 기능명: 새로하기(저장/저장 안 함)·이어하기 · 화면: 대화 위 버튼 · API: POST …/chat/new, GET …/chat/saved, POST …/saved/:campaignId/resume, DELETE …/saved/:campaignId · 코드 위치: api/character-chat · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
 - 기능 ID: F03-03 · 대분류: 대화 · 기능명: 대답 추천(3개) · 화면: 입력창 옆 ✦ · API: POST …/chat/suggestions · 코드 위치: api/character-chat, ai/services/suggestion.py · 시험 / 비고: chat · 상태: 구현 · 구분: 기획서 v1 핵심
 - 기능 ID: F03-04 · 대분류: 대화 · 기능명: 명령어 · 화면: 입력창 · API: POST …/chat/regenerate continue undo · 코드 위치: api/character-chat · 시험 / 비고: commands · /다시 /계속 /되돌리기 /상황 내용 /도움말 · 상태: 구현 · 구분: 기획서 v1 핵심
@@ -875,7 +875,7 @@ worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: -
 - 화면 ID: SCR-W01 · 앱: web · 영역: 탐색 · 화면명: 홈 · URL: / · 접근: 누구나 · 주요 구성 요소: 히어로(소개·둘러보기·직접 만들기), 이어서 대화하기(최근 3개), 시작할 캐릭터 목록 · 주요 동작 · 규칙: 캐릭터 카드를 누르면 상세로. 로그인하면 최근 대화가 맨 위 · 호출 API: GET /characters, GET /me/conversations · 비고: 기획서 §8 1번
 - 화면 ID: SCR-W02 · 앱: web · 영역: 탐색 · 화면명: 인기 · URL: /popular · 접근: 누구나 · 주요 구성 요소: 요약 숫자, 종류 탭(전체·공식·유저 제작), TOP 3 시상대, 순위 목록 · 주요 동작 · 규칙: ?kind= 로 거르기 · 호출 API: GET /characters/popular
 - 화면 ID: SCR-W03 · 앱: web · 영역: 탐색 · 화면명: 캐릭터 상세 · URL: /characters/:id · 접근: 누구나 · 주요 구성 요소: 초상·이름·한 줄·태그, 시작하기, 신고(맨 아래) · 주요 동작 · 규칙: 비밀 필드는 응답에서 뺀다 · 호출 API: GET /characters/:id, …/portrait, …/report
-- 화면 ID: SCR-W04 · 앱: web · 영역: 대화 · 화면명: 대화 · URL: /characters/:id/chat · 접근: 로그인 · 주요 구성 요소: 초상 말풍선, 입력창(Shift+Enter 줄바꿈), 대답 추천 ✦, 모델 고르기, 오퍼레이션 메뉴, 코디포토넷 버튼, 지난 이야기·엑스트라·비밀 퀘스트 패널, ⋮ 메뉴 · 주요 동작 · 규칙: 명령어 /다시 /계속 /되돌리기, 새로하기(저장/안 함), 내 프로필 고정, 추천 프로필 카드 · 호출 API: GET·POST /characters/:id/chat, …/suggestions, …/story, …/quest, GET /models · 비고: 답은 한 번에(스트리밍 없음)
+- 화면 ID: SCR-W04 · 앱: web · 영역: 대화 · 화면명: 대화 · URL: /characters/:id/chat · 접근: 로그인 · 주요 구성 요소: 초상 말풍선, 입력창(Shift+Enter 줄바꿈), 대답 추천 ✦, 모델 고르기, 오퍼레이션 메뉴, 코디포토넷 버튼, 지난 이야기·엑스트라·비밀 퀘스트 패널, ⋮ 메뉴 · 주요 동작 · 규칙: 명령어 /다시 /계속 /되돌리기, 새로하기(저장/안 함), 내 프로필 고정, 추천 프로필 카드 · 호출 API: GET·POST /characters/:id/chat, POST …/chat/live, 웹소켓 /ws/chat, …/suggestions, …/story, …/quest, GET /models · 비고: 1:1은 웹소켓으로 토큰을 바로 보여 줌. 호스팅은 한 덩어리. 월드·명령어는 답이 끝난 뒤. 소켓은 추론을 나누지 않음
 - 화면 ID: SCR-W05 · 앱: web · 영역: 대화 · 화면명: 저장한 대화 · URL: /characters/:id/chat/saved · 접근: 로그인 · 주요 구성 요소: 저장한 대화 목록 · 주요 동작 · 규칙: 이어하기·지우기 · 호출 API: GET …/chat/saved, POST …/saved/:campaignId/resume
 - 화면 ID: SCR-W06 · 앱: web · 영역: 대화 · 화면명: 메모리 기록 · URL: /characters/:id/chat/memories · 접근: 로그인 · 주요 구성 요소: 캐릭터가 기억하는 문장 목록 · 주요 동작 · 규칙: 지우기·다시 정리 · 호출 API: GET …/memories, DELETE …/memories/:id, POST …/memories/refresh
 - 화면 ID: SCR-W07 · 앱: web · 영역: 대화 · 화면명: 캐릭터 내 상태설정 · URL: /characters/:id/chat/settings · 접근: 로그인 · 주요 구성 요소: 친밀도·관계 메모·호칭, 자동 변화 끄기 · 주요 동작 · 규칙: 저장하면 다음 턴부터 반영 · 호출 API: GET·PATCH …/chat/state
@@ -998,7 +998,7 @@ worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: -
 - ID: W03 · 구분: 월드코퍼챗 · 할 일: 세계관 신고 화면 · 왜 · 지금 상태: 운영자가 직접 내림 · 선행 조건: - · 끝난 기준: 상세 신고 → 콘솔 처리, e2e · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
 - ID: W04 · 구분: 월드코퍼챗 · 할 일: 파트 판정 실측(실제 모델) · 왜 · 지금 상태: 단위 시험·가짜 판정만 · 선행 조건: - · 끝난 기준: 장면 묶음 잘못 통과 0 · 담당: 에이전트 · 우선순위: 중간 · 상태: 대기
 - ID: W05 · 구분: 월드코퍼챗 · 할 일: 메신저형 줄바꿈 흔들림 · 왜 · 지금 상태: 형식 5/6 · 선행 조건: - · 끝난 기준: 메신저 6/6 이상 두 번 · 담당: 에이전트 · 우선순위: 낮음 · 상태: 대기
-- ID: D01 · 구분: 방향 확인 · 할 일: 스트리밍 응답 · 왜 · 지금 상태: 개인사 가드와 맞추는 방법 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 공개 뒤 결정 권장
+- ID: D01 · 구분: 방향 확인 · 할 일: 스트리밍 응답 · 왜 · 지금 상태: 2026-11-09에 정함. 1:1은 웹소켓으로 먼저 보여 주고, 개인사 검사가 고치면 그 글을 바꾼다. 월드 플레이는 아직 한 번에 온다 · 선행 조건: 결정됨 · 끝난 기준: 공개 API에 이 소켓이 올라갔는지 확인 · 담당: 사용자 · 우선순위: 낮음 · 상태: 1:1은 코드에 있음. 공개 API 확인 남음
 - ID: D02 · 구분: 방향 확인 · 할 일: 캐릭터당 퀘스트 여러 개 · 왜 · 지금 상태: 코레딧 보상 규칙 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 급하지 않음
 - ID: D03 · 구분: 방향 확인 · 할 일: 프리미엄 키 연결과 실제 호출 · 왜 · 지금 상태: 돈이 나간다 · 선행 조건: 사용자 결정 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 대기
 - ID: D04 · 구분: 방향 확인 · 할 일: 성인 모드 공개 · 왜 · 지금 상태: 법률 검토 뒤 · 선행 조건: 법률 검토 · 끝난 기준: - · 담당: 사용자 · 우선순위: 낮음 · 상태: 공개 서버에선 끈 채로
