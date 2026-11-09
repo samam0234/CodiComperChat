@@ -85,7 +85,7 @@ Nest ─▶ internal_auth 미들웨어 (AI_SERVICE_TOKEN, 루프백 /health만 �
 ```mermaid
 flowchart LR
   N["Nest"] --> IA["internal_auth"]
-  IA --> R1["/infer · /suggest-replies · /ground-check"]
+  IA --> R1["/infer · /infer/stream · /suggest-replies · /ground-check"]
   IA --> R2["/summarize · /remember"]
   IA --> R3["/critique-test · /draft-*"]
   IA --> R4["/mind · /diary · /board-*"]
@@ -141,7 +141,8 @@ flowchart TD
 
 | 경로 | 프롬프트 | 후처리 |
 |------|----------|--------|
-| `/infer` | `inference.py`: 말투·역할 규칙 + 카드 핵심 + 상태 + 지식 + 기억 + 끝에 `sceneNote` | 프리미엄은 외부 전달 규칙을 덧붙인다 |
+| `/infer` | `inference.py`: 말투·역할 규칙 + 카드 핵심 + 상태 + 지식 + 기억 + 끝에 `sceneNote` | 프리미엄은 외부 전달 규칙을 덧붙인다. 응답은 한 덩어리 |
+| `/infer/stream` | `/infer`와 같은 프롬프트 | NDJSON. 로컬 모델만 조각이 나오고, 호스팅 모델은 한 줄이다. 1:1 웹소켓이 이 글을 옮긴다. 추론은 나누지 않는다 |
 | `/summarize` | `summarization.py`: JSON 스키마, 고정 시드 | 퀘스트 후보를 전용 판정으로 다시 보고 인용을 실제 대사와 대조 |
 | `/ground-check` | `grounding.py`: 설정에 없는 개인사를 단정했나 | Nest가 다시 쓰기를 결정한다 |
 | `/photonet` | `photonet.py`: 장면 설계표(JSON) → 코드가 프롬프트 조립 | 그림 검수, 막히면 422 |
@@ -212,7 +213,7 @@ flowchart LR
 
 | 묶음 | 경로 | 하는 일 |
 |------|------|---------|
-| 대화 | `POST /infer` · `/suggest-replies` · `/ground-check` | 캐릭터 연기(`*행동*`·`@:` 나레이션), 대답 추천, 개인사 환각 검사 |
+| 대화 | `POST /infer` · `/infer/stream` · `/suggest-replies` · `/ground-check` | 캐릭터 연기(`*행동*`·`@:` 나레이션). `/infer`는 한 덩어리, `/infer/stream`은 로컬 조각만 NDJSON. 대답 추천, 개인사 환각 검사 |
 | 이야기 상태 | `POST /summarize` · `/remember` · `/notice-facts` | 요약·친밀도·복선, 장기 기억. `/notice-facts`는 유저가 밝힌 프로필·상대 설정만. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
 | 한 줄 다시 쓰기 | `POST /rewrite-line` | 메시지 한 줄을 유저가 적은 방향으로 고친다 |
 | 공방 | `POST /draft-field` · `/draft-quest` · `/critique-test` · `/moderate-image` | AI 초안·퀘스트 제작, 3턴 판정, 초상 검수 |
