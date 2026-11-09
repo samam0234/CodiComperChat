@@ -502,5 +502,6 @@ flowchart LR
 | 2026-11-09 | `f90177f` | feature/chat-live-socket | 웹소켓은 답을 옮길 뿐이라고 문서에 적다 | [261109_1906_f90177f_chat-live-docs_feature-chat-live-socket.md](commits/261109_1906_f90177f_chat-live-docs_feature-chat-live-socket.md) |
 | 2026-11-09 | `8065f0e` | develop (merge) | feature/chat-live-socket into develop (no-ff) | [261109_1908_8065f0e_merge-chat-live-into-develop_develop.md](commits/261109_1908_8065f0e_merge-chat-live-into-develop_develop.md) |
 | 2026-11-09 | `f157e3f` | main (merge) | develop into main (no-ff) | [261109_1909_f157e3f_merge-chat-live-into-main_main.md](commits/261109_1909_f157e3f_merge-chat-live-into-main_main.md) |
+| 2026-11-09 | `085d54e` | feature/docs-live-socket-gaps | 웹소켓이 빠졌던 문서를 지금 동작에 맞추다 | [261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md](commits/261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
