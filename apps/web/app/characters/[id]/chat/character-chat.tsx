@@ -524,8 +524,9 @@ export default function CharacterChat({
       }
 
       nextId.current += 1;
-      replyId = nextId.current;
-      setMessages((prev) => [...prev, { id: replyId, role: "character", text: "" }]);
+      const openedId = nextId.current;
+      replyId = openedId;
+      setMessages((prev) => [...prev, { id: openedId, role: "character", text: "" }]);
 
       await new Promise<void>((resolve, reject) => {
         const ws = new WebSocket(openedBody.wsUrl);

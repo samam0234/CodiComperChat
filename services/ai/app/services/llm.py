@@ -13,6 +13,7 @@ import time
 import httpx
 from fastapi import HTTPException
 
+from app import request_priority
 from app.services import fake_llm
 
 # 로컬에 pull된 모델 태그. 확인: `ollama list`
@@ -86,7 +87,28 @@ def generate(
 
     # 강화 무료: 키가 있으면 NVIDIA gemma-4-31b-it. 주소·모델 환경변수가 있으면 그것을 쓰고, 없으면 NVIDIA 기본값.
     # 막히면 없는 gemma4:12b 대신 기본 로컬 모델로 내려간다.
-    if model == ENHANCED_LOCAL_TAG and _hosted_key():
+    route = _hosted_route(model)
+    if route is not None:
+        api_base, api_model = route
+        if response_json_schema is None:
+            # 글로 답하는 호출(대화 연기·월드 진행자 등)은 스트리밍으로 받아 모은다. 한 번에 받으면 답 전체가
+            # LLM_API_TIMEOUT_SECONDS 안에 와야 해서, 느리지만 쓰고 있는 답도 끊고 CPU 예비로 처음부터 다시 했다
+            text = "".join(
+                _iter_hosted_with_fallback(
+                    system=system,
+                    contents=contents,
+                    max_output_tokens=max_output_tokens,
+                    temperature=temperature,
+                    seed=seed,
+                    ollama_model=_fallback_local_model(model),
+                    keep_alive=keep_alive,
+                    api_base=api_base,
+                    api_model=api_model,
+                )
+            )
+            if not text:
+                raise HTTPException(status_code=502, detail="LLM이 빈 응답을 돌려줬다 (출력 토큰 한도 초과일 수 있다).")
+            return text
         return _generate_openai_with_fallback(
             system=system,
             contents=contents,
@@ -96,20 +118,8 @@ def generate(
             seed=seed,
             ollama_model=_fallback_local_model(model),
             keep_alive=keep_alive,
-            api_base=os.environ.get("LLM_API_BASE", "").strip() or NVIDIA_API_BASE,
-            api_model=os.environ.get("LLM_API_MODEL", "").strip() or NVIDIA_API_MODEL,
-        )
-
-    if _backend_is_openai():
-        return _generate_openai_with_fallback(
-            system=system,
-            contents=contents,
-            max_output_tokens=max_output_tokens,
-            temperature=temperature,
-            response_json_schema=response_json_schema,
-            seed=seed,
-            ollama_model=_fallback_local_model(model),
-            keep_alive=keep_alive,
+            api_base=api_base,
+            api_model=api_model,
         )
 
     return _generate_ollama(
@@ -264,7 +274,21 @@ def iter_generate(
     keep_alive: int | None = None,
     provider: str = "ollama",
 ):
-    """로컬 모델은 토큰 조각을 그대로 넘긴다. 그 외는 generate() 결과 한 조각이다."""
+    """로컬 모델과 호스팅 API는 토큰 조각을 그대로 넘긴다. 프리미엄·JSON 출력은 generate() 결과 한 조각이다."""
+    route = _hosted_route(model) if provider == "ollama" else None
+    if route is not None and response_json_schema is None and os.environ.get("LLM_FAKE") != "1":
+        yield from _iter_hosted_with_fallback(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            seed=seed,
+            ollama_model=_fallback_local_model(model),
+            keep_alive=keep_alive,
+            api_base=route[0],
+            api_model=route[1],
+        )
+        return
     if streams_locally(model, provider) and os.environ.get("LLM_FAKE") != "1":
         base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
         tag = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
@@ -347,6 +371,166 @@ def enhanced_uses_cloud(model: str | None) -> bool:
     return model == ENHANCED_LOCAL_TAG and bool(_hosted_key())
 
 
+def _hosted_route(model: str | None) -> tuple[str | None, str | None] | None:
+    """이 모델 요청이 호스팅 API로 가면 (주소, 모델), 로컬 Ollama면 None. 주소·모델이 None이면 환경변수를 쓴다."""
+    if model == BASIC_LOCAL_TAG:
+        return None
+    if model == ENHANCED_LOCAL_TAG and _hosted_key():
+        return (
+            os.environ.get("LLM_API_BASE", "").strip() or NVIDIA_API_BASE,
+            os.environ.get("LLM_API_MODEL", "").strip() or NVIDIA_API_MODEL,
+        )
+    if _backend_is_openai():
+        return (None, None)
+    return None
+
+
+def _fallback_allowed() -> bool:
+    """호스팅이 막혔을 때 CPU 예비로 내려가도 되나. 배경 작업(정리·기억)은 내려가지 않고 다음 기회로 미룬다."""
+    return os.environ.get("LLM_FALLBACK_OLLAMA") == "1" and not request_priority.is_background()
+
+
+# CPU 예비로 내려갈 때 가볍게: 최근 대화를 줄이고 출력을 짧게. ARM 2코어에서는 프롬프트를 읽는 시간이 대부분이라
+# 긴 대화 기록을 그대로 넘기면 몇 분이 걸린다(2026-11-11 사용자 보고: 한 턴 3분 53초)
+def _fallback_turns() -> int:
+    raw = os.environ.get("LLM_FALLBACK_MAX_TURNS", "").strip()
+    return int(raw) if raw.isdigit() and int(raw) > 0 else 8
+
+
+def _fallback_tokens(requested: int) -> int:
+    raw = os.environ.get("LLM_FALLBACK_MAX_TOKENS", "").strip()
+    cap = int(raw) if raw.isdigit() and int(raw) > 0 else 320
+    return min(requested, cap)
+
+
+def _hosted_timeout() -> httpx.Timeout:
+    """호스팅 스트리밍의 시간 제한. 읽기는 '다음 조각까지'의 공백이다(첫 조각 전에는 프롬프트를 읽는 시간)."""
+    return httpx.Timeout(
+        connect=_seconds("LLM_API_CONNECT_TIMEOUT_SECONDS", 10.0),
+        read=_seconds("LLM_API_READ_TIMEOUT_SECONDS", 40.0),
+        write=30.0,
+        pool=30.0,
+    )
+
+
+def _iter_openai_pieces(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None,
+    seed: int | None,
+    api_base: str | None,
+    api_model: str | None,
+):
+    """OpenAI 호환 API를 스트리밍(SSE)으로 받아 조각마다 넘긴다.
+
+    첫 조각 전에 막히면(한도·서버 오류·연결·시간) _ApiUnavailable — 예비로 넘어갈 수 있다.
+    조각을 이미 넘긴 뒤 끊기면 HTTPException — 화면에 반쯤 나간 답을 예비로 바꿔 쓰지 않는다.
+    """
+    base = (api_base if api_base is not None else os.environ.get("LLM_API_BASE", "")).rstrip("/")
+    api_model = api_model if api_model is not None else os.environ.get("LLM_API_MODEL", "")
+    if not base or not api_model:
+        raise HTTPException(status_code=500, detail="LLM_BACKEND=openai에는 LLM_API_BASE와 LLM_API_MODEL이 필요하다.")
+    payload: dict[str, object] = {
+        "model": api_model,
+        "messages": [{"role": "system", "content": system}, *contents],
+        "max_tokens": max_output_tokens,
+        "stream": True,
+    }
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if seed is not None:
+        payload["seed"] = seed
+    headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
+    key = _hosted_key()
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    total_limit = _seconds("LLM_API_TOTAL_TIMEOUT_SECONDS", 150.0)
+    started = time.monotonic()
+    sent = False
+
+    def fail(detail: str, status: int) -> Exception:
+        return HTTPException(status_code=502 if status >= 500 else status, detail=detail) if sent else _ApiUnavailable(detail, status)
+
+    try:
+        with httpx.stream("POST", f"{base}/chat/completions", json=payload, headers=headers, timeout=_hosted_timeout()) as response:
+            if response.status_code in _RETRYABLE_STATUS:
+                reason = "하루·분당 한도를 넘었다" if response.status_code == 429 else f"서버 오류({response.status_code})"
+                raise _ApiUnavailable(f"무료 AI API가 지금 답하지 못한다: {reason}.", 503 if response.status_code == 429 else 502)
+            if response.status_code >= 400:
+                detail = response.read().decode("utf-8", "replace")[:300]
+                raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {detail}")
+            for line in response.iter_lines():
+                line = line.strip()
+                if not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                try:
+                    chunk = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+                choices = chunk.get("choices") or []
+                piece = ((choices[0] or {}).get("delta") or {}).get("content") if choices else None
+                if piece:
+                    sent = True
+                    yield piece
+                if total_limit is not None and time.monotonic() - started > total_limit:
+                    raise fail("무료 AI API의 답이 상한 시간을 넘어 멈췄다.", 504)
+    except httpx.TimeoutException as exc:
+        raise fail("무료 AI API가 오래 아무것도 보내지 않아 멈췄다.", 504) from exc
+    except httpx.HTTPError as exc:
+        raise fail(f"무료 AI API({base})에 연결할 수 없다.", 503) from exc
+
+
+def _iter_hosted_with_fallback(
+    *,
+    system: str,
+    contents: Contents,
+    max_output_tokens: int,
+    temperature: float | None,
+    seed: int | None,
+    ollama_model: str | None,
+    keep_alive: int | None,
+    api_base: str | None,
+    api_model: str | None,
+):
+    """호스팅 스트리밍 → 첫 조각 전에 막히면 가벼운 CPU 예비(사용자가 기다리는 답일 때만)."""
+    try:
+        yield from _iter_openai_pieces(
+            system=system,
+            contents=contents,
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            seed=seed,
+            api_base=api_base,
+            api_model=api_model,
+        )
+        return
+    except _ApiUnavailable as exc:
+        if not _fallback_allowed():
+            raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
+    tag = ollama_model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
+    options: dict[str, object] = {"num_predict": _fallback_tokens(max_output_tokens)}
+    if temperature is not None:
+        options["temperature"] = temperature
+    if seed is not None:
+        options["seed"] = seed
+    payload: dict[str, object] = {
+        "model": tag,
+        "messages": [{"role": "system", "content": system}, *contents[-_fallback_turns():]],
+        "stream": True,
+        "think": False,
+        "options": options,
+    }
+    if keep_alive is not None:
+        payload["keep_alive"] = keep_alive
+    yield from _iter_ollama_pieces(base_url, tag, payload)
+
+
 def _fallback_local_model(requested: str | None) -> str | None:
     """예비 Ollama는 서버에 없는 강화 태그를 찾지 않고 기본 모델을 쓴다."""
     if requested == ENHANCED_LOCAL_TAG:
@@ -379,7 +563,7 @@ def _generate_openai_with_fallback(
             api_model=api_model,
         )
     except _ApiUnavailable as exc:
-        if os.environ.get("LLM_FALLBACK_OLLAMA") != "1":
+        if not _fallback_allowed():
             raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
         # 예비 모델로 대신 답한다. 예비도 안 되면 그 오류(연결 불가 등)가 그대로 나간다
         return _generate_ollama(

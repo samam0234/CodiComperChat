@@ -505,5 +505,10 @@ flowchart LR
 | 2026-11-09 | `085d54e` | feature/docs-live-socket-gaps | 웹소켓이 빠졌던 문서를 지금 동작에 맞추다 | [261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md](commits/261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md) |
 | 2026-11-09 | `541c991` | develop (merge) | feature/docs-live-socket-gaps into develop (no-ff) | [261109_1919_541c991_merge-docs-live-gaps-into-develop_develop.md](commits/261109_1919_541c991_merge-docs-live-gaps-into-develop_develop.md) |
 | 2026-11-09 | `56ce936` | main (merge) | develop into main (no-ff) | [261109_1920_56ce936_merge-docs-live-gaps-into-main_main.md](commits/261109_1920_56ce936_merge-docs-live-gaps-into-main_main.md) |
+| 2026-11-11 | `6626ad4` | feature/chat-latency | 호스팅 답을 스트리밍으로 받아 CPU 예비로 떨어지지 않게 하다 | [261111_1907_6626ad4_hosted-streaming-light-fallback_feature-chat-latency.md](commits/261111_1907_6626ad4_hosted-streaming-light-fallback_feature-chat-latency.md) |
+| 2026-11-11 | `fec5a9f` | feature/chat-latency | AI 요청에 우선순위 머리글을 붙이다 | [261111_1907_fec5a9f_ai-priority-header_feature-chat-latency.md](commits/261111_1907_fec5a9f_ai-priority-header_feature-chat-latency.md) |
+| 2026-11-11 | `0d049d6` | feature/chat-latency | 웹과 콘솔 빌드를 막던 타입 오류를 고치다 | [261111_1907_0d049d6_web-console-build-types_feature-chat-latency.md](commits/261111_1907_0d049d6_web-console-build-types_feature-chat-latency.md) |
+| 2026-11-11 | `c9aa2ba` | feature/chat-latency | 대화 속도 원인과 고침, 서버에 올리는 법을 적다 | [261111_1907_c9aa2ba_chat-latency-docs_feature-chat-latency.md](commits/261111_1907_c9aa2ba_chat-latency-docs_feature-chat-latency.md) |
+| 2026-11-11 | `7b7aea8` | develop (merge) | feature/chat-latency into develop (no-ff) | [261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md](commits/261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

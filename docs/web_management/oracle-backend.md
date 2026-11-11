@@ -81,6 +81,15 @@ curl https://api.168-110-61-178.sslip.io/health
 - `deploy/oracle/.env`는 서버에서 처음 한 번 만들어지고 다시 덮어쓰지 않는다. 비밀값은 서버에만 있다. 값을 바꿀 때는 `sudo nano`로 고치고 위 3)을 다시 돌린다.
 - `deploy/oracle/bootstrap.sh`·`setup.sh`(다른 브랜치에서 들어옴)는 다른 compose를 전제로 쓰였다. **이 서버에서 돌리지 않는다.**
 
+### 2026-11-11 대화 속도 고침을 서버에 올리기
+
+`api`(우선순위 머리글)와 `ai`(호스팅 스트리밍·가벼운 예비) 둘 다 바뀌었다. 위 1)로 코드를 보내고 3)으로 **두 서비스를 다시 빌드**한다. 새 설정(`LLM_API_READ_TIMEOUT_SECONDS` 40, `LLM_API_TOTAL_TIMEOUT_SECONDS` 150, `LLM_FALLBACK_MAX_TURNS` 8, `LLM_FALLBACK_MAX_TOKENS` 320)은 compose 기본값이 있어 `.env`를 고치지 않아도 된다. 올린 뒤 같은 대화를 몇 번 보내 시간을 재고 [../trainings/oracle-deploy-latency.md](../trainings/oracle-deploy-latency.md)에 적는다.
+
+```bash
+$SSH "cd ~/codicomperchat && $C up -d --build api ai"
+$SSH "cd ~/codicomperchat && $C logs --tail 50 ai"   # 호스팅이 막혀 예비로 간 횟수를 본다
+```
+
 ## 자주 쓰는 점검
 
 ```bash
