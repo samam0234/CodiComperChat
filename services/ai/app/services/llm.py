@@ -7,6 +7,7 @@
 """
 
 import json
+import logging
 import os
 import time
 
@@ -347,6 +348,11 @@ def warm_up() -> None:
 
 # 한도 초과·서버 오류·시간 초과·연결 불가: 폴백이 켜져 있으면 Ollama로 넘어갈 수 있는 실패
 _RETRYABLE_STATUS = {408, 425, 429, 500, 502, 503, 504}
+# 키 만료·결제·모델 접근 거부: 사용자 잘못이 아니라 서버 설정 문제다. 사용자가 기다리는 답이면 예비로 대신 답하고,
+# 원인은 서버 로그에 남긴다(2026-11-11 배포에서 "LLM 호출 실패"가 그대로 사용자에게 보인 일)
+_CONFIG_STATUS = {401, 402, 403, 404}
+
+logger = logging.getLogger("codicomperchat.llm")
 
 
 class _ApiUnavailable(Exception):
@@ -460,6 +466,8 @@ def _iter_openai_pieces(
                 raise _ApiUnavailable(f"무료 AI API가 지금 답하지 못한다: {reason}.", 503 if response.status_code == 429 else 502)
             if response.status_code >= 400:
                 detail = response.read().decode("utf-8", "replace")[:300]
+                if response.status_code in _CONFIG_STATUS:
+                    raise _ApiUnavailable(f"LLM 호출 실패({response.status_code}): {detail}", 502)
                 raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {detail}")
             for line in response.iter_lines():
                 line = line.strip()
@@ -511,7 +519,9 @@ def _iter_hosted_with_fallback(
         return
     except _ApiUnavailable as exc:
         if not _fallback_allowed():
+            logger.warning("호스팅 API 실패, 예비 없이 오류로 돌려준다: %s", exc.detail)
             raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+        logger.warning("호스팅 API 실패, CPU 예비로 대신 답한다: %s", exc.detail)
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
     tag = ollama_model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
     options: dict[str, object] = {"num_predict": _fallback_tokens(max_output_tokens)}
@@ -564,7 +574,9 @@ def _generate_openai_with_fallback(
         )
     except _ApiUnavailable as exc:
         if not _fallback_allowed():
+            logger.warning("호스팅 API 실패, 예비 없이 오류로 돌려준다: %s", exc.detail)
             raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+        logger.warning("호스팅 API 실패, CPU 예비로 대신 답한다: %s", exc.detail)
         # 예비 모델로 대신 답한다. 예비도 안 되면 그 오류(연결 불가 등)가 그대로 나간다
         return _generate_ollama(
             system=system,
@@ -650,6 +662,8 @@ def _generate_openai(
         reason = "하루·분당 한도를 넘었다" if response.status_code == 429 else f"서버 오류({response.status_code})"
         raise _ApiUnavailable(f"무료 AI API가 지금 답하지 못한다: {reason}.", 503 if response.status_code == 429 else 502)
     if response.status_code >= 400:
+        if response.status_code in _CONFIG_STATUS:
+            raise _ApiUnavailable(f"LLM 호출 실패({response.status_code}): {response.text[:300]}", 502)
         raise HTTPException(status_code=502, detail=f"LLM 호출 실패: {response.text[:300]}")
 
     try:
