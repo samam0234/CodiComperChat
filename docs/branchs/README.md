@@ -521,5 +521,7 @@ flowchart LR
 | 2026-11-11 | `ecfdaaf` | feature/merge-order-rule | 병합과 푸시를 함께 시킬 때의 순서와 인수인계를 규칙에 박다 | [261111_2114_ecfdaaf_merge-push-order-rule_feature-merge-order-rule.md](commits/261111_2114_ecfdaaf_merge-push-order-rule_feature-merge-order-rule.md) |
 | 2026-11-11 | `848e5ed` | develop (merge) | feature/merge-order-rule into develop (no-ff) | [261111_2114_848e5ed_merge-merge-order-rule-into-develop_develop.md](commits/261111_2114_848e5ed_merge-merge-order-rule-into-develop_develop.md) |
 | 2026-11-11 | `85add9a` | main (merge) | develop into main (no-ff) | [261111_2114_85add9a_merge-develop-into-main-order-rule_main.md](commits/261111_2114_85add9a_merge-develop-into-main-order-rule_main.md) |
+| 2026-11-11 | `01e0fba` | feature/docs-latency-gaps | 대화 속도·호스팅 오류 고침에서 빠진 문서를 채우다 | [261111_2123_01e0fba_latency-docs-gaps_feature-docs-latency-gaps.md](commits/261111_2123_01e0fba_latency-docs-gaps_feature-docs-latency-gaps.md) |
+| 2026-11-11 | `0c0f9b5` | develop (merge) | feature/docs-latency-gaps into develop (no-ff) | [261111_2124_0c0f9b5_merge-latency-docs-gaps-into-develop_develop.md](commits/261111_2124_0c0f9b5_merge-latency-docs-gaps-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
