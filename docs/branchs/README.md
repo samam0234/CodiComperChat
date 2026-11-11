@@ -530,6 +530,5 @@ flowchart LR
 | 2026-11-11 | `d54d040` | main (merge) | develop into main (no-ff) | [261111_2204_d54d040_merge-portfolio-main_main.md](commits/261111_2204_d54d040_merge-portfolio-main_main.md) |
 | 2026-11-11 | `d098beb` | feature/portfolio-head-meta | 빠져 있던 head 태그와 404·robots·sitemap을 채우다 | [261111_2219_d098beb_portfolio-head-meta_feature-portfolio-head-meta.md](commits/261111_2219_d098beb_portfolio-head-meta_feature-portfolio-head-meta.md) |
 | 2026-11-11 | `d1643fb` | develop (merge) | feature/portfolio-head-meta into develop (no-ff) | [261111_2219_d1643fb_merge-portfolio-head-meta-into-develop_develop.md](commits/261111_2219_d1643fb_merge-portfolio-head-meta-into-develop_develop.md) |
-| 2026-11-11 | `f15da93` | main | 병합 기록 d1643fb 추가 | [261111_2219_f15da93_merge-portfolio-head-meta-into-main_main.md](commits/261111_2219_f15da93_merge-portfolio-head-meta-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
