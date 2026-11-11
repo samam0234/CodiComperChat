@@ -23,7 +23,7 @@
   feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
         │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
         ▼  사용자가 "병합"이라고 할 때만
-  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ develop을 main에 맞춤 ─▶ 푸시는 요청할 때만 (둘 다 같이)
 
 충돌할 때 (1장): 기획 원본 > 이 정본 > 루트 AGENTS.md > commit-message > branch-merge > TEMPLATE > 도구별 어댑터
 ```
@@ -226,7 +226,7 @@ main          ← 배포 통합만
 | 일자 통합 | develop / main 만 |
 | 병합 | **`git merge --no-ff`** (FF 금지) |
 | feature 완료 | 사용자가 "병합"이라고 말하면 develop에 --no-ff |
-| 푸시 | 사용자가 요청할 때만 |
+| 푸시 | 사용자가 요청할 때만. **main 병합 뒤 develop·main을 같이** 푸시한다(main 병합 전에 develop만 먼저 푸시 금지) |
 | 배포 | release/* 검증 후 main |
 
 금지:
@@ -242,6 +242,8 @@ git checkout develop
 git pull origin develop
 git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
 # 병합 기록을 남기고 시험 결과를 보고한다. 푸시는 요청받았을 때만 한다.
+# 병합·푸시를 함께 시키면: develop 병합 → main 병합(--no-ff) → develop을 main에 ff-only → develop·main 같이 푸시.
+# 내 브랜치가 이미 develop에 들어가 있으면(merge-base --is-ancestor) 병합·기록을 하지 않는다.
 ```
 
 상세: `docs/guidance/branch-merge.md`
@@ -331,7 +333,7 @@ API 경계 (계획서 13.1, 13.2) — 웹이 치는 것과 내부 전용을 섞�
 5. **작업은 feature**, **합칠 때만 develop/main + `--no-ff`**
 6. **스택·범위는 `docs/plan/CURRENT_STACK.md` 기준**, 임의로 프레임워크를 바꾸거나 범위를 넓히지 않는다
 7. 시크릿·force-push 금지
-8. **병합은 사용자가 말할 때만, 푸시는 요청할 때만**
+8. **병합은 사용자가 말할 때만, 푸시는 요청할 때만** — 병합과 푸시를 함께 시키면 feature→develop→main(둘 다 --no-ff) 병합과 기록을 끝낸 뒤 develop을 main에 맞추고 둘을 같이 푸시한다. main 병합 전에 develop만 먼저 푸시하지 않는다.
 
 ---
 

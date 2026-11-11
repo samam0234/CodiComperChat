@@ -8,7 +8,7 @@
 3. 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식 기록 (생략 금지)
 4. 브랜치: `feature/*`에서 작업, `develop`/`main` 병합은 `--no-ff`만 (`docs/guidance/branch-merge.md`)
 5. 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`), 프론트→FastAPI 직접 호출 금지, v1 범위 임의 확장 금지 (`docs/plan/CURRENT_STACK.md`)
-6. 병합은 사용자가 말할 때만, 푸시는 요청할 때만. 사용자의 개발 서버를 켜거나 끄지 않는다 (정본 §9)
+6. 병합은 사용자가 말할 때만, 푸시는 요청할 때만. 병합과 푸시를 함께 시키면 feature→develop→main(둘 다 --no-ff) 병합과 기록을 끝낸 뒤 develop을 main에 맞추고 둘을 같이 푸시한다. main 병합 전에 develop만 먼저 푸시하지 않는다. 사용자의 개발 서버를 켜거나 끄지 않는다 (정본 §9)
 7. 할 일은 `docs/TASKS.md`, 실측과 판단은 `docs/trainings/`
 8. 시험·병합과 커밋을 한 명령으로 묶지 않는다 (`set -e`가 멈추지 않을 수 있다)
 
@@ -32,7 +32,7 @@
   feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
         │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
         ▼  사용자가 "병합"이라고 할 때만
-  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ develop을 main에 맞춤 ─▶ 푸시는 요청할 때만 (둘 다 같이)
 ```
 
 <!-- logic-mermaid -->
