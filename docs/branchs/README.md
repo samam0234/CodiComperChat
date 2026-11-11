@@ -515,5 +515,6 @@ flowchart LR
 | 2026-11-11 | `16001f6` | main (merge) | develop into main (no-ff) | [261111_1937_16001f6_merge-hosted-fallback-into-main_main.md](commits/261111_1937_16001f6_merge-hosted-fallback-into-main_main.md) |
 | 2026-11-11 | `156c182` | develop (merge) | feature/hosted-config-fallback into develop (no-ff) | [261111_1937_156c182_merge-hosted-fallback-into-develop_develop.md](commits/261111_1937_156c182_merge-hosted-fallback-into-develop_develop.md) |
 | 2026-11-11 | `1b10a5d` | feature/chatbot-speed | 챗봇 답을 CPU 한계 안에서 빠르게 하다 | [261111_2049_1b10a5d_chatbot-speed_feature-chatbot-speed.md](commits/261111_2049_1b10a5d_chatbot-speed_feature-chatbot-speed.md) |
+| 2026-11-11 | `67167eb` | main (merge) | develop into main (no-ff) | [261111_2049_67167eb_merge-chatbot-speed-into-main_main.md](commits/261111_2049_67167eb_merge-chatbot-speed-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
