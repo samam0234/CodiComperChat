@@ -105,6 +105,13 @@ async function main() {
       data: { portrait: new Uint8Array(data), portraitMime: 'image/webp' },
     });
   }
+  // 이세연 초상 교체 (2026-11-11 사용자 요청: 새 그림으로). 이미 들어 있는 옛 그림도 이 파일로 맞춘다.
+  // 파일이 정본이라 다음에 또 바꿀 때는 파일만 바꾸면 된다
+  const seyeonFile = new Uint8Array(readFileSync(join(ASSETS, 'lee-seyeon.webp')));
+  const seyeon = await prisma.character.findFirst({ where: { name: '이세연', ownerId: null }, select: { id: true, portrait: true } });
+  if (seyeon && (!seyeon.portrait || Buffer.compare(Buffer.from(seyeon.portrait), Buffer.from(seyeonFile)) !== 0)) {
+    await prisma.character.update({ where: { id: seyeon.id }, data: { portrait: seyeonFile, portraitMime: 'image/webp' } });
+  }
 
   // 공식 캐릭터를 먼저 심어야 세계관 등장인물이 그들과 이어진다
   await seedOfficialWorld();
