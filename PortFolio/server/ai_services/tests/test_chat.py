@@ -102,3 +102,44 @@ def test_internal_token():
     assert c.post("/chat", json={"message": "안녕"}).status_code == 401
     assert c.post("/chat", json={"message": "안녕"}, headers={"X-Internal-Token": "secret-token"}).status_code == 200
     assert c.get("/health").status_code == 200
+
+
+def test_same_question_is_answered_from_cache_without_calling_model():
+    rec = Recorder()
+    client = make(rec)
+    q = {"message": "코디컴퍼챗의 배포 구조를 알려줘"}
+    first = client.post("/chat", json=q).get_json()
+    assert first["cached"] is False and first["model"] != "rule"
+    calls = len(rec.calls)
+    again = client.post("/chat", json={"message": "  코디컴퍼챗의   배포 구조를 알려줘 "}).get_json()
+    assert again["cached"] is True and again["answer"] == first["answer"]
+    assert len(rec.calls) == calls  # 모델을 다시 부르지 않았다
+
+
+def test_history_turns_are_never_cached():
+    rec = Recorder()
+    client = make(rec)
+    body = {"message": "코디컴퍼챗의 배포 구조를 알려줘", "history": [{"role": "user", "content": "안녕"}, {"role": "assistant", "content": "네"}]}
+    client.post("/chat", json=body)
+    assert client.post("/chat", json=body).get_json()["cached"] is False
+
+
+def test_context_is_clipped_and_limited():
+    from app.graph import _clip
+
+    text = ("가나다라마바사. " * 200).strip()
+    clipped = _clip(text, 320)
+    assert len(clipped) <= 322 and clipped.endswith("…")
+    assert _clip("짧은 글", 450) == "짧은 글"
+
+
+def test_cache_file_survives_restart_and_is_dropped_when_knowledge_changes(tmp_path):
+    f = str(tmp_path / "answers.json")
+    q = {"message": "코디컴퍼챗의 배포 구조를 알려줘"}
+    first = make(Recorder(), cache_file=f).post("/chat", json=q).get_json()
+    rec2 = Recorder()
+    again = make(rec2, cache_file=f).post("/chat", json=q).get_json()  # 새 앱 = 재시작
+    assert again["cached"] is True and again["answer"] == first["answer"] and rec2.calls == []
+    # 모델 이름이 다르면 지문이 달라 옛 답을 쓰지 않는다
+    other = make(Recorder(), cache_file=f, chat_model="other:1b").post("/chat", json=q).get_json()
+    assert other["cached"] is False
