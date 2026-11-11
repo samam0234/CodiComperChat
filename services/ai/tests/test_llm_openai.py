@@ -143,9 +143,37 @@ class OpenAiBackendTest(unittest.TestCase):
         with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
             self.assertEqual(self.call(), "예비 답")
 
-    def test_client_error_does_not_fall_back(self):
-        # 401(키 오류) 같은 건 폴백으로 덮지 않고 바로 드러낸다
+    def test_config_errors_fall_back_and_are_logged(self):
+        # 키 만료·접근 거부(401·402·403·404)는 서버 설정 문제: 사용자가 기다리는 답은 예비로, 원인은 로그에 남긴다
+        for status in (401, 402, 403, 404):
+            with self.subTest(status=status):
+                STATE.pop("calls", None)
+                STATE["api_replies"] = [(status, "key expired")]
+                with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
+                    with self.assertLogs("codicomperchat.llm", level="WARNING") as logs:
+                        self.assertEqual(self.call(), "예비 답")
+                self.assertEqual(self.paths(), ["/v1/chat/completions", "/api/chat"])
+                self.assertIn(f"({status})", logs.output[0])
+
+    def test_config_error_in_json_call_falls_back_too(self):
         STATE["api_replies"] = [(401, "")]
+        with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
+            with self.assertLogs("codicomperchat.llm", level="WARNING"):
+                self.call(response_json_schema=SCHEMA)
+        self.assertEqual(self.paths(), ["/v1/chat/completions", "/api/chat"])
+
+    def test_config_error_without_fallback_surfaces_with_status_in_detail(self):
+        STATE["api_replies"] = [(401, "bad key")]
+        with self.assertLogs("codicomperchat.llm", level="WARNING"):
+            with self.assertRaises(HTTPException) as ctx:
+                self.call()
+        self.assertEqual(ctx.exception.status_code, 502)
+        self.assertIn("401", ctx.exception.detail)
+        self.assertEqual(self.paths(), ["/v1/chat/completions"])
+
+    def test_bad_request_is_not_hidden_by_fallback(self):
+        # 400·422는 우리 요청이 잘못된 것: 예비로 덮으면 버그가 숨는다
+        STATE["api_replies"] = [(422, "")]
         with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
             with self.assertRaises(HTTPException) as ctx:
                 self.call()
