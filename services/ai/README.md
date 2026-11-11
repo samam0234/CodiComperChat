@@ -214,6 +214,7 @@ flowchart LR
 | 묶음 | 경로 | 하는 일 |
 |------|------|---------|
 | 대화 | `POST /infer` · `/infer/stream` · `/suggest-replies` · `/ground-check` | 캐릭터 연기(`*행동*`·`@:` 나레이션). `/infer`는 한 덩어리, `/infer/stream`은 로컬 조각만 NDJSON. 대답 추천, 개인사 환각 검사 |
+| 기억 벡터 | `POST /rag/query` · `/rag/personal` | 사용자별 기억과 공통 말투. 해시 임베딩. 가중치 학습 없음 |
 | 이야기 상태 | `POST /summarize` · `/remember` · `/notice-facts` | 요약·친밀도·복선, 장기 기억. `/notice-facts`는 유저가 밝힌 프로필·상대 설정만. 비밀 퀘스트 건넴·달성 판정(후보 + 전용 판정) |
 | 한 줄 다시 쓰기 | `POST /rewrite-line` | 메시지 한 줄을 유저가 적은 방향으로 고친다 |
 | 공방 | `POST /draft-field` · `/draft-quest` · `/critique-test` · `/moderate-image` | AI 초안·퀘스트 제작, 3턴 판정, 초상 검수 |

@@ -21,6 +21,7 @@ import { DEFAULT_MODEL_ID, findModel } from '../models/models.js';
 import { ModelsService, type Ticket } from '../models/models.service.js';
 import { PersonaRagService } from '../persona-rag/persona-rag.service.js';
 import { PersonasService } from '../personas/personas.service.js';
+import { searchVectors } from '../rag/vector-rag.js';
 import { buildContextSlice } from './character-chat.context.js';
 import { noticeScene, type Scene } from './scene.js';
 import { groundingFacts, groundingText, keepGrounded, ungroundedTopics } from './grounding.js';
@@ -199,6 +200,7 @@ export class CharacterChatService {
     conversation: { campaignId: string } | null,
     history: ChatTurn[],
     message?: string,
+    vectorTexts: string[] | null = null,
   ) {
     if (!conversation) return [];
     const recent = history.slice(-2).map((t) => t.text);
@@ -206,7 +208,7 @@ export class CharacterChatService {
       message !== undefined
         ? { message, recent }
         : { message: history.at(-1)?.text ?? '', recent: recent.slice(0, -1) };
-    return this.memories.forContext(conversation.campaignId, query);
+    return this.memories.forContext(conversation.campaignId, query, vectorTexts);
   }
 
   // 캐릭터 답 한 번: 모델 고르기 → 횟수·코레딧 잡기 → 답 만들기 (못 만들면 잡은 것을 돌려준다).
@@ -214,7 +216,8 @@ export class CharacterChatService {
   private async compose(prep: Prepared, userTurn: string, requested: string | undefined, live?: LiveListener) {
     const { character, userId, persona, conversation: existing, history, chatState, story, adult } = prep;
     const rag = this.personaRag.assemble(character.name, history, userTurn);
-    const memories = await this.memoriesFor(existing, history, userTurn);
+    const vector = await searchVectors(userId, character.id, userTurn);
+    const memories = await this.memoriesFor(existing, history, userTurn, vector?.personal.length ? vector.personal : null);
     const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
 
     const grounding = groundingText(this.personaRag.knowledgeFor(character.name), character);
@@ -231,6 +234,7 @@ export class CharacterChatService {
       ungroundedTopics(userTurn, grounding),
       story,
       questNote,
+      vector?.common ?? [],
     );
     context.adult = adult;
     // 모델: 이번에 고른 것 > 이 대화에 저장된 것 > 기본. 고른 것이 안 되면(한도 소진·코레딧 부족·준비 중) 이유와 함께 거절한다

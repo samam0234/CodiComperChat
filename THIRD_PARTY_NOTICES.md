@@ -109,6 +109,7 @@ flowchart LR
 | 패키지 | 버전 | 라이선스 | 비고 |
 |--------|------|----------|------|
 | fastapi | 0.141.1 | MIT | |
+| chromadb | 1.1.1 | Apache-2.0 | 기억·공통 말투 벡터. 임베딩 가중치는 받지 않고 로컬 해시를 넣는다 |
 | starlette | 1.6.0 | BSD-3-Clause | fastapi 의존 |
 | pydantic | 2.13.5 | MIT | |
 | uvicorn | 0.53.0 | BSD-3-Clause | |
