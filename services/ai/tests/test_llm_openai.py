@@ -6,6 +6,7 @@
 import json
 import os
 import threading
+import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
@@ -35,7 +36,26 @@ class Fake(BaseHTTPRequestHandler):
         if self.path.endswith("/chat/completions"):
             replies = STATE["api_replies"]
             status, text = replies.pop(0) if len(replies) > 1 else replies[0]
-            if status == 200:
+            if status == 200 and body.get("stream"):
+                # SSE: 첫 조각 전에 기다림(first_delay) → 두 글자씩 → 중간에 멈춤(stall_after 조각 뒤)
+                time.sleep(float(STATE.get("first_delay", 0)))
+                pieces = [text[i : i + 2] for i in range(0, len(text), 2)]
+                try:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/event-stream")
+                    self.end_headers()
+                    for n, piece in enumerate(pieces):
+                        if STATE.get("stall_after") is not None and n == STATE["stall_after"]:
+                            time.sleep(float(STATE.get("stall", 2)))
+                            return
+                        chunk = {"choices": [{"delta": {"content": piece}}]}
+                        self.wfile.write(f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n".encode("utf-8"))
+                        self.wfile.flush()
+                    self.wfile.write(b"data: [DONE]\n\n")
+                except OSError:
+                    # 시간 제한 시험에서 클라이언트가 먼저 끊은 경우
+                    return
+            elif status == 200:
                 self._send(200, json.dumps({"choices": [{"message": {"content": text}}]}, ensure_ascii=False))
             else:
                 self._send(status, json.dumps({"error": "x"}))
@@ -167,6 +187,72 @@ class OpenAiBackendTest(unittest.TestCase):
         with self.assertRaises(HTTPException) as ctx:
             self.call()
         self.assertEqual(ctx.exception.status_code, 502)
+
+    # ---- 2026-11-11: 한 턴 3분 53초 고침 ----
+
+    def test_text_answers_are_streamed_and_joined(self):
+        # 글로 답하는 호출은 stream: true로 받는다 (답 전체가 시간 제한 안에 와야 할 필요가 없다)
+        STATE["api_replies"] = [(200, "느리지만 쓰고 있는 답")]
+        self.assertEqual(self.call(), "느리지만 쓰고 있는 답")
+        self.assertTrue(STATE["calls"][0][1]["stream"])
+
+    def test_json_answers_stay_non_streaming(self):
+        STATE["api_replies"] = [(200, '{"ok": true}')]
+        self.call(response_json_schema=SCHEMA)
+        self.assertFalse(STATE["calls"][0][1]["stream"])
+
+    def test_slow_total_answer_is_not_cut_while_pieces_keep_coming(self):
+        # 조각 사이 공백만 재므로, 전체가 읽기 제한보다 길어도 조각이 계속 오면 끊지 않는다
+        STATE["api_replies"] = [(200, "가" * 40)]
+        STATE["first_delay"] = 0.6
+        with mock.patch.dict(os.environ, {"LLM_API_READ_TIMEOUT_SECONDS": "1", "LLM_FALLBACK_OLLAMA": "1"}):
+            self.assertEqual(self.call(), "가" * 40)
+        self.assertEqual(self.paths(), ["/v1/chat/completions"])
+
+    def test_no_first_piece_in_time_falls_back_to_light_cpu(self):
+        STATE["api_replies"] = [(200, "늦은 답")]
+        STATE["first_delay"] = 2
+        contents = [llm.turn("user" if i % 2 == 0 else "assistant", f"대사 {i}") for i in range(20)]
+        with mock.patch.dict(os.environ, {"LLM_API_READ_TIMEOUT_SECONDS": "0.5", "LLM_FALLBACK_OLLAMA": "1"}):
+            text = llm.generate(system="s", contents=contents, max_output_tokens=1200)
+        self.assertEqual(text, "예비 답")
+        _path, body, _headers = STATE["calls"][-1]
+        # 가벼운 예비: 최근 8개 대사만, 출력은 320토큰까지
+        self.assertEqual(len(body["messages"]), 1 + 8)
+        self.assertEqual(body["messages"][-1]["content"], "대사 19")
+        self.assertEqual(body["options"]["num_predict"], 320)
+
+    def test_cut_after_pieces_is_an_error_not_a_fallback(self):
+        # 화면에 반쯤 나간 답을 예비 답으로 바꿔 쓰지 않는다
+        STATE["api_replies"] = [(200, "가나다라마바")]
+        STATE["stall_after"] = 1
+        with mock.patch.dict(os.environ, {"LLM_API_READ_TIMEOUT_SECONDS": "0.5", "LLM_FALLBACK_OLLAMA": "1"}):
+            with self.assertRaises(HTTPException) as ctx:
+                "".join(llm.iter_generate(system="s", contents=[llm.turn("user", "안녕")], max_output_tokens=50))
+        self.assertEqual(ctx.exception.status_code, 502)
+        self.assertEqual(self.paths(), ["/v1/chat/completions"])
+
+    def test_background_work_does_not_fall_back_to_cpu(self):
+        from app import request_priority
+
+        STATE["api_replies"] = [(429, "")]
+        request_priority.set_priority("background")
+        try:
+            with mock.patch.dict(os.environ, {"LLM_FALLBACK_OLLAMA": "1"}):
+                with self.assertRaises(HTTPException) as ctx:
+                    self.call()
+                with self.assertRaises(HTTPException):
+                    self.call(response_json_schema=SCHEMA)
+        finally:
+            request_priority.set_priority("foreground")
+        self.assertEqual(ctx.exception.status_code, 503)
+        self.assertNotIn("/api/chat", self.paths())
+
+    def test_iter_generate_streams_hosted_pieces(self):
+        STATE["api_replies"] = [(200, "한 조각씩 온다")]
+        pieces = list(llm.iter_generate(system="s", contents=[llm.turn("user", "안녕")], max_output_tokens=50))
+        self.assertGreater(len(pieces), 1)
+        self.assertEqual("".join(pieces), "한 조각씩 온다")
 
 
 if __name__ == "__main__":
