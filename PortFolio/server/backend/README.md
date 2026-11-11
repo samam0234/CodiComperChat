@@ -31,7 +31,7 @@ flowchart LR
 |--------|------|------|
 | GET | `/api/v1/health` | 상태, 데이터 수, AI 서비스 연결(꺼져 있어도 200) |
 | GET | `/api/v1/portfolio` | 콘텐츠 정본 전체 |
-| GET | `/api/v1/pages/:slug` | `frontend` · `console` · `backend` · `ai` · `future` |
+| GET | `/api/v1/pages/:slug` | `frontend` · `console` · `backend` · `ai` · `future` · `updates` · `frameworks` |
 | GET | `/api/v1/sheets` · `/api/v1/sheets/:id` | 기획 스프레드시트 시트 목록 · 한 시트 |
 | GET | `/api/v1/erd` · `/api/v1/erd/tables/:name` | ERD 전체 · 테이블과 부모/자식 관계 |
 | GET | `/api/v1/search?q=` | 페이지 절 · 시트 행 · 테이블을 함께 찾기(2자 이상, 최대 30건) |
@@ -51,6 +51,6 @@ flowchart LR
 
 ## 시험이 보는 것
 
-콘텐츠·페이지 404·캐시 헤더, 시트 9개, ERD 관계 40개와 테이블 부모/자식, 검색(페이지·시트 함께), 챗봇 프록시(앞뒤 공백 제거, 기록 12턴·역할 거르기), 검증 400·AI 장애 503·AI 오류 상태 그대로, 요청 한도 429, CORS 허용 주소만.
+콘텐츠·페이지 404·캐시 헤더, 개발 기록·프레임워크 상세 페이지, 시트 9개, ERD 테이블 38개·관계 41개와 부모/자식, 검색(페이지·시트 함께), 챗봇 프록시(앞뒤 공백 제거, 기록 12턴·역할 거르기), 검증 400·AI 장애 503·AI 오류 상태 그대로, 요청 한도 429, CORS 허용 주소만.
 
 챗봇 모델은 Ollama `gemma4:e4b` 하나다. 2026-11-07에 `gemma4:12b`로 재봤을 때는 질문 한 번 20초, 근거 5개였다.

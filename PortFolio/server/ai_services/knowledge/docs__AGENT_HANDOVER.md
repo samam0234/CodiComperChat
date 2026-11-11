@@ -1,7 +1,7 @@
 <!-- source: docs/AGENT_HANDOVER.md -->
 # 에이전트 인수인계
 
-이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-08.
+이 저장소의 작업을 이어받는 AI 에이전트(와 사람)를 위한 문서다. **여기부터 읽는다.** 규칙의 정본은 `.agents/skills/codicomperchat/SKILL.md`, 할 일의 정본은 [TASKS.md](TASKS.md)이고, 이 문서는 "지금 어디까지 왔고, 어디서 걸려 넘어지는가"를 적는다. Cursor 등 어떤 도구로 이어받아도 이전 대화는 볼 수 없으니, 합의한 내용은 이 문서들에서 찾는다. 최종 갱신 2026-11-11.
 
 ## 로직 구조
 
@@ -14,7 +14,8 @@
         │
 작업 ───┤ feature/* 에서 → 커밋마다 기록 → 시험 (병합·커밋과 한 명령으로 묶지 않는다)
         │
-끝 ─────┴─▶ 사용자가 "병합"이라고 할 때만 develop(--no-ff) → main · 푸시는 요청할 때만
+끝 ─────┴─▶ 사용자가 "병합"이라고 할 때만 develop(--no-ff) → main(--no-ff) → develop을 main에 맞춤
+            푸시는 요청할 때만, develop·main을 같이(main 병합 전에 develop만 먼저 푸시하지 않는다)
             개발 서버를 켜거나 끄지 않는다 · 켜져 있으면 build:api 금지
 ```
 
@@ -29,7 +30,9 @@ flowchart TD
   W --> C["커밋 + 기록"]
   C --> V["시험 (커밋·병합과 따로)"]
   V --> Q{"사용자가 병합이라고 했나"}
-  Q -- "예" --> M1["develop --no-ff → main --no-ff"]
+  Q -- "예" --> M1["develop --no-ff → main --no-ff → develop을 main에 맞춤"]
+  M1 --> P{"푸시도 시켰나"}
+  P -- "예" --> PU["develop · main 같이 푸시"]
   Q -- "아니오" --> E["브랜치에 두고 보고"]
 ```
 
@@ -90,6 +93,15 @@ erDiagram
 | 취약점 | `npm audit --omit=dev` 0건. torch 2건은 영향 없는 경로라 그대로 둠([../SECURITY.md](../SECURITY.md)) |
 | PR | `gh`가 로그인돼 있지 않아 PR·저장소 설정을 다루지 못한다 |
 
+### 2026-11-11 — 대화 속도·호스팅 실패 고침 (코드는 병합됨, **서버에는 아직 안 올림**)
+
+- 배포에서 1:1 한 턴이 3분 53초였다. 원인(코드와 기록값으로 맞춘 것, 서버 로그는 못 봄): 호스팅 호출이 한 번에 받기라 45초에 끊기면 긴 프롬프트를 CPU 예비가 처음부터 읽었다. 고침: 호스팅 스트리밍(조각 사이 40초·전체 150초), 가벼운 예비(최근 8개·320토큰), 배경 작업은 예비로 가지 않음(`X-AI-Priority`). [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md) "2026-11-11".
+- 배포 웹에서 "LLM 호출 실패"가 보고됨: 호스팅 4xx(키·접근 오류 401·402·403·404)도 예비로 대신 답하고 원인을 `codicomperchat.llm` 경고 로그로 남긴다. **근본 원인은 확정 못 함**(서버 개인키 없음) → [find_debug/2026-11-11.md](find_debug/2026-11-11.md) 3장의 명령으로 서버 로그를 본다.
+- 웹·콘솔 빌드 타입 오류 두 곳을 고쳤다. 빌드가 막혀 드러나지 않던 e2e 실패 3개는 **고치지 않았다**(월드 빈 턴 400 기대, 마이페이지 모델 이름, 푸터 약관 링크).
+- **서버 반영은 사용자 몫**: `api`와 `ai`를 다시 빌드해야 한다 → [TASKS.md](TASKS.md) U13. 올리기 전까지 배포 속도·오류는 그대로다.
+- 로컬 개발 DB에 `20261106120000_world_copperchat`이 적용되지 않아 `worlds` 테이블 오류(P2021)가 난다 → `cd apps/api && npx prisma migrate deploy`(사용자가 실행).
+- 병합·푸시 순서와 다른 세션 확인 절차를 규칙으로 박았다(위 3장 "작업 약속").
+
 ### 2026-11-08 — 대화 고치기·장기 기억·때와 곳
 
 - 1:1 대화는 **마지막 대사 한 줄**만 수정·삭제할 수 있고, 점 세 개 메뉴의 "변경사항 추천"으로 방향을 적으면 그 줄만 다시 쓴다. 그 위 줄에는 메뉴가 없다. Oracle API 이미지는 이 제한으로 다시 올리지 않았다.
@@ -144,6 +156,10 @@ erDiagram
 - **매 커밋마다** `docs/branchs/commits/`에 [TEMPLATE.md](branchs/TEMPLATE.md) 형식의 기록 md를 남기고 `docs/branchs/README.md` 목록에 넣는다(생략 금지, 다른 경로 금지). 병합 때는 병합 기록도 남긴다.
 - 작업은 **작업별 `feature/*` 브랜치**에서, `develop`/`main`에는 **`git merge --no-ff`만**(FF·force-push 금지). 기능 브랜치 위에 다른 기능을 쌓으면 아래 브랜치를 먼저 병합한다.
 - **병합은 사용자가 "병합"이라고 말할 때만, 푸시는 푸시를 요청할 때만** 한다. 병합 후 시험을 돌린 결과를 보고한다.
+- **병합과 푸시를 함께 시키면 순서가 정해져 있다**(2026-11-11 사용자 지시): feature → develop(`--no-ff`) → main(`--no-ff`) → develop을 main에 맞춤(`--ff-only`) → **그다음 develop·main을 같이 푸시**. main 병합 전에 develop만 푸시하지 않는다. 절차 [guidance/branch-merge.md](guidance/branch-merge.md) "병합과 푸시를 함께 시킬 때".
+- **병합 전에 다른 세션이 움직였는지 본다**: `git fetch`, `git log --all --oneline -8`. 내 브랜치가 이미 `develop`에 있으면 병합·병합 기록을 하지 않는다(기록 스크립트는 `HEAD`를 기록한다).
+- **세션을 시작하면 이 문서와 `docs/STATUS.md`를 먼저 읽는다.** 읽기 전에 병합·푸시를 하지 않는다.
+- **사용자가 병합·푸시 방식을 바꾸라고 하면** 그 자리에서 [정본 SKILL.md](../.agents/skills/codicomperchat/SKILL.md) §5·§8, 어댑터 규칙 목록(`node scripts/adapters.test.mjs`로 일치 확인), 이 절, [guidance/branch-merge.md](guidance/branch-merge.md)를 함께 고친다.
 - v1 범위(기획서 §9.2)를 임의로 넓히지 않는다. 프론트는 FastAPI를 직접 호출하지 않는다(웹 → Nest → FastAPI).
 - `.env`·키·DB 비밀번호·`AUTH_SECRET`·SMTP·토스 키 같은 비밀값은 출력·커밋하지 않는다.
 

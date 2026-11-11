@@ -38,4 +38,5 @@ export type Erd = {
 // 배포 주소: 빌드 환경변수 PUBLIC_API_BASE (예: https://portfolio-api.example.com). 비우면 로컬 Rails
 export const API_BASE = (import.meta.env.PUBLIC_API_BASE as string | undefined) || "http://localhost:3000";
 
-export const detailPages = ["frontend", "console", "backend", "ai", "future"] as const;
+export const detailPages = ["frontend", "console", "backend", "ai", "future", "updates", "frameworks"] as const;
+export const release = portfolio.release;

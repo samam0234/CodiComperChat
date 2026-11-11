@@ -152,6 +152,9 @@ def build_erd() -> dict:
 KNOWLEDGE_DOCS = [
     "README.md",
     "docs/FEATURES.md",
+    "docs/STATUS.md",
+    "docs/TASKS.md",
+    "docs/find_debug/2026-11-11.md",
     "docs/AGENT_HANDOVER.md",
     "docs/DEPLOYMENT.md",
     "docs/WORKFLOW.md",
