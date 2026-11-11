@@ -12,7 +12,7 @@
 - **커밋 메시지**: `type(scope):` 는 영어, **요약·본문·바닥글은 한국어**. 예: `feat(api): 캠페인 상태 갱신 엔드포인트 추가`
 - **커밋 기록 md**: 매 커밋마다 `docs/branchs/commits/`에 `docs/branchs/TEMPLATE.md` 형식으로 남긴다. 생략 금지, 다른 경로 금지.
 - **브랜치**: 작업은 `feature/*`에서만, `develop`/`main` 병합은 항상 `git merge --no-ff`. FF·force-push·`.env` 커밋 금지.
-- **병합·푸시**: 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만.
+- **병합·푸시**: 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만. 병합과 푸시를 함께 시키면 feature→develop→main(둘 다 --no-ff) 병합과 기록을 끝낸 뒤 develop을 main에 맞추고 둘을 같이 푸시한다. main 병합 전에 develop만 먼저 푸시하지 않는다.
 - **개발 서버**: 사용자의 서버를 켜거나 끄지 않고, 켜져 있을 때 `npm run build:api`를 하지 않는다. 합의한 작업 방식 전체는 정본 §9.
 - **스택**: Next.js(`apps/web`) · Nest.js(`apps/api`) · FastAPI(`services/ai`) · 운영 콘솔(`console`) · PostgreSQL/Prisma. 프론트는 FastAPI를 직접 호출하지 않는다. v1 범위(계획서 §9)를 임의로 넓히지 않는다.
 
@@ -36,7 +36,7 @@
   feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
         │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
         ▼  사용자가 "병합"이라고 할 때만
-  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ develop을 main에 맞춤 ─▶ 푸시는 요청할 때만 (둘 다 같이)
 ```
 
 <!-- logic-mermaid -->

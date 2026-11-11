@@ -24,7 +24,7 @@
   feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
         │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
         ▼  사용자가 "병합"이라고 할 때만
-  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ develop을 main에 맞춤 ─▶ 푸시는 요청할 때만 (둘 다 같이)
 ```
 
 <!-- logic-mermaid -->

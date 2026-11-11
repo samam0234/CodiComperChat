@@ -41,7 +41,7 @@ flowchart TD
 | 무엇 | 어디 | 현황 |
 |------|------|------|
 | 이용자 웹 | Vercel `https://codicomperchat-web.vercel.app` | 홈·인기·캐릭터·대화·공방·월드·마이페이지·설정·요금·약관·`/project` 소개. `main` 배포 |
-| API · DB · 대화 AI | Oracle `https://api.168-110-61-178.sslip.io` | caddy · api · postgres · ai · ollama. 대화는 NVIDIA 호스팅 `gemma-4-31b-it`, 막히면 CPU `gemma4:e4b` |
+| API · DB · 대화 AI | Oracle `https://api.168-110-61-178.sslip.io` | caddy · api · postgres · ai · ollama. 대화는 NVIDIA 호스팅 `gemma-4-31b-it`, 막히면 CPU `gemma4:e4b`. **2026-11-11 속도·호스팅 오류 고침(스트리밍·가벼운 예비·키 오류 예비)은 코드에만 있고 서버에는 아직 안 올렸다** → [TASKS.md](TASKS.md) U13 |
 | 공식 세계관 | 웹 `/worlds` | 「코퍼 시티: 멈춘 시계탑」시드가 공개·발행됨 (2026-11-07) |
 | 대화 수정 · 직접 적는 기억 · 때와 곳 | 대화 화면 | 코드는 마지막 대사만 점 세 개 메뉴로 고친다. 공개 웹은 `main`을 받으면 화면이 바뀌고, Oracle API는 아직 최근 12줄을 허용한다. 마이그레이션은 서버에 적용돼 있다. 로그인한 상태로 공개 주소에서 써 보는 확인은 하지 않았다 |
 | 프로젝트 소개 | 웹 `/project` | 2026-11-07에 추가. `PORTFOLIO_URL`이 있으면 포트폴리오 사이트 버튼 |

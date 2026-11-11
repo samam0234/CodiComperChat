@@ -66,7 +66,7 @@ main          ← 배포 통합만
 | 일자 통합 | `develop` / `main` 만 |
 | 병합 방식 | **`git merge --no-ff`** (fast-forward 금지) |
 | feature 완료 | 사용자가 "병합"이라고 말하면 `develop`에 `--no-ff`로 합류 |
-| 푸시 | 사용자가 요청할 때만 |
+| 푸시 | 사용자가 요청할 때만. **main 병합 뒤 develop·main을 같이** 푸시한다(main 병합 전에 develop만 먼저 푸시 금지) |
 | 배포 | `release/*`에서 검증 후 `main`으로. 지금까지는 사용자 지시로 `develop`을 직접 병합했다. 어느 쪽으로 할지 먼저 묻는다 |
 
 ## 금지 사항
@@ -86,7 +86,25 @@ git pull origin develop
 git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
 ```
 
-병합 후에도 `docs/branchs/commits/`에 병합 기록 md를 남긴다 (§ `docs/branchs/TEMPLATE.md`). 작성기: `node scripts/record-commit.mjs --name merge-xxx --notes <파일> --sha <병합 커밋> --branch develop --commit`. 시험 결과를 보고하고, 푸시는 `git push origin develop`을 요청받았을 때만 한다.
+병합 후에도 `docs/branchs/commits/`에 병합 기록 md를 남긴다 (§ `docs/branchs/TEMPLATE.md`). 작성기: `node scripts/record-commit.mjs --name merge-xxx --notes <파일> --sha <병합 커밋> --branch develop --commit`. 시험 결과를 보고하고, 푸시는 요청받았을 때만 한다.
+
+## 병합과 푸시를 함께 시킬 때 (2026-11-11 사용자 지시)
+
+"병합하고 푸시까지"라고 하면 **main 병합을 끝낸 뒤에** `develop`과 `main`을 같이 푸시한다. `develop`만 먼저 푸시하지 않는다(2026-11-11에 develop 푸시 순서를 어겨 지적받았다). 시험·병합·기록·푸시를 한 명령으로 묶지 않고, 각 결과를 읽은 뒤 다음으로 간다.
+
+```bash
+# 1. 맨 위 브랜치에서 전체 검증 (docs/AGENT_HANDOVER.md §5)
+# 2. develop: 쌓인 순서대로 --no-ff → 병합 기록 커밋 (따로)
+git checkout develop && git merge --no-ff feature/xxx -m "merge: feature/xxx into develop (no-ff)"
+# 3. main: develop을 --no-ff → 병합 기록 커밋 (따로)
+git checkout main && git merge --no-ff develop -m "merge: develop into main (no-ff)"
+# 4. develop을 main에 맞춤 (main이 develop을 품고 있어 ff-only가 된다)
+git checkout develop && git merge --ff-only main
+# 5. 푸시 전에 원격이 앞서 있지 않은지(fast-forward로 올라가는지) 본 뒤 둘을 같이
+git fetch origin && git merge-base --is-ancestor origin/develop develop && git merge-base --is-ancestor origin/main main && git push origin develop main
+```
+
+**다른 세션이 같은 저장소에서 병합 중일 수 있다.** 병합 전에 `git fetch`와 `git log --all --oneline -8`로 `develop`·`main`이 내 브랜치 밖에서 움직였는지 본다. 내 브랜치가 이미 `develop`에 들어가 있으면(`git merge-base --is-ancestor <내 브랜치> develop`) 병합과 병합 기록을 하지 않는다. 병합 기록 스크립트는 `HEAD`를 기록하므로 병합할 것이 없을 때 돌리면 다른 커밋의 틀린 기록이 남는다.
 
 브랜치를 쌓아 작업했으면 아래 브랜치부터 순서대로 병합한다.
 
