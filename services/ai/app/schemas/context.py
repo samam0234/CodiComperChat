@@ -113,3 +113,5 @@ class ContextSlice(WireModel):
     scene_note: str | None = None
     # 성인 대화 (2026-11-06). Nest가 서비스 성인 모드·성인 확인·동의를 매 턴 DB로 보고 정한다
     adult: bool = False
+    # 이번 말과 가까운 공통 말투 한 줄. 캐릭터 설정보다 약하다. 없으면 비운다
+    style_hints: list[str] = Field(default_factory=list, max_length=1)

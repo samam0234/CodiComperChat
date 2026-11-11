@@ -1,6 +1,6 @@
 # API 문서
 
-> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 2026-11-08에 고객센터 문의 5경로를 더했다. 2026-11-09에 1:1 대화 표 `POST /characters/:id/chat/live`와 웹소켓 `/ws/chat`, FastAPI `POST /infer/stream`을 더했다. 155와 24라는 수는 2026-11-07의 대조이고, 전체를 다시 세지는 않았다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
+> 상태(2026-11-07): **아래 경로는 실제로 동작한다.** 이날 `apps/api`의 컨트롤러 라우트 155개를 이 문서와 하나씩 대조해 **빠진 것이 없음**을 확인했고(`@Controller` 접두사 + `@Get·@Post·@Put·@Patch·@Delete` 경로), FastAPI 라우트 24개도 모두 아래에 있다. 2026-11-08에 고객센터 문의 5경로를 더했다. 2026-11-09에 1:1 대화 표 `POST /characters/:id/chat/live`와 웹소켓 `/ws/chat`, FastAPI `POST /infer/stream`을 더했다. 2026-11-12에 FastAPI `POST /rag/query`와 `POST /rag/personal`을 더했다. 155와 24라는 수는 2026-11-07의 대조이고, 전체를 다시 세지는 않았다. 예외는 계획서 §13.1 자리의 `/campaigns/*`(501, 실제 대화는 `/characters/:id/chat*`)와 FastAPI `/train`(403). 따라 해 보기는 [guidance/api-usage.md](guidance/api-usage.md), DB는 [plan/DATABASE.md](plan/DATABASE.md). 🔒 = 로그인 필요.
 
 정본: `CodiComperChat_project_plan.md` §13.1, §13.2
 
@@ -300,6 +300,8 @@ sequenceDiagram
 | 메서드/경로 | 용도 | 현재 |
 |-------------|------|------|
 | `GET /health` | 헬스체크 | **200** `{ status, service, timestamp, ai }` — `ai`는 AI 호출 대기열 상태(`inFlight`, `waitingForeground`, `waitingBackground`, `concurrency`) |
+| `POST /rag/query` | 이번 말과 가까운 기억·공통 말투 `{ userId, characterId, text }` | **200** `{ personal, common }` · personal은 그 사용자·캐릭터 기억만, common은 공통 말투 한 줄 이하. 멀면 비운다. 해시 임베딩이라 추론 모델을 부르지 않는다 |
+| `POST /rag/personal` | 그 사용자·캐릭터의 기억 벡터를 통째로 갈아끼움 `{ userId, characterId, items }` | **200** `{ stored }` · 다른 사용자 기억은 남는다. 실패 503 |
 | `POST /infer` | 입력은 이미 조립된 컨텍스트 + 유저 턴 | **200** `{ reply }` (한 덩어리. 명령어·월드처럼 답이 끝난 뒤 받는 경로) · `context.extras`(이번 턴 등장 조건에 맞은 엑스트라, 최대 3)가 있으면 시스템 프롬프트에 `<extras>` 블록(적힌 것만 사실, 목록 밖 새 인물 금지)과 맨 끝 "이번 답에서 엑스트라" 지시(이름 언급·관계 → 이름 넣어 소개, 상황·장소 → 장면에 등장, 방금 등장 → 이어 가기)를 붙인다 · **개인사 가드:** `context.ungroundedTopics`(Nest가 "유저가 개인사 주제를 물었는데 설정에 근거가 없다"고 판정한 주제)가 있으면 프롬프트 맨 끝에 단정 금지 지시를 붙인다. `retryNote`가 있으면 그 이유로 다시 쓴다 |
 | `POST /infer/stream` | `/infer`와 같은 입력. NDJSON | 줄마다 `{"delta":"…"}`. 로컬 모델과 호스팅 모델 모두 조각이 나온다(호스팅은 2026-11-11부터 스트리밍, JSON 호출만 한 번에). Nest는 AI 요청마다 `X-AI-Priority: foreground|background`를 보내고, 배경 요청은 CPU 예비로 내려가지 않는다. 마지막 줄 `{"done":true,"reply":"…"}`는 조사를 고친 답. 실패는 `{"error","status"}`. 1:1 웹소켓이 이 조각을 화면에 옮긴다. 추론은 나누지 않는다 |
 | `POST /ground-check` | 답의 개인사 단정 검사 `{ reply, topics, facts }` | **200** `{ invented, note }` · 설정 자료(`facts`)에 없는 나이·취미·가족·반려동물 등을 구체적으로 말했거나 있다/없다 단정했으면 `invented: true`. 말을 돌리거나 되묻기·설정에 적힌 말은 false. Nest가 근거 없는 개인사를 물은 턴에서만 부르고, 단정이면 최대 2번 다시 쓰게 한다(그래도 단정하면 안전한 말로 대체). 검사가 실패하면 원래 답을 쓴다 |

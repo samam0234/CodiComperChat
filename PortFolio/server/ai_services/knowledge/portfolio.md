@@ -145,7 +145,7 @@ Nest.js 12(ESM) + Prisma 7 + PostgreSQL 16. 외부에 열린 유일한 백엔드
 - worlds: 월드코퍼챗: 세계관 · 플레이 · 3턴마다 파트 판정 · 미니게임 · 하루 보상 한도
 - studio: 공방: 초안 → 3턴 테스트 → 발행(이메일 인증 계정만)
 - credits: 코레딧: 출석 · 차감 · 실패 환불 · 보상을 DB 한 문장으로
-- persona-rag: 2-gram BM25 + 키워드 보너스 지식 조각 검색(벡터 DB 없음)
+- persona-rag: 2-gram BM25 지식 조각. 기억·공통 말투만 ChromaDB 로컬 해시 임베딩(가중치 학습 없음)
 - 대화 편집·기억: 마지막 대사만 편집, 직접 기억 관리, notice-facts로 사실 자동 수집
 - support-inquiries: 이용자 문의를 저장하고 콘솔 답변을 고객센터에 표시
 

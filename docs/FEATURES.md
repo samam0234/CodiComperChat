@@ -109,6 +109,7 @@ flowchart LR
 | 엑스트라(조연, 1인 20개·대화당 3명) | 대화 아래 패널 | `GET·POST·PATCH·DELETE /me/extras`, `GET·PUT·DELETE …/chat/extras` | api/extras | chat |
 | 개인사 환각 가드 | 보이지 않음 | `/ground-check`(내부) | api/character-chat/grounding.ts, ai/services/grounding.py | evals · 설정에 없는 개인사를 지어내면 다시 쓰게 함 |
 | 페르소나 지식 RAG | 보이지 않음 | — | api/persona-rag | 캐릭터별 비공개 JSON(git 제외) 검색 |
+| 기억·말투 벡터 | 보이지 않음 | `POST /rag/query`, `POST /rag/personal` | ai/chroma_rag, api/rag/vector-rag | 사용자별 기억과 공통 말투 JSON만. 해시 임베딩. 가중치 학습 없음. 없으면 글자 검색 |
 
 ## 5. 코레딧
 

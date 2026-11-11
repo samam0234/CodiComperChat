@@ -7,7 +7,7 @@ from fastapi import FastAPI
 
 from app import request_priority
 from app.internal_auth import assert_production_safety, internal_auth
-from app.services import llm
+from app.services import chroma_rag, llm
 
 from app.routes import (
     assist,
@@ -20,6 +20,7 @@ from app.routes import (
     operations,
     photonet,
     portrait,
+    rag,
     remember,
     rewrite,
     suggest,
@@ -39,6 +40,7 @@ assert_production_safety()
 async def lifespan(_app: FastAPI):
     # 대화 모델 예열(OLLAMA_WARMUP=1일 때). 뒤에서 돌려 기동과 /health를 막지 않는다
     threading.Thread(target=llm.warm_up, name="ollama-warmup", daemon=True).start()
+    threading.Thread(target=_index_common_language, name="chroma-common", daemon=True).start()
     yield
 
 
@@ -78,3 +80,12 @@ app.include_router(portrait.router)
 app.include_router(webtoon.router)
 app.include_router(world.router)
 app.include_router(train.router)
+app.include_router(rag.router)
+
+
+def _index_common_language() -> None:
+    try:
+        chroma_rag.index_common()
+    except Exception:
+        # 저장소를 못 열어도 대화는 글자 검색으로 이어 간다
+        return
