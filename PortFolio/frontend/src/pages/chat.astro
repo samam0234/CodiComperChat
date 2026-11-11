@@ -1,5 +1,5 @@
 ---
-// 공개 사이트는 Astro 정적 페이지만 서빙한다. Rails · Flask · Ollama는 로컬에서 켤 때만 동작한다.
+// Astro 정적 화면 → PUBLIC_API_BASE의 Rails → Flask. 2026-11-08 Oracle 배포 기록.
 // 대화 기록은 이 브라우저의 localStorage에만 있다(서버는 저장하지 않는다).
 import Base from "../layouts/Base.astro";
 const suggestions = [
@@ -19,7 +19,7 @@ const steps = [
 ];
 ---
 
-<Base title="AI 가이드 챗봇" description="코디컴퍼챗이 어떻게 만들어졌는지 저장소 문서를 근거로 설명하는 AI 가이드 (LangChain · LangGraph · RAG). 공개 사이트는 챗봇 서버 없이 정적 페이지만 제공합니다." active="chat">
+<Base title="AI 가이드 챗봇" description="프로젝트 문서를 검색하고 근거를 붙여 답하는 AI 가이드. Rails·Flask·LangGraph·BM25 RAG, Ollama gemma4:e4b." active="chat">
   <div class="chat-app container">
     <aside class="convs card" aria-label="대화 목록">
       <button class="btn primary new" id="new">＋ 새 대화</button>
@@ -47,7 +47,7 @@ const steps = [
       <div class="messages" id="messages" aria-live="polite">
         <div class="welcome" id="welcome">
           <h2>무엇이 궁금하세요?</h2>
-          <p class="muted">저장소 문서 22개 · 기획 스프레드시트 · 포트폴리오 콘텐츠를 근거로 답하고, 문장 끝에 근거 번호를 답니다. 근거가 없으면 지어내지 않습니다.</p>
+          <p class="muted">최신 저장소 문서 · 기획 스프레드시트 · 포트폴리오 콘텐츠에서 근거를 찾아 답하고, 문장 끝에 출처 번호를 답니다. 근거가 없으면 찾지 못했다고 답합니다.</p>
           <div class="chips">{suggestions.map((s) => <button class="chip" data-ask={s}>{s}</button>)}</div>
         </div>
       </div>
@@ -56,7 +56,7 @@ const steps = [
         <textarea id="input" rows="2" maxlength="1000" placeholder="질문을 입력하세요 (Enter 보내기 · Shift+Enter 줄바꿈)" aria-label="질문"></textarea>
         <button class="btn copper" id="send" type="submit">보내기</button>
       </form>
-      <p class="muted tiny foot">공개 사이트는 챗봇 서버 없이 정적 페이지만 제공합니다. 로컬에서 Rails와 Flask를 켜면 위 연결 상태에 그때의 모델 이름이 나옵니다.</p>
+      <p class="muted tiny foot">가이드 모델은 gemma4:e4b입니다. 운영 기록상 제품 대화와 CPU Ollama를 공유하므로 응답이 늦거나 일시적으로 연결되지 않을 수 있습니다. 현재 연결은 상단 상태에서 확인하세요.</p>
     </section>
   </div>
 </Base>

@@ -22,7 +22,7 @@ class ApiTest < ActionDispatch::IntegrationTest
     def health
       raise AiClient::Unavailable, "down" if @raise
 
-      [200, { "model" => "gemma4:12b", "chunks" => 10 }]
+      [200, { "model" => "gemma4:e4b", "chunks" => 10 }]
     end
   end
 
@@ -39,7 +39,7 @@ class ApiTest < ActionDispatch::IntegrationTest
     body = response.parsed_body
     assert_equal false, body.dig("ai", "reachable")
     assert_equal 9, body.dig("data", "sheets")
-    assert_equal 37, body.dig("data", "tables")
+    assert_equal 38, body.dig("data", "tables")
   end
 
   test "포트폴리오 콘텐츠와 페이지" do
@@ -51,6 +51,12 @@ class ApiTest < ActionDispatch::IntegrationTest
     get "/api/v1/pages/backend"
     assert_response :success
     assert_includes response.parsed_body["sections"].map { |s| s["id"] }, "advanced"
+
+    %w[updates frameworks].each do |slug|
+      get "/api/v1/pages/#{slug}"
+      assert_response :success
+      assert response.parsed_body["sections"].any?
+    end
 
     get "/api/v1/pages/nope"
     assert_response :not_found
@@ -69,7 +75,7 @@ class ApiTest < ActionDispatch::IntegrationTest
 
   test "ERD와 테이블 관계" do
     get "/api/v1/erd"
-    assert_equal 40, response.parsed_body.dig("counts", "relations")
+    assert_equal 41, response.parsed_body.dig("counts", "relations")
     get "/api/v1/erd/tables/campaigns"
     t = response.parsed_body
     assert_includes t["parents"].map { |r| r["parent"] }, "users"

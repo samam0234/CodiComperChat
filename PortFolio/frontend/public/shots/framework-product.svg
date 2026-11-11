@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc"><title id="title">제품 프레임워크와 신뢰 경계</title><desc id="desc">이용자 화면과 운영 화면은 Nest를 거쳐 상태와 AI를 사용합니다.</desc><rect width="1600" height="1000" fill="#101c2b"/>
+<text x="72" y="73" font-family="Malgun Gothic, sans-serif" font-size="21" font-weight="700" fill="#e8a06c">CODICOMPERCHAT / ENGINEERING NOTES</text>
+<text x="72" y="158" font-family="Malgun Gothic, sans-serif" font-size="51" font-weight="700" fill="#f5f1e9">제품 프레임워크와 신뢰 경계</text>
+<text x="72" y="216" font-family="Malgun Gothic, sans-serif" font-size="26" font-weight="400" fill="#b8c5d5">이용자 화면과 운영 화면은 Nest를 거쳐 상태와 AI를 사용합니다.</text>
+<text x="72" y="331" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">01  화면</text>
+<rect x="270" y="285" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="333" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">Next.js / React</text>
+<text x="300" y="375" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">이용자 웹과 운영 콘솔 · 인증 쿠키 · 서버 액션</text>
+<text x="1150" y="329" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">apps/web · console</text>
+<text x="72" y="470" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">02  정책</text>
+<rect x="270" y="424" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="472" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">Nest.js / TypeScript</text>
+<text x="300" y="514" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">인증 · 권한 · 코레딧 · 맥락 조립 · AI 요청 대기열</text>
+<text x="1150" y="468" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">apps/api</text>
+<text x="72" y="609" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">03  저장</text>
+<rect x="270" y="563" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="611" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">Prisma / PostgreSQL</text>
+<text x="300" y="653" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">캠페인 · 기억 · 관계 · 장부 · 38개 테이블</text>
+<text x="1150" y="607" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">apps/api/prisma</text>
+<text x="72" y="748" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">04  추론</text>
+<rect x="270" y="702" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="750" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">FastAPI / Python</text>
+<text x="300" y="792" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">연기 · 판정 · 요약 · 그림 · 내부 토큰으로 접근</text>
+<text x="1150" y="746" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">services/ai</text>
+<text x="72" y="925" font-family="Malgun Gothic, sans-serif" font-size="22" font-weight="400" fill="#b8c5d5">호출: Next.js → Nest.js → PostgreSQL / FastAPI → Ollama · 호스팅 API · diffusers</text>
+<text x="72" y="968" font-family="Malgun Gothic, sans-serif" font-size="18" font-weight="400" fill="#b8c5d5">설명용 구조도 · 저장소 기준 2026-11-11</text>
+</svg>

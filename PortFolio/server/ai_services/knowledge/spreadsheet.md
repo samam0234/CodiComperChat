@@ -6,7 +6,7 @@
 - 구분: 개요 · 항목: 제품 한 줄 · 내용: 캐릭터챗 입구 + 캠페인 잔존 ("지난주에 한 약속이 오늘 돌아오는 세계")
 - 구분: 개요 · 항목: 컨텐츠 단위 · 내용: 메시지가 아니라 세션 → 장면 → 캠페인. 캐릭터 층 · 캠페인 상태 층 · 세션 층이 함께 움직인다
 - 구분: 개요 · 항목: 기획 원본 · 내용: CodiComperChat_project_plan.md (문서 버전 0.1.3, 2026-09-15). 사용자 승인 없이 수정하지 않는다
-- 구분: 개요 · 항목: 지금 상태 · 내용: 2026-11-07 실제 배포·운영 중. 웹 https://codicomperchat-web.vercel.app · API https://api.168-110-61-178.sslip.io. 공개 전 필수 확인이 남음 (처리방침 국외 이전 표 등)
+- 구분: 개요 · 항목: 지금 상태 · 내용: 웹 Vercel·API/DB/AI Oracle. 11월 11일 스트리밍·장애 대응 코드는 서버 재배포 대기. 포트폴리오 Rails·Flask는 11월 8일 배포 기록.
 - 구분: 차별점 · 항목: 대상 · 내용: 캐릭터챗·웹소설·TRPG·덕질에 익숙한 10대 후반~20대. "최애와 말하고 싶다"에서 "이 세계가 이어지면 좋겠다"로 옮겨 갈 사람
 - 구분: 차별점 · 항목: 겨냥하지 않음 · 내용: 업무용 챗봇이 필요한 사람, 정보만 원하는 사람, 캐릭터를 대량으로 광장에 올리려는 창작 유저(2차 이후)
 - 구분: 차별점 · 항목: 오늘 대화가 전부 → · 내용: 지난 약속·상처·비밀이 다음 세션에 돌아온다 (장기 기억 · 지난 이야기 · 복선)
@@ -24,7 +24,7 @@
 - 구분: 기술 · 항목: 그림 엔진 · 내용: diffusers (Animagine XL 4.0 · SD 1.5), GPU 필요 — 지금 운영 서버엔 GPU가 없어 "준비 중"
 - 구분: 기술 · 항목: 호출 규칙 · 내용: 브라우저 → web → Nest(Bearer) → FastAPI(AI_SERVICE_TOKEN). 프론트는 FastAPI를 직접 부르지 않는다
 - 구분: 기술 · 항목: 인증 · 내용: 자체 이메일·비밀번호 (scrypt + HS256 JWT 7일), 이메일 인증·비밀번호 찾기, 토큰 세대(sessionVersion)
-- 구분: 기술 · 항목: 시험 · 내용: API vitest 232개 · AI unittest 71개 · 웹 Playwright e2e 123개 · AI 품질 평가(evals) 11묶음 · GitHub Actions CI
+- 구분: 기술 · 항목: 시험 · 내용: 2026-11-11 기록: API 249개 · AI 단위 92개. E2E 사례 123개, 최근 실행 미해결 3건. e4b 실제 모델 평가는 11월 6일 결과, 31B 재평가 전.
 - 구분: 배포 · 항목: 웹 · 내용: Vercel codicomperchat-web (icn1), main 브랜치에서 배포. 환경변수 API_BASE_URL · WEB_PROXY_TOKEN · CONSOLE_BASE_URL · REQUIRE_HTTPS
 - 구분: 배포 · 항목: API·DB·AI · 내용: Oracle Cloud A1.Flex (ARM 2 OCPU · 12GB, Ubuntu 24.04, 도쿄) — Caddy · api · postgres · ai · ollama (docker compose 두 파일)
 - 구분: 배포 · 항목: TLS / 이름 · 내용: Caddy + sslip.io (api.168-110-61-178.sslip.io). 바깥 포트 80·443만, 4000·8000·5432·11434 닫힘
@@ -41,19 +41,24 @@
 - 구분: 리스크 · 항목: 비밀 누설 · 내용: 해금 조건 필드 + 서버 점검, 공개 응답에서 비밀 제외
 - 구분: 리스크 · 항목: 스코프 팽창 · 내용: v1 증명 문장 4개를 이슈 필터로 사용
 - 구분: 리스크 · 항목: 비용 · 내용: 디렉터는 짧은 체크, 본 생성 1회, 요약은 배치(메시지 6개마다)
-- 구분: 리스크 · 항목: 개인정보 (공개 전) · 내용: LLM_BACKEND=openai이면 대화가 NVIDIA 호스팅 API로 간다 → 처리방침 국외 이전 표 갱신 필요 (U11·U12)
-- 구분: 수치 · 항목: 기능 수
-- 구분: 수치 · 항목: 용어 수
-- 구분: 수치 · 항목: 테이블 수
-- 구분: 수치 · 항목: 컬럼 수
-- 구분: 수치 · 항목: URL 수 · 화면
-- 구분: 수치 · 항목: URL 수 · 웹 중계
-- 구분: 수치 · 항목: URL 수 · Nest API
-- 구분: 수치 · 항목: URL 수 · FastAPI
-- 구분: 수치 · 항목: 화면 수
-- 구분: 수치 · 항목: 간트 작업 · 완료
-- 구분: 수치 · 항목: 간트 작업 · 예정
-- 구분: 수치 · 항목: 향후 계획 항목
+- 구분: 리스크 · 항목: 개인정보 (공개 전) · 내용: 기본은 로컬 e4b, 강화·배경 호출은 설정에 따라 NVIDIA 호스팅 API 사용. 국외 이전 표 반영·약관 검토 필요(U11·U12).
+- 구분: 수치 · 항목: 기능 수 · 내용: 111
+- 구분: 수치 · 항목: 용어 수 · 내용: 60
+- 구분: 수치 · 항목: 테이블 수 · 내용: 37
+- 구분: 수치 · 항목: 컬럼 수 · 내용: 331
+- 구분: 수치 · 항목: URL 수 · 화면 · 내용: 47
+- 구분: 수치 · 항목: URL 수 · 웹 중계 · 내용: 10
+- 구분: 수치 · 항목: URL 수 · Nest API · 내용: 160
+- 구분: 수치 · 항목: URL 수 · FastAPI · 내용: 24
+- 구분: 수치 · 항목: 화면 수 · 내용: 48
+- 구분: 수치 · 항목: 간트 작업 · 완료 · 내용: 26
+- 구분: 수치 · 항목: 간트 작업 · 예정 · 내용: 13
+- 구분: 수치 · 항목: 향후 계획 항목 · 내용: 43
+- 구분: 2026-11-11 갱신 · 항목: 장기 기억 · 내용: 직접 기억 추가·삭제, notice-facts 자동 수집. 11월 8일 코드.
+- 구분: 2026-11-11 갱신 · 항목: 대화 도구 · 내용: 마지막 대사 수정·삭제·변경사항 추천, 현재 시간·장소 표시. 운영 적용 별도.
+- 구분: 2026-11-11 갱신 · 항목: 스트리밍 · 내용: 1:1 웹소켓 + 호스팅 SSE. api·ai 재배포 대기, 개선 후 운영 속도 미측정.
+- 구분: 2026-11-11 갱신 · 항목: 예비·장애 · 내용: 최근 메시지 8개·출력 320토큰, 배경 예비 금지, 호스팅 접근 오류 로그.
+- 구분: 2026-11-11 갱신 · 항목: 포트폴리오 · 내용: 개발 기록·프레임워크 전용 페이지, 구조 이미지, 문서·RAG 자료 동기화.
 
 ## 스프레드시트 시트: 기능_설계
 - 기능 ID: F01-01 · 대분류: 계정·인증 · 기능명: 가입 · 로그인 · 로그아웃 · 화면: /signup /login · API: POST /auth/signup login logout · 코드 위치: api/auth, web/app/actions/auth.ts · 시험 / 비고: auth · 상태 구현. scrypt 비밀번호, JWT 7일, 약한 비밀번호 거절 · 상태: 구현 · 구분: 기획서 v1 핵심
@@ -163,6 +168,10 @@
 - 기능 ID: F15-11 · 대분류: 월드코퍼챗 · 기능명: 보상·하루 한도 · 화면: 결과 창 · API: 〃 · 코드 위치: world-play.service.ts playEvent · 시험 / 비고: worlds.spec(20~50·5~10·3번·409) · 상태: 구현 · 구분: 사용자 요청 확장
 - 기능 ID: F15-12 · 대분류: 월드코퍼챗 · 기능명: 수위 · 화면: — · API: — · 코드 위치: world.py _rating · 시험 / 비고: test_world test_rating_rules · 상태: 구현 · 구분: 사용자 요청 확장
 - 기능 ID: F15-13 · 대분류: 월드코퍼챗 · 기능명: 운영: 목록·상세·검수·이벤트·설정·대시보드 · 화면: 콘솔 /worlds/* · API: /admin/world* · 코드 위치: console/app/worlds, api/worlds/admin-worlds.* · 시험 / 비고: worlds.spec · 상태: 구현 · 구분: 사용자 요청 확장
+- 기능 ID: F11-01 · 대분류: 대화 · 기능명: 1:1 토큰 스트리밍 · 화면: 캐릭터 대화 · API: /infer/stream · /ws/chat · 코드 위치: apps/api/src · services/ai · 시험 / 비고: 로컬·호스팅 토큰 전달, 최종 교체 · 상태: 구현 · 구분: 2026-11-11 서버 반영 대기
+- 기능 ID: F11-02 · 대분류: 대화 · 기능명: 마지막 대사 편집 · 화면: 캐릭터 대화 · API: 메시지 수정·삭제·추천 · 코드 위치: apps/api/src/character-chat · 시험 / 비고: 최근 한 줄만 수정·삭제·다시 쓰기 · 상태: 구현 · 구분: 2026-11-08, 운영 적용 별도
+- 기능 ID: F11-03 · 대분류: 기억 · 기능명: 직접 기억과 사실 수집 · 화면: 기억 화면 · API: /notice-facts · 코드 위치: services/ai/app · 시험 / 비고: 기억 추가·삭제, 자동 사실 수집 · 상태: 구현 · 구분: 2026-11-08
+- 기능 ID: F11-04 · 대분류: 운영 · 기능명: 호스팅 지연·장애 대응 · 화면: 서버 · API: 호스팅 SSE·CPU 예비 · 코드 위치: services/ai/app/services/llm.py · 시험 / 비고: 조각/전체 제한, 예비 축소, 배경 분리 · 상태: 구현 · 구분: 2026-11-11 서버 반영 대기
 
 ## 스프레드시트 시트: 용어_정리
 - No: 1 · 분류: 브랜드 · 용어: 코디컴퍼챗 · 영문 / 코드명: CodiComperChat · 정의: 플랫폼 전체 브랜드. 코디네이션(Coordination) + 컴포넌트(Component) + 챗. 캠페이너·캠페니어는 쓰지 않는다 · 관련 테이블 · 코드 · 문서: 기획서 머리말
@@ -227,54 +236,54 @@
 - No: 61 · 분류: 개발 · 용어: trainings · evals · 영문 / 코드명: - · 정의: 실제 모델로 잰 결과 노트(trainings)와 품질 평가 묶음(evals) · 관련 테이블 · 코드 · 문서: docs/trainings, services/ai/evals
 
 ## 스프레드시트 시트: 테이블_명세서
-- No: 1 · 영역: 계정 · 결제 · 코레딧 · 테이블명: users · Prisma 모델: User · 설명: 계정. 로그인·등급(FREE/PRO)·이메일 인증·성인 확인·정지·코레딧 잔액을 담는다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: (email) · 인덱스: - · 자식 테이블: attendances, campaigns, character_drafts, character_reports, characters, content_reports, credit_ledger, email_tokens, model_usage, payment_orders, quest_rewards, user_extras, user_personas, world_plays, worlds
-- No: 2 · 영역: 계정 · 결제 · 코레딧 · 테이블명: user_personas · Prisma 모델: UserPersona · 설명: 유저가 연기하는 주인공(프로필 캐릭터). 본인만 보고 쓴다 — 공유·마켓은 v1 범위 밖 (기획서 §9.2) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId) · 자식 테이블: -
-- No: 3 · 영역: 계정 · 결제 · 코레딧 · 테이블명: email_tokens · Prisma 모델: EmailToken · 설명: 메일로 보낸 일회용 링크 토큰. 원문은 메일에만 있고 DB에는 SHA-256 해시만 둔다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (tokenHash) · 인덱스: (userId, purpose) · 자식 테이블: -
-- No: 4 · 영역: 계정 · 결제 · 코레딧 · 테이블명: payment_orders · Prisma 모델: PaymentOrder · 설명: 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (SET NULL) · 고유 키: (paymentKey) · 인덱스: (userId, createdAt) · 자식 테이블: -
-- No: 5 · 영역: 계정 · 결제 · 코레딧 · 테이블명: credit_ledger · Prisma 모델: CreditLedger · 설명: 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, createdAt) · 자식 테이블: -
-- No: 6 · 영역: 계정 · 결제 · 코레딧 · 테이블명: attendances · Prisma 모델: Attendance · 설명: 출석 (하루 한 번). day는 한국 시각 기준 YYYY-MM-DD · 기본 키: userId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: - · 자식 테이블: -
-- No: 7 · 영역: 계정 · 결제 · 코레딧 · 테이블명: model_usage · Prisma 모델: ModelUsage · 설명: 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. day는 한국 시각 기준 YYYY-MM-DD · 기본 키: userId, modelId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (day) · 자식 테이블: -
-- No: 8 · 영역: 계정 · 결제 · 코레딧 · 테이블명: quest_rewards · Prisma 모델: QuestReward · 설명: 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (userId, characterId) · 인덱스: - · 자식 테이블: -
-- No: 9 · 영역: 캐릭터 · 대화 · 테이블명: characters · Prisma 모델: Character · 설명: 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다. · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: (name) · 인덱스: - · 자식 테이블: campaigns, character_drafts, character_reports, world_cast
-- No: 10 · 영역: 캐릭터 · 대화 · 테이블명: character_drafts · Prisma 모델: CharacterDraft · 설명: 캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고, 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
+- No: 1 · 영역: 계정 · 결제 · 코레딧 · 테이블명: users · Prisma 모델: User · 설명: 계정. 로그인·등급(FREE/PRO)·이메일 인증·성인 확인·정지·코레딧 잔액을 담는다 · 컬럼 수: 16 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: (email) · 인덱스: - · 자식 테이블: attendances, campaigns, character_drafts, character_reports, characters, content_reports, credit_ledger, email_tokens, model_usage, payment_orders, quest_rewards, user_extras, user_personas, world_plays, worlds
+- No: 2 · 영역: 계정 · 결제 · 코레딧 · 테이블명: user_personas · Prisma 모델: UserPersona · 설명: 유저가 연기하는 주인공(프로필 캐릭터). 본인만 보고 쓴다 — 공유·마켓은 v1 범위 밖 (기획서 §9.2) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId) · 자식 테이블: -
+- No: 3 · 영역: 계정 · 결제 · 코레딧 · 테이블명: email_tokens · Prisma 모델: EmailToken · 설명: 메일로 보낸 일회용 링크 토큰. 원문은 메일에만 있고 DB에는 SHA-256 해시만 둔다 · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (tokenHash) · 인덱스: (userId, purpose) · 자식 테이블: -
+- No: 4 · 영역: 계정 · 결제 · 코레딧 · 테이블명: payment_orders · Prisma 모델: PaymentOrder · 설명: 요금 등급 결제 주문. 결제창을 열기 전에 만들고(금액을 서버가 정한다), 결제사 승인이 끝나면 PAID로 바꾸며 등급 기간을 늘린다 · 컬럼 수: 15 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (SET NULL) · 고유 키: (paymentKey) · 인덱스: (userId, createdAt) · 자식 테이블: -
+- No: 5 · 영역: 계정 · 결제 · 코레딧 · 테이블명: credit_ledger · Prisma 모델: CreditLedger · 설명: 코레딧이 늘고 준 기록. balance는 이 줄을 반영한 뒤의 잔액 · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, createdAt) · 자식 테이블: -
+- No: 6 · 영역: 계정 · 결제 · 코레딧 · 테이블명: attendances · Prisma 모델: Attendance · 설명: 출석 (하루 한 번). day는 한국 시각 기준 YYYY-MM-DD · 컬럼 수: 4 · 기본 키: userId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: - · 자식 테이블: -
+- No: 7 · 영역: 계정 · 결제 · 코레딧 · 테이블명: model_usage · Prisma 모델: ModelUsage · 설명: 하루 횟수가 있는 모델(강화 무료)의 사용 횟수. day는 한국 시각 기준 YYYY-MM-DD · 컬럼 수: 4 · 기본 키: userId, modelId, day · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (day) · 자식 테이블: -
+- No: 8 · 영역: 계정 · 결제 · 코레딧 · 테이블명: quest_rewards · Prisma 모델: QuestReward · 설명: 비밀 퀘스트 코레딧 보상을 받은 기록. 계정×캐릭터당 한 번 — 새로하기로 다시 깨도 또 주지 않는다 · 컬럼 수: 5 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: (userId, characterId) · 인덱스: - · 자식 테이블: -
+- No: 9 · 영역: 캐릭터 · 대화 · 테이블명: characters · Prisma 모델: Character · 설명: 캐릭터 카드. 필드는 계획서 §12.2 카드 핵심 항목과 1:1로 대응한다. · 컬럼 수: 26 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: (name) · 인덱스: - · 자식 테이블: campaigns, character_drafts, character_reports, world_cast
+- No: 10 · 영역: 캐릭터 · 대화 · 테이블명: character_drafts · Prisma 모델: CharacterDraft · 설명: 캐릭터 공방 초안 (기획서 §4.1 카드 7층, §6 공방). 카드 전체를 JSON으로 두고, 발행하면 Character 행과 페르소나 지식 JSON(apps/api/data/personas, git 제외)으로 내보낸다 · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
 ownerId → users.id (CASCADE) · 고유 키: (characterId) · 인덱스: (ownerId, updatedAt) · 자식 테이블: -
-- No: 11 · 영역: 캐릭터 · 대화 · 테이블명: character_reports · Prisma 모델: CharacterReport · 설명: 공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (CASCADE)
+- No: 11 · 영역: 캐릭터 · 대화 · 테이블명: character_reports · Prisma 모델: CharacterReport · 설명: 공개·링크 공개 캐릭터에 대한 신고. 운영자가 보고 캐릭터를 내리거나(RESOLVED) 기각한다(DISMISSED) · 컬럼 수: 9 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (CASCADE)
 reporterId → users.id (CASCADE) · 고유 키: - · 인덱스: (status, createdAt)
 (characterId, status) · 자식 테이블: -
-- No: 12 · 영역: 캐릭터 · 대화 · 테이블명: content_reports · Prisma 모델: ContentReport · 설명: 코디포토넷 그림·웹툰 신고. 만든 사람이 올리고, 운영자가 본 뒤 접근을 막거나 기각한다. 그림 행을 가리키지만 그림이 지워져도 신고는 남게 외래 키는 두지 않는다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): reporterId → users.id (CASCADE) · 고유 키: - · 인덱스: (status, createdAt)
+- No: 12 · 영역: 캐릭터 · 대화 · 테이블명: content_reports · Prisma 모델: ContentReport · 설명: 코디포토넷 그림·웹툰 신고. 만든 사람이 올리고, 운영자가 본 뒤 접근을 막거나 기각한다. 그림 행을 가리키지만 그림이 지워져도 신고는 남게 외래 키는 두지 않는다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): reporterId → users.id (CASCADE) · 고유 키: - · 인덱스: (status, createdAt)
 (target, targetId, status) · 자식 테이블: -
-- No: 13 · 영역: 캐릭터 · 대화 · 테이블명: campaigns · Prisma 모델: Campaign · 설명: 대화(캠페인) 한 판. 계정 × 캐릭터. 고정한 내 프로필의 복사본을 가진다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (RESTRICT)
+- No: 13 · 영역: 캐릭터 · 대화 · 테이블명: campaigns · Prisma 모델: Campaign · 설명: 대화(캠페인) 한 판. 계정 × 캐릭터. 고정한 내 프로필의 복사본을 가진다 · 컬럼 수: 13 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (RESTRICT)
 userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, characterId, status) · 자식 테이블: board_posts, campaign_extras, campaign_states, diary_entries, direct_messages, memory_chunks, mind_readings, photonet_images, sessions, webtoons
-- No: 14 · 영역: 캐릭터 · 대화 · 테이블명: campaign_states · Prisma 모델: CampaignState · 설명: §13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId) · 인덱스: - · 자식 테이블: -
-- No: 15 · 영역: 캐릭터 · 대화 · 테이블명: sessions · Prisma 모델: Session · 설명: 대화 안의 회차(세션) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId, index) · 인덱스: - · 자식 테이블: messages
-- No: 16 · 영역: 캐릭터 · 대화 · 테이블명: messages · Prisma 모델: Message · 설명: 세션 안의 메시지 원문 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): sessionId → sessions.id (CASCADE) · 고유 키: - · 인덱스: (sessionId, createdAt) · 자식 테이블: -
-- No: 17 · 영역: 캐릭터 · 대화 · 테이블명: memory_chunks · Prisma 모델: MemoryChunk · 설명: §7.5 MemoryChunk — 지난 대화에서 캐릭터가 기억할 내용을 요약한 짧은 문장. 원문(Message)과 분리해 두고, 매 턴 관련 있는 것만 골라 컨텍스트에 넣는다. 임베딩은 나중에 붙인다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
-- No: 18 · 영역: 캐릭터 · 대화 · 테이블명: user_extras · Prisma 모델: UserExtra · 설명: 엑스트라: 유저가 만든 조연. 캐릭터 공방보다 간단한 카드이고, 대화마다 골라서 적용한다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, updatedAt) · 자식 테이블: campaign_extras
-- No: 19 · 영역: 캐릭터 · 대화 · 테이블명: campaign_extras · Prisma 모델: CampaignExtra · 설명: 이 대화에 적용한 엑스트라와 등장 조건(relation/situation/place 중 하나 이상). 조건에 맞는 말이 대화에 나올 때만 그 엑스트라 정보를 모델에 넘긴다 (환각 방지) · 기본 키: campaignId, extraId · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE)
+- No: 14 · 영역: 캐릭터 · 대화 · 테이블명: campaign_states · Prisma 모델: CampaignState · 설명: §13.3~13.4 캠페인 상태 — 관계·훅·다음 회차 브리핑 · 컬럼 수: 15 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId) · 인덱스: - · 자식 테이블: -
+- No: 15 · 영역: 캐릭터 · 대화 · 테이블명: sessions · Prisma 모델: Session · 설명: 대화 안의 회차(세션) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: (campaignId, index) · 인덱스: - · 자식 테이블: messages
+- No: 16 · 영역: 캐릭터 · 대화 · 테이블명: messages · Prisma 모델: Message · 설명: 세션 안의 메시지 원문 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): sessionId → sessions.id (CASCADE) · 고유 키: - · 인덱스: (sessionId, createdAt) · 자식 테이블: -
+- No: 17 · 영역: 캐릭터 · 대화 · 테이블명: memory_chunks · Prisma 모델: MemoryChunk · 설명: §7.5 MemoryChunk — 지난 대화에서 캐릭터가 기억할 내용을 요약한 짧은 문장. 원문(Message)과 분리해 두고, 매 턴 관련 있는 것만 골라 컨텍스트에 넣는다. 임베딩은 나중에 붙인다 · 컬럼 수: 4 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 18 · 영역: 캐릭터 · 대화 · 테이블명: user_extras · Prisma 모델: UserExtra · 설명: 엑스트라: 유저가 만든 조연. 캐릭터 공방보다 간단한 카드이고, 대화마다 골라서 적용한다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE) · 고유 키: - · 인덱스: (userId, updatedAt) · 자식 테이블: campaign_extras
+- No: 19 · 영역: 캐릭터 · 대화 · 테이블명: campaign_extras · Prisma 모델: CampaignExtra · 설명: 이 대화에 적용한 엑스트라와 등장 조건(relation/situation/place 중 하나 이상). 조건에 맞는 말이 대화에 나올 때만 그 엑스트라 정보를 모델에 넘긴다 (환각 방지) · 컬럼 수: 4 · 기본 키: campaignId, extraId · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE)
 extraId → user_extras.id (CASCADE) · 고유 키: - · 인덱스: - · 자식 테이블: -
-- No: 20 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: mind_readings · Prisma 모델: MindReading · 설명: 오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
-- No: 21 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: diary_entries · Prisma 모델: DiaryEntry · 설명: 오퍼레이션 · 일기: 캐릭터가 자기 입장에서 쓰는 일기 (최근 대화에서 겪은 일과 기분) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
-- No: 22 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: direct_messages · Prisma 모델: DirectMessage · 설명: 오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
-- No: 23 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_posts · Prisma 모델: BoardPost · 설명: 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: board_comments
-- No: 24 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_comments · Prisma 모델: BoardComment · 설명: 커뮤니티 글의 댓글 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): postId → board_posts.id (CASCADE) · 고유 키: - · 인덱스: (postId, createdAt) · 자식 테이블: -
-- No: 25 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: photonet_images · Prisma 모델: PhotonetImage · 설명: 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
-- No: 26 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoons · Prisma 모델: Webtoon · 설명: 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: webtoon_panels
-- No: 27 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoon_panels · Prisma 모델: WebtoonPanel · 설명: 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): webtoonId → webtoons.id (CASCADE) · 고유 키: (webtoonId, index) · 인덱스: - · 자식 테이블: -
-- No: 28 · 영역: 월드코퍼챗 · 테이블명: worlds · Prisma 모델: World · 설명: 월드코퍼챗 세계관. 설정·규칙·시작 장면·대화 방식·공개 범위·코퍼맵 지도 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: - · 인덱스: (published, visibility, takenDownAt)
+- No: 20 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: mind_readings · Prisma 모델: MindReading · 설명: 오퍼레이션 · 심리 탐구: 그 순간 캐릭터의 속마음 (진행 중인 대화의 최근 장면을 바탕으로) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 21 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: diary_entries · Prisma 모델: DiaryEntry · 설명: 오퍼레이션 · 일기: 캐릭터가 자기 입장에서 쓰는 일기 (최근 대화에서 겪은 일과 기분) · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 22 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: direct_messages · Prisma 모델: DirectMessage · 설명: 오퍼레이션 · 메시지: 대화(롤플레이)와 따로 주고받는 짧은 문자. 기억·관계는 대화와 함께 쓴다 · 컬럼 수: 5 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 23 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_posts · Prisma 모델: BoardPost · 설명: 오퍼레이션 · 커뮤니티: 캐릭터 세계 속 가상 익명 게시판의 글. 이 대화를 하는 사람에게만 보인다(다른 유저와 나누지 않는다) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: board_comments
+- No: 24 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: board_comments · Prisma 모델: BoardComment · 설명: 커뮤니티 글의 댓글 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): postId → board_posts.id (CASCADE) · 고유 키: - · 인덱스: (postId, createdAt) · 자식 테이블: -
+- No: 25 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: photonet_images · Prisma 모델: PhotonetImage · 설명: 코디포토넷: 대화 장면으로 만든 그림 (그림 검수를 통과한 것만 남는다). 이 대화를 하는 사람에게만 보인다 · 컬럼 수: 14 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: -
+- No: 26 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoons · Prisma 모델: Webtoon · 설명: 웹툰 (오퍼레이션): 대화를 여러 컷으로. 콘티(컷마다 장면 설계·해설·대사)를 먼저 쓰고, 컷은 하나씩 그린다(한 컷 45 코레딧) · 컬럼 수: 8 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): campaignId → campaigns.id (CASCADE) · 고유 키: - · 인덱스: (campaignId, createdAt) · 자식 테이블: webtoon_panels
+- No: 27 · 영역: 오퍼레이션 (대화 플러그인) · 테이블명: webtoon_panels · Prisma 모델: WebtoonPanel · 설명: 웹툰 한 컷. 그림은 그린 뒤에만 있다(실패하면 비어 있고 다시 그릴 수 있다) · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): webtoonId → webtoons.id (CASCADE) · 고유 키: (webtoonId, index) · 인덱스: - · 자식 테이블: -
+- No: 28 · 영역: 월드코퍼챗 · 테이블명: worlds · Prisma 모델: World · 설명: 월드코퍼챗 세계관. 설정·규칙·시작 장면·대화 방식·공개 범위·코퍼맵 지도 · 컬럼 수: 17 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): ownerId → users.id (SET NULL) · 고유 키: - · 인덱스: (published, visibility, takenDownAt)
 (ownerId) · 자식 테이블: world_cast, world_images, world_parts, world_places, world_plays
-- No: 29 · 영역: 월드코퍼챗 · 테이블명: world_cast · Prisma 모델: WorldCast · 설명: 등장인물. 이미 있는 캐릭터를 가져오거나(characterId) 여기서 바로 쓴다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
+- No: 29 · 영역: 월드코퍼챗 · 테이블명: world_cast · Prisma 모델: WorldCast · 설명: 등장인물. 이미 있는 캐릭터를 가져오거나(characterId) 여기서 바로 쓴다 · 컬럼 수: 9 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): characterId → characters.id (SET NULL)
 worldId → worlds.id (CASCADE) · 고유 키: (worldId, name) · 인덱스: - · 자식 테이블: -
-- No: 30 · 영역: 월드코퍼챗 · 테이블명: world_places · Prisma 모델: WorldPlace · 설명: 코퍼맵의 장소 핀. 좌표는 지도 그림 기준 백분율(0~100) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, name) · 인덱스: - · 자식 테이블: -
-- No: 31 · 영역: 월드코퍼챗 · 테이블명: world_parts · Prisma 모델: WorldPart · 설명: 파트(이야기의 부). 목표가 이루어지면 다음 파트로 넘어간다. 없으면 파트 없이 자유롭게 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, order) · 인덱스: - · 자식 테이블: -
-- No: 32 · 영역: 월드코퍼챗 · 테이블명: world_images · Prisma 모델: WorldImage · 설명: 제작자가 올린 장면 그림. 진행자는 이름표만 보고 고르고, 화면은 그 그림을 보여 준다 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, label) · 인덱스: (review) · 자식 테이블: -
-- No: 33 · 영역: 월드코퍼챗 · 테이블명: world_plays · Prisma 모델: WorldPlay · 설명: 한 사람의 플레이 (계정×세계관에 하나. 처음부터 하려면 새로 시작) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE)
+- No: 30 · 영역: 월드코퍼챗 · 테이블명: world_places · Prisma 모델: WorldPlace · 설명: 코퍼맵의 장소 핀. 좌표는 지도 그림 기준 백분율(0~100) · 컬럼 수: 7 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, name) · 인덱스: - · 자식 테이블: -
+- No: 31 · 영역: 월드코퍼챗 · 테이블명: world_parts · Prisma 모델: WorldPart · 설명: 파트(이야기의 부). 목표가 이루어지면 다음 파트로 넘어간다. 없으면 파트 없이 자유롭게 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, order) · 인덱스: - · 자식 테이블: -
+- No: 32 · 영역: 월드코퍼챗 · 테이블명: world_images · Prisma 모델: WorldImage · 설명: 제작자가 올린 장면 그림. 진행자는 이름표만 보고 고르고, 화면은 그 그림을 보여 준다 · 컬럼 수: 10 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): worldId → worlds.id (CASCADE) · 고유 키: (worldId, label) · 인덱스: (review) · 자식 테이블: -
+- No: 33 · 영역: 월드코퍼챗 · 테이블명: world_plays · Prisma 모델: WorldPlay · 설명: 한 사람의 플레이 (계정×세계관에 하나. 처음부터 하려면 새로 시작) · 컬럼 수: 14 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): userId → users.id (CASCADE)
 worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: - · 자식 테이블: world_events, world_messages
-- No: 34 · 영역: 월드코퍼챗 · 테이블명: world_messages · Prisma 모델: WorldMessage · 설명: 월드 플레이의 메시지 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (playId, createdAt) · 자식 테이블: -
-- No: 35 · 영역: 월드코퍼챗 · 테이블명: world_events · Prisma 모델: WorldEvent · 설명: 대화 중 뜨는 이벤트 미니게임. 결과는 서버가 정한다(setup은 화면에 다 보내지 않는다) · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (userId, rewardDay)
+- No: 34 · 영역: 월드코퍼챗 · 테이블명: world_messages · Prisma 모델: WorldMessage · 설명: 월드 플레이의 메시지 · 컬럼 수: 6 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (playId, createdAt) · 자식 테이블: -
+- No: 35 · 영역: 월드코퍼챗 · 테이블명: world_events · Prisma 모델: WorldEvent · 설명: 대화 중 뜨는 이벤트 미니게임. 결과는 서버가 정한다(setup은 화면에 다 보내지 않는다) · 컬럼 수: 12 · 기본 키: id · 외래 키 (→ 부모 · 삭제 시): playId → world_plays.id (CASCADE) · 고유 키: - · 인덱스: (userId, rewardDay)
 (status, createdAt) · 자식 테이블: -
-- No: 36 · 영역: 독립 테이블 · 테이블명: rate_limit_buckets · Prisma 모델: RateLimitBucket · 설명: 요청 한도 카운터 (RATE_LIMIT_STORE=db일 때). API 서버가 여러 대여도 같은 한도를 나눠 쓰게 DB에 둔다. 고정 창: resetAt이 지나면 처음부터 센다. 지난 창은 주기적으로 지운다 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: (resetAt) · 자식 테이블: -
-- No: 37 · 영역: 독립 테이블 · 테이블명: app_settings · Prisma 모델: AppSetting · 설명: 운영 설정 (키 → JSON 값). 운영 콘솔에서 바꾼다 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: - · 자식 테이블: -
-- 설명: 합계
+- No: 36 · 영역: 독립 테이블 · 테이블명: rate_limit_buckets · Prisma 모델: RateLimitBucket · 설명: 요청 한도 카운터 (RATE_LIMIT_STORE=db일 때). API 서버가 여러 대여도 같은 한도를 나눠 쓰게 DB에 둔다. 고정 창: resetAt이 지나면 처음부터 센다. 지난 창은 주기적으로 지운다 · 컬럼 수: 3 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: (resetAt) · 자식 테이블: -
+- No: 37 · 영역: 독립 테이블 · 테이블명: app_settings · Prisma 모델: AppSetting · 설명: 운영 설정 (키 → JSON 값). 운영 콘솔에서 바꾼다 · 컬럼 수: 3 · 기본 키: key · 외래 키 (→ 부모 · 삭제 시): - · 고유 키: - · 인덱스: - · 자식 테이블: -
+- 설명: 합계 · 컬럼 수: 331
 
 ## 스프레드시트 시트: 스키마_설계
 - No: 1 · 영역: 계정 · 결제 · 코레딧 · 테이블: users · 컬럼: id · 타입: text · PK: Y · NULL 허용: N · 설명: 기본 키. 앱(Prisma)이 cuid()로 채운다
@@ -922,45 +931,45 @@ worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: -
 - 화면 ID: SCR-C13 · 앱: console · 영역: 운영 · 화면명: 고객 문의 · URL: /inquiries · 접근: 운영자 · 주요 구성 요소: 열린 문의와 답한 문의 · 주요 동작 · 규칙: 답하면 고객센터에 다시 보인다 · 호출 API: GET /admin/support-inquiries, POST …/:id/reply
 
 ## 스프레드시트 시트: 간트_차트
-- 구분: 1. 기획·기반 · 작업: 기획 원본 합의·저장소 초기화·문서 허브 · 시작: 2026-09-15 · 종료: 2026-09-15 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: CodiComperChat_project_plan.md, SKILL.md
-- 구분: 1. 기획·기반 · 작업: 모노레포 뼈대 (web 셸·Nest·FastAPI 라우트) · 시작: 2026-09-15 · 종료: 2026-09-15 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/monorepo-scaffold, api-scaffold, ai-scaffold
-- 구분: 1. 기획·기반 · 작업: Prisma 코어 스키마·공식 캐릭터 유지성 카드·시드 · 시작: 2026-09-16 · 종료: 2026-09-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/prisma-schema, character-card, character-seed
-- 구분: 2. 대화 핵심 · 작업: 캐릭터 목록·상세·채팅 화면, /infer LLM 연결 · 시작: 2026-09-16 · 종료: 2026-09-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/character-*-web, infer-llm, character-chat-relay
-- 구분: 2. 대화 핵심 · 작업: 이메일 로그인·내 프로필·대답 추천 · 시작: 2026-09-25 · 종료: 2026-09-25 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth, user-personas, reply-suggestions
-- 구분: 2. 대화 핵심 · 작업: LLM 교체(Gemini→Ollama gemma4)·페르소나 지식 RAG · 시작: 2026-09-25 · 종료: 2026-09-26 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ollama-llm, persona-*
-- 구분: 2. 대화 핵심 · 작업: 대화 기록·장기 기억·상태설정·⋮ 메뉴 · 시작: 2026-09-27 · 종료: 2026-09-27 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/chat-history, chat-memory, chat-state
-- 구분: 3. 공방·상태 · 작업: 캐릭터 공방(초안·3턴 테스트·발행·공개 범위·AI 초안·초상) · 시작: 2026-10-15 · 종료: 2026-10-15 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-*
-- 구분: 3. 공방·상태 · 작업: 캠페인 상태(요약·친밀도·복선)·새로하기·엑스트라·개인사 가드 · 시작: 2026-10-15 · 종료: 2026-10-15 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/campaign-state, chat-sessions, chat-extras, chat-grounding
-- 구분: 3. 공방·상태 · 작업: 신고·초상 자동 검수 · 시작: 2026-10-15 · 종료: 2026-10-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-reports, image-moderation, moderation-evals
-- 구분: 4. 계정·보안 · 작업: 보안 강화(요청 한도·CSP·약한 비밀번호)·AI 대기열 · 시작: 2026-10-15 · 종료: 2026-10-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/security-hardening, strict-csp, perf-limits, shared-limits
-- 구분: 4. 계정·보안 · 작업: 이메일 인증·비밀번호 찾기·탈퇴·요금 등급·결제(토스, 보류) · 시작: 2026-10-15 · 종료: 2026-10-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth-email, pro-plan, billing, toss-verify, account-delete
-- 구분: 4. 계정·보안 · 작업: 시험·CI (Playwright e2e·evals·GitHub Actions) · 시작: 2026-10-15 · 종료: 2026-10-16 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-e2e, quality-eval, ci, ci-verify
-- 구분: 4. 계정·보안 · 작업: 디자인 개편·문서 갱신 · 시작: 2026-10-15 · 종료: 2026-10-17 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-redesign, design-polish, docs-refresh
-- 구분: 5. 확장 기능 · 작업: 운영 콘솔 분리·모델 고르기·코레딧·명령어·글 꾸미기 · 시작: 2026-10-21 · 종료: 2026-10-21 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/admin-console, model-select, credits-commands, chat-format
-- 구분: 5. 확장 기능 · 작업: 테마 자동 전환·인기 페이지 · 시작: 2026-10-22 · 종료: 2026-10-22 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/theme-schedule, popular-polish
-- 구분: 5. 확장 기능 · 작업: 오퍼레이션(심리 탐구·일기·메시지·커뮤니티) · 시작: 2026-10-23 · 종료: 2026-10-23 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ops-*
-- 구분: 5. 확장 기능 · 작업: 코디포토넷·성인 가드·웹툰·비밀 퀘스트 · 시작: 2026-10-23 · 종료: 2026-10-24 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/photonet*, adult-guard, webtoon, secret-quest
-- 구분: 5. 확장 기능 · 작업: 공식 캐릭터 이세연·추천 프로필·출시 안전·LICENSE · 시작: 2026-10-25 · 종료: 2026-10-25 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/official-iseyeon, launch-safety, docs-overall-update
-- 구분: 6. 출시 준비 · 작업: GPU 배포 구성·프리미엄 연동·눌러서 프로·나이 제한·이세연 퀘스트 · 시작: 2026-11-03 · 종료: 2026-11-03 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/deploy-gpu, premium-adapters, pro-click, premium-age-gate
-- 구분: 6. 출시 준비 · 작업: 시험 안정화(운영 빌드 e2e)·품질 평가 확대·지출 상한 · 시작: 2026-11-04 · 종료: 2026-11-04 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/e2e-production-build, ai-quality, premium-spend-cap
-- 구분: 6. 출시 준비 · 작업: README·문서 고도화·trainings·mermaid 그림 · 시작: 2026-11-06 · 종료: 2026-11-06 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/readme-*, docs-*
-- 구분: 6. 출시 준비 · 작업: 나레이션·보상 장면 개선·대화 수위(성인 대화) · 시작: 2026-11-06 · 종료: 2026-11-06 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/narration-reward-scene, adult-chat
-- 구분: 7. 월드코퍼챗 · 작업: 월드코퍼챗(세계관·진행자·파트·코퍼맵·이벤트) · 시작: 2026-11-06 · 종료: 2026-11-06 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/world-core, readme-world, docs-overhaul-world
-- 구분: 8. 배포 · 작업: Oracle Cloud(API·DB·AI) + Vercel(웹) 실제 배포 · 시작: 2026-11-06 · 종료: 2026-11-07 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: feature/oracle-backend-deploy, web-vercel-deploy, deploy-log-2026-11-07.md
-- 구분: 8. 배포 · 작업: 배포 기록·문서 보강·ERD 문서 · 시작: 2026-11-07 · 종료: 2026-11-07 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/docs-final-update, docs-gap-fill, ERD PR #5
-- 구분: 9. 공개 전 (가안) · 작업: 키·WEB_PROXY_TOKEN 교체 (U10) · 시작: 2026-11-09 · 종료: 2026-11-10 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: TASKS.md U10
-- 구분: 9. 공개 전 (가안) · 작업: 저장소 비공개·gh 로그인·GitHub 설정 확인 (U01·U02·T02) · 시작: 2026-11-09 · 종료: 2026-11-11 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U01, U02, T02
-- 구분: 9. 공개 전 (가안) · 작업: 처리방침 국외 이전 표·호스팅 API 약관 확인 (U11·U12) · 시작: 2026-11-09 · 종료: 2026-11-20 · 상태: 예정 · 담당: 사용자(법률) · 근거 · 산출물: TASKS.md U11, U12
-- 구분: 9. 공개 전 (가안) · 작업: Oracle 서버 마무리(지식 파일·백업 cron·SMTP·콘솔) (T04) · 시작: 2026-11-10 · 종료: 2026-11-14 · 상태: 예정 · 담당: 에이전트 (U05·U08 뒤) · 근거 · 산출물: TASKS.md T04
-- 구분: 9. 공개 전 (가안) · 작업: 호스팅 API에서 성인 모드 막는 코드 (T05, 방향 확인) · 시작: 2026-11-11 · 종료: 2026-11-13 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T05
-- 구분: 9. 공개 전 (가안) · 작업: 강화 무료 모델 고르기 정리 (T06, 방향 확인) · 시작: 2026-11-13 · 종료: 2026-11-14 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T06
-- 구분: 10. 품질 (가안) · 작업: 호스팅 31B 모델로 평가 다시 돌리기 (Q08) · 시작: 2026-11-16 · 종료: 2026-11-20 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q08
-- 구분: 10. 품질 (가안) · 작업: 좁은 화면(390px) 고치기 (Q07) · 시작: 2026-11-17 · 종료: 2026-11-18 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q07
-- 구분: 10. 품질 (가안) · 작업: 퀘스트 판정·웹툰 옷 색·그림 가드·SDXL 속도 (Q03~Q06) · 시작: 2026-11-18 · 종료: 2026-11-27 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q03~Q06
-- 구분: 10. 품질 (가안) · 작업: 월드코퍼챗 개선 (W01~W05) · 시작: 2026-11-23 · 종료: 2026-12-04 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md W01~W05
-- 구분: 11. 확장 (가안) · 작업: GPU 서버 계약·설치·그림 엔진 공개 (U04·T03) · 시작: 2026-12-01 · 종료: 2026-12-11 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U04, T03
-- 구분: 11. 확장 (가안) · 작업: LICENSE 마무리 (U03·T01) · 시작: 2026-12-07 · 종료: 2026-12-09 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U03, T01
-- 구분: 11. 확장 (가안) · 작업: 정식 공개 판단 (공개 전 필수 체크리스트) · 시작: 2026-12-14 · 종료: 2026-12-18 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: SECURITY.md 공개 전 필수
+- 구분: 1. 기획·기반 · 작업: 기획 원본 합의·저장소 초기화·문서 허브 · 시작: 2026-09-15 · 종료: 2026-09-15 · 기간(일): 1 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: CodiComperChat_project_plan.md, SKILL.md
+- 구분: 1. 기획·기반 · 작업: 모노레포 뼈대 (web 셸·Nest·FastAPI 라우트) · 시작: 2026-09-15 · 종료: 2026-09-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/monorepo-scaffold, api-scaffold, ai-scaffold
+- 구분: 1. 기획·기반 · 작업: Prisma 코어 스키마·공식 캐릭터 유지성 카드·시드 · 시작: 2026-09-16 · 종료: 2026-09-16 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/prisma-schema, character-card, character-seed
+- 구분: 2. 대화 핵심 · 작업: 캐릭터 목록·상세·채팅 화면, /infer LLM 연결 · 시작: 2026-09-16 · 종료: 2026-09-16 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/character-*-web, infer-llm, character-chat-relay
+- 구분: 2. 대화 핵심 · 작업: 이메일 로그인·내 프로필·대답 추천 · 시작: 2026-09-25 · 종료: 2026-09-25 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth, user-personas, reply-suggestions
+- 구분: 2. 대화 핵심 · 작업: LLM 교체(Gemini→Ollama gemma4)·페르소나 지식 RAG · 시작: 2026-09-25 · 종료: 2026-09-26 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ollama-llm, persona-*
+- 구분: 2. 대화 핵심 · 작업: 대화 기록·장기 기억·상태설정·⋮ 메뉴 · 시작: 2026-09-27 · 종료: 2026-09-27 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/chat-history, chat-memory, chat-state
+- 구분: 3. 공방·상태 · 작업: 캐릭터 공방(초안·3턴 테스트·발행·공개 범위·AI 초안·초상) · 시작: 2026-10-15 · 종료: 2026-10-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-*
+- 구분: 3. 공방·상태 · 작업: 캠페인 상태(요약·친밀도·복선)·새로하기·엑스트라·개인사 가드 · 시작: 2026-10-15 · 종료: 2026-10-15 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/campaign-state, chat-sessions, chat-extras, chat-grounding
+- 구분: 3. 공방·상태 · 작업: 신고·초상 자동 검수 · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/studio-reports, image-moderation, moderation-evals
+- 구분: 4. 계정·보안 · 작업: 보안 강화(요청 한도·CSP·약한 비밀번호)·AI 대기열 · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/security-hardening, strict-csp, perf-limits, shared-limits
+- 구분: 4. 계정·보안 · 작업: 이메일 인증·비밀번호 찾기·탈퇴·요금 등급·결제(토스, 보류) · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/auth-email, pro-plan, billing, toss-verify, account-delete
+- 구분: 4. 계정·보안 · 작업: 시험·CI (Playwright e2e·evals·GitHub Actions) · 시작: 2026-10-15 · 종료: 2026-10-16 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-e2e, quality-eval, ci, ci-verify
+- 구분: 4. 계정·보안 · 작업: 디자인 개편·문서 갱신 · 시작: 2026-10-15 · 종료: 2026-10-17 · 기간(일): 3 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/web-redesign, design-polish, docs-refresh
+- 구분: 5. 확장 기능 · 작업: 운영 콘솔 분리·모델 고르기·코레딧·명령어·글 꾸미기 · 시작: 2026-10-21 · 종료: 2026-10-21 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/admin-console, model-select, credits-commands, chat-format
+- 구분: 5. 확장 기능 · 작업: 테마 자동 전환·인기 페이지 · 시작: 2026-10-22 · 종료: 2026-10-22 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/theme-schedule, popular-polish
+- 구분: 5. 확장 기능 · 작업: 오퍼레이션(심리 탐구·일기·메시지·커뮤니티) · 시작: 2026-10-23 · 종료: 2026-10-23 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/ops-*
+- 구분: 5. 확장 기능 · 작업: 코디포토넷·성인 가드·웹툰·비밀 퀘스트 · 시작: 2026-10-23 · 종료: 2026-10-24 · 기간(일): 2 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/photonet*, adult-guard, webtoon, secret-quest
+- 구분: 5. 확장 기능 · 작업: 공식 캐릭터 이세연·추천 프로필·출시 안전·LICENSE · 시작: 2026-10-25 · 종료: 2026-10-25 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/official-iseyeon, launch-safety, docs-overall-update
+- 구분: 6. 출시 준비 · 작업: GPU 배포 구성·프리미엄 연동·눌러서 프로·나이 제한·이세연 퀘스트 · 시작: 2026-11-03 · 종료: 2026-11-03 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/deploy-gpu, premium-adapters, pro-click, premium-age-gate
+- 구분: 6. 출시 준비 · 작업: 시험 안정화(운영 빌드 e2e)·품질 평가 확대·지출 상한 · 시작: 2026-11-04 · 종료: 2026-11-04 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/e2e-production-build, ai-quality, premium-spend-cap
+- 구분: 6. 출시 준비 · 작업: README·문서 고도화·trainings·mermaid 그림 · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/readme-*, docs-*
+- 구분: 6. 출시 준비 · 작업: 나레이션·보상 장면 개선·대화 수위(성인 대화) · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/narration-reward-scene, adult-chat
+- 구분: 7. 월드코퍼챗 · 작업: 월드코퍼챗(세계관·진행자·파트·코퍼맵·이벤트) · 시작: 2026-11-06 · 종료: 2026-11-06 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/world-core, readme-world, docs-overhaul-world
+- 구분: 8. 배포 · 작업: Oracle Cloud(API·DB·AI) + Vercel(웹) 실제 배포 · 시작: 2026-11-06 · 종료: 2026-11-07 · 기간(일): 2 · 상태: 완료 · 담당: 사용자+에이전트 · 근거 · 산출물: feature/oracle-backend-deploy, web-vercel-deploy, deploy-log-2026-11-07.md
+- 구분: 8. 배포 · 작업: 배포 기록·문서 보강·ERD 문서 · 시작: 2026-11-07 · 종료: 2026-11-07 · 기간(일): 1 · 상태: 완료 · 담당: 에이전트 · 근거 · 산출물: feature/docs-final-update, docs-gap-fill, ERD PR #5
+- 구분: 9. 공개 전 (가안) · 작업: 키·WEB_PROXY_TOKEN 교체 (U10) · 시작: 2026-11-09 · 종료: 2026-11-10 · 기간(일): 2 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: TASKS.md U10
+- 구분: 9. 공개 전 (가안) · 작업: 저장소 비공개·gh 로그인·GitHub 설정 확인 (U01·U02·T02) · 시작: 2026-11-09 · 종료: 2026-11-11 · 기간(일): 3 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U01, U02, T02
+- 구분: 9. 공개 전 (가안) · 작업: 처리방침 국외 이전 표·호스팅 API 약관 확인 (U11·U12) · 시작: 2026-11-09 · 종료: 2026-11-20 · 기간(일): 12 · 상태: 예정 · 담당: 사용자(법률) · 근거 · 산출물: TASKS.md U11, U12
+- 구분: 9. 공개 전 (가안) · 작업: Oracle 서버 마무리(지식 파일·백업 cron·SMTP·콘솔) (T04) · 시작: 2026-11-10 · 종료: 2026-11-14 · 기간(일): 5 · 상태: 예정 · 담당: 에이전트 (U05·U08 뒤) · 근거 · 산출물: TASKS.md T04
+- 구분: 9. 공개 전 (가안) · 작업: 호스팅 API에서 성인 모드 막는 코드 (T05, 방향 확인) · 시작: 2026-11-11 · 종료: 2026-11-13 · 기간(일): 3 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T05
+- 구분: 9. 공개 전 (가안) · 작업: 강화 무료 모델 고르기 정리 (T06, 방향 확인) · 시작: 2026-11-13 · 종료: 2026-11-14 · 기간(일): 2 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md T06
+- 구분: 10. 품질 (가안) · 작업: 호스팅 31B 모델로 평가 다시 돌리기 (Q08) · 시작: 2026-11-16 · 종료: 2026-11-20 · 기간(일): 5 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q08
+- 구분: 10. 품질 (가안) · 작업: 좁은 화면(390px) 고치기 (Q07) · 시작: 2026-11-17 · 종료: 2026-11-18 · 기간(일): 2 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q07
+- 구분: 10. 품질 (가안) · 작업: 퀘스트 판정·웹툰 옷 색·그림 가드·SDXL 속도 (Q03~Q06) · 시작: 2026-11-18 · 종료: 2026-11-27 · 기간(일): 10 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md Q03~Q06
+- 구분: 10. 품질 (가안) · 작업: 월드코퍼챗 개선 (W01~W05) · 시작: 2026-11-23 · 종료: 2026-12-04 · 기간(일): 12 · 상태: 예정 · 담당: 에이전트 · 근거 · 산출물: TASKS.md W01~W05
+- 구분: 11. 확장 (가안) · 작업: GPU 서버 계약·설치·그림 엔진 공개 (U04·T03) · 시작: 2026-12-01 · 종료: 2026-12-11 · 기간(일): 11 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U04, T03
+- 구분: 11. 확장 (가안) · 작업: LICENSE 마무리 (U03·T01) · 시작: 2026-12-07 · 종료: 2026-12-09 · 기간(일): 3 · 상태: 예정 · 담당: 사용자→에이전트 · 근거 · 산출물: TASKS.md U03, T01
+- 구분: 11. 확장 (가안) · 작업: 정식 공개 판단 (공개 전 필수 체크리스트) · 시작: 2026-12-14 · 종료: 2026-12-18 · 기간(일): 5 · 상태: 예정 · 담당: 사용자 · 근거 · 산출물: SECURITY.md 공개 전 필수
 - 구분: 범례 · 시작: 편집: 시작·종료(날짜)와 상태(목록)만 고치면 된다. 새 작업은 마지막 행 아래에 같은 형식으로 더하고 E열 수식을 복사한다.
 - 작업: 완료
 - 작업: 진행 중
@@ -1011,6 +1020,8 @@ worldId → worlds.id (CASCADE) · 고유 키: (userId, worldId) · 인덱스: -
 - ID: R5 · 구분: 로드맵 (기획서 §9.3) · 할 일: 로그북을 시각 아카이브로 (컷, 엔딩 카드) · 왜 · 지금 상태: 웹툰 기능이 일부 선행 · 선행 조건: - · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 일부 구현
 - ID: R6 · 구분: 로드맵 (기획서 §9.3) · 할 일: 제한적 멀티 (같은 월드의 비동기 흔적) · 왜 · 지금 상태: 월드코퍼챗이 바탕 · 선행 조건: - · 끝난 기준: - · 담당: 사용자+에이전트 · 우선순위: - · 상태: 후순위
 - 구분: 우선순위 집계
-- 구분: 높음
-- 구분: 중간
-- 구분: 낮음
+- 구분: 높음 · 할 일: 9
+- 구분: 중간 · 할 일: 15
+- 구분: 낮음 · 할 일: 11
+- ID: U13 · 구분: 운영 반영 · 할 일: api·ai 최신 코드 재배포 · 왜 · 지금 상태: 스트리밍·호스팅 장애 고침은 병합됨. 운영 성능 미측정 · 선행 조건: 서버 접근 · 끝난 기준: 사용자 · 담당: 배포 후 1:1 스트리밍·로그·응답 시간 확인 · 우선순위: 미완료 · 상태: docs/TASKS.md · docs/AGENT_HANDOVER.md
+- ID: E2E-3 · 구분: 품질 · 할 일: 기존 E2E 실패 3건 해결 · 왜 · 지금 상태: 월드 빈 턴 상태 코드·모델 이름·푸터 약관 링크 · 선행 조건: 제품 코드 확인 · 끝난 기준: 개발 · 담당: 기준 변경 없이 실제 회귀 확인 · 우선순위: 미완료 · 상태: docs/AGENT_HANDOVER.md 2026-11-11
