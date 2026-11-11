@@ -68,6 +68,7 @@ docs/AGENT_HANDOVER.md와 docs/TASKS.md를 읽고, 막히지 않은 첫 작업�
 | U10 | (권장) 2026-11-07 작업 대화에 개인키 내용과 `WEB_PROXY_TOKEN` 값이 한 번씩 드러났다. 새 키로 바꾸고 토큰을 서버·Vercel 함께 교체 | 없음 |
 | U11 | **처리방침(`apps/web/app/privacy/page.tsx`)의 국외 이전 표를 지금 구성에 맞춘다.** 표에는 Anthropic·xAI만 있고, 실제로 이용자 내용이 가는 NVIDIA(대화·판정·그림 검수), Vercel(모든 웹 요청), Oracle(저장 데이터)이 없다. 법률 검토 때 함께 고친다. 에이전트는 처리방침 문구를 대신 쓰지 않는다 | 공개 |
 | U12 | 호스팅 API(NVIDIA) 약관 확인: 입력 보관·학습 사용 여부, 무료 티어의 상업적 이용과 한도. Vercel 무료 요금제의 상업적 이용, Oracle 무료 한도 유지 조건 ([../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) 1장·2-0장) | 공개 |
+| U13 | 대화 속도 고침(호스팅 스트리밍·가벼운 예비, 2026-11-11)을 Oracle 서버에 올리고 한 턴 시간을 잰다. 서버 개인키가 사용자에게만 있다. 하는 법: [web_management/oracle-backend.md](web_management/oracle-backend.md) "2026-11-11 대화 속도 고침을 서버에 올리기", 결과는 [trainings/oracle-deploy-latency.md](trainings/oracle-deploy-latency.md) | 배포에서 1분 안 답 |
 
 ## 2. 사용자 일이 끝난 뒤
 
