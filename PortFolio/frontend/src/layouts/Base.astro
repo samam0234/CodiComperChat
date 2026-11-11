@@ -9,6 +9,11 @@ interface Props {
 }
 const { title, description = site.intro, active } = Astro.props;
 const fullTitle = title ? `${title} · ${site.title}` : `${site.title} — ${site.tagline}`;
+// 공유·검색에 쓰는 절대 주소 (astro.config.mjs의 site 기준). 끝 슬래시는 하나로 맞춘다
+const origin = Astro.site?.origin ?? "https://codicomperchat-portfolio.vercel.app";
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const canonical = new URL(path === "/" ? "/" : `${path}/`, origin).href;
+const cover = new URL("/shots/portfolio-cover.png", origin).href;
 ---
 
 <!doctype html>
@@ -17,10 +22,26 @@ const fullTitle = title ? `${title} · ${site.title}` : `${site.title} — ${sit
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    <meta name="robots" content="index, follow" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1522" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://codicomperchat-portfolio.vercel.app/shots/portfolio-cover.png" />
+    <meta property="og:image" content={cover} />
+    <meta property="og:image:alt" content={`${site.title} 포트폴리오 표지`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={cover} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <title>{fullTitle}</title>
     <script is:inline>
