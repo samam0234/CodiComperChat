@@ -36,12 +36,14 @@ export async function streamFromAi(
 export async function postToAi<T>(path: string, payload: unknown, options: AiCallOptions = {}): Promise<T> {
   const priority = options.priority ?? 'foreground';
   // 대기열에 자리가 날 때까지 기다린 뒤 보낸다 (모델 앞에 줄이 길어지는 것을 막는다)
-  return aiQueue.run(priority, () => send<T>(path, payload, options.timeoutMs ?? timeoutFromEnv(priority)));
+  return aiQueue.run(priority, () => send<T>(path, payload, options.timeoutMs ?? timeoutFromEnv(priority), priority));
 }
 
 // 대기열을 거치지 않는 짧은 조회 (상태 확인처럼 모델을 부르지 않는 것). 실패하면 예외
-function aiHeaders(json: boolean): Record<string, string> {
-  const headers: Record<string, string> = {};
+// X-AI-Priority: 뒤에서 하는 정리(background)는 호스팅 API가 막혀도 CPU 예비로 내려가지 않게 FastAPI에 알린다.
+// CPU 예비는 한 번에 하나라, 몇 분 걸리는 정리가 차지하면 기다리는 답까지 줄을 선다(2026-11-11 한 턴 3분 53초)
+export function aiHeaders(json: boolean, priority: Priority = 'foreground'): Record<string, string> {
+  const headers: Record<string, string> = { 'X-AI-Priority': priority };
   if (json) headers['Content-Type'] = 'application/json';
   const token = process.env.AI_SERVICE_TOKEN;
   if (token) headers['X-AI-Token'] = token;
@@ -183,12 +185,12 @@ function readAiStream(path: string, payload: unknown, onDelta: (text: string) =>
   });
 }
 
-async function send<T>(path: string, payload: unknown, timeoutMs: number): Promise<T> {
+async function send<T>(path: string, payload: unknown, timeoutMs: number, priority: Priority = 'foreground'): Promise<T> {
   const aiBaseUrl = process.env.AI_BASE_URL ?? 'http://localhost:8000';
 
   let res: RawResponse;
   try {
-    res = await rawPost(`${aiBaseUrl}${path}`, aiHeaders(true), JSON.stringify(payload), timeoutMs);
+    res = await rawPost(`${aiBaseUrl}${path}`, aiHeaders(true, priority), JSON.stringify(payload), timeoutMs);
   } catch (error) {
     if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       throw new GatewayTimeoutException('AI 응답이 너무 늦어 멈췄어요. 잠시 뒤에 다시 시도해 주세요.');

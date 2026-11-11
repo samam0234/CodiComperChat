@@ -41,3 +41,57 @@ flowchart LR
 | 서버 메모리 | AI·Ollama를 올린 뒤의 사용량과 스왑 사용 | `free -m`를 대화 중에 |
 
 기준을 낮춰 통과시키지 않는다. 위 평가에서 기준 미달이 나오면 [../TASKS.md](../TASKS.md) 3장에 남긴다.
+
+## 2026-11-11: 1:1 한 턴 3분 53초 — 원인과 고침
+
+사용자 보고: 배포 환경에서 1:1 대화 한 턴에 약 **3분 53초**가 걸렸다.
+
+### 원인 (코드와 기록된 값으로 맞춘 것, 서버 로그로는 확인하지 못함)
+
+```mermaid
+sequenceDiagram
+  participant N as api (Nest)
+  participant A as ai (FastAPI)
+  participant H as NVIDIA 호스팅
+  participant C as CPU Ollama (ARM 2코어)
+  N->>A: /infer (긴 프롬프트: 카드 · 지식 · 기억 · 최근 대화 30개)
+  A->>H: stream false — 답 전체가 45초 안에 와야 한다
+  Note over A,H: 짧은 인사도 19초. 긴 답은 45초를 넘김
+  H--xA: 45초 시간 초과 (_ApiUnavailable)
+  A->>C: 같은 긴 프롬프트를 처음부터 (num_predict 800)
+  Note over C: 짧은 인사도 32초. 긴 프롬프트는 3분 안팎
+  C-->>A: 답
+  A-->>N: 약 45초 + 3분 ≈ 3분 53초
+```
+
+- 호스팅 호출이 **한 번에 받기(`stream: False`)** 라서 시간 제한 45초가 답 **전체**에 걸렸다. 느리지만 쓰고 있는 답도 끊겼다.
+- 끊기면 **CPU 예비**가 같은 긴 프롬프트를 처음부터 읽었다. ARM 2코어에서는 프롬프트를 읽는 시간이 대부분이다.
+- 뒤에서 하는 정리(매 턴 기억 알아채기, 6개마다 기억·요약)도 호스팅이 막히면 같은 CPU 예비로 내려가, **한 번에 하나뿐인 CPU 자리**(`OLLAMA_NUM_PARALLEL=1`)를 몇 분씩 차지할 수 있었다. 그러면 기다리는 답의 예비까지 줄을 선다.
+
+### 고친 것
+
+| 고침 | 어디 | 효과 |
+|------|------|------|
+| 글로 답하는 호출(대화·월드 진행자)은 호스팅을 **스트리밍(SSE)** 으로 받는다. 시간 제한은 조각 사이 공백(`LLM_API_READ_TIMEOUT_SECONDS` 40초)과 전체 상한(`LLM_API_TOTAL_TIMEOUT_SECONDS` 150초) | `services/ai/app/services/llm.py` `_iter_openai_pieces` | 느려도 쓰고 있으면 끊지 않는다 → CPU 예비로 가지 않는다. 실시간 화면(웹소켓)에 호스팅 토큰도 바로 흐른다 |
+| 첫 조각 전에 막힐 때만 예비로. 조각을 이미 보낸 뒤 끊기면 오류(반쯤 나간 답을 예비 답으로 바꾸지 않음) | 〃 `_iter_hosted_with_fallback` | |
+| CPU 예비를 가볍게: 최근 대사 8개(`LLM_FALLBACK_MAX_TURNS`), 출력 320토큰(`LLM_FALLBACK_MAX_TOKENS`) | 〃 | 같은 프롬프트에서 읽을 토큰 2146 → 1363 (−37%, 로컬에서 셈), 출력 상한 800 → 320 |
+| 뒤에서 하는 정리는 CPU 예비로 내려가지 않는다. Nest가 `X-AI-Priority: background`를 보내고 FastAPI가 요청 동안 기억한다 | `apps/api/src/ai/ai-client.ts`, `services/ai/app/request_priority.py`, `app/main.py` | CPU 자리를 비워 둔다. 막힌 정리는 다음 턴에 다시 한다(정리 안 된 메시지가 그대로 남는다) |
+| JSON 판정·요약은 그대로 한 번에 받기(`LLM_API_TIMEOUT_SECONDS` 45초) | | 답이 짧다 |
+
+### 기대 값과 확인하지 못한 것
+
+| 경우 | 기대 | 근거 |
+|------|------|------|
+| 호스팅이 답할 때 (보통) | 첫 글자 수 초, 전체 20~40초 안팎 | 짧은 인사 19.0초(2026-11-07, 1회). 이제 45초에 끊기지 않는다 |
+| 호스팅이 첫 조각 전에 막힐 때 | 40초 + 가벼운 CPU 예비 | CPU 예비 짧은 인사 32.1초(1회). 가벼운 예비의 실제 시간은 재지 못함 |
+| 호스팅이 429(한도)로 바로 막힐 때 | 가벼운 CPU 예비만 | 〃 |
+
+- **서버에서 다시 재지 못했다.** 서버 개인키가 이 PC에 없어 로그·시간을 볼 수 없었다. 서버에 올린 뒤 같은 대화를 몇 번 보내 시간을 재고 여기에 적는다(→ [../TASKS.md](../TASKS.md) U13).
+- 호스팅 API의 스트리밍 응답 모양은 OpenAI 호환 SSE(`data: {...}` · `data: [DONE]`)를 가정했다. NVIDIA NIM이 이 모양을 따른다는 공개 문서를 근거로 했고, 실제 키로는 시험하지 못했다(가짜 서버로 시험).
+- 호스팅이 자주 429라면 가벼운 예비도 1분을 넘길 수 있다. 그때는 한도를 올리거나(유료 키) 예비 모델을 더 작게 바꾸는 것을 검토한다.
+
+### 시험
+
+- `services/ai/tests/test_llm_openai.py`: 스트리밍으로 받아 모음 · JSON은 한 번에 · 조각이 계속 오면 전체가 길어도 끊지 않음 · 첫 조각 전 막힘 → 가벼운 예비(8개·320토큰) · 조각 뒤 끊김은 오류 · 배경 작업은 예비로 안 감 · `iter_generate`가 호스팅 조각을 여러 개로 넘김
+- `services/ai/tests/test_request_priority.py`: 머리글이 처리 스레드까지 전달되고 요청 사이에 새지 않음
+- `apps/api/src/ai/ai-client.spec.ts`: Nest가 우선순위 머리글을 보냄

@@ -9,7 +9,7 @@ import styles from "./dashboard.module.css";
 type Stats = {
   users: { total: number; verified: number; new7d: number; admins: number; pro: number };
   characters: { published: number; public: number; takenDown: number; drafts: number };
-  moderation: { openReports: number; openContentReports: number; reportedCharacters: number; pendingPortraits: number };
+  moderation: { openReports: number; openContentReports: number; reportedCharacters: number; pendingPortraits: number; openInquiries?: number };
   activity: { activeConversations: number; messages24h: number };
   ai: { inFlight: number; waitingForeground: number; waitingBackground: number; concurrency: number };
   at: string;

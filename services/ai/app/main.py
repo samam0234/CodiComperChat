@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
+from app import request_priority
 from app.internal_auth import assert_production_safety, internal_auth
 from app.services import llm
 
@@ -52,6 +53,13 @@ app = FastAPI(
 )
 
 app.middleware("http")(internal_auth)
+
+
+# Nest가 보낸 우선순위(foreground·background)를 이 요청 동안 기억한다. 배경 작업은 CPU 예비로 내려가지 않는다
+@app.middleware("http")
+async def remember_priority(request, call_next):
+    request_priority.set_priority(request.headers.get(request_priority.HEADER))
+    return await call_next(request)
 
 app.include_router(health.router)
 app.include_router(infer.router)
