@@ -600,7 +600,7 @@ AI 에이전트를 포함해 이 저장소에서 일하는 모두가 따릅니�
 - 커밋: `type(scope):`는 영어, 요약·본문은 한국어 → [commit-message](docs/guidance/commit-message.md)
 - 매 커밋마다 `docs/branchs/commits/`에 기록 → [TEMPLATE](docs/branchs/TEMPLATE.md)
 - 작업은 `feature/*`에서, `develop`/`main` 병합은 `--no-ff`만 → [branch-merge](docs/guidance/branch-merge.md)
-- 병합은 소유자가 말할 때만, 푸시는 요청할 때만
+- 병합은 소유자가 말할 때만, 푸시는 요청할 때만. 함께 시키면 main 병합까지 끝낸 뒤 develop·main을 같이 푸시한다
 - 범위를 임의로 넓히지 않는다. 기획 원본은 승인 없이 고치지 않는다
 - 비밀값(`.env`, 키)과 모델 파일은 커밋하지 않는다 → [SECURITY.md](SECURITY.md)
 

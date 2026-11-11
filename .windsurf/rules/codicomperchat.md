@@ -13,7 +13,7 @@ description: CodiComperChat 에이전트 규칙 (정본 어댑터)
 - 브랜치: `feature/*`에서 작업, `develop`/`main` 병합은 `--no-ff`만.
 - 스택: Next.js(`apps/web`) / Nest.js(`apps/api`) / FastAPI(`services/ai`), 프론트→FastAPI 직접 호출 금지.
 - 시작 전: `docs/AGENT_HANDOVER.md`(지금 상태·함정), `docs/TASKS.md`(할 일), `docs/STATUS.md`(코드에 있는 기능과 지금 열리는 범위)를 읽는다.
-- 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만 한다.
+- 병합은 사용자가 "병합"이라고 말할 때만, 푸시는 요청할 때만 한다. 병합과 푸시를 함께 시키면 feature→develop→main(둘 다 --no-ff) 병합과 기록을 끝낸 뒤 develop을 main에 맞추고 둘을 같이 푸시한다. main 병합 전에 develop만 먼저 푸시하지 않는다.
 - 사용자의 개발 서버를 켜거나 끄지 않는다. 켜져 있을 때 `npm run build:api`를 하지 않는다.
 - 시험을 통과시키려고 시간 제한을 늘리거나 건너뛰지 않는다.
 - `.env`·키·DB 비밀번호를 출력하거나 커밋하지 않는다. `services/ai/models/`도 커밋하지 않는다.
@@ -39,7 +39,7 @@ description: CodiComperChat 에이전트 규칙 (정본 어댑터)
   feature/* 브랜치 ─▶ 커밋 (type(scope) 영어 + 한국어 요약)
         │                └─▶ docs/branchs/commits/ 기록 (scripts/record-commit.mjs)
         ▼  사용자가 "병합"이라고 할 때만
-  develop (--no-ff) ─▶ main (--no-ff) ─▶ 푸시는 요청할 때만
+  develop (--no-ff) ─▶ main (--no-ff) ─▶ develop을 main에 맞춤 ─▶ 푸시는 요청할 때만 (둘 다 같이)
 ```
 
 <!-- logic-mermaid -->
