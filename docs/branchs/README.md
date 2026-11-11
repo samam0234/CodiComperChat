@@ -532,5 +532,6 @@ flowchart LR
 | 2026-11-11 | `d1643fb` | develop (merge) | feature/portfolio-head-meta into develop (no-ff) | [261111_2219_d1643fb_merge-portfolio-head-meta-into-develop_develop.md](commits/261111_2219_d1643fb_merge-portfolio-head-meta-into-develop_develop.md) |
 | 2026-11-11 | `df77f6f` | main (merge) | develop into main (no-ff) | [261111_2220_df77f6f_merge-portfolio-head-meta-into-main_main.md](commits/261111_2220_df77f6f_merge-portfolio-head-meta-into-main_main.md) |
 | 2026-11-11 | `80e5e3a` | feature/seyeon-portrait | 공식 캐릭터 이세연 초상을 새 그림으로 바꾸다 | [261111_2251_80e5e3a_seyeon-portrait_feature-seyeon-portrait.md](commits/261111_2251_80e5e3a_seyeon-portrait_feature-seyeon-portrait.md) |
+| 2026-11-11 | `9776681` | develop (merge) | feature/seyeon-portrait into develop (no-ff) | [261111_2251_9776681_merge-seyeon-portrait-into-develop_develop.md](commits/261111_2251_9776681_merge-seyeon-portrait-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
