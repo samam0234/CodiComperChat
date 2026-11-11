@@ -510,5 +510,6 @@ flowchart LR
 | 2026-11-11 | `0d049d6` | feature/chat-latency | 웹과 콘솔 빌드를 막던 타입 오류를 고치다 | [261111_1907_0d049d6_web-console-build-types_feature-chat-latency.md](commits/261111_1907_0d049d6_web-console-build-types_feature-chat-latency.md) |
 | 2026-11-11 | `c9aa2ba` | feature/chat-latency | 대화 속도 원인과 고침, 서버에 올리는 법을 적다 | [261111_1907_c9aa2ba_chat-latency-docs_feature-chat-latency.md](commits/261111_1907_c9aa2ba_chat-latency-docs_feature-chat-latency.md) |
 | 2026-11-11 | `7b7aea8` | develop (merge) | feature/chat-latency into develop (no-ff) | [261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md](commits/261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md) |
+| 2026-11-11 | `7c3c7ba` | main (merge) | develop into main (no-ff) | [261111_1908_7c3c7ba_merge-develop-into-main_main.md](commits/261111_1908_7c3c7ba_merge-develop-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
