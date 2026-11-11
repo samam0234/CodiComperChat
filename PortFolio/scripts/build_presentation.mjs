@@ -39,7 +39,7 @@ await image(s,'shots/home-light.jpg');
 s=slide('PRODUCT','캠페인 상태와 캐릭터의 기억');
 lines(s,[c.project.oneLine,c.project.answer],{w:1100,gap:175,size:28});
 text(s,'비밀은 모델에 보내지 않고, 달성 판정은 실제 대사의 인용을 코드로 대조합니다.',64,555,1100,80,24,copper);
-const picks={frontend:{img:'chat.jpg',ids:['features']},console:{img:'console-dashboard.jpg',ids:['features']},backend:{img:'architecture.png',ids:['features']},ai:{img:'webtoon.jpg',ids:['features']}};
+const picks={frontend:{img:'chat.jpg',ids:['features']},console:{img:'console-dashboard.jpg',ids:['features']},backend:{img:'chat-turn.png',ids:['features']},ai:{img:'webtoon.jpg',ids:['features']}};
 for(const [slug,pick] of Object.entries(picks)){
  const page=c.pages[slug];s=slide(page.kicker,page.title);
  text(s,page.summary,64,196,600,145,22,muted);

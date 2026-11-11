@@ -153,7 +153,7 @@ def build_docx(path: Path) -> None:
         para.add_run(f["text"])
     doc.add_heading("기술 스택", 2)
     table(PROJ["stack"])
-    if (a := shot("/shots/architecture.png")):
+    if (a := shot("/shots/framework-product.png")):
         doc.add_picture(str(a), width=Cm(16.6))
         doc.add_paragraph("시스템 구조: 웹은 Nest만 알고, Nest만 DB와 AI를 알고, AI는 DB를 모른다.").runs[0].font.color.rgb = RGBColor(*MUTED)
 
@@ -257,7 +257,7 @@ def build_pdf(path: Path) -> None:
     story += [Paragraph(f"<b>{esc(PROJ['answer'])}</b>", st["p"]), tbl(PROJ["compare"], header=["보통의 캐릭터 채팅", "코디컴퍼챗"], widths=(70, 100))]
     story += [Paragraph("간단한 기능 소개", st["h2"])] + [Paragraph(f"<b>{esc(f['title'])}</b> — {esc(f['text'])}", st["b"], bulletText="•") for f in PROJ["features"]]
     story += [Paragraph("기술 스택", st["h2"]), tbl(PROJ["stack"])]
-    if (a := img("/shots/architecture.png")):
+    if (a := img("/shots/framework-product.png")):
         story += [Spacer(1, 8), a, Paragraph("시스템 구조", st["cap"])]
     for slug in ORDER:
         page = PAGES[slug]

@@ -650,16 +650,12 @@
           "title": "내부 구조",
           "images": [
             {
-              "src": "/shots/architecture.png",
-              "caption": "시스템 구조"
+              "src": "/shots/framework-product.png",
+              "caption": "제품 프레임워크와 신뢰 경계 · 2026-11-11 구조도"
             },
             {
               "src": "/shots/chat-turn.png",
               "caption": "대화 한 턴의 처리 순서"
-            },
-            {
-              "src": "/shots/data-map.png",
-              "caption": "데이터 지도(그림은 37개일 때, 지금은 38개)"
             },
             {
               "src": "/shots/deploy-topology.png",
