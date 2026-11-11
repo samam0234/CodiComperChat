@@ -79,8 +79,13 @@ flowchart LR
 | `OLLAMA_MODEL` | `gemma4:e4b` | 글·그림 모두 이 모델 |
 | `LLM_BACKEND` | `ollama` | `openai`면 대화 호출을 OpenAI 호환 호스팅 API(NVIDIA NIM, Google AI Studio 호환 주소, OpenRouter)로 보낸다. 무료 티어로 PC·GPU 없이 24시간 돌릴 때 |
 | `LLM_API_BASE` · `LLM_API_MODEL` · `LLM_API_KEY` | — | `LLM_BACKEND=openai`일 때 필수. 예: `https://integrate.api.nvidia.com/v1`, `google/gemma-4-31b-it`. 키는 비밀값(커밋 금지). Nest가 넘기는 Ollama 모델 태그(gemma4:12b 등)는 이때 무시하고 `LLM_API_MODEL`을 쓴다 |
-| `LLM_FALLBACK_OLLAMA` | 꺼짐 | `1`이면 API가 한도 초과(429)·서버 오류·시간 초과·연결 불가일 때 Ollama로 대신 답한다. 키 오류(401) 같은 설정 문제는 덮지 않고 드러낸다 |
-| `LLM_API_TIMEOUT_SECONDS` | 120 | 호스팅 API 응답 최대 시간(초) |
+| `LLM_FALLBACK_OLLAMA` | 꺼짐 | `1`이면 API가 한도 초과(429)·서버 오류·시간 초과·연결 불가일 때 Ollama로 대신 답한다. 키 오류·접근 거부(401·402·403·404)도 대신 답하고 원인을 `codicomperchat.llm` 경고 로그에 남긴다(2026-11-11). 400·422는 요청이 잘못된 것이라 덮지 않고 드러낸다. 뒤에서 하는 정리(`X-AI-Priority: background`)는 예비로 가지 않는다 |
+| `LLM_API_TIMEOUT_SECONDS` | 120 | 호스팅 API의 **JSON 호출**(판정·요약, 한 번에 받기) 응답 최대 시간(초). 글 답은 스트리밍이라 아래 값을 쓴다 |
+| `LLM_API_CONNECT_TIMEOUT_SECONDS` | 10 | 호스팅 API 연결 제한(초) |
+| `LLM_API_READ_TIMEOUT_SECONDS` | 40 | 호스팅 글 답(스트리밍)에서 **조각 사이 공백**에만 거는 제한(초). 첫 조각 전에는 프롬프트를 읽는 시간이다. 쓰고 있는 동안은 끊지 않는다 |
+| `LLM_API_TOTAL_TIMEOUT_SECONDS` | 150 | 호스팅 글 답 하나 전체의 상한(초) |
+| `LLM_FALLBACK_MAX_TURNS` | 8 | CPU 예비로 내려갈 때 넘기는 최근 대사 수. 긴 대화를 그대로 읽히면 ARM 2코어에서 몇 분이 걸린다 |
+| `LLM_FALLBACK_MAX_TOKENS` | 320 | CPU 예비의 출력 토큰 상한 |
 | `OLLAMA_READ_TIMEOUT_SECONDS` | 600 | Ollama를 스트리밍으로 부르며 **토큰 사이 공백**에만 거는 제한(초). 모델이 계속 쓰는 동안은 끊지 않는다. 0이면 제한 없음 |
 | `OLLAMA_CONNECT_TIMEOUT_SECONDS` | 10 | Ollama 연결 제한(초) |
 | `OLLAMA_TOTAL_TIMEOUT_SECONDS` | 0(없음) | 답 하나 전체의 상한(초, 선택) |

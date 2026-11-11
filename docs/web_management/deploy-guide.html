@@ -231,7 +231,7 @@ footer { margin-top: 48px; font-size: .82rem; color: var(--muted); }
   <thead><tr><th>구간</th><th>예전</th><th>지금</th><th>바꾼 곳</th></tr></thead>
   <tbody>
     <tr><td>FastAPI → Ollama</td><td>답 전체 120초</td><td><span class="yes">스트리밍</span>: 토큰이 계속 오면 끝까지 기다림. 제한은 "토큰 사이 공백"에만(기본 600초, <code>OLLAMA_READ_TIMEOUT_SECONDS</code>, 0이면 없음)</td><td><code>services/ai/app/services/llm.py</code></td></tr>
-    <tr><td>FastAPI → 무료 호스팅 API</td><td>—</td><td>응답 최대 <code>LLM_API_TIMEOUT_SECONDS</code>(기본 120초). 한도 초과(429)·서버 오류·시간 초과면 <code>LLM_FALLBACK_OLLAMA=1</code>일 때 Ollama로 대신 답함. 키 오류(401)는 덮지 않고 드러냄</td><td><code>services/ai/app/services/llm.py</code></td></tr>
+    <tr><td>FastAPI → 무료 호스팅 API</td><td>—</td><td>글 답은 스트리밍으로 받는다(조각 사이 <code>LLM_API_READ_TIMEOUT_SECONDS</code> 40초, 전체 <code>LLM_API_TOTAL_TIMEOUT_SECONDS</code> 150초). JSON 판정은 <code>LLM_API_TIMEOUT_SECONDS</code>. 첫 조각 전에 한도(429)·서버 오류·시간 초과·키 오류(401·402·403·404)로 막히면 <code>LLM_FALLBACK_OLLAMA=1</code>일 때 가벼운 Ollama 예비(최근 8개·320토큰)로 대신 답하고 원인은 AI 로그에 남김. 뒤에서 하는 정리는 예비로 가지 않음. 400·422는 덮지 않고 드러냄</td><td><code>services/ai/app/services/llm.py</code></td></tr>
     <tr><td>모델 읽기 지연</td><td>첫 요청 때 모델을 읽느라 늦음</td><td>기동 때 예열(<code>OLLAMA_WARMUP=1</code>), 메모리에 오래 둠(<code>OLLAMA_KEEP_ALIVE</code> 24h, CPU는 -1)</td><td><code>services/ai/app/main.py</code>, compose</td></tr>
     <tr><td>Nest → FastAPI</td><td>130초 고정 + Node fetch 300초 벽</td><td><code>node:http</code>로 바꿔 300초 벽 제거. <code>AI_TIMEOUT_MS</code>(기본 280초), 배경 작업 <code>AI_BACKGROUND_TIMEOUT_MS</code>(기본 600초)</td><td><code>apps/api/src/ai/ai-client.ts</code></td></tr>
     <tr><td>AI 대기열</td><td>60초 기다리면 거절</td><td><code>AI_QUEUE_WAIT_MS</code>로 조정(배포 값 120초)</td><td><code>apps/api/src/ai/ai-queue.ts</code></td></tr>
@@ -458,7 +458,11 @@ curl -H "X-AI-Token: $AI_SERVICE_TOKEN" http://100.x.y.z:8000/health   # ok</cod
     <tr><td><code>LLM_BACKEND</code></td><td>services/ai</td><td>ollama</td><td><code>openai</code>면 대화를 무료 호스팅 API로 보낸다</td></tr>
     <tr><td><code>LLM_API_BASE</code> · <code>LLM_API_MODEL</code> · <code>LLM_API_KEY</code></td><td>services/ai</td><td>없음</td><td>OpenAI 호환 주소·모델·키(비밀값)</td></tr>
     <tr><td><code>LLM_FALLBACK_OLLAMA</code></td><td>services/ai</td><td>꺼짐</td><td><code>1</code>이면 API 한도 초과·서버 오류·시간 초과에 Ollama로 대신 답함</td></tr>
-    <tr><td><code>LLM_API_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>120</td><td>호스팅 API 응답 최대 시간</td></tr>
+    <tr><td><code>LLM_API_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>120</td><td>호스팅 API JSON 호출(한 번에 받기) 응답 최대 시간</td></tr>
+    <tr><td><code>LLM_API_READ_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>40</td><td>호스팅 글 답(스트리밍)의 조각 사이 공백 제한</td></tr>
+    <tr><td><code>LLM_API_TOTAL_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>150</td><td>호스팅 글 답 하나 전체 상한</td></tr>
+    <tr><td><code>LLM_FALLBACK_MAX_TURNS</code></td><td>services/ai</td><td>8</td><td>CPU 예비로 내려갈 때 넘기는 최근 대사 수</td></tr>
+    <tr><td><code>LLM_FALLBACK_MAX_TOKENS</code></td><td>services/ai</td><td>320</td><td>CPU 예비 출력 토큰 상한</td></tr>
     <tr><td><code>OLLAMA_READ_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>600</td><td>Ollama 토큰 사이 공백 제한. 0이면 없음</td></tr>
     <tr><td><code>OLLAMA_CONNECT_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>10</td><td>Ollama 연결 제한</td></tr>
     <tr><td><code>OLLAMA_TOTAL_TIMEOUT_SECONDS</code></td><td>services/ai</td><td>0(없음)</td><td>답 전체 상한(선택)</td></tr>

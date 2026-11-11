@@ -229,7 +229,7 @@ flowchart LR
 | FastAPI 내부 인증 | ai/internal_auth.py | 토큰 또는 루프백 |
 | **운영 배포 구성** | deploy/(GPU 목표), deploy/oracle/(지금), [web_management/oracle-backend.md](web_management/oracle-backend.md) | **2026-11-07 실제 배포**: Vercel 웹 + Oracle API·DB·AI. 연결 손 확인([plan/TESTING.md](plan/TESTING.md) "운영 배포 확인") |
 | 웹 → API 이용자 IP 넘기기 | web/lib/client-ip.ts, deploy/oracle/Caddyfile | `WEB_PROXY_TOKEN`이 맞을 때만 Caddy가 `X-Forwarded-For`를 믿음. 서버에서 `caddy validate` |
-| 대화 모델 호스팅 API + 예비 | ai/services/llm.py | unittest(`test_llm_openai`, `test_llm_stream`) · 운영 실측 NVIDIA 19초, 예비 CPU 32초 |
+| 대화 모델 호스팅 API + 예비 | ai/services/llm.py | unittest(`test_llm_openai`, `test_llm_stream`, `test_request_priority`) · 운영 실측 NVIDIA 19초, 예비 CPU 32초(2026-11-07). 2026-11-11: 호스팅 스트리밍·가벼운 예비·키 오류 예비 — 서버에는 아직 올리지 않았고 시간은 다시 재지 못했다 |
 | DB 백업 | scripts/db-backup.sh, [web_management/backup-restore.md](web_management/backup-restore.md) | 복구 연습 1회 |
 | 상태 확인 | `GET /health` | — |
 | 계획서 `/campaigns/*` 자리 | api/campaigns | 501(실제 대화는 `/characters/:id/chat*`) |
