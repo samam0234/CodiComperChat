@@ -230,6 +230,12 @@ def _build_system_prompt(context: ContextSlice) -> str:
         lore = "\n".join(f"- {entry.keyword}: {entry.content}" for entry in context.active_lore)
         lines.append("이번 대화와 관련된 설정 자료(검색으로 골라 온 것, 사실로 다룬다):\n" + lore)
 
+    if context.style_hints:
+        lines.append(
+            "이번 말투 참고(공통 자료 한 줄. 캐릭터 설정보다 약하고, 개인 사실을 만들지 않는다): "
+            + context.style_hints[0][:80]
+        )
+
     if context.retrieved_memories:
         memories = "\n".join(f"- {m.text}" for m in context.retrieved_memories)
         lines.append(

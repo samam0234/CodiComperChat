@@ -3,25 +3,20 @@ import { MessageRole } from '@prisma/client';
 import { postToAi } from '../ai/ai-client.js';
 import type { ChatTurn } from '../character-chat/character-chat.types.js';
 import type { Conversation } from '../conversations/conversations.service.js';
-import { retrieve } from '../persona-rag/retriever.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { replacePersonalVectors } from '../rag/vector-rag.js';
+import { chooseMemories } from './choose-memories.js';
 
 // 대화가 3번 오갈 때(메시지 6개)마다 기억을 정리한다
 export const MEMORIZE_EVERY_MESSAGES = 6;
 // 한 번 정리할 때 넘기는 메시지 상한 (밀린 게 많으면 여러 번에 나눠 정리한다)
 const BATCH_MESSAGES = 12;
-// 이 개수 이하면 기억을 전부 넣고, 넘으면 관련 있는 것 + 최근 것만 고른다
-const INCLUDE_ALL_UNDER = 8;
-const RELEVANT_PICK = 4;
-const RECENT_PICK = 3;
 // 중복 판단에 쓰도록 기존 기억을 넘기는 상한
 const EXISTING_FOR_DEDUP = 40;
 
 export type MemoryItem = { id: string; content: string; pinned: boolean; createdAt: Date };
 
 const MEMORY_MAX = 200;
-const PINNED_CAP = 12;
-const CONTEXT_CAP = 24;
 
 // 유저가 자기 이야기나 상대 설정을 말한 턴만 자동 기억으로 보낸다
 const FACT_CUE = /나는|난 |내가 |제가 |저는 |제 이름|내 이름|너는|넌 |네가 |상대는|사실은|직업은|살고|살아|약속|기억해|내 설정|캐릭터는|성격은|좋아하|싫어하/;
@@ -56,41 +51,44 @@ export class MemoriesService {
     if (content.length > MEMORY_MAX) throw new BadRequestException(`기억은 ${MEMORY_MAX}자 이하로 적어 주세요.`);
     const duplicate = await this.prisma.memoryChunk.findFirst({ where: { campaignId, content }, select: { id: true } });
     if (duplicate) throw new BadRequestException('같은 기억이 이미 있어요.');
-    return this.prisma.memoryChunk.create({
+    const created = await this.prisma.memoryChunk.create({
       data: { campaignId, content, pinned: true },
       select: { id: true, content: true, pinned: true, createdAt: true },
     });
+    this.reindexInBackground(campaignId);
+    return created;
   }
 
   async remove(campaignId: string, memoryId: string): Promise<void> {
     // campaignId를 조건에 걸어 남의 대화 기억은 지울 수 없게 한다
     const { count } = await this.prisma.memoryChunk.deleteMany({ where: { id: memoryId, campaignId } });
     if (count === 0) throw new NotFoundException('기억을 찾을 수 없습니다.');
+    this.reindexInBackground(campaignId);
   }
 
-  // 이번 턴에 넣을 기억. 적으면 전부, 많으면 이번 말과 관련된 것 + 가장 최근 것
+  // 이번 턴에 넣을 기억. vectorTexts가 있으면 그 조각과 직접 적은 기억만, 없으면 글자 검색
   async forContext(
     campaignId: string,
     query: { message: string; recent: string[] },
+    vectorTexts: string[] | null = null,
   ): Promise<{ id: string; text: string }[]> {
-    const all = await this.list(campaignId);
-    // 직접 적은 기억은 항상 넣는다. 자동 기억은 적으면 전부, 많으면 이번 말과 관련된 것 + 최근 것
-    const pinned = all.filter((m) => m.pinned).slice(0, PINNED_CAP);
-    const rest = all.filter((m) => !m.pinned);
-    const chosen = new Set(pinned.map((m) => m.id));
-    if (rest.length <= INCLUDE_ALL_UNDER) {
-      for (const m of rest) chosen.add(m.id);
-    } else {
-      const chunks = rest.map((m) => ({ id: m.id, type: 'memory', topic: '', keywords: [], text: m.content }));
-      const relevant = retrieve(chunks, query, { topK: RELEVANT_PICK, charBudget: 600 }).map((p) => p.chunk.id);
-      for (const id of relevant) chosen.add(id);
-      for (const m of rest.slice(0, RECENT_PICK)) chosen.add(m.id);
-    }
-    return all
-      .filter((m) => chosen.has(m.id))
-      .reverse()
-      .slice(-CONTEXT_CAP)
-      .map((m) => ({ id: m.id, text: m.content }));
+    return chooseMemories(await this.list(campaignId), query, vectorTexts);
+  }
+
+  reindexInBackground(campaignId: string): void {
+    this.reindex(campaignId).catch((error: unknown) => {
+      this.logger.warn(`기억 벡터 갱신 실패: ${error instanceof Error ? error.message : 'unknown'}`);
+    });
+  }
+
+  private async reindex(campaignId: string): Promise<void> {
+    const owner = await this.prisma.campaign.findUnique({
+      where: { id: campaignId },
+      select: { userId: true, characterId: true },
+    });
+    if (!owner) return;
+    const items = (await this.list(campaignId)).map((memory) => ({ id: memory.id, text: memory.content }));
+    await replacePersonalVectors(owner.userId, owner.characterId, items);
   }
 
   private async pending(conversation: Conversation) {
@@ -140,6 +138,7 @@ export class MemoriesService {
               data: memories.map((content) => ({ campaignId: conversation.campaignId, content })),
             });
             created += memories.length;
+            this.reindexInBackground(conversation.campaignId);
           }
         }
 
@@ -179,6 +178,7 @@ export class MemoriesService {
       await this.prisma.memoryChunk.createMany({
         data: fresh.map((content) => ({ campaignId: conversation.campaignId, content, pinned: false })),
       });
+      this.reindexInBackground(conversation.campaignId);
       return fresh.length;
     } finally {
       this.noticing.delete(conversation.campaignId);

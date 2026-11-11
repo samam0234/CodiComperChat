@@ -50,6 +50,8 @@ export type ContextSlicePayload = {
   // 성인 대화(2026-11-06): 서비스 성인 모드가 켜져 있고, 이 계정이 성인 확인·동의를 마쳤을 때만 true.
   // 서버가 매 턴 DB로 다시 본다. AI는 로컬 모델일 때만 성인 묘사를 허용한다
   adult?: boolean;
+  // 이번 말과 가까운 공통 말투 한 줄. 없으면 비운다
+  styleHints?: string[];
 };
 
 export type ExtraPayload = {

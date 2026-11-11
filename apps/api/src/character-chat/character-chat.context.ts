@@ -37,6 +37,8 @@ export function buildContextSlice(
   story: { openHooks: { id: string; text: string }[]; closedEvents: string[]; brief: string } | null = null,
   // 비밀 퀘스트 지시(src/quests/quest.ts questNote). 없으면 null
   questNote: string | null = null,
+  // 이번 말과 가까운 공통 말투. 없으면 비운다
+  styleHints: string[] = [],
 ): ContextSlicePayload {
   const nickname = chatState?.userNickname ?? null;
   const honorific = character.speechStyle.includes('존댓말')
@@ -116,5 +118,6 @@ ${questNote}` : directorNote,
     addressOverride: nickname,
     extras,
     ungroundedTopics: ungrounded,
+    styleHints: styleHints.slice(0, 1),
   };
 }
