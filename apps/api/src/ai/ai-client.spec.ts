@@ -19,7 +19,7 @@ beforeAll(async () => {
         return;
       }
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ echo: JSON.parse(raw || '{}'), token: req.headers['x-ai-token'] ?? null }));
+      res.end(JSON.stringify({ echo: JSON.parse(raw || '{}'), token: req.headers['x-ai-token'] ?? null, priority: req.headers['x-ai-priority'] ?? null }));
     });
   });
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
@@ -38,6 +38,13 @@ describe('AI 호출 (node:http)', () => {
     expect(out.echo.a).toBe('안녕');
     expect(out.token).toBe('t'.repeat(32));
     delete process.env.AI_SERVICE_TOKEN;
+  });
+
+  it('우선순위를 X-AI-Priority로 알린다 (배경 작업은 FastAPI가 CPU 예비로 내려가지 않는다)', async () => {
+    const fg = await postToAi<{ priority: string }>('/ok', {});
+    const bg = await postToAi<{ priority: string }>('/ok', {}, { priority: 'background' });
+    expect(fg.priority).toBe('foreground');
+    expect(bg.priority).toBe('background');
   });
 
   it('시간 제한을 넘기면 504로 바꾼다', async () => {
