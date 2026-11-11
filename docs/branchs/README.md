@@ -512,5 +512,6 @@ flowchart LR
 | 2026-11-11 | `7b7aea8` | develop (merge) | feature/chat-latency into develop (no-ff) | [261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md](commits/261111_1908_7b7aea8_merge-chat-latency-into-develop_develop.md) |
 | 2026-11-11 | `7c3c7ba` | main (merge) | develop into main (no-ff) | [261111_1908_7c3c7ba_merge-develop-into-main_main.md](commits/261111_1908_7c3c7ba_merge-develop-into-main_main.md) |
 | 2026-11-11 | `973adef` | feature/hosted-config-fallback | 호스팅 키·접근 오류도 예비로 답하고 원인을 로그에 남기다 | [261111_1936_973adef_hosted-config-error-fallback_feature-hosted-config-fallback.md](commits/261111_1936_973adef_hosted-config-error-fallback_feature-hosted-config-fallback.md) |
+| 2026-11-11 | `16001f6` | main (merge) | develop into main (no-ff) | [261111_1937_16001f6_merge-hosted-fallback-into-main_main.md](commits/261111_1937_16001f6_merge-hosted-fallback-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
