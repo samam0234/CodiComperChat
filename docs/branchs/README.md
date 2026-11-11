@@ -504,5 +504,6 @@ flowchart LR
 | 2026-11-09 | `f157e3f` | main (merge) | develop into main (no-ff) | [261109_1909_f157e3f_merge-chat-live-into-main_main.md](commits/261109_1909_f157e3f_merge-chat-live-into-main_main.md) |
 | 2026-11-09 | `085d54e` | feature/docs-live-socket-gaps | 웹소켓이 빠졌던 문서를 지금 동작에 맞추다 | [261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md](commits/261109_1918_085d54e_docs-live-socket-gaps_feature-docs-live-socket-gaps.md) |
 | 2026-11-09 | `541c991` | develop (merge) | feature/docs-live-socket-gaps into develop (no-ff) | [261109_1919_541c991_merge-docs-live-gaps-into-develop_develop.md](commits/261109_1919_541c991_merge-docs-live-gaps-into-develop_develop.md) |
+| 2026-11-11 | `6626ad4` | feature/chat-latency | 호스팅 답을 스트리밍으로 받아 CPU 예비로 떨어지지 않게 하다 | [261111_1907_6626ad4_hosted-streaming-light-fallback_feature-chat-latency.md](commits/261111_1907_6626ad4_hosted-streaming-light-fallback_feature-chat-latency.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
