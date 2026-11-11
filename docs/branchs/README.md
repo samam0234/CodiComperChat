@@ -524,5 +524,6 @@ flowchart LR
 | 2026-11-11 | `01e0fba` | feature/docs-latency-gaps | 대화 속도·호스팅 오류 고침에서 빠진 문서를 채우다 | [261111_2123_01e0fba_latency-docs-gaps_feature-docs-latency-gaps.md](commits/261111_2123_01e0fba_latency-docs-gaps_feature-docs-latency-gaps.md) |
 | 2026-11-11 | `0c0f9b5` | develop (merge) | feature/docs-latency-gaps into develop (no-ff) | [261111_2124_0c0f9b5_merge-latency-docs-gaps-into-develop_develop.md](commits/261111_2124_0c0f9b5_merge-latency-docs-gaps-into-develop_develop.md) |
 | 2026-11-11 | `7c1c3ad` | main (merge) | develop into main (no-ff) | [261111_2124_7c1c3ad_merge-develop-into-main-docs-gaps_main.md](commits/261111_2124_7c1c3ad_merge-develop-into-main-docs-gaps_main.md) |
+| 2026-11-11 | `6a0e44d` | feature/portfolio-refresh-20261111 | 포트폴리오 화면과 최신 개발 자료 고도화 | [261111_2201_6a0e44d_portfolio-refresh_feature-portfolio-refresh-20261111.md](commits/261111_2201_6a0e44d_portfolio-refresh_feature-portfolio-refresh-20261111.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
