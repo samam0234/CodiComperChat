@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc"><title id="title">CodiComperChat Portfolio</title><desc id="desc">기억과 관계가 쌓이는 캐릭터 캠페인 · 1인 개발 프로젝트</desc><rect width="1600" height="1000" fill="#101c2b"/>
+<text x="72" y="73" font-family="Malgun Gothic, sans-serif" font-size="21" font-weight="700" fill="#e8a06c">CODICOMPERCHAT / ENGINEERING NOTES</text>
+<text x="72" y="158" font-family="Malgun Gothic, sans-serif" font-size="51" font-weight="700" fill="#f5f1e9">CodiComperChat Portfolio</text>
+<text x="72" y="216" font-family="Malgun Gothic, sans-serif" font-size="26" font-weight="400" fill="#b8c5d5">기억과 관계가 쌓이는 캐릭터 캠페인 · 1인 개발 프로젝트</text>
+<text x="72" y="331" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">제품</text>
+<rect x="270" y="285" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="333" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">이야기를 이어 가는 상태</text>
+<text x="300" y="375" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">장기 기억 · 마지막 대사 편집 · 세계관 · 비밀 퀘스트</text>
+<text x="1150" y="329" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">PRODUCT</text>
+<text x="72" y="470" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">설계</text>
+<rect x="270" y="424" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="472" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">네 앱의 역할과 경계</text>
+<text x="300" y="514" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">Next.js · Nest.js · FastAPI · PostgreSQL</text>
+<text x="1150" y="468" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">ARCHITECTURE</text>
+<text x="72" y="609" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">검증</text>
+<rect x="270" y="563" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="611" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">평가와 실제 배포 기록</text>
+<text x="300" y="653" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">성공한 결과와 남은 실패 · 코드와 운영 반영 구분</text>
+<text x="1150" y="607" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">EVIDENCE</text>
+<text x="72" y="748" font-family="Malgun Gothic, sans-serif" font-size="23" font-weight="700" fill="#e8a06c">자료</text>
+<rect x="270" y="702" width="1258" height="119" rx="16" fill="#1b2b3f" stroke="#3c5068" stroke-width="2"/>
+<text x="300" y="750" font-family="Malgun Gothic, sans-serif" font-size="30" font-weight="700" fill="#f5f1e9">하나의 콘텐츠 정본</text>
+<text x="300" y="792" font-family="Malgun Gothic, sans-serif" font-size="24" font-weight="400" fill="#b8c5d5">웹사이트 · README · 문서 · 발표자료 · 기획 시트</text>
+<text x="1150" y="746" font-family="Malgun Gothic, sans-serif" font-size="20" font-weight="400" fill="#e8a06c">2026.11.11</text>
+<text x="72" y="925" font-family="Malgun Gothic, sans-serif" font-size="22" font-weight="400" fill="#b8c5d5">실제 제품 화면과 기술 판단은 사이트·저장소의 근거 문서에서 확인할 수 있습니다.</text>
+<text x="72" y="968" font-family="Malgun Gothic, sans-serif" font-size="18" font-weight="400" fill="#b8c5d5">설명용 구조도 · 저장소 기준 2026-11-11</text>
+</svg>

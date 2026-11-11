@@ -1,6 +1,7 @@
 ---
 // 포트폴리오 문서 내려받기 (PortFolio/PortFile → public/files, scripts/build_portfile.py)
 import Base from "../layouts/Base.astro";
+import { site } from "../lib/content";
 const files = [
   { file: "CodiComperChat_Portfolio.pdf", kind: "PDF", title: "포트폴리오 문서", text: "읽기·인쇄용. 표지 · 목차 · 프로젝트 · 네 층 · 미래 · 부록(평가 · 데이터)" },
   { file: "CodiComperChat_Portfolio.docx", kind: "Word", title: "포트폴리오 문서 (편집용)", text: "같은 내용을 고쳐 쓸 수 있는 Word 문서" },
@@ -14,7 +15,7 @@ const files = [
     <div class="container">
       <p class="eyebrow">Documents</p>
       <h1>문서 내려받기</h1>
-      <p class="lead">이 사이트와 같은 콘텐츠 정본(<code>portfolio.json</code>)에서 만든 문서입니다. 사이트를 고치면 문서도 함께 다시 만들어집니다.</p>
+      <p class="lead">{site.updatedAt} 저장소 기준으로 갱신한 자료입니다. 사이트와 같은 콘텐츠 정본에서 생성하며 개발 기록과 프레임워크 소개를 포함합니다.</p>
     </div>
   </section>
   <div class="container grid4">

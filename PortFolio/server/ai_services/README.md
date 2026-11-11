@@ -1,12 +1,12 @@
 # PortFolio · AI 서비스 (Flask)
 
-포트폴리오의 **AI 가이드 챗봇**. 저장소 문서·기획 스프레드시트·포트폴리오 콘텐츠를 근거로(RAG) 이 프로젝트가 어떻게 만들어졌는지 설명한다. LangChain으로 문서를 나누고 프롬프트·모델을 잇고, LangGraph로 질문 처리 흐름을 그래프로 짠다. 공개된 사이트는 이 서비스를 올리지 않아 모델을 부르지 않는다. 로컬에서 켤 때의 모델은 Ollama `gemma4:e4b` 하나다.
+포트폴리오의 **AI 가이드 챗봇**. 저장소 문서·기획 스프레드시트·포트폴리오 콘텐츠를 근거로(RAG) 프로젝트를 설명한다. LangChain으로 문서·모델을 잇고 LangGraph로 질문 흐름을 구성한다. 2026-11-08에 Rails와 함께 Oracle에 배포했다. 모델은 Ollama `gemma4:e4b` 하나이며 제품과 공유한다. 당시 질문 한 번 약 50초, 동시 요청 시 지연·503을 경험했다. 현재 상태는 `/health`로 확인한다.
 
 ```bash
 cd PortFolio/server/ai_services
 python -m venv .venv && ./.venv/Scripts/python.exe -m pip install -r requirements.txt pytest
 ./.venv/Scripts/python.exe run.py                # http://127.0.0.1:5001
-./.venv/Scripts/python.exe -m pytest -q          # 12개 (모델 없이, 가짜 채팅 모델)
+./.venv/Scripts/python.exe -m pytest -q          # 16개 (모델 없이, 가짜 채팅 모델)
 ```
 
 <!-- logic-structure -->

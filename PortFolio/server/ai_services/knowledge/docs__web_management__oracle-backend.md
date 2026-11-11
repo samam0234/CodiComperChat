@@ -75,11 +75,20 @@ $SSH "cd ~/codicomperchat && $C ps"
 curl https://api.168-110-61-178.sslip.io/health
 ```
 
-- **포트폴리오 챗봇 서버 (2026-11-08)**: `PortFolio/server/docker-compose.oracle.yml`(프로젝트명 `portfolio`)이 제품 망(`codicomperchat_edge`·`codicomperchat_internal`, external)에 `pf-backend`(Rails, 400MB 상한)·`pf-ai`(Flask, 800MB 상한)를 붙인다. 제품 Caddy가 `PORTFOLIO_API_DOMAIN`(`portfolio-api.168-110-61-178.sslip.io`, `deploy/oracle/.env`에 추가) 사이트 블록으로 `pf-backend:3000`에 넘긴다. 비밀값(`PortFolio/server/.env`의 `SECRET_KEY_BASE`·`AI_INTERNAL_TOKEN`)은 서버에서 만들었고 권한 600이다. 올리기: `cd ~/codicomperchat/PortFolio/server && sudo docker compose --env-file .env -f docker-compose.oracle.yml up -d --build`. 실측: `/api/v1/health` 200(chunks 629), 챗 질문 약 50초에 200·CORS 통과. **위험**: Ollama가 한 번에 한 요청만 처리해서 제품 대화와 겹치면 챗봇이 180초 제한에 걸려 503이 난다(첫 질문에서 실제로 겪음). 사이트의 `PUBLIC_API_BASE`는 Vercel 환경변수로 넣었다(바꾸면 다시 배포해야 반영).
+- **포트폴리오 챗봇 서버 (2026-11-08)**: `PortFolio/server/docker-compose.oracle.yml`(프로젝트명 `portfolio`)이 제품 망(`codicomperchat_edge`·`codicomperchat_internal`, external)에 `pf-backend`(Rails, 400MB 상한)·`pf-ai`(Flask, 800MB 상한)를 붙인다. 제품 Caddy가 `PORTFOLIO_API_DOMAIN`(`portfolio-api.168-110-61-178.sslip.io`, `deploy/oracle/.env`에 추가) 사이트 블록으로 `pf-backend:3000`에 넘긴다. 비밀값(`PortFolio/server/.env`의 `SECRET_KEY_BASE`·`AI_INTERNAL_TOKEN`)은 서버에서 만들었고 권한 600이다. 올리기: `cd ~/codicomperchat/PortFolio/server && sudo docker compose --env-file .env -f docker-compose.oracle.yml up -d --build`. 실측: `/api/v1/health` 200(chunks 629), 챗 질문 약 50초에 200·CORS 통과. **속도(2026-11-11 실측)**: 이 서버 CPU는 입력을 초당 약 13토큰, 답을 약 5토큰 처리한다(Gemma는 앞부분 재사용도 안 돼 매번 전부 다시 읽는다). 그래서 시간은 거의 "프롬프트 토큰 수 ÷ 13"이다. 자료 5조각(약 710토큰)에 70초 넘게 걸리던 것을 시스템 프롬프트 축소·자료 2조각×320자·답 상한 260토큰으로 질문당 약 40~45초로 줄였고, 같은 질문은 답 캐시(`/cache/answers.json`, 재시작해도 유지)에서 즉시 나간다. 배포 뒤 `docker compose -f docker-compose.oracle.yml exec -d pf-ai python warm.py`로 추천 질문 6개를 미리 채운다(약 5분). **제품 AI와 `num_ctx`가 다르면** 서로 부를 때마다 모델을 다시 올려 100초 넘게 걸리므로 챗봇은 `num_ctx`를 정하지 않는다(Ollama 기본값 공유). **위험**: Ollama가 한 번에 한 요청만 처리해서 제품 대화와 겹치면 챗봇이 180초 제한에 걸려 503이 난다(첫 질문에서 실제로 겪음). 사이트의 `PUBLIC_API_BASE`는 Vercel 환경변수로 넣었다(바꾸면 다시 배포해야 반영).
 - **compose 파일은 항상 두 개를 함께 준다.** 하나만 주면 `ai`·`ollama`가 고아 컨테이너가 되고 api가 AI를 못 부른다.
 - Windows(`core.autocrlf=true`)에서 그냥 `git archive`를 하면 파일이 CRLF로 나가 `.env` 값 끝에 `\r`이 붙는다. `core.autocrlf=false`만으로는 `text`로 정한 파일이 Windows 기본 `core.eol`(CRLF)로 나가서, `core.eol=lf`까지 준다(2026-11-07 실측: `.env.example`의 CR 21개 → 0개).
 - `deploy/oracle/.env`는 서버에서 처음 한 번 만들어지고 다시 덮어쓰지 않는다. 비밀값은 서버에만 있다. 값을 바꿀 때는 `sudo nano`로 고치고 위 3)을 다시 돌린다.
 - `deploy/oracle/bootstrap.sh`·`setup.sh`(다른 브랜치에서 들어옴)는 다른 compose를 전제로 쓰였다. **이 서버에서 돌리지 않는다.**
+
+### 2026-11-11 대화 속도 고침을 서버에 올리기
+
+`api`(우선순위 머리글)와 `ai`(호스팅 스트리밍·가벼운 예비) 둘 다 바뀌었다. 위 1)로 코드를 보내고 3)으로 **두 서비스를 다시 빌드**한다. 새 설정(`LLM_API_READ_TIMEOUT_SECONDS` 40, `LLM_API_TOTAL_TIMEOUT_SECONDS` 150, `LLM_FALLBACK_MAX_TURNS` 8, `LLM_FALLBACK_MAX_TOKENS` 320)은 compose 기본값이 있어 `.env`를 고치지 않아도 된다. 올린 뒤 같은 대화를 몇 번 보내 시간을 재고 [../trainings/oracle-deploy-latency.md](../trainings/oracle-deploy-latency.md)에 적는다.
+
+```bash
+$SSH "cd ~/codicomperchat && $C up -d --build api ai"
+$SSH "cd ~/codicomperchat && $C logs --tail 50 ai"   # 호스팅이 막혀 예비로 간 횟수를 본다
+```
 
 ## 자주 쓰는 점검
 
