@@ -527,5 +527,6 @@ flowchart LR
 | 2026-11-11 | `6a0e44d` | feature/portfolio-refresh-20261111 | 포트폴리오 화면과 최신 개발 자료 고도화 | [261111_2201_6a0e44d_portfolio-refresh_feature-portfolio-refresh-20261111.md](commits/261111_2201_6a0e44d_portfolio-refresh_feature-portfolio-refresh-20261111.md) |
 | 2026-11-11 | `0b824c2` | feature/portfolio-refresh-20261111 | 포트폴리오의 오래된 구조도를 최신 도식으로 교체 | [261111_2203_0b824c2_portfolio-current-diagrams_feature-portfolio-refresh-20261111.md](commits/261111_2203_0b824c2_portfolio-current-diagrams_feature-portfolio-refresh-20261111.md) |
 | 2026-11-11 | `d866894` | develop (merge) | feature/portfolio-refresh-20261111 into develop (no-ff) | [261111_2203_d866894_merge-portfolio-refresh_develop.md](commits/261111_2203_d866894_merge-portfolio-refresh_develop.md) |
+| 2026-11-11 | `d54d040` | main (merge) | develop into main (no-ff) | [261111_2204_d54d040_merge-portfolio-main_main.md](commits/261111_2204_d54d040_merge-portfolio-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
