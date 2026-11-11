@@ -520,5 +520,6 @@ flowchart LR
 | 2026-11-11 | `34baf77` | feature/merge-order-rule | 잘못 남긴 병합 기록 c4425bb를 되돌리다 | [261111_2112_34baf77_revert-stray-merge-record_feature-merge-order-rule.md](commits/261111_2112_34baf77_revert-stray-merge-record_feature-merge-order-rule.md) |
 | 2026-11-11 | `ecfdaaf` | feature/merge-order-rule | 병합과 푸시를 함께 시킬 때의 순서와 인수인계를 규칙에 박다 | [261111_2114_ecfdaaf_merge-push-order-rule_feature-merge-order-rule.md](commits/261111_2114_ecfdaaf_merge-push-order-rule_feature-merge-order-rule.md) |
 | 2026-11-11 | `848e5ed` | develop (merge) | feature/merge-order-rule into develop (no-ff) | [261111_2114_848e5ed_merge-merge-order-rule-into-develop_develop.md](commits/261111_2114_848e5ed_merge-merge-order-rule-into-develop_develop.md) |
+| 2026-11-11 | `85add9a` | main (merge) | develop into main (no-ff) | [261111_2114_85add9a_merge-develop-into-main-order-rule_main.md](commits/261111_2114_85add9a_merge-develop-into-main-order-rule_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
