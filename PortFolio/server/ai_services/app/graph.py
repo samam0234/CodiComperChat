@@ -44,15 +44,7 @@ class ChatState(TypedDict, total=False):
     model: str
 
 
-SYSTEM = """당신은 1인 풀스택 프로젝트 「코디컴퍼챗(CodiComperChat)」의 포트폴리오 가이드입니다.
-방문자(채용 담당자·개발자)가 이 프로젝트가 무엇이고, 어떻게 만들어졌고, 어디서 막혔고, 어떻게 풀었는지 이해하도록 돕습니다.
-
-규칙
-1. 아래 "자료"에 있는 사실만 말합니다. 자료에 없는 수치·이름·날짜는 지어내지 않고 "자료에서 찾지 못했다"고 말합니다.
-2. 문장 끝에 근거 번호를 [1], [2]처럼 답니다. 여러 자료를 합쳤으면 번호를 함께 답니다.
-3. 한국어로, 핵심부터 3~8문장 또는 짧은 목록으로 답합니다. 표가 필요하면 마크다운 표를 씁니다.
-4. 더 볼 곳이 있으면 질문과 가장 관련 있는 포트폴리오 페이지 하나만 골라 마지막 줄에 안내합니다(/frontend, /console, /backend, /ai, /future, /data, /erd 중). 모든 페이지를 나열하지 않습니다.
-5. 비밀값(키·토큰·비밀번호)이나 개인 정보는 자료에 있어도 말하지 않습니다."""
+SYSTEM = """당신은 프로젝트 「코디컴퍼챗」 포트폴리오 가이드입니다. 아래 자료의 사실만 한국어 3~4문장으로 답하고 문장 끝에 근거 번호 [1]을 답니다. 자료에 없는 것은 지어내지 않고 "자료에서 찾지 못했다"고 합니다. 비밀값·개인정보는 말하지 않습니다. 마지막 줄에 관련 페이지 하나(/frontend /console /backend /ai /future /data /erd)를 안내합니다."""
 
 PROMPT = ChatPromptTemplate.from_messages(
     [
@@ -102,7 +94,27 @@ def _timed(name: str, fn: Callable[[ChatState], dict]) -> Callable[[ChatState], 
     return run
 
 
-def build_graph(kb: KnowledgeBase, llm_for: Callable[[str], BaseChatModel], chat_model: str, fallback_model: str, min_score: float):
+def _clip(text: str, limit: int) -> str:
+    """자료 조각을 limit자 안으로 줄인다. 가능하면 줄·문장 끝에서 자른다(입력이 짧을수록 CPU에서 빨리 시작한다)."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    for sep in ("\n", ". ", "다. ", " "):
+        i = cut.rfind(sep)
+        if i >= limit * 0.6:
+            return cut[: i + 1].rstrip() + " …"
+    return cut + "…"
+
+
+def build_graph(
+    kb: KnowledgeBase,
+    llm_for: Callable[[str], BaseChatModel],
+    chat_model: str,
+    fallback_model: str,
+    min_score: float,
+    context_hits: int = 2,
+    context_chars: int = 320,
+):
     def route(state: ChatState) -> dict:
         q = state["question"].strip()
         return {"route": "greeting" if _GREETING.search(q) and len(q) < 40 else "project"}
@@ -133,7 +145,7 @@ def build_graph(kb: KnowledgeBase, llm_for: Callable[[str], BaseChatModel], chat
                 continue
             seen.add(key)
             kept.append(h)
-        return {"hits": kept[:5]}
+        return {"hits": kept[:context_hits]}
 
     def after_grade(state: ChatState) -> str:
         return "generate" if state.get("hits") else "no_context"
@@ -141,7 +153,7 @@ def build_graph(kb: KnowledgeBase, llm_for: Callable[[str], BaseChatModel], chat
     def generate(state: ChatState) -> dict:
         hits = state["hits"]
         context = "\n\n".join(
-            f"[{i}] ({h.doc.metadata['source']}{' · ' + h.doc.metadata['heading'] if h.doc.metadata.get('heading') else ''})\n{h.doc.page_content}"
+            f"[{i}] ({h.doc.metadata['source']}{' · ' + h.doc.metadata['heading'] if h.doc.metadata.get('heading') else ''})\n{_clip(h.doc.page_content, context_chars)}"
             for i, h in enumerate(hits, 1)
         )
         payload = {"context": context, "history": _history_messages(state.get("history", [])), "question": state["question"]}

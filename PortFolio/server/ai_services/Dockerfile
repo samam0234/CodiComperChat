@@ -6,8 +6,8 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY app app
 COPY knowledge knowledge
-COPY run.py .
-RUN useradd --create-home app
+COPY run.py warm.py warm_questions.txt ./
+RUN useradd --create-home app && mkdir /cache && chown app /cache
 USER app
 EXPOSE 5001
 CMD ["waitress-serve", "--host=0.0.0.0", "--port=5001", "--threads=4", "--call", "app:create_app"]
