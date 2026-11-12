@@ -26,7 +26,7 @@ class SceneNoteTest(unittest.TestCase):
 
     def test_follow_up_uses_a_smaller_output_budget(self) -> None:
         opening = InferRequest(context=fixture.context(), user_turn="안녕")
-        self.assertEqual(inference.output_budget(opening), 320)
+        self.assertEqual(inference.output_budget(opening), 192)
         longer = fixture.context().model_copy(
             update={
                 "recent_turns": [
@@ -35,7 +35,7 @@ class SceneNoteTest(unittest.TestCase):
                 ]
             }
         )
-        self.assertEqual(inference.output_budget(InferRequest(context=longer, user_turn="고마워요")), 200)
+        self.assertEqual(inference.output_budget(InferRequest(context=longer, user_turn="고마워요")), 96)
 
 
 class PanelSeedTest(unittest.TestCase):

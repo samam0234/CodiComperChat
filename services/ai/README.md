@@ -163,6 +163,7 @@ cd services/ai
 ./.venv/Scripts/python.exe -m evals.run                      # 전체, 질문마다 2회
 ./.venv/Scripts/python.exe -m evals.run --suite override --repeat 3
 ./.venv/Scripts/python.exe -m evals.run --json out.json -v   # 결과 저장, 통과한 질문도 출력
+./.venv/Scripts/python.exe -m evals.chat_latency --repeat 3 --out evals/.results/chat-latency.json # 첫 글자·완료·기억 회상
 ./.venv/Scripts/python.exe -m evals.quest_seyeon             # 이세연 퀘스트 판정 (잘못 통과가 있으면 실패)
 ./.venv/Scripts/python.exe -m evals.quest_yujiseong          # 유지성 퀘스트 판정 (잘못 통과가 있으면 실패)
 ./.venv/Scripts/python.exe -m evals.quest_reward             # 달성 직후 보상 장면

@@ -12,12 +12,7 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
-
-# 앱을 불러오기 전에 고정한다. .env는 이미 있는 값을 덮지 않는다.
-os.environ["LLM_FAKE"] = "1"
-os.environ["IMAGE_FAKE"] = "1"
-os.environ["CHROMA_DIR"] = tempfile.mkdtemp(prefix="chroma-contract-")
-os.environ["AI_SERVICE_TOKEN"] = "t" * 32
+from unittest import mock
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -25,7 +20,7 @@ from app.main import app  # noqa: E402
 
 API_SRC = Path(__file__).resolve().parents[3] / "apps" / "api" / "src"
 ROUTES = Path(__file__).resolve().parents[1] / "app" / "routes"
-TOKEN = os.environ["AI_SERVICE_TOKEN"]
+TOKEN = "t" * 32
 # 1x1 PNG. 검수 가짜 경로는 바이트만 본다.
 PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
 CALL = re.compile(
@@ -164,6 +159,13 @@ def _body(method: str, path: str, spec: dict) -> dict | None:
 class NestContractTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # 수집 시 전역으로 켜면 뒤의 보상·파트 판정 시험도 가짜 경로를 탄다.
+        env = mock.patch.dict(os.environ, {
+            "LLM_FAKE": "1", "IMAGE_FAKE": "1",
+            "CHROMA_DIR": tempfile.mkdtemp(prefix="chroma-contract-"), "AI_SERVICE_TOKEN": TOKEN,
+        })
+        env.start()
+        cls.addClassCleanup(env.stop)
         cls.client = TestClient(app)
         cls.client.__enter__()
         cls.spec = app.openapi()
