@@ -17,17 +17,17 @@ export function chooseMemories(
   vectorTexts: string[] | null,
 ): { id: string; text: string }[] {
   const pinned = all.filter((memory) => memory.pinned).slice(0, PINNED_CAP);
-  if (vectorTexts && vectorTexts.length > 0) {
+  // 색인 갱신 중 삭제된 기억이 돌아올 수 있다. 현재 DB에 남아 있는 문장만 근거로 쓴다.
+  const currentVectorTexts = vectorTexts?.filter((text) => all.some((memory) => memory.content === text)) ?? [];
+  if (currentVectorTexts.length > 0) {
     const chosen = [...pinned];
     const seen = new Set(pinned.map((memory) => memory.content));
-    for (const text of vectorTexts) {
+    for (const text of currentVectorTexts) {
       if (chosen.length >= PINNED_CAP + VECTOR_PICK) break;
       if (seen.has(text)) continue;
       seen.add(text);
       const found = all.find((memory) => memory.content === text);
-      chosen.push(
-        found ?? { id: `vec-${chosen.length}`, content: text, pinned: false, createdAt: new Date(0) },
-      );
+      if (found) chosen.push(found);
     }
     return chosen.slice(-CONTEXT_CAP).map((memory) => ({ id: memory.id, text: memory.content }));
   }

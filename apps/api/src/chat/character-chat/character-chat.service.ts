@@ -103,15 +103,24 @@ export class CharacterChatService {
     const userId = await this.resolveUser(options.authorization);
     const cached = this.prepared.get(`${userId}:${characterId}:${options.personaId}`);
     if (cached && Date.now() - cached.at < PREP_TTL_MS) {
-      const [history, adult] = await Promise.all([
-        this.historyOf(cached.rest.conversation, cached.rest.character.openingScene),
+      // 처음 보낼 때는 conversation이 null이다. 저장 후에도 그 값을 재사용하면 다음 턴의 기억이 빠진다.
+      const conversation = await this.conversations.find(userId, characterId);
+      if (conversation?.persona && conversation.persona.id !== options.personaId) {
+        throw new ConflictException('이 대화에 고정된 프로필로 다시 보내 주세요.');
+      }
+      const [history, adult, chatState, story] = await Promise.all([
+        this.historyOf(conversation, cached.rest.character.openingScene),
         this.adultChat(userId),
+        conversation ? this.chatState.get(conversation.campaignId) : null,
+        conversation ? this.story.get(conversation.campaignId) : null,
       ]);
-      return { ...cached.rest, adult, history };
+      return { ...cached.rest, conversation, persona: conversation?.persona ?? cached.rest.persona, adult, history, chatState, story };
     }
     // 발행 안 됐거나 없는 캐릭터, 남의 비공개 캐릭터면 여기서 NotFoundException을 던진다.
-    const character = await this.charactersService.findOnePublished(characterId, userId);
-    const conversation = await this.conversations.find(userId, characterId);
+    const [character, conversation] = await Promise.all([
+      this.charactersService.findOnePublished(characterId, userId),
+      this.conversations.find(userId, characterId),
+    ]);
     // 대화마다 프로필이 하나로 고정된다. 바꾸려면 새로하기로 새 대화를 시작한다
     let persona: LockedPersona;
     if (conversation?.persona) {
@@ -127,16 +136,18 @@ export class CharacterChatService {
       const owned = await this.personasService.findOwned(userId, options.personaId);
       persona = { id: owned.id, name: owned.name, description: owned.description };
     }
-    const history = await this.historyOf(conversation, character.openingScene);
-    const chatState = conversation ? await this.chatState.get(conversation.campaignId) : null;
-    const story = conversation ? await this.story.get(conversation.campaignId) : null;
-    const adult = await this.adultChat(userId);
+    const [history, chatState, story, adult] = await Promise.all([
+      this.historyOf(conversation, character.openingScene),
+      conversation ? this.chatState.get(conversation.campaignId) : null,
+      conversation ? this.story.get(conversation.campaignId) : null,
+      this.adultChat(userId),
+    ]);
     const rest: PrepRest = { character, userId, persona, conversation, chatState, story, adult };
     this.prepared.set(`${userId}:${characterId}:${options.personaId}`, { at: Date.now(), rest });
     return { ...rest, history };
   }
 
-  // 화면을 연 동안 카드·기억 상태를 읽어 둔다. 첫 보내기는 이 꾸러미를 쓰고, 최근 대화만 다시 읽는다
+  // 화면을 연 동안 카드를 읽어 둔다. 보내기 때 대화·관계·이야기 상태는 다시 확인한다.
   private async prime(
     userId: string,
     character: PrepRest['character'],
@@ -269,13 +280,14 @@ export class CharacterChatService {
   private async compose(prep: Prepared, userTurn: string, requested: string | undefined, live?: LiveListener) {
     const { character, userId, persona, conversation: existing, history, chatState, story, adult } = prep;
     const rag = this.personaRag.assemble(character.name, history, userTurn);
-    const vector = await searchVectors(userId, character.id, userTurn);
-    const memories = await this.memoriesFor(existing, history, userTurn, vector?.personal.length ? vector.personal : null);
-    const extras = await this.extras.activeFor(existing, history, userTurn, character.name);
-
     const grounding = groundingText(this.personaRag.knowledgeFor(character.name), character);
     // 비밀 퀘스트: 친밀도가 문턱을 넘었으면 캐릭터에게 부탁을 꺼낼 때를 알려 준다 (달성 조건은 알리지 않는다)
-    const questNote = await this.quests.noteFor(character.id, existing?.campaignId ?? null, chatState?.relationshipValue ?? 0);
+    const [vector, extras, questNote] = await Promise.all([
+      searchVectors(userId, character.id, userTurn),
+      this.extras.activeFor(existing, history, userTurn, character.name),
+      this.quests.noteFor(character.id, existing?.campaignId ?? null, chatState?.relationshipValue ?? 0),
+    ]);
+    const memories = await this.memoriesFor(existing, history, userTurn, vector?.personal.length ? vector.personal : null);
     const context = buildContextSlice(
       character,
       history,

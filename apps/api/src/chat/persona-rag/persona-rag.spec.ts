@@ -21,6 +21,12 @@ describe('컨텍스트 조립', () => {
     openingScene: 'e',
   } as never;
 
+  it('이어하기 직후 최근 대화가 짧아도 지난 세션 요약을 전달한다', () => {
+    const story = { openHooks: [], closedEvents: [], brief: '금요일 오후 3시 수선화 서점에서 만나기로 했다.' };
+    const slice = buildContextSlice(character, [], null, null, [], null, [], [], story);
+    expect(slice.storySoFar).toBe(story.brief);
+  });
+
   it('지식이 있으면 core만 directorNote로, 검색된 조각은 activeLore로 넘긴다', () => {
     const rag = { core: ['핵심1', '핵심2'], lore: [{ keyword: '주제', content: '내용' }], retrievedIds: ['x'] };
     const slice = buildContextSlice(character, [], null, rag);
