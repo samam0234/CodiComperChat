@@ -548,5 +548,6 @@ flowchart LR
 | 2026-11-12 | `6159f62` | main (merge) | 대화 속도와 Nest 묶음을 main에 합치다 | [261112_1541_6159f62_chat-pace-into-main_main.md](commits/261112_1541_6159f62_chat-pace-into-main_main.md) |
 | 2026-11-12 | `13146fe` | feature/studio-worlds-folders | 스튜디오와 세계관을 기능 폴더로 나누다 | [261112_1559_13146fe_studio-worlds-folders_feature-studio-worlds-folders.md](commits/261112_1559_13146fe_studio-worlds-folders_feature-studio-worlds-folders.md) |
 | 2026-11-12 | `89a1b2a` | develop (merge) | 스튜디오와 세계관 폴더 나눔을 develop에 합치다 | [261112_1559_89a1b2a_studio-worlds-into-develop_develop.md](commits/261112_1559_89a1b2a_studio-worlds-into-develop_develop.md) |
+| 2026-11-12 | `62018f7` | main (merge) | 스튜디오와 세계관 폴더 나눔을 main에 합치다 | [261112_1603_62018f7_studio-worlds-into-main_main.md](commits/261112_1603_62018f7_studio-worlds-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
