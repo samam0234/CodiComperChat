@@ -34,6 +34,7 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
   const [mapOpen, setMapOpen] = useState(false);
   const [eventHidden, setEventHidden] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const world = state.world;
   const play = state.play as Play;
@@ -75,6 +76,27 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
     }
   }
 
+  async function refreshPlay() {
+    if (refreshing || pending) return;
+    setRefreshing(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/worlds/${encodeURIComponent(world.id)}/play`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(12_000),
+      });
+      if (!res.ok) {
+        setError(await errorText(res, "플레이를 다시 읽지 못했어요."));
+        return;
+      }
+      setState((await res.json()) as PlayState);
+    } catch {
+      setError("서버에 연결할 수 없어요.");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   function eventDone(result: EventResult | null) {
     if (!result) {
       setEventHidden(true);
@@ -86,6 +108,7 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
   }
 
   const partTotal = world.partTitles.length;
+  const lastMenuId = [...play.messages].reverse().find((m) => m.role !== "SYSTEM")?.id;
   const partLabel =
     partTotal === 0 ? "자유 진행" : play.finished ? `모든 파트 완료 (${partTotal}부)` : `${play.partIndex + 1}부 / ${partTotal} · ${world.partTitles[play.partIndex]}`;
 
@@ -129,11 +152,21 @@ export default function WorldPlay({ initial }: { initial: PlayState }) {
       <div className={styles.body}>
         <main className={styles.stage} aria-live="polite">
           {world.mode === "VISUAL_NOVEL" ? (
-            <VisualNovel worldId={world.id} messages={play.messages} images={world.images} userName={userName} />
+            <VisualNovel worldId={world.id} messages={play.messages} images={world.images} userName={userName} onRefresh={refreshPlay} refreshing={refreshing || pending} />
           ) : (
             <ol className={styles.log}>
               {play.messages.map((m) => (
-                <MessageView key={m.id} m={m} mode={world.mode} worldId={world.id} userName={userName} names={names} />
+                <MessageView
+                  key={m.id}
+                  m={m}
+                  mode={world.mode}
+                  worldId={world.id}
+                  userName={userName}
+                  names={names}
+                  menu={m.id === lastMenuId}
+                  refreshing={refreshing || pending}
+                  onRefresh={refreshPlay}
+                />
               ))}
               {pending && (
                 <li className={styles.typing} aria-label="답을 쓰는 중">
@@ -209,7 +242,53 @@ function SceneImage({ worldId, imageId, label }: { worldId: string; imageId: str
   );
 }
 
-function MessageView({ m, mode, worldId, userName, names }: { m: PlayMessage; mode: PlayState["world"]["mode"]; worldId: string; userName: string; names: string[] }) {
+function LineMenu({ busy, onRefresh }: { busy: boolean; onRefresh: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={styles.lineMenu}>
+      <button type="button" className={styles.kebab} aria-label="이 대사 메뉴" aria-expanded={open} aria-haspopup="menu" disabled={busy} onClick={() => setOpen((v) => !v)}>
+        <span />
+        <span />
+        <span />
+      </button>
+      {open && (
+        <div className={styles.menuPop} role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            className={styles.menuItem}
+            onClick={() => {
+              setOpen(false);
+              onRefresh();
+            }}
+          >
+            {busy ? "불러오는 중" : "새로 고침"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MessageView({
+  m,
+  mode,
+  worldId,
+  userName,
+  names,
+  menu,
+  refreshing,
+  onRefresh,
+}: {
+  m: PlayMessage;
+  mode: PlayState["world"]["mode"];
+  worldId: string;
+  userName: string;
+  names: string[];
+  menu?: boolean;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
   if (m.role === "SYSTEM") {
     return (
       <li className={styles.system} data-testid="world-system">
@@ -220,33 +299,36 @@ function MessageView({ m, mode, worldId, userName, names }: { m: PlayMessage; mo
   if (m.role === "USER") {
     if (mode === "NOVEL") {
       return (
-        <li className={styles.novelUser}>
+        <li className={`${styles.novelUser} ${styles.menuRow}`}>
           <span>— {userName}</span> <ChatText text={m.content} userName={userName} />
+          {menu && <LineMenu busy={refreshing} onRefresh={onRefresh} />}
         </li>
       );
     }
     return (
-      <li className={styles.userRow}>
+      <li className={`${styles.userRow} ${styles.menuRow}`}>
         {mode === "MESSENGER" && <span className={styles.meName}>{userName}</span>}
         <div className={styles.userBubble}>
           <ChatText text={m.content} userName={userName} />
         </div>
+        {menu && <LineMenu busy={refreshing} onRefresh={onRefresh} />}
       </li>
     );
   }
   const segs: Segment[] = m.segments ?? [{ kind: "narration", speaker: null, text: m.content }];
   if (mode === "NOVEL") {
     return (
-      <li className={styles.novel} data-testid="world-reply">
+      <li className={`${styles.novel} ${styles.menuRow}`} data-testid="world-reply">
         {m.imageId && <SceneImage worldId={worldId} imageId={m.imageId} />}
         {segs.map((s, i) => (
           <p key={i}>{s.speaker ? <><strong>{s.speaker}</strong> — {s.text}</> : s.text}</p>
         ))}
+        {menu && <LineMenu busy={refreshing} onRefresh={onRefresh} />}
       </li>
     );
   }
   return (
-    <li className={styles.reply} data-testid="world-reply">
+    <li className={`${styles.reply} ${styles.menuRow}`} data-testid="world-reply">
       {m.imageId && <SceneImage worldId={worldId} imageId={m.imageId} />}
       {segs.map((s, i) =>
         s.kind === "narration" ? (
@@ -271,6 +353,7 @@ function MessageView({ m, mode, worldId, userName, names }: { m: PlayMessage; mo
           </div>
         ),
       )}
+      {menu && <LineMenu busy={refreshing} onRefresh={onRefresh} />}
     </li>
   );
 }
@@ -281,11 +364,15 @@ function VisualNovel({
   messages,
   images,
   userName,
+  onRefresh,
+  refreshing,
 }: {
   worldId: string;
   messages: PlayMessage[];
   images: PlayState["world"]["images"];
   userName: string;
+  onRefresh: () => void;
+  refreshing: boolean;
 }) {
   const lastReply = [...messages].reverse().find((m) => m.role === "CHARACTER");
   const segs = useMemo(() => lastReply?.segments ?? (lastReply ? [{ kind: "narration" as const, speaker: null, text: lastReply.content }] : []), [lastReply]);
@@ -316,9 +403,12 @@ function VisualNovel({
           <span className={styles.vnNext}>{index < segs.length - 1 ? `▼ ${index + 1}/${segs.length}` : "■"}</span>
         </button>
       )}
-      <button type="button" className={styles.chip} onClick={() => setLogOpen((v) => !v)}>
-        {logOpen ? "기록 닫기" : "지난 대사 기록"}
-      </button>
+      <div className={styles.vnTools}>
+        <LineMenu busy={refreshing} onRefresh={onRefresh} />
+        <button type="button" className={styles.chip} onClick={() => setLogOpen((v) => !v)}>
+          {logOpen ? "기록 닫기" : "지난 대사 기록"}
+        </button>
+      </div>
       {logOpen && (
         <ol className={styles.vnLog}>
           {messages.map((m) => (

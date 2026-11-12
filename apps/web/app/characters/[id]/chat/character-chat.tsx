@@ -134,6 +134,7 @@ export default function CharacterChat({
   const [direction, setDirection] = useState("");
   const [lineBusy, setLineBusy] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   // 대화 전에 반드시 직접 골라야 한다 — 기본값을 미리 채우지 않는다
@@ -219,6 +220,33 @@ export default function CharacterChat({
       setNotice({ ok: false, text: "API에 연결할 수 없습니다." });
     } finally {
       setLineBusy(null);
+    }
+  };
+
+  const refreshChat = async () => {
+    if (refreshing || sending) return;
+    setRefreshing(true);
+    setNotice(null);
+    try {
+      const res = await fetch(`/api/characters/${characterId}/chat`, { cache: "no-store" });
+      const data = (await res.json()) as {
+        message?: string;
+        messages?: InitialMessage[];
+        scene?: Scene | null;
+      };
+      if (!res.ok || !Array.isArray(data.messages)) {
+        setNotice({ ok: false, text: data.message ?? "대화를 다시 읽지 못했어요." });
+        return;
+      }
+      setMessages(data.messages);
+      if (data.scene) setScene(data.scene);
+      setEditingId(null);
+      setRewriteId(null);
+      setNotice({ ok: true, text: "대화를 다시 불러왔어요." });
+    } catch {
+      setNotice({ ok: false, text: "API에 연결할 수 없습니다." });
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -664,8 +692,20 @@ export default function CharacterChat({
                   <span />
                 </button>
                 {menuOpen && (
-                  <div className={styles.menuPop} role="menu">
-                    <button
+                <div className={styles.menuPop} role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className={styles.menuItem}
+                    disabled={refreshing || sending}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      void refreshChat();
+                    }}
+                  >
+                    {refreshing ? "불러오는 중" : "새로 고침"}
+                  </button>
+                  <button
                       type="button"
                       role="menuitem"
                       className={styles.menuItem}
