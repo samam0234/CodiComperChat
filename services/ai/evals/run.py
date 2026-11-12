@@ -15,12 +15,14 @@ import re
 import sys
 import time
 
-from app.schemas.critique import CritiqueTestRequest
-from app.schemas.ground import GroundCheckRequest
-from app.schemas.infer import InferRequest
-from app.schemas.moderate import ModerateImageRequest, ModerateImageResponse
-from app.schemas.webtoon import WebtoonPlanRequest
-from app.services import critique, grounding, image_moderation, inference, webtoon
+from app.schemas.studio.critique import CritiqueTestRequest
+from app.schemas.chat.ground import GroundCheckRequest
+from app.schemas.chat.infer import InferRequest
+from app.schemas.picture.moderate import ModerateImageRequest, ModerateImageResponse
+from app.schemas.picture.webtoon import WebtoonPlanRequest
+from app.services.chat import grounding, inference
+from app.modules.picture import image_moderation, webtoon
+from app.services.studio import critique
 from evals import fixture, images
 
 # 이 비율 이상이어야 통과 (소형 모델 기준의 현실적인 값. 모델을 바꾸면 다시 잡는다)

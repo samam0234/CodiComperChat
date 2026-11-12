@@ -5,8 +5,9 @@ cd services/ai && .venv/Scripts/python.exe -m unittest tests.test_portrait
 
 import unittest
 
-from app.schemas.portrait import PortraitRequest
-from app.services import image_engine, portrait
+from app.schemas.studio.portrait import PortraitRequest
+from app.modules.picture import image_engine
+from app.services.studio import portrait
 
 
 class ComposeTest(unittest.TestCase):

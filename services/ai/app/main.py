@@ -1,4 +1,3 @@
-import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -7,40 +6,25 @@ from fastapi import FastAPI
 
 from app import request_priority
 from app.internal_auth import assert_production_safety, internal_auth
-from app.services import chroma_rag, llm
-
-from app.routes import (
-    assist,
-    critique_test,
-    draft,
-    ground,
-    health,
-    infer,
-    moderate,
-    operations,
-    photonet,
-    portrait,
-    rag,
-    remember,
-    rewrite,
-    suggest,
-    summarize,
-    train,
-    webtoon,
-    world,
-)
+from app.orchestration import meta
+from app.routes.chat import router as chat_router
+from app.routes.guide import router as guide_router
+from app.routes.memory import router as memory_router
+from app.routes.meta import router as meta_router
+from app.routes.ops import router as ops_router
+from app.routes.picture import router as picture_router
+from app.routes.studio import router as studio_router
+from app.routes.world import router as world_router
 
 # 실행 위치·--env-file 유무와 상관없이 services/ai/.env를 읽는다. 이미 설정된 환경변수는 덮어쓰지 않는다
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 assert_production_safety()
 
 
-
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # 대화 모델 예열(OLLAMA_WARMUP=1일 때). 뒤에서 돌려 기동과 /health를 막지 않는다
-    threading.Thread(target=llm.warm_up, name="ollama-warmup", daemon=True).start()
-    threading.Thread(target=_index_common_language, name="chroma-common", daemon=True).start()
+    # 대화 모델 예열과 공통 말투 색인. 기다리는 답보다 먼저 서버를 연다
+    meta.start_background()
     yield
 
 
@@ -63,29 +47,11 @@ async def remember_priority(request, call_next):
     request_priority.set_priority(request.headers.get(request_priority.HEADER))
     return await call_next(request)
 
-app.include_router(health.router)
-app.include_router(infer.router)
-app.include_router(assist.router)
-app.include_router(suggest.router)
-app.include_router(remember.router)
-app.include_router(rewrite.router)
-app.include_router(summarize.router)
-app.include_router(critique_test.router)
-app.include_router(ground.router)
-app.include_router(draft.router)
-app.include_router(moderate.router)
-app.include_router(operations.router)
-app.include_router(photonet.router)
-app.include_router(portrait.router)
-app.include_router(webtoon.router)
-app.include_router(world.router)
-app.include_router(train.router)
-app.include_router(rag.router)
-
-
-def _index_common_language() -> None:
-    try:
-        chroma_rag.index_common()
-    except Exception:
-        # 저장소를 못 열어도 대화는 글자 검색으로 이어 간다
-        return
+app.include_router(meta_router)
+app.include_router(chat_router)
+app.include_router(memory_router)
+app.include_router(picture_router)
+app.include_router(studio_router)
+app.include_router(ops_router)
+app.include_router(world_router)
+app.include_router(guide_router)

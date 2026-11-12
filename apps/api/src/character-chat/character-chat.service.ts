@@ -244,14 +244,16 @@ export class CharacterChatService {
     const ticket = await this.models.reserve(userId, model);
     try {
       const body = { context, userTurn, model: model.runtime, provider: model.provider };
-      const raw = live
+      const streamed = live
         ? await streamFromAi('/infer/stream', body, live.delta, live.signal)
-        : (await postToAi<{ reply: string }>('/infer', body)).reply;
+        : { reply: (await postToAi<{ reply: string }>('/infer', body)).reply, shown: '' };
+      const raw = streamed.reply;
+      const shown = live ? streamed.shown : raw;
       if (!raw.trim()) throw new ConflictException('답을 받지 못했어요. 다시 시도해 주세요.');
       // 설정에 없는 개인사를 물었을 때만, 답이 그것을 지어냈는지 한 번 더 확인한다
       const grounded = await keepGrounded(context, userTurn, raw, groundingFacts(grounding), model.runtime, model.provider);
       const reply = fixParentheticalJosa(grounded);
-      if (live && reply !== raw) live.replace(reply);
+      if (live && reply !== shown) live.replace(reply);
       return { reply, ticket };
     } catch (error) {
       await this.models.release(userId, ticket);

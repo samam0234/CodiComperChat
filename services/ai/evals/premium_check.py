@@ -8,7 +8,7 @@ import time
 
 from fastapi import HTTPException
 
-from app.services import llm
+from app.modules.runtime import llm
 
 
 def main(models: list[str]) -> int:

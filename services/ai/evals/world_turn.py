@@ -20,8 +20,8 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-from app.schemas.world import WorldTurnRequest  # noqa: E402
-from app.services import world  # noqa: E402
+from app.schemas.world.wire import WorldTurnRequest  # noqa: E402
+from app.services.world import world  # noqa: E402
 
 CAST = ["한서린", "도윤", "마르코"]
 USER = "이안"

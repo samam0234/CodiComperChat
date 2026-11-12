@@ -34,7 +34,7 @@ cp .env.example .env
 
 ### 대화 모델 백엔드 두 가지
 
-`LLM_BACKEND`가 대화·요약·판정 호출(프리미엄 공급자를 고른 `/infer`만 빼고 전부)을 어디로 보낼지 정한다. 코드: `app/services/llm.py`.
+`LLM_BACKEND`가 대화·요약·판정 호출(프리미엄 공급자를 고른 `/infer`만 빼고 전부)을 어디로 보낼지 정한다. 코드: `app/modules/runtime/llm.py`.
 
 | `LLM_BACKEND` | 어디서 도나 | 쓰는 곳 |
 |---------------|-------------|---------|
@@ -58,24 +58,20 @@ cp .env.example .env
 ## 로직 구조
 
 ```text
-Nest ─▶ internal_auth 미들웨어 (AI_SERVICE_TOKEN, 루프백 /health만 예외)
+Nest ─▶ routes/<기능>/*.py  (HTTP만. 스키마 검증 뒤 오케스트레이션을 부른다)
             │
             ▼
-   routes/*.py ─▶ schemas/*.py (WireModel, camelCase, 길이 한도)
+   orchestration/*.py  (기능의 순서만 정한다)
+     chat · memory · picture · studio · ops · world · guide · meta
+            │
+            ├─▶ services/<기능>/      기능 서비스 (실제 py)
+            ├─▶ modules/<기능>/       공용 엔진 (모델·그림·임베딩)
+            └─▶ repositories/memory/   기억 벡터. 파일은 app/data/ChromaDB 에 쌓인다
             │
             ▼
-   services/*.py
-     inference      1:1 연기 (규칙·수위·나레이션 지시·보상 장면은 맨 끝)
-     grounding      설정에 없는 개인사 단정 판정
-     summarization  요약·친밀도·복선·퀘스트 판정·보상 갈래 고르기
-     world          월드 진행자 · 제어 줄 검사 · 파트 판정
-     photonet/webtoon 장면 설계 → 그림 → 검수
-            │
-            ▼
-   llm.py ─┬─ Ollama (기본, keep_alive 조절)
-           ├─ fake_llm (LLM_FAKE=1, e2e)
-           └─ premium (Claude·Grok, 키·월 상한 있을 때)
-   image_engine.py ─ diffusers (서버 안) 또는 WebUI
+   modules/runtime/llm.py ─ Ollama · 호스팅 · 프리미엄
+   modules/picture/image_engine.py ─ diffusers 또는 WebUI
+   schemas/<기능>/  요청·응답 계약 (base·context는 공통)
 ```
 
 <!-- logic-mermaid -->
@@ -114,15 +110,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  nest["apps/api (Nest)<br/>맥락을 조립해 넘긴다"] -->|"x-ai-token 또는 루프백"| route["app/routes<br/>스키마 검증"]
-  route --> svc["app/services<br/>프롬프트 조립·판정"]
-  svc --> llm["llm.py"]
+  nest["apps/api (Nest)<br/>맥락을 조립해 넘긴다"] -->|"x-ai-token 또는 루프백"| route["routes/&lt;기능&gt;<br/>HTTP"]
+  route --> orch["orchestration<br/>요청 순서"]
+  orch --> svc["services/&lt;기능&gt;"]
+  svc --> runtime["modules · repositories"]
+  runtime --> llm["runtime/llm.py"]
   llm --> ollama["Ollama<br/>gemma4:e4b · 12b"]
   llm --> premium["premium.py<br/>Anthropic · xAI (기본 닫힘)"]
-  svc --> engine["image_engine.py"]
+  runtime --> engine["image_engine.py"]
   engine --> local["image_local.py<br/>diffusers, 같은 프로세스"]
   engine --> webui["WebUI API (개발 PC 선택)"]
-  svc --> check["photonet_moderation<br/>image_moderation"]
+  svc --> check["picture 검수<br/>photonet · image"]
   check --> ollama
 ```
 
@@ -135,6 +133,8 @@ flowchart TD
 | 긴 작업을 단계로 나눈다 | 작은 모델은 한 번에 다 못 따른다. 웹툰은 외모를 먼저 정하고, 컷은 그다음 쓴다 |
 | 판정은 코드로 마무리한다 | 모델의 확신도를 믿지 않는다. 항목 판정과 규칙, 인용 근거 대조로 결론 낸다 |
 | 꼭 지켜야 할 지시는 프롬프트 맨 끝에 | 보상 장면과 개인사 지시는 끝에 둘 때 더 잘 따랐다 |
+| Nest 경로를 폴더 작업으로 빼지 않는다 | 웹은 이 서비스를 부르지 않는다. Nest가 부르는 경로는 `tests/test_nest_contract.py`가 소스와 맞추고, 가짜 모델로 그 요청이 500대가 아닌지 본다 |
+| 라우트 파일은 기능 라우터에 올린다 | `routes/<기능>/`에만 두고 `include_router`를 빼면 같은 시험이 실패한다. 검증 실패는 422이고, 처리 중 예외를 500으로 흘리지 않는다 |
 | 그래픽 메모리를 번갈아 쓴다 | 장면 설계와 그림 검수 뒤 모델을 내린다(`keep_alive 0`). 12GB에서 함께 두면 몇 배 느려진다 |
 
 ### 한 번의 호출

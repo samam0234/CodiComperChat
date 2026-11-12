@@ -13,7 +13,7 @@ from unittest import mock
 
 from fastapi import HTTPException
 
-from app.services import llm
+from app.modules.runtime import llm
 
 # 시험마다 바꾸는 가짜 서버의 동작
 BEHAVIOR: dict[str, object] = {}

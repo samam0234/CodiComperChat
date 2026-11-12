@@ -39,6 +39,7 @@ flowchart LR
 | [image-pipeline.md](image-pipeline.md) | 그림 모델, 프롬프트 조립, 그림 검수, 속도, 그래픽 메모리 |
 | [oracle-deploy-latency.md](oracle-deploy-latency.md) | Oracle 서버의 호스팅 API(19.0초)·예비 CPU(32.1초) 응답 한 번씩, 시간 제한 사슬, **재지 못한 것**(31B 품질 평가 등) (2026-11-07) |
 | [test-infrastructure.md](test-infrastructure.md) | e2e 무작위 실패의 원인 찾기, 부하 측정, 평가 도구 자체의 결함 |
+| [korean-grammar.md](korean-grammar.md) | 답·추천의 맞춤법을 가중치 없이 고친 목록. 로컬 모델 4질문에서 교정 전후 차이 0/4 (2026-11-12) |
 
 ## 측정 환경
 

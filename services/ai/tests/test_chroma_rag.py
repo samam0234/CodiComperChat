@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from app.services import chroma_rag
-from app.services.rag_embed import cosine, embed, preprocess, profile
+from app.repositories.memory import chroma_rag
+from app.modules.memory.rag_embed import cosine, embed, preprocess, profile
 
 
 class EmbedTest(unittest.TestCase):
