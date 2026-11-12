@@ -2,8 +2,8 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PersonaKnowledgeStore } from '../../chat/persona-rag/persona-knowledge.store.js';
-import { cardHash, type Card } from './card.js';
-import { fullCard } from './card.fixture.js';
+import { cardHash, type Card } from '../card/card.js';
+import { fullCard } from '../card/card.fixture.js';
 import { StudioPublishService, knowledgeFileName } from './studio-publish.service.js';
 
 type Draft = { id: string; card: Card; lastTest: unknown; characterId: string | null; visibility: string };

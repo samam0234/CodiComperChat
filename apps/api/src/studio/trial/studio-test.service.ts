@@ -9,9 +9,9 @@ import { PersonaRagService } from '../../chat/persona-rag/persona-rag.service.js
 import { tokenize } from '../../chat/persona-rag/retriever.js';
 import { PersonasService } from '../../chat/personas/personas.service.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { cardHash, type Card } from './card.js';
-import { toCharacterFields, toKnowledge } from './card-export.js';
-import { StudioService } from './studio.service.js';
+import { cardHash, type Card } from '../card/card.js';
+import { toCharacterFields, toKnowledge } from '../card/card-export.js';
+import { StudioService } from '../draft/studio.service.js';
 import { TEST_TURNS, asSession, userTurns, type TestSession, type Verdict } from './test-session.js';
 
 // 대화 기록은 서버가 들고 있어야 판정을 조작할 수 없다

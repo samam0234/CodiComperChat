@@ -9,7 +9,7 @@ import { DEFAULT_MODEL_ID, findModel } from '../../billing/models/models.js';
 import { ModelsService } from '../../billing/models/models.service.js';
 import { PersonasService } from '../../chat/personas/personas.service.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { WorldSettingsService } from './world-settings.service.js';
+import { WorldSettingsService } from '../settings/world-settings.service.js';
 import {
   EVENT_LABELS,
   EVENT_TTL_MS,
@@ -24,7 +24,7 @@ import {
   segments,
   shouldStartEvent,
   type EventSetup,
-} from './world.js';
+} from '../document/world.js';
 
 export const WORLD_TURN_MAX = 1000;
 // 입력 없이 보내기: 진행자에게만 보이고, 화면의 주인공 말로는 저장하지 않는다

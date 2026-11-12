@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '../../account/auth/auth.module.js';
 import { ModelsModule } from '../../billing/models/models.module.js';
 import { PersonasModule } from '../../chat/personas/personas.module.js';
-import { PortraitReviewService } from '../../studio/studio/portrait-review.service.js';
-import { AdminWorldsController } from './admin-worlds.controller.js';
-import { AdminWorldsService } from './admin-worlds.service.js';
-import { WorldPlayService } from './world-play.service.js';
-import { WorldSettingsService } from './world-settings.service.js';
+import { PortraitReviewService } from '../../studio/portrait/portrait-review.service.js';
+import { AdminWorldsController } from '../admin/admin-worlds.controller.js';
+import { AdminWorldsService } from '../admin/admin-worlds.service.js';
+import { WorldPlayService } from '../play/world-play.service.js';
+import { WorldSettingsService } from '../settings/world-settings.service.js';
 import { WorldsController } from './worlds.controller.js';
 import { WorldsService } from './worlds.service.js';
 

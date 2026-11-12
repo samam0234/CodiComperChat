@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { DEFAULT_WORLD_SETTINGS, parseWorldSettings, type WorldSettings } from './world.js';
+import { DEFAULT_WORLD_SETTINGS, parseWorldSettings, type WorldSettings } from '../document/world.js';
 
 const KEY = 'world';
 

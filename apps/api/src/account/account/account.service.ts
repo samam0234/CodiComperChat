@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, ForbiddenException, Injectable,
 import { ADULT_BLOCK_MESSAGE, adultBlock, adultModeOff, parseBirthDate } from './adult.js';
 import { verifyPassword } from '../auth/password.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { StudioPublishService } from '../../studio/studio/studio-publish.service.js';
+import { StudioPublishService } from '../../studio/publish/studio-publish.service.js';
 
 function validBirthDate(raw: unknown): Date {
   const birthDate = parseBirthDate(raw);

@@ -546,5 +546,7 @@ flowchart LR
 | 2026-11-12 | `8a342d0` | feature/chat-pace-and-api-bundles | 대화 답 상한을 줄이고 Nest 기능을 여덟 묶음으로 나누다 | [261112_1535_8a342d0_chat-pace-api-bundles_feature-chat-pace-and-api-bundles.md](commits/261112_1535_8a342d0_chat-pace-api-bundles_feature-chat-pace-and-api-bundles.md) |
 | 2026-11-12 | `cc7f1ae` | develop (merge) | 대화 속도와 Nest 묶음을 develop에 합치다 | [261112_1539_cc7f1ae_chat-pace-into-develop_develop.md](commits/261112_1539_cc7f1ae_chat-pace-into-develop_develop.md) |
 | 2026-11-12 | `6159f62` | main (merge) | 대화 속도와 Nest 묶음을 main에 합치다 | [261112_1541_6159f62_chat-pace-into-main_main.md](commits/261112_1541_6159f62_chat-pace-into-main_main.md) |
+| 2026-11-12 | `13146fe` | feature/studio-worlds-folders | 스튜디오와 세계관을 기능 폴더로 나누다 | [261112_1559_13146fe_studio-worlds-folders_feature-studio-worlds-folders.md](commits/261112_1559_13146fe_studio-worlds-folders_feature-studio-worlds-folders.md) |
+| 2026-11-12 | `89a1b2a` | develop (merge) | 스튜디오와 세계관 폴더 나눔을 develop에 합치다 | [261112_1559_89a1b2a_studio-worlds-into-develop_develop.md](commits/261112_1559_89a1b2a_studio-worlds-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

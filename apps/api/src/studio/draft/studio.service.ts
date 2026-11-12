@@ -2,10 +2,10 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { CharacterVisibility, Prisma } from '@prisma/client';
 import { effectivePlan, multiplierFor } from '../../billing/plan/plan.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { EMPTY_CARD, normalizeCard, readiness, type Card } from './card.js';
-import type { PortraitMime } from './portrait.js';
-import { PortraitReviewService } from './portrait-review.service.js';
-import { testState } from './test-session.js';
+import { EMPTY_CARD, normalizeCard, readiness, type Card } from '../card/card.js';
+import type { PortraitMime } from '../portrait/portrait.js';
+import { PortraitReviewService } from '../portrait/portrait-review.service.js';
+import { testState } from '../trial/test-session.js';
 
 // 이미 저장된 카드를 읽을 때는 길이를 보지 않는다 — 프로 등급이 끝난 뒤에도 긴 글을 그대로 보고 쓸 수 있어야 한다
 const READ = { multiplier: Number.POSITIVE_INFINITY } as const;

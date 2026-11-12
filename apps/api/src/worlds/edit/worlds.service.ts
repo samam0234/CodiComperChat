@@ -2,9 +2,9 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { CharacterVisibility, PortraitReview, type Prisma } from '@prisma/client';
 import { josa } from '../../core/common/korean-josa.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { PortraitReviewService } from '../../studio/studio/portrait-review.service.js';
-import type { PortraitMime } from '../../studio/studio/portrait.js';
-import { WORLD_LIMITS, canView, parseVisibility, parseWorldDocument, publishProblems } from './world.js';
+import { PortraitReviewService } from '../../studio/portrait/portrait-review.service.js';
+import type { PortraitMime } from '../../studio/portrait/portrait.js';
+import { WORLD_LIMITS, canView, parseVisibility, parseWorldDocument, publishProblems } from '../document/world.js';
 
 type Image = { data: Buffer; mime: PortraitMime };
 

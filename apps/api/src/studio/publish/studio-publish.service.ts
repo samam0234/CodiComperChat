@@ -5,10 +5,10 @@ import { Prisma } from '@prisma/client';
 import { PersonaKnowledgeStore } from '../../chat/persona-rag/persona-knowledge.store.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { isComplete } from '../../play/quests/quest.js';
-import { readiness } from './card.js';
-import { toCharacterFields, toKnowledge } from './card-export.js';
-import { StudioService, parseVisibility } from './studio.service.js';
-import { testState } from './test-session.js';
+import { readiness } from '../card/card.js';
+import { toCharacterFields, toKnowledge } from '../card/card-export.js';
+import { StudioService, parseVisibility } from '../draft/studio.service.js';
+import { testState } from '../trial/test-session.js';
 
 // 초안 하나 = 지식 파일 하나. 이름이 바뀌어도 파일을 찾을 수 있게 캐릭터 이름 대신 초안 id로 짓는다
 // (저장소는 파일 안의 character 값으로 캐릭터를 찾는다)
