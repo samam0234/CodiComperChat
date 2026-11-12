@@ -445,6 +445,81 @@
   }
 }
 
+.menuRow {
+  position: relative;
+}
+
+.lineMenu {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+}
+
+.kebab {
+  display: grid;
+  gap: 3px;
+  place-content: center;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.kebab span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.menuPop {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  min-width: 128px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.vnTools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vnTools .lineMenu {
+  position: relative;
+  top: auto;
+  right: auto;
+}
+
 @media (max-width: 760px) {
   .body:has(.side) {
     grid-template-columns: 1fr;
