@@ -150,7 +150,7 @@ def _generate_ollama(
     model = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
 
     messages: list[dict[str, object]] = [{"role": "system", "content": system}, *contents]
-    options: dict[str, object] = {"num_predict": max_output_tokens}
+    options: dict[str, object] = {"num_predict": max_output_tokens, "num_ctx": 4096}
     if temperature is not None:
         options["temperature"] = temperature
     if seed is not None:
@@ -294,7 +294,7 @@ def iter_generate(
         base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
         tag = model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
         messages: list[dict[str, object]] = [{"role": "system", "content": system}, *contents]
-        options: dict[str, object] = {"num_predict": max_output_tokens}
+        options: dict[str, object] = {"num_predict": max_output_tokens, "num_ctx": 4096}
         if temperature is not None:
             options["temperature"] = temperature
         if seed is not None:
@@ -407,6 +407,26 @@ def _fallback_tokens(requested: int) -> int:
     raw = os.environ.get("LLM_FALLBACK_MAX_TOKENS", "").strip()
     cap = int(raw) if raw.isdigit() and int(raw) > 0 else 320
     return min(requested, cap)
+
+
+def _cpu_system(system: str) -> str:
+    """CPU 예비는 설정을 앞에서 읽고 규칙은 끝에서 읽는다. 가운데가 길면 첫 글자가 몇 분 뒤에 나온다."""
+    if len(system) <= 2400:
+        return system
+    return system[:800].rstrip() + "\n(중간 설정은 이번 답에서 생략)\n" + system[-1500:].lstrip()
+
+
+def _cpu_options(max_output_tokens: int, temperature: float | None, seed: int | None) -> dict[str, object]:
+    options: dict[str, object] = {
+        "num_predict": _fallback_tokens(max_output_tokens),
+        # 기본 창이 크면 ARM에서 프롬프트를 읽기 전에 자리가 오래 잡힌다
+        "num_ctx": 4096,
+    }
+    if temperature is not None:
+        options["temperature"] = temperature
+    if seed is not None:
+        options["seed"] = seed
+    return options
 
 
 def _hosted_timeout() -> httpx.Timeout:
@@ -524,14 +544,10 @@ def _iter_hosted_with_fallback(
         logger.warning("호스팅 API 실패, CPU 예비로 대신 답한다: %s", exc.detail)
     base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_BASE_URL)
     tag = ollama_model or os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL)
-    options: dict[str, object] = {"num_predict": _fallback_tokens(max_output_tokens)}
-    if temperature is not None:
-        options["temperature"] = temperature
-    if seed is not None:
-        options["seed"] = seed
+    options = _cpu_options(max_output_tokens, temperature, seed)
     payload: dict[str, object] = {
         "model": tag,
-        "messages": [{"role": "system", "content": system}, *contents[-_fallback_turns():]],
+        "messages": [{"role": "system", "content": _cpu_system(system)}, *contents[-_fallback_turns():]],
         "stream": True,
         "think": False,
         "options": options,
@@ -577,11 +593,11 @@ def _generate_openai_with_fallback(
             logger.warning("호스팅 API 실패, 예비 없이 오류로 돌려준다: %s", exc.detail)
             raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
         logger.warning("호스팅 API 실패, CPU 예비로 대신 답한다: %s", exc.detail)
-        # 예비 모델로 대신 답한다. 예비도 안 되면 그 오류(연결 불가 등)가 그대로 나간다
+        # 긴 설정과 긴 기록을 그대로 넘기면 ARM에서 첫 글자 전에 몇 분이 걸린다
         return _generate_ollama(
-            system=system,
-            contents=contents,
-            max_output_tokens=max_output_tokens,
+            system=_cpu_system(system),
+            contents=contents[-_fallback_turns():],
+            max_output_tokens=_fallback_tokens(max_output_tokens),
             temperature=temperature,
             response_json_schema=response_json_schema,
             seed=seed,

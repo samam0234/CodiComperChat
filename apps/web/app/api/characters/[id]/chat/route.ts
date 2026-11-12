@@ -37,3 +37,25 @@ export async function POST(
 
   return NextResponse.json(await res.json(), { status: res.status });
 }
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const token = await getSessionToken();
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/characters/${encodeURIComponent(id)}/chat`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      cache: "no-store",
+      signal: AbortSignal.timeout(12_000),
+    });
+  } catch {
+    return NextResponse.json(
+      { message: "대화를 다시 읽지 못했어요. 잠시 후 다시 시도해 주세요." },
+      { status: 502 },
+    );
+  }
+  return NextResponse.json(await res.json().catch(() => ({ message: "대화를 읽지 못했어요." })), { status: res.status });
+}
