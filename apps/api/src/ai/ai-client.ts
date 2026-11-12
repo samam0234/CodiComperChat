@@ -24,12 +24,14 @@ export type AiCallOptions = {
   timeoutMs?: number;
 };
 
+export type AiStream = { reply: string; shown: string };
+
 export async function streamFromAi(
   path: string,
   payload: unknown,
   onDelta: (text: string) => void,
   signal?: AbortSignal,
-): Promise<string> {
+): Promise<AiStream> {
   return aiQueue.run('foreground', () => readAiStream(path, payload, onDelta, signal));
 }
 
@@ -93,7 +95,7 @@ export function rawPost(url: string, headers: Record<string, string>, body: stri
   });
 }
 
-function readAiStream(path: string, payload: unknown, onDelta: (text: string) => void, signal?: AbortSignal): Promise<string> {
+function readAiStream(path: string, payload: unknown, onDelta: (text: string) => void, signal?: AbortSignal): Promise<AiStream> {
   const aiBaseUrl = process.env.AI_BASE_URL ?? 'http://localhost:8000';
   const timeoutMs = timeoutFromEnv('foreground');
   const body = JSON.stringify(payload);
@@ -106,6 +108,7 @@ function readAiStream(path: string, payload: unknown, onDelta: (text: string) =>
     const client = target.protocol === 'https:' ? https : http;
     let settled = false;
     let buffer = '';
+    let shown = '';
     let reply = '';
     const finish = (fn: () => void) => {
       if (settled) return;
@@ -149,6 +152,7 @@ function readAiStream(path: string, payload: unknown, onDelta: (text: string) =>
               return;
             }
             if ('delta' in parsed && parsed.delta) {
+              shown += parsed.delta;
               reply += parsed.delta;
               onDelta(parsed.delta);
             }
@@ -157,7 +161,7 @@ function readAiStream(path: string, payload: unknown, onDelta: (text: string) =>
             }
           });
         });
-        res.on('end', () => finish(() => resolve(reply)));
+        res.on('end', () => finish(() => resolve({ reply, shown })));
         res.on('error', (e) => fail(e));
       },
     );

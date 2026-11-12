@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 from app.schemas.context import Turn  # noqa: E402
-from app.services.summarization import summarize_session  # noqa: E402
+from app.services.chat.summarization import summarize_session  # noqa: E402
 
 OFFER = (
     '늦은 밤 둘만 남은 회장실에서, 이세연이 결재 서류를 덮고 잠시 말을 고르다 "회장님, 제게도 결재가 필요한 안건이 하나 있습니다. '

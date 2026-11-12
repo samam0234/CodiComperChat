@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 from app.schemas.context import Turn  # noqa: E402
-from app.services.summarization import summarize_session  # noqa: E402
+from app.services.chat.summarization import summarize_session  # noqa: E402
 
 OFFER = (
     '과외가 끝나 갈 즈음, 서랍 깊이 넣어 둔 3년 전 문제집을 꺼내 놓으며 "이건 학생 공부랑은 상관없는 건데… '

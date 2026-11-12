@@ -4,9 +4,9 @@ import json
 import unittest
 from unittest import mock
 
-from app.schemas.infer import InferRequest
-from app.schemas.summarize import SummarizeRequest
-from app.services import inference, summarization
+from app.schemas.chat.infer import InferRequest
+from app.schemas.chat.summarize import SummarizeRequest
+from app.services.chat import inference, summarization
 from evals import fixture
 
 REWARD = (

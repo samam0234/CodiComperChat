@@ -3,9 +3,11 @@
 import unittest
 from unittest import mock
 
-from app.schemas.infer import InferRequest
-from app.schemas.webtoon import WebtoonPanelRequest
-from app.services import image_engine, inference, photonet, webtoon
+from app.schemas.chat.infer import InferRequest
+from app.schemas.picture.webtoon import WebtoonPanelRequest
+from app.modules.picture import image_engine
+from app.services.picture import photonet, webtoon
+from app.services.chat import inference
 from evals import fixture
 
 

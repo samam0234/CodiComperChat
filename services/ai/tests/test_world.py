@@ -5,8 +5,8 @@ import os
 import unittest
 from unittest import mock
 
-from app.schemas.world import PartCheckRequest, WorldTurnRequest
-from app.services import world
+from app.schemas.world.wire import PartCheckRequest, WorldTurnRequest
+from app.services.world import world
 
 
 def request(**update: object) -> WorldTurnRequest:

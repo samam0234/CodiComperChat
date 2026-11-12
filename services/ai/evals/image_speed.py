@@ -15,7 +15,9 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-from app.services import image_engine, llm, photonet  # noqa: E402
+from app.modules.picture import image_engine
+from app.services.picture import photonet
+from app.modules.runtime import llm  # noqa: E402
 
 PROMPT = "1girl, short hair, apron, indoors, cafe, looking at viewer, upper body"
 

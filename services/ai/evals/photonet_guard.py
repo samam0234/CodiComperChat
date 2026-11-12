@@ -15,7 +15,8 @@ from fastapi import HTTPException
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-from app.services import image_engine, photonet  # noqa: E402
+from app.modules.picture import image_engine
+from app.services.picture import photonet  # noqa: E402
 
 SCENE = "1woman, adult woman, 30 years old, office suit, standing, indoors, upper body"
 # (화풍, 나와야 하는 결과)

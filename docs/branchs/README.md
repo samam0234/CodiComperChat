@@ -540,5 +540,7 @@ flowchart LR
 | 2026-11-12 | `110bf18` | feature/chroma-rag | 기억과 공통 말투를 로컬 벡터로 고르다 | [261112_0251_110bf18_chroma-rag_feature-chroma-rag.md](commits/261112_0251_110bf18_chroma-rag_feature-chroma-rag.md) |
 | 2026-11-12 | `70071f2` | develop (merge) | feature/chroma-rag into develop (no-ff) | [261112_0251_70071f2_merge-chroma-rag-into-develop_develop.md](commits/261112_0251_70071f2_merge-chroma-rag-into-develop_develop.md) |
 | 2026-11-12 | `b6404dd` | main (merge) | develop into main (no-ff) | [261112_0255_b6404dd_merge-chroma-rag-into-main_main.md](commits/261112_0255_b6404dd_merge-chroma-rag-into-main_main.md) |
+| 2026-11-12 | `dad1a3e` | feature/ai-feature-folders | 대화 답과 추천의 한국어 맞춤법을 고치다 | [261112_1048_dad1a3e_korean-grammar_feature-ai-feature-folders.md](commits/261112_1048_dad1a3e_korean-grammar_feature-ai-feature-folders.md) |
+| 2026-11-12 | `c0a9e04` | develop (merge) | feature/ai-feature-folders into develop (no-ff) | [261112_1049_c0a9e04_merge-ai-feature-folders-develop_develop.md](commits/261112_1049_c0a9e04_merge-ai-feature-folders-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
