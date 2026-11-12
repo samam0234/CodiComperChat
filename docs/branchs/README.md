@@ -551,5 +551,6 @@ flowchart LR
 | 2026-11-12 | `62018f7` | main (merge) | 스튜디오와 세계관 폴더 나눔을 main에 합치다 | [261112_1603_62018f7_studio-worlds-into-main_main.md](commits/261112_1603_62018f7_studio-worlds-into-main_main.md) |
 | 2026-11-12 | `6de974d` | feature/gemma-latency-memory | 기본 모델 출력 지연과 대화 기억 갱신 개선 | [261112_2214_6de974d_gemma-latency-memory_feature-gemma-latency-memory.md](commits/261112_2214_6de974d_gemma-latency-memory_feature-gemma-latency-memory.md) |
 | 2026-11-12 | `c514c15` | develop (merge) | 기본 모델 지연 개선을 develop에 병합 | [261112_2218_c514c15_merge-gemma-latency-develop_develop.md](commits/261112_2218_c514c15_merge-gemma-latency-develop_develop.md) |
+| 2026-11-12 | `acd370b` | main (merge) | 기본 모델 지연 개선을 main에 병합 | [261112_2218_acd370b_merge-gemma-latency-main_main.md](commits/261112_2218_acd370b_merge-gemma-latency-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
