@@ -21,7 +21,7 @@ from app.schemas.chat.infer import InferRequest
 from app.schemas.picture.moderate import ModerateImageRequest, ModerateImageResponse
 from app.schemas.picture.webtoon import WebtoonPlanRequest
 from app.services.chat import grounding, inference
-from app.modules.picture import image_moderation, webtoon
+from app.services.picture import image_moderation, webtoon
 from app.services.studio import critique
 from evals import fixture, images
 

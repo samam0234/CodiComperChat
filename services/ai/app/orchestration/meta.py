@@ -16,8 +16,14 @@ _BLOCKED_DETAIL = (
 
 def start_background() -> None:
     """기동 때 모델 예열과 공통 말투 색인을 뒤에서 돌린다. 실패해도 서버는 올라간다."""
-    threading.Thread(target=llm.warm_up, name="ollama-warmup", daemon=True).start()
+    poke_warm()
     threading.Thread(target=_index_common_language, name="chroma-common", daemon=True).start()
+
+
+def poke_warm() -> dict[str, str]:
+    """대화 화면이 열릴 때 로컬 모델을 올려 둔다. OLLAMA_WARMUP=1이 아니면 바로 돌아온다."""
+    threading.Thread(target=llm.warm_up, name="ollama-warmup", daemon=True).start()
+    return {"status": "ok"}
 
 
 def _index_common_language() -> None:
