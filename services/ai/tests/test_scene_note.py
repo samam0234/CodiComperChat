@@ -24,6 +24,19 @@ class SceneNoteTest(unittest.TestCase):
             inference.run(InferRequest(context=fixture.context(), user_turn="안녕"))
         self.assertNotIn("이번 답에서 꼭 할 일", generate.call_args.kwargs["system"])
 
+    def test_follow_up_uses_a_smaller_output_budget(self) -> None:
+        opening = InferRequest(context=fixture.context(), user_turn="안녕")
+        self.assertEqual(inference.output_budget(opening), 320)
+        longer = fixture.context().model_copy(
+            update={
+                "recent_turns": [
+                    *fixture.context().recent_turns,
+                    {"role": "user", "text": "아메리카노요"},
+                ]
+            }
+        )
+        self.assertEqual(inference.output_budget(InferRequest(context=longer, user_turn="고마워요")), 200)
+
 
 class PanelSeedTest(unittest.TestCase):
     def test_seed_reaches_engine(self) -> None:

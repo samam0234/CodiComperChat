@@ -2,11 +2,11 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
-import { attachChatSocket } from './character-chat/chat-socket.js';
-import { CharacterChatService } from './character-chat/character-chat.service.js';
-import { assertAuthSecret } from './auth/token.js';
-import { httpsEnforcement } from './security/https.js';
-import { assertProductionSafety } from './security/production.js';
+import { attachChatSocket } from './chat/character-chat/chat-socket.js';
+import { CharacterChatService } from './chat/character-chat/character-chat.service.js';
+import { assertAuthSecret } from './account/auth/token.js';
+import { httpsEnforcement } from './core/security/https.js';
+import { assertProductionSafety } from './core/security/production.js';
 
 async function bootstrap() {
   assertAuthSecret();

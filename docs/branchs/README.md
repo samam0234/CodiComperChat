@@ -543,5 +543,7 @@ flowchart LR
 | 2026-11-12 | `dad1a3e` | feature/ai-feature-folders | 대화 답과 추천의 한국어 맞춤법을 고치다 | [261112_1048_dad1a3e_korean-grammar_feature-ai-feature-folders.md](commits/261112_1048_dad1a3e_korean-grammar_feature-ai-feature-folders.md) |
 | 2026-11-12 | `c0a9e04` | develop (merge) | feature/ai-feature-folders into develop (no-ff) | [261112_1049_c0a9e04_merge-ai-feature-folders-develop_develop.md](commits/261112_1049_c0a9e04_merge-ai-feature-folders-develop_develop.md) |
 | 2026-11-12 | `9c637a1` | main (merge) | develop into main (no-ff) | [261112_1050_9c637a1_merge-develop-main_main.md](commits/261112_1050_9c637a1_merge-develop-main_main.md) |
+| 2026-11-12 | `8a342d0` | feature/chat-pace-and-api-bundles | 대화 답 상한을 줄이고 Nest 기능을 여덟 묶음으로 나누다 | [261112_1535_8a342d0_chat-pace-api-bundles_feature-chat-pace-and-api-bundles.md](commits/261112_1535_8a342d0_chat-pace-api-bundles_feature-chat-pace-and-api-bundles.md) |
+| 2026-11-12 | `cc7f1ae` | develop (merge) | 대화 속도와 Nest 묶음을 develop에 합치다 | [261112_1539_cc7f1ae_chat-pace-into-develop_develop.md](commits/261112_1539_cc7f1ae_chat-pace-into-develop_develop.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
