@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import type { Card } from './card.js';
+import type { Card } from '../card/card.js';
 
 // "이 칸만 AI로 초안" (기획서 §6.1). 전체 자동 생성은 하지 않고, 칸 하나씩 제안만 만든다.
 // 비밀·해금 조건·예시 대화·추가 로어는 대상이 아니다 — 비밀은 AI에 보내지 않는 것이 원칙(§7.8)이고,

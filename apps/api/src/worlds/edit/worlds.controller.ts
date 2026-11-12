@@ -18,9 +18,9 @@ import { AuthGuard, CurrentUserId } from '../../account/auth/auth.guard.js';
 import { readSession } from '../../account/auth/session.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimit } from '../../core/security/rate-limit.js';
-import { parseImage } from '../../studio/studio/portrait.js';
-import { WorldPlayService } from './world-play.service.js';
-import { WORLD_IMAGE_MAX_BYTES } from './world.js';
+import { parseImage } from '../../studio/portrait/portrait.js';
+import { WorldPlayService } from '../play/world-play.service.js';
+import { WORLD_IMAGE_MAX_BYTES } from '../document/world.js';
 import { WorldsService } from './worlds.service.js';
 
 function sendImage(res: Response, image: { data: Buffer; mime: string } | null) {

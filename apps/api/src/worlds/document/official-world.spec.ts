@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { WORLD_IMAGE_MAX_BYTES, WORLD_LIMITS, parseWorldDocument, publishProblems } from './world.js';
 
-const PRISMA = join(__dirname, '..', '..', 'prisma');
+const PRISMA = join(__dirname, '..', '..', '..', 'prisma');
 const raw = JSON.parse(readFileSync(join(PRISMA, 'worlds', 'copper-city.json'), 'utf8'));
 
 describe('공식 세계관 코퍼 시티', () => {

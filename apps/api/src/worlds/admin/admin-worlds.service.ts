@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CharacterVisibility, PortraitReview, WorldEventStatus, type Prisma } from '@prisma/client';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
-import { WorldSettingsService } from './world-settings.service.js';
-import { EVENT_LABELS, WORLD_MODES, kstDay } from './world.js';
+import { WorldSettingsService } from '../settings/world-settings.service.js';
+import { EVENT_LABELS, WORLD_MODES, kstDay } from '../document/world.js';
 
 const FILTERS: Record<string, Prisma.WorldWhereInput> = {
   all: {},

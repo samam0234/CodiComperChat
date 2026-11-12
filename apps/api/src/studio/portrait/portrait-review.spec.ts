@@ -2,7 +2,7 @@ import { BadRequestException, ServiceUnavailableException } from '@nestjs/common
 import { describe, expect, it, vi } from 'vitest';
 
 const postToAi = vi.fn();
-vi.mock('../ai/ai-client.js', () => ({ postToAi: (...args: unknown[]) => postToAi(...args) }));
+vi.mock('../../chat/ai/ai-client.js', () => ({ postToAi: (...args: unknown[]) => postToAi(...args) }));
 
 const { PortraitReviewService } = await import('./portrait-review.service.js');
 
