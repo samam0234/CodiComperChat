@@ -554,5 +554,6 @@ flowchart LR
 | 2026-11-12 | `acd370b` | main (merge) | 기본 모델 지연 개선을 main에 병합 | [261112_2218_acd370b_merge-gemma-latency-main_main.md](commits/261112_2218_acd370b_merge-gemma-latency-main_main.md) |
 | 2026-11-13 | `4a937bb` | feature/chat-refresh-and-cpu-prefill | 대화 줄 메뉴에 새로 고침을 넣고 CPU 예비 프롬프트를 줄이다 | [261113_0057_4a937bb_chat-refresh-and-cpu-prefill_feature-chat-refresh-and-cpu-prefill.md](commits/261113_0057_4a937bb_chat-refresh-and-cpu-prefill_feature-chat-refresh-and-cpu-prefill.md) |
 | 2026-11-13 | `a78ac26` | develop (merge) | 대화 새로 고침과 CPU 예비 축소를 develop에 병합 | [261113_0057_a78ac26_chat-refresh-into-develop_develop.md](commits/261113_0057_a78ac26_chat-refresh-into-develop_develop.md) |
+| 2026-11-13 | `aa3908b` | main (merge) | 대화 새로 고침과 CPU 예비 축소를 main에 병합 | [261113_0058_aa3908b_chat-refresh-into-main_main.md](commits/261113_0058_aa3908b_chat-refresh-into-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
