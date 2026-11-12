@@ -21,9 +21,9 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 from app.schemas.context import ContextSlice  # noqa: E402
-from app.schemas.infer import InferRequest  # noqa: E402
-from app.schemas.summarize import SummarizeRequest  # noqa: E402
-from app.services import inference, summarization  # noqa: E402
+from app.schemas.chat.infer import InferRequest  # noqa: E402
+from app.schemas.chat.summarize import SummarizeRequest  # noqa: E402
+from app.services.chat import inference, summarization  # noqa: E402
 
 
 def _seed_field(name: str, until: str) -> str:

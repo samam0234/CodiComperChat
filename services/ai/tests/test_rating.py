@@ -4,9 +4,9 @@ import unittest
 from unittest import mock
 
 from app.schemas.context import Turn
-from app.schemas.infer import InferRequest
-from app.services import inference
-from app.services.minors import minor_in
+from app.schemas.chat.infer import InferRequest
+from app.services.chat import inference
+from app.modules.runtime.minors import minor_in
 from evals import fixture
 
 

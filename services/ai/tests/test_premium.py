@@ -9,7 +9,7 @@ import httpx
 import httpx2
 from fastapi import HTTPException
 
-from app.services import llm, premium
+from app.modules.runtime import llm, premium
 
 FAKE_KEY = "test-key-not-real"
 CONTENTS = [{"role": "assistant", "content": "안녕하세요"}, {"role": "user", "content": "반가워요"}]

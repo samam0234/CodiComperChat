@@ -1,0 +1,15 @@
+[
+  {"wrong": "아니예요", "right": "아니에요"},
+  {"wrong": "됬어", "right": "됐어"},
+  {"wrong": "됬다", "right": "됐다"},
+  {"wrong": "됬", "right": "됐"},
+  {"wrong": "되서", "right": "돼서"},
+  {"wrong": "되요", "right": "돼요"},
+  {"wrong": "웬지", "right": "왠지"},
+  {"wrong": "몇일", "right": "며칠"},
+  {"wrong": "오랫만", "right": "오랜만"},
+  {"wrong": "금새", "right": "금세"},
+  {"wrong": "돌맹이", "right": "돌멩이"},
+  {"wrong": "것같", "right": "것 같"},
+  {"wrong": "어떻게해", "right": "어떻게 해"}
+]

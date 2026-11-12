@@ -2,7 +2,7 @@
 
 import unittest
 
-from app.services.photonet_moderation import PHOTO_LIKENESS_BLOCK, decide
+from app.services.picture.photonet_moderation import PHOTO_LIKENESS_BLOCK, decide
 
 
 def flags(**overrides: bool) -> dict:

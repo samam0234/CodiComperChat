@@ -15,8 +15,8 @@ import re
 import sys
 
 from app.schemas.context import RelationAxis
-from app.schemas.infer import InferRequest
-from app.services import inference
+from app.schemas.chat.infer import InferRequest
+from app.services.chat import inference
 from evals.quest_reward import context
 
 LOVERS = [

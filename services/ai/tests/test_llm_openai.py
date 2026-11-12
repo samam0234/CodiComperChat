@@ -13,7 +13,7 @@ from unittest import mock
 
 from fastapi import HTTPException
 
-from app.services import llm
+from app.modules.runtime import llm
 
 STATE: dict[str, object] = {}
 SCHEMA = {"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}
