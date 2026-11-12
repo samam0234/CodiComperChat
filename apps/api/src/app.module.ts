@@ -21,8 +21,8 @@ import { ContentReportsModule } from './trust/content-reports/content-reports.mo
 import { ReportsModule } from './trust/reports/reports.module.js';
 import { SupportModule } from './trust/support/support.module.js';
 import { RateLimitGuard } from './core/security/rate-limit.js';
-import { StudioModule } from './studio/studio/studio.module.js';
-import { WorldsModule } from './worlds/worlds/worlds.module.js';
+import { StudioModule } from './studio/route/studio.module.js';
+import { WorldsModule } from './worlds/edit/worlds.module.js';
 
 @Module({
   imports: [

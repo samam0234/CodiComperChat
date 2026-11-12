@@ -1,5 +1,5 @@
 import { buildSheet, draftSpec, normalizeDraft } from './draft-fields.js';
-import { fullCard } from './card.fixture.js';
+import { fullCard } from '../card/card.fixture.js';
 
 describe('AI 초안 칸', () => {
   it('지원하지 않는 칸(비밀·해금 조건·예시 대화·이름)은 400', () => {

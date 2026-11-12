@@ -2,8 +2,8 @@ import { buildContextSlice } from '../../chat/character-chat/character-chat.cont
 import { retrieve } from '../../chat/persona-rag/retriever.js';
 import { fullCard } from './card.fixture.js';
 import { speechText, toCharacterFields, toKnowledge } from './card-export.js';
-import { secretLeaked } from './studio-test.service.js';
-import { testState } from './test-session.js';
+import { secretLeaked } from '../trial/studio-test.service.js';
+import { testState } from '../trial/test-session.js';
 import { cardHash } from './card.js';
 
 describe('카드 → 채팅 공개 필드', () => {

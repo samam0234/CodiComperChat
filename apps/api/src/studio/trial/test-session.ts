@@ -1,5 +1,5 @@
 import type { ChatTurn } from '../../chat/character-chat/character-chat.types.js';
-import { cardHash, type Card } from './card.js';
+import { cardHash, type Card } from '../card/card.js';
 
 // 기획서 §5.4·§6.1 "테스트 3턴"
 export const TEST_TURNS = 3;

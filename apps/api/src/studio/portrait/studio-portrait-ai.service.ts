@@ -4,7 +4,7 @@ import { getFromAi, postToAi } from '../../chat/ai/ai-client.js';
 import { OPERATION_COSTS, OPERATION_LABELS } from '../../billing/credits/credits.js';
 import { CreditsService } from '../../billing/credits/credits.service.js';
 import { PORTRAIT_MAX_BYTES } from './portrait.js';
-import { StudioService } from './studio.service.js';
+import { StudioService } from '../draft/studio.service.js';
 
 // 공방 외형 단계의 "AI로 직접 만들기" (2026-10-25 사용자 요청, 한 장 25 코레딧).
 // 화풍 4가지 중 하나와 생김새를 고르면 그림 엔진이 흉상을 그리고, 그 그림을 올린 그림과 똑같이

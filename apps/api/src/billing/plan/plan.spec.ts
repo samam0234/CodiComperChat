@@ -1,7 +1,7 @@
 import { effectivePlan, extendPro, multiplierFor } from './plan.js';
-import { limitsFor, normalizeCard, EMPTY_CARD, type Card } from '../../studio/studio/card.js';
-import { fullCard } from '../../studio/studio/card.fixture.js';
-import { splitText, toKnowledge } from '../../studio/studio/card-export.js';
+import { limitsFor, normalizeCard, EMPTY_CARD, type Card } from '../../studio/card/card.js';
+import { fullCard } from '../../studio/card/card.fixture.js';
+import { splitText, toKnowledge } from '../../studio/card/card-export.js';
 
 describe('요금 등급', () => {
   const now = new Date('2026-10-15T00:00:00Z');

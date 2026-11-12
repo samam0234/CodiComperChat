@@ -16,12 +16,12 @@ import {
 import type { Response } from 'express';
 import { AuthGuard, CurrentUserId } from '../../account/auth/auth.guard.js';
 import { RateLimit } from '../../core/security/rate-limit.js';
-import { parsePortrait } from './portrait.js';
-import { StudioDraftService } from './studio-draft.service.js';
-import { StudioPortraitAiService, parsePortraitAi } from './studio-portrait-ai.service.js';
-import { StudioPublishService } from './studio-publish.service.js';
-import { StudioTestService } from './studio-test.service.js';
-import { StudioService } from './studio.service.js';
+import { parsePortrait } from '../portrait/portrait.js';
+import { StudioDraftService } from '../draft/studio-draft.service.js';
+import { StudioPortraitAiService, parsePortraitAi } from '../portrait/studio-portrait-ai.service.js';
+import { StudioPublishService } from '../publish/studio-publish.service.js';
+import { StudioTestService } from '../trial/studio-test.service.js';
+import { StudioService } from '../draft/studio.service.js';
 
 // 캐릭터 공방 (기획서 §6). 초안 만들기·고치기·발행은 로그인한 누구나 (공개 범위는 주인이 고른다)
 @Controller('studio/characters')
