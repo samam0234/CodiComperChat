@@ -114,8 +114,8 @@ export function buildContextSlice(
 
 ${questNote}` : directorNote,
     sceneNote: questNote && isRewardNote(questNote) ? questNote : null,
-    // 최근 12턴 안에 다 들어가는 대화에서는 요약이 중복이라 싣지 않는다
-    storySoFar: story?.brief && history.length > PROMPT_TURNS ? story.brief : null,
+    // 저장한 대화를 다시 열면 최근 턴이 적어도 이전 세션의 요약이 필요하다.
+    storySoFar: story?.brief || null,
     userPersona: persona,
     addressOverride: nickname,
     extras,

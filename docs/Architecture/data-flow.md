@@ -1,6 +1,10 @@
 # 데이터 흐름
 
-정본: `CodiComperChat_project_plan.md` §7.6, §13.4. 최종 갱신 2026-11-08. 요청/응답 흐름 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md)에 있다 — 이 문서는 상태(State) 관점에서 같은 흐름을 본다. 2026-10-24의 흐름은 그대로이고, 그 뒤에 직접 적은 기억과 때·곳이 상태에 더해졌다.
+정본은 `CodiComperChat_project_plan.md` §7.6, §13.4다. 최종 갱신 2026-11-12. 요청/응답 흐름 다이어그램은 [../WORKFLOW.md](../WORKFLOW.md)에 있다. 직접 적은 기억과 때·곳도 대화 상태에 포함한다.
+
+카드는 90초 준비 캐시를 사용한다. 매 요청에서 현재 대화를 찾고 최근 메시지·관계·이야기 요약·성인 설정을 다시 읽는다. 첫 요청 당시 대화가 없었어도 다음 요청에서 생성된 대화를 사용한다. 벡터 검색·엑스트라·퀘스트 조회는 동시에 진행하고, 검색된 기억은 현재 캠페인의 DB에 남은 내용과 대조한다. 최근 12턴과 함께 이전 세션의 요약도 전달한다.
+
+기본 `gemma4:e4b`의 일반 대화 출력 상한은 첫 답 192토큰, 다음 답 96토큰이다. 응답 시간과 기억 회상 검증은 [대화 지연 실측](../trainings/chat-latency.md)에 기록한다.
 
 ![1:1 대화 한 턴](../.assets/readme/chat-turn.png)
 
@@ -19,7 +23,7 @@ POST /characters/:id/chat {message, personaId, model?}
   ├─ 3. 맥락: 카드 핵심(비밀 제외) + 지식 조각(BM25) + 기억 + 친밀도·복선·요약
   │          + 엑스트라 + 퀘스트 지시(sceneNote) + 성인 여부(매 턴 DB)
   ├─ 4. FastAPI /infer ──▶ 규칙 → 수위 → 나레이션 지시 → 보상 장면 (뒤로 갈수록 강하다)
-  ├─ 5. 개인사를 물은 턴만 /ground-check → 지어냈으면 다시 (최대 2번)
+  ├─ 5. 개인사를 물은 턴만 /ground-check → 지어냈으면 캐릭터의 짧은 되묻기로 교체
   ├─ 6. 저장 (유저 말 + 답). 실패하면 저장 안 하고 reserve를 돌려준다
   └─ 7. 메시지 6개마다 뒤에서: /remember(기억) · /summarize(요약·친밀도·복선·퀘스트 판정)
 
@@ -48,7 +52,7 @@ sequenceDiagram
   Note over B,A: 화면의 1:1 보내기는 이 HTTP가 아니다. live 표와 /ws/chat, FastAPI /infer/stream
   opt 설정에 없는 개인사를 물은 턴
     N->>A: POST /ground-check
-    A-->>N: invented? (지어냈으면 다시, 최대 2번)
+    A-->>N: invented? (지어냈으면 짧은 되묻기로 교체)
   end
   N->>D: 유저 말 + 답 저장
   N-->>W: 답 · 사용량
