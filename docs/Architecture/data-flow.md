@@ -6,6 +6,8 @@
 
 기본 `gemma4:e4b`의 일반 대화 출력 상한은 첫 답 384토큰, 다음 답 320토큰이다. 짧은 2~3문장 지시와 함께 문장을 완결할 여유를 둔다. 응답 시간과 기억 회상 검증은 [대화 지연 실측](../trainings/chat-latency.md)에 기록한다.
 
+기본 대화는 FastAPI NDJSON → Nest → WebSocket의 `delta`를 생성 중에 전달한다. Nest는 UTF-8 디코더로 TCP 조각 경계의 한글을 복원한다. 브라우저는 첫 글자를 즉시 표시하고 남은 조각을 화면 프레임에 맞춰 이어서 보여 준다. `replace`는 대기 글자를 교정문으로 바꾸며 `done`은 남은 글자를 즉시 표시한 뒤 저장된 메시지를 적용한다. 오류 때 예약 표시를 취소한다.
+
 ![1:1 대화 한 턴](../.assets/readme/chat-turn.png)
 
 ![데이터 지도](../.assets/readme/data-map.png)

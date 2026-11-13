@@ -136,8 +136,10 @@ function readAiStream(path: string, payload: unknown, onDelta: (text: string) =>
           });
           return;
         }
-        res.on('data', (c: Buffer) => {
-          buffer = pushNdjson(buffer, c.toString('utf8'), (line) => {
+        // UTF-8 문자가 TCP 조각 사이에 걸려도 완성된 문자로 전달한다.
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => {
+          buffer = pushNdjson(buffer, chunk, (line) => {
             let parsed: ReturnType<typeof readStreamLine>;
             try {
               parsed = readStreamLine(line);
