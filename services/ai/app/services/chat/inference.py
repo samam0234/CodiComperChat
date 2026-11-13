@@ -8,8 +8,8 @@ from app.modules.runtime.korean import josa, polish
 from app.modules.runtime.minors import minor_in
 
 # 기본 e4b 대화의 출력 예산. 벽시계 목표는 evals.chat_latency로 별도 검증한다.
-OPEN_OUTPUT_TOKENS = 192
-NEXT_OUTPUT_TOKENS = 96
+OPEN_OUTPUT_TOKENS = 384
+NEXT_OUTPUT_TOKENS = 320
 
 # 오퍼레이션 · 메시지: 대화 장면이 아니라 휴대폰 메신저로 주고받는 문자
 MESSAGE_STYLE = """지금은 장면 속 대화가 아니라 휴대폰 메신저로 주고받는 문자다. 위의 "2~3문장" 대신 아래를 따른다.

@@ -30,6 +30,7 @@ def cases():
         ("opening", opening, []),
         ("memory", InferRequest(context=memory, user_turn="우리 만나기로 한 곳과 시간을 기억해요? 고양이 이름도요."), ["금요일", "수선화", "보리"]),
         ("followup", InferRequest(context=memory, user_turn="보리가 요즘 창가에서 낮잠을 자요."), []),
+        ("scene", InferRequest(context=memory, user_turn="(카페 문을 닫고 서점 앞에 도착했다) 약속 기억해 줘서 고마워요. 지금 기분과 다음에 하고 싶은 일을 말해 줘요."), []),
     ]
 
 

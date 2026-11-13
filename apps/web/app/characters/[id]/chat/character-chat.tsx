@@ -8,6 +8,7 @@ import ChatInput from "@/components/chat-input";
 import ChatText from "@/components/chat-text";
 import ChoiceDialog from "@/components/choice-dialog";
 import { josa } from "@/lib/korean-josa";
+import { liveText } from "@/lib/live-text";
 import type { ModelOption } from "@/lib/models";
 import ChatMenu from "./chat-menu";
 import ExtrasPanel from "./extras-panel";
@@ -558,11 +559,17 @@ export default function CharacterChat({
 
       await new Promise<void>((resolve, reject) => {
         const ws = new WebSocket(openedBody.wsUrl);
+        const output = liveText(
+          (text) => setMessages((prev) => prev.map((m) => (m.id === openedId ? { ...m, text } : m))),
+          (callback) => requestAnimationFrame(callback),
+          (id) => cancelAnimationFrame(id),
+        );
         let settled = false;
         let gotDone = false;
         const finish = (fn: () => void) => {
           if (settled) return;
           settled = true;
+          output.dispose();
           fn();
         };
         ws.onopen = () => ws.send(JSON.stringify({ ticket: openedBody.ticket }));
@@ -579,11 +586,12 @@ export default function CharacterChat({
             credits?: { balance: number } | null;
           };
           if (data.type === "delta" && data.text) {
-            setMessages((prev) => prev.map((m) => (m.id === replyId ? { ...m, text: m.text + data.text } : m)));
+            output.append(data.text);
           } else if (data.type === "replace" && typeof data.text === "string") {
-            setMessages((prev) => prev.map((m) => (m.id === replyId ? { ...m, text: data.text ?? "" } : m)));
+            output.replace(data.text);
           } else if (data.type === "done") {
             gotDone = true;
+            output.finish();
             applyDone(data);
             finish(resolve);
           } else if (data.type === "error") {
