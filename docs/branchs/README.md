@@ -558,5 +558,6 @@ flowchart LR
 | 2026-11-13 | `28eb17b` | feature/complete-chat-sentences | 기본 대화 문장 완결을 위한 출력 여유 확보 | [261113_1053_28eb17b_complete-chat-sentences_feature-complete-chat-sentences.md](commits/261113_1053_28eb17b_complete-chat-sentences_feature-complete-chat-sentences.md) |
 | 2026-11-13 | `5bc7fbb` | feature/complete-chat-sentences | 생성 중 글자 표시와 한글 스트림 수신 개선 | [261113_1100_5bc7fbb_live-character-output_feature-complete-chat-sentences.md](commits/261113_1100_5bc7fbb_live-character-output_feature-complete-chat-sentences.md) |
 | 2026-11-13 | `cc401fa` | develop (merge) | 문장 완결과 실시간 글자 표시를 develop에 병합 | [261113_1101_cc401fa_merge-live-sentences-develop_develop.md](commits/261113_1101_cc401fa_merge-live-sentences-develop_develop.md) |
+| 2026-11-13 | `5434fb6` | main (merge) | 문장 완결과 실시간 글자 표시를 main에 병합 | [261113_1101_5434fb6_merge-live-sentences-main_main.md](commits/261113_1101_5434fb6_merge-live-sentences-main_main.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.
