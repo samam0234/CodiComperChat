@@ -555,5 +555,7 @@ flowchart LR
 | 2026-11-13 | `4a937bb` | feature/chat-refresh-and-cpu-prefill | 대화 줄 메뉴에 새로 고침을 넣고 CPU 예비 프롬프트를 줄이다 | [261113_0057_4a937bb_chat-refresh-and-cpu-prefill_feature-chat-refresh-and-cpu-prefill.md](commits/261113_0057_4a937bb_chat-refresh-and-cpu-prefill_feature-chat-refresh-and-cpu-prefill.md) |
 | 2026-11-13 | `a78ac26` | develop (merge) | 대화 새로 고침과 CPU 예비 축소를 develop에 병합 | [261113_0057_a78ac26_chat-refresh-into-develop_develop.md](commits/261113_0057_a78ac26_chat-refresh-into-develop_develop.md) |
 | 2026-11-13 | `aa3908b` | main (merge) | 대화 새로 고침과 CPU 예비 축소를 main에 병합 | [261113_0058_aa3908b_chat-refresh-into-main_main.md](commits/261113_0058_aa3908b_chat-refresh-into-main_main.md) |
+| 2026-11-13 | `28eb17b` | feature/complete-chat-sentences | 기본 대화 문장 완결을 위한 출력 여유 확보 | [261113_1053_28eb17b_complete-chat-sentences_feature-complete-chat-sentences.md](commits/261113_1053_28eb17b_complete-chat-sentences_feature-complete-chat-sentences.md) |
+| 2026-11-13 | `5bc7fbb` | feature/complete-chat-sentences | 생성 중 글자 표시와 한글 스트림 수신 개선 | [261113_1100_5bc7fbb_live-character-output_feature-complete-chat-sentences.md](commits/261113_1100_5bc7fbb_live-character-output_feature-complete-chat-sentences.md) |
 
 새 커밋 기록 md를 `commits/`에 추가할 때마다 이 표에도 한 줄씩 추가한다.

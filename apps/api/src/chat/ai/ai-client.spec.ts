@@ -1,7 +1,7 @@
 import { GatewayTimeoutException, HttpException } from '@nestjs/common';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { postToAi, timeoutFromEnv } from './ai-client.js';
+import { postToAi, streamFromAi, timeoutFromEnv } from './ai-client.js';
 
 // 가짜 AI 서비스: 경로별로 늦게·실패로 답한다
 let server: http.Server;
@@ -12,6 +12,17 @@ beforeAll(async () => {
     let raw = '';
     req.on('data', (c) => (raw += c));
     req.on('end', async () => {
+      if (req.url === '/stream') {
+        res.writeHead(200, { 'Content-Type': 'application/x-ndjson' });
+        const delta = Buffer.from(JSON.stringify({ delta: '안녕🙂' }) + '\n');
+        const split = delta.indexOf(Buffer.from('안')) + 1;
+        res.write(delta.subarray(0, split));
+        await sleep(10);
+        res.write(delta.subarray(split));
+        await sleep(50);
+        res.end(JSON.stringify({ done: true, reply: '안녕🙂' }) + '\n');
+        return;
+      }
       if (req.url === '/slow') await sleep(300);
       if (req.url === '/fail') {
         res.writeHead(502, { 'Content-Type': 'application/json' });
@@ -32,6 +43,18 @@ afterAll(() => {
 });
 
 describe('AI 호출 (node:http)', () => {
+  it('나뉜 한글 바이트를 복원하고 완료 전부터 조각을 전달한다', async () => {
+    const pieces: string[] = [];
+    let receive!: () => void;
+    const first = new Promise<void>((resolve) => { receive = resolve; });
+    const pending = streamFromAi('/stream', {}, (piece) => {
+      pieces.push(piece);
+      receive();
+    });
+    await first;
+    expect(pieces).toEqual(['안녕🙂']);
+    await expect(pending).resolves.toEqual({ reply: '안녕🙂', shown: '안녕🙂' });
+  });
   it('JSON을 보내고 받는다 (토큰 헤더 포함)', async () => {
     process.env.AI_SERVICE_TOKEN = 't'.repeat(32);
     const out = await postToAi<{ echo: { a: string }; token: string }>('/ok', { a: '안녕' });

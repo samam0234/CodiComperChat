@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest import mock
 
@@ -10,9 +11,9 @@ from evals import fixture
 class ChatLatencyTest(unittest.TestCase):
     def test_basic_opening_and_followup_budgets(self):
         request = InferRequest(context=fixture.context(), user_turn="안녕하세요.")
-        self.assertEqual(inference.output_budget(request), 192)
+        self.assertEqual(inference.output_budget(request), 384)
         request.context.recent_turns = [Turn(role="user", text="안녕"), Turn(role="character", text="어서 오세요.")]
-        self.assertEqual(inference.output_budget(request), 96)
+        self.assertEqual(inference.output_budget(request), 320)
 
     def test_external_and_adult_budgets(self):
         request = InferRequest(context=fixture.context(), user_turn="안녕하세요.", provider="anthropic")
@@ -36,5 +37,14 @@ class ChatLatencyTest(unittest.TestCase):
             inference.run(request)
         with mock.patch.object(inference.llm, "iter_generate", return_value=iter(["안녕하세요."])) as stream:
             list(inference.iter_ndjson(request))
-        self.assertEqual(generate.call_args.kwargs["max_output_tokens"], 192)
-        self.assertEqual(stream.call_args.kwargs["max_output_tokens"], 192)
+        self.assertEqual(generate.call_args.kwargs["max_output_tokens"], 384)
+        self.assertEqual(stream.call_args.kwargs["max_output_tokens"], 384)
+
+    def test_stream_final_reply_preserves_complete_dialogue(self):
+        request = InferRequest(context=fixture.context(), user_turn="안녕하세요.")
+        answer = '*살짝 웃으며* "어서 오세요. 따뜻한 커피 한 잔 드릴까요?"'
+        with mock.patch.object(inference.llm, "iter_generate", return_value=iter(answer)):
+            events = [json.loads(line) for line in inference.iter_ndjson(request)]
+        self.assertEqual(''.join(event.get('delta', '') for event in events), answer)
+        self.assertEqual(events[-1]['reply'], answer)
+        self.assertTrue(events[-1]['done'])
